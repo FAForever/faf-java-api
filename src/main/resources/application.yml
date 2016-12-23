@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: FAF Java API Prototype
+  mvc:
+    favicon:
+      enabled: false
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      connection-test-query: SELECT 1 FROM DUAL
+      minimum-idle: 2
+      maximum-pool-size: 8
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
+        dialect: org.hibernate.dialect.MySQL5Dialect
+
+  profiles:
+    active: ${API_PROFILE:dev}
+
+server:
+  port: 8080
+
+security:
+  basic:
+    enabled: true
+    realm: ${spring.application.name}
+  enable-csrf: true

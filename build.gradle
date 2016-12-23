@@ -1,0 +1,139 @@
+buildscript {
+  repositories {
+    jcenter()
+    mavenCentral()
+    maven { url 'http://repo.spring.io/plugins-release' }
+  }
+  dependencies {
+    classpath("com.bmuschko:gradle-docker-plugin:${gradleDockerVersion}")
+    classpath("org.springframework.build.gradle:propdeps-plugin:${propdepsVersion}")
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    classpath("org.kt3k.gradle.plugin:coveralls-gradle-plugin:${coverallsGradlePluginVersion}")
+  }
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'propdeps'
+
+group = 'micheljung'
+version = '0.1.1-SNAPSHOT'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+  mavenCentral()
+}
+
+compileJava.dependsOn(processResources)
+task wrapper(type: Wrapper) {
+  gradleVersion = '3.2.1'
+}
+
+configurations {
+  compile.exclude module: "spring-boot-starter-tomcat"
+  compile.exclude module: "tomcat-jdbc"
+}
+
+
+// JACOCO & COVERALLS
+
+apply plugin: 'jacoco'
+apply plugin: 'com.github.kt3k.coveralls'
+jacocoTestReport {
+  reports {
+    xml.enabled = true
+  }
+}
+
+// DOCKER
+
+apply plugin: 'com.bmuschko.docker-remote-api'
+apply plugin: 'application'
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
+
+applicationName = rootProject.name
+docker {
+  if (project.hasProperty('dockerHost')) {
+    url = dockerHost
+  }
+
+  registryCredentials {
+    if (project.hasProperty('dockerUsername') && project.hasProperty('dockerPassword')) {
+      username = dockerUsername
+      password = dockerPassword
+    }
+  }
+}
+
+task dockerCopyDistResources(type: Copy, dependsOn: distTar) {
+  group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
+  description = "Copies the distribution resources to a temporary directory for image creation."
+
+  from { distTar.archivePath }
+  from 'src/main/docker/default-cmd.sh'
+  into { createDockerfile.destFile.parentFile }
+}
+
+task createDockerfile(type: Dockerfile, dependsOn: dockerCopyDistResources) {
+  group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
+  destFile = file("${buildDir}/docker/Dockerfile")
+  from 'frolvlad/alpine-oraclejdk8:slim'
+  maintainer 'Michel Jung "michel.jung89@gmail.com"'
+
+  environmentVariable 'user', 'root'
+
+  user '${user}'
+
+  volume '/tmp'
+  addFile 'default-cmd.sh', 'default-cmd.sh'
+  addFile({ distTar.archivePath.name }, { '/' })
+
+  runCommand 'chmod +x default-cmd.sh'
+
+  exposePort 8080
+
+  defaultCommand './default-cmd.sh', "/${project.name}-${project.version}/bin/${project.name}"
+}
+
+task buildDockerImage(type: DockerBuildImage, dependsOn: createDockerfile) {
+  inputDir file(createDockerfile.destFile.parentFile)
+  tag "${project.group}/${rootProject.name}:${project.version}"
+}
+
+task pushDockerImage(type: DockerPushImage, dependsOn: buildDockerImage) {
+  imageName "${project.group}/${rootProject.name}"
+  tag project.version
+}
+
+dependencies {
+  compile("org.springframework.boot:spring-boot-starter-actuator")
+  compile("org.springframework.boot:spring-boot-starter-jdbc")
+  compile("org.springframework.boot:spring-boot-starter-data-jpa")
+  compile("org.springframework.boot:spring-boot-starter-web")
+  compile("org.springframework.boot:spring-boot-starter-jetty")
+  compile("org.springframework.boot:spring-boot-starter-security")
+
+  compile("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
+  compile("org.springframework.security.oauth:spring-security-oauth2:${springSecurityOauth2Version}")
+
+  compile("io.springfox:springfox-swagger-ui:${swaggerVersion}")
+  compile("io.springfox:springfox-swagger2:${swaggerVersion}")
+  compile("javax.inject:javax.inject:${javaxInjectVersion}")
+  compile("com.yahoo.elide:elide-datastore-hibernate5:${elideHibernateVersion}")
+  compile("io.jsonwebtoken:jjwt:${jjwtVersion}")
+  compile("com.zaxxer:HikariCP:${hikariCpVersion}") {
+    exclude(module: 'tools')
+  }
+
+  runtime("mysql:mysql-connector-java:${mysqlConnectorVersion}")
+
+  optional("org.springframework.boot:spring-boot-configuration-processor")
+
+  testCompile("org.springframework.boot:spring-boot-starter-test")
+  testCompile("org.springframework.restdocs:spring-restdocs-mockmvc")
+}
