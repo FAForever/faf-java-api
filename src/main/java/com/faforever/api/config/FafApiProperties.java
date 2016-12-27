@@ -32,6 +32,7 @@ public class FafApiProperties {
    * The secret used for JWT token generation.
    */
   private String jwtSecret = "banana";
+  private String version = "dev";
   private Jwt jwt = new Jwt();
   private OAuth2 oAuth2 = new OAuth2();
   private Async async = new Async();

@@ -1,3 +1,6 @@
+faf-api:
+  version: #faf-api.version#
+
 spring:
   application:
     name: FAF Java API Prototype
