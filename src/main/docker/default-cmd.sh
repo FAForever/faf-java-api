@@ -1,11 +1,6 @@
 #!/bin/sh
 set -eo pipefail
 
-DEFAULT_ADDRESS="localhost:3306"
-DEFAULT_name="faf_test"
-DEFAULT_USERNAME="root"
-DEFAULT_PASSWORD="banana"
-
 if [ -z "${DATABASE_ADDRESS}" ] \
       || [ -z "${DATABASE_NAME}" ] \
       || [ -z "${DATABASE_USERNAME}" ] \
@@ -19,8 +14,8 @@ if [ -z "${DATABASE_ADDRESS}" ] \
   DATABASE_PASSWORD
   JWT_SECRET
 
+Please specify them before starting the container, preferably in a environment file.
 "
-    echo "Aborting"
     exit 1
 fi
 
