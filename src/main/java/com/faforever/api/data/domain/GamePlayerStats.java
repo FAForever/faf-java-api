@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
+import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -15,10 +16,11 @@ import java.util.Objects;
 @Entity
 @Table(name = "game_player_stats")
 @Include(rootLevel = true, type = "game_player_stats")
-public class GamePlayerStatsEntity {
+@Immutable
+public class GamePlayerStats {
 
   private long id;
-  private PlayerEntity player;
+  private Player player;
   private byte ai;
   private byte faction;
   private byte color;
@@ -30,7 +32,7 @@ public class GamePlayerStatsEntity {
   private Double afterDeviation;
   private byte score;
   private Timestamp scoreTime;
-  private ReplayEntity replay;
+  private Replay replay;
 
   @Id
   @Column(name = "id")
@@ -44,11 +46,11 @@ public class GamePlayerStatsEntity {
 
   @ManyToOne
   @JoinColumn(name = "playerId")
-  public PlayerEntity getPlayer() {
+  public Player getPlayer() {
     return player;
   }
 
-  public void setPlayer(PlayerEntity player) {
+  public void setPlayer(Player player) {
     this.player = player;
   }
 
@@ -164,11 +166,11 @@ public class GamePlayerStatsEntity {
 
   @ManyToOne
   @JoinColumn(name = "gameId")
-  public ReplayEntity getReplay() {
+  public Replay getReplay() {
     return replay;
   }
 
-  public void setReplay(ReplayEntity replay) {
+  public void setReplay(Replay replay) {
     this.replay = replay;
   }
 
@@ -185,7 +187,7 @@ public class GamePlayerStatsEntity {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    GamePlayerStatsEntity that = (GamePlayerStatsEntity) o;
+    GamePlayerStats that = (GamePlayerStats) o;
     return id == that.id &&
         ai == that.ai &&
         faction == that.faction &&

@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
+import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -13,7 +14,8 @@ import java.util.Objects;
 @Entity
 @Table(name = "map")
 @Include(rootLevel = true, type = "map")
-public class MapEntity {
+@Immutable
+public class Map {
 
   private Integer id;
   private String displayName;
@@ -95,12 +97,12 @@ public class MapEntity {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    MapEntity mapEntity = (MapEntity) o;
-    return Objects.equals(id, mapEntity.id) &&
-        Objects.equals(displayName, mapEntity.displayName) &&
-        Objects.equals(mapType, mapEntity.mapType) &&
-        Objects.equals(battleType, mapEntity.battleType) &&
-        Objects.equals(createTime, mapEntity.createTime) &&
-        Objects.equals(updateTime, mapEntity.updateTime);
+    Map map = (Map) o;
+    return Objects.equals(id, map.id) &&
+        Objects.equals(displayName, map.displayName) &&
+        Objects.equals(mapType, map.mapType) &&
+        Objects.equals(battleType, map.battleType) &&
+        Objects.equals(createTime, map.createTime) &&
+        Objects.equals(updateTime, map.updateTime);
   }
 }

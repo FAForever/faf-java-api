@@ -12,7 +12,7 @@ import java.util.Map;
 @RestController
 public class SecureController {
 
-  @RequestMapping(method = RequestMethod.GET, value = "/api/me")
+  @RequestMapping(method = RequestMethod.GET, value = "/me")
   @ApiOperation(value = "Returns the authentication object of the current user")
   public Map<String, Object> me(Authentication authentication) {
     Map<String, Object> result = new HashMap<>();

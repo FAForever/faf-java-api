@@ -5,23 +5,25 @@ import com.yahoo.elide.annotation.Include;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
-@Table(name = "map_version")
-@Include(rootLevel = true, type = "map_version")
-public class MapVersionEntity {
+@Table(name = "mod_version")
+@Include(rootLevel = true, type = "mod_version")
+public class ModVersion {
 
   private Integer id;
+  private String uid;
+  private ModType type;
   private String description;
-  private Integer maxPlayers;
-  private int width;
-  private int height;
-  private int version;
+  private short version;
   private String filename;
+  private String icon;
   private byte ranked;
   private byte hidden;
   private Timestamp createTime;
@@ -38,6 +40,26 @@ public class MapVersionEntity {
   }
 
   @Basic
+  @Column(name = "uid")
+  public String getUid() {
+    return uid;
+  }
+
+  public void setUid(String uid) {
+    this.uid = uid;
+  }
+
+  @Column(name = "type")
+  @Enumerated(EnumType.STRING)
+  public ModType getType() {
+    return type;
+  }
+
+  public void setType(ModType type) {
+    this.type = type;
+  }
+
+  @Basic
   @Column(name = "description")
   public String getDescription() {
     return description;
@@ -48,42 +70,12 @@ public class MapVersionEntity {
   }
 
   @Basic
-  @Column(name = "max_players")
-  public Integer getMaxPlayers() {
-    return maxPlayers;
-  }
-
-  public void setMaxPlayers(Integer maxPlayers) {
-    this.maxPlayers = maxPlayers;
-  }
-
-  @Basic
-  @Column(name = "width")
-  public int getWidth() {
-    return width;
-  }
-
-  public void setWidth(int width) {
-    this.width = width;
-  }
-
-  @Basic
-  @Column(name = "height")
-  public int getHeight() {
-    return height;
-  }
-
-  public void setHeight(int height) {
-    this.height = height;
-  }
-
-  @Basic
   @Column(name = "version")
-  public int getVersion() {
+  public short getVersion() {
     return version;
   }
 
-  public void setVersion(int version) {
+  public void setVersion(short version) {
     this.version = version;
   }
 
@@ -95,6 +87,16 @@ public class MapVersionEntity {
 
   public void setFilename(String filename) {
     this.filename = filename;
+  }
+
+  @Basic
+  @Column(name = "icon")
+  public String getIcon() {
+    return icon;
+  }
+
+  public void setIcon(String icon) {
+    this.icon = icon;
   }
 
   @Basic
@@ -139,7 +141,7 @@ public class MapVersionEntity {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, description, maxPlayers, width, height, version, filename, ranked, hidden, createTime, updateTime);
+    return Objects.hash(id, uid, type, description, version, filename, icon, ranked, hidden, createTime, updateTime);
   }
 
   @Override
@@ -150,16 +152,16 @@ public class MapVersionEntity {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    MapVersionEntity that = (MapVersionEntity) o;
-    return width == that.width &&
-        height == that.height &&
-        version == that.version &&
+    ModVersion that = (ModVersion) o;
+    return version == that.version &&
         ranked == that.ranked &&
         hidden == that.hidden &&
         Objects.equals(id, that.id) &&
+        Objects.equals(uid, that.uid) &&
+        Objects.equals(type, that.type) &&
         Objects.equals(description, that.description) &&
-        Objects.equals(maxPlayers, that.maxPlayers) &&
         Objects.equals(filename, that.filename) &&
+        Objects.equals(icon, that.icon) &&
         Objects.equals(createTime, that.createTime) &&
         Objects.equals(updateTime, that.updateTime);
   }

@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
+import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -11,55 +12,45 @@ import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
-@Table(name = "player_events")
-@Include(rootLevel = true, type = "player_event")
-public class PlayerEventEntity {
+@Table(name = "\"mod\"")
+@Include(rootLevel = true, type = "mod")
+@Immutable
+public class Mod {
 
-  private int id;
-  private int playerId;
-  private String eventId;
-  private int count;
+  private Integer id;
+  private String displayName;
+  private String author;
   private Timestamp createTime;
   private Timestamp updateTime;
 
   @Id
   @Column(name = "id")
-  public int getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(int id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
   @Basic
-  @Column(name = "player_id")
-  public int getPlayerId() {
-    return playerId;
+  @Column(name = "display_name")
+  public String getDisplayName() {
+    return displayName;
   }
 
-  public void setPlayerId(int playerId) {
-    this.playerId = playerId;
-  }
-
-  @Basic
-  @Column(name = "event_id")
-  public String getEventId() {
-    return eventId;
-  }
-
-  public void setEventId(String eventId) {
-    this.eventId = eventId;
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
   }
 
   @Basic
-  @Column(name = "count")
-  public int getCount() {
-    return count;
+  @Column(name = "author")
+  public String getAuthor() {
+    return author;
   }
 
-  public void setCount(int count) {
-    this.count = count;
+  public void setAuthor(String author) {
+    this.author = author;
   }
 
   @Basic
@@ -84,7 +75,7 @@ public class PlayerEventEntity {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, playerId, eventId, count, createTime, updateTime);
+    return Objects.hash(id, displayName, author, createTime, updateTime);
   }
 
   @Override
@@ -95,12 +86,11 @@ public class PlayerEventEntity {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PlayerEventEntity that = (PlayerEventEntity) o;
-    return id == that.id &&
-        playerId == that.playerId &&
-        count == that.count &&
-        Objects.equals(eventId, that.eventId) &&
-        Objects.equals(createTime, that.createTime) &&
-        Objects.equals(updateTime, that.updateTime);
+    Mod mod = (Mod) o;
+    return Objects.equals(id, mod.id) &&
+        Objects.equals(displayName, mod.displayName) &&
+        Objects.equals(author, mod.author) &&
+        Objects.equals(createTime, mod.createTime) &&
+        Objects.equals(updateTime, mod.updateTime);
   }
 }

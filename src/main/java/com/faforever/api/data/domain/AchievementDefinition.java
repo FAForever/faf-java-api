@@ -15,7 +15,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "achievement_definitions")
 @Include(rootLevel = true, type = "achievement_definition")
-public class AchievementDefinitionEntity {
+public class AchievementDefinition {
 
   private String id;
   private int order;
@@ -165,7 +165,7 @@ public class AchievementDefinitionEntity {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    AchievementDefinitionEntity that = (AchievementDefinitionEntity) o;
+    AchievementDefinition that = (AchievementDefinition) o;
     return order == that.order &&
         experiencePoints == that.experiencePoints &&
         Objects.equals(id, that.id) &&

@@ -12,7 +12,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "avatars_list")
 @Include(rootLevel = true, type = "avatar")
-public class AvatarEntity {
+public class Avatar {
 
   private int id;
   private String url;
@@ -61,7 +61,7 @@ public class AvatarEntity {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    AvatarEntity that = (AvatarEntity) o;
+    Avatar that = (Avatar) o;
     return id == that.id &&
         Objects.equals(url, that.url) &&
         Objects.equals(tooltip, that.tooltip);

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/maps")
 public class MapsController {
 
-  @ApiOperation("Upload map")
+  @ApiOperation("Uploads a map")
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "Success", response = Void.class),
       @ApiResponse(code = 401, message = "Unauthorized"),

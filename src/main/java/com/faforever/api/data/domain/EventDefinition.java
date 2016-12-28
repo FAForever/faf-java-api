@@ -14,7 +14,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "event_definitions")
 @Include(rootLevel = true, type = "event_definition")
-public class EventDefinitionEntity {
+public class EventDefinition {
 
   public enum Type {
     NUMERIC, TIME;
@@ -79,7 +79,7 @@ public class EventDefinitionEntity {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    EventDefinitionEntity that = (EventDefinitionEntity) o;
+    EventDefinition that = (EventDefinition) o;
     return Objects.equals(id, that.id) &&
         Objects.equals(nameKey, that.nameKey) &&
         Objects.equals(imageUrl, that.imageUrl) &&

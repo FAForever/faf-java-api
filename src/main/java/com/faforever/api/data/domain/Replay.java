@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
+import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -17,17 +18,18 @@ import java.util.Objects;
 @Entity
 @Table(name = "game_stats")
 @Include(rootLevel = true, type = "replay")
-public class ReplayEntity {
+@Immutable
+public class Replay {
 
   private int id;
   private Timestamp startTime;
   private VictoryCondition victoryCondition;
   private byte gameMod;
-  private PlayerEntity host;
-  private MapVersionEntity map;
+  private Player host;
+  private MapVersion map;
   private String gameName;
   private byte validity;
-  private List<GamePlayerStatsEntity> playerStats;
+  private List<GamePlayerStats> playerStats;
 
   @Id
   @Column(name = "id")
@@ -71,21 +73,21 @@ public class ReplayEntity {
 
   @ManyToOne
   @JoinColumn(name = "host")
-  public PlayerEntity getHost() {
+  public Player getHost() {
     return host;
   }
 
-  public void setHost(PlayerEntity host) {
+  public void setHost(Player host) {
     this.host = host;
   }
 
   @ManyToOne
   @JoinColumn(name = "mapId")
-  public MapVersionEntity getMap() {
+  public MapVersion getMap() {
     return map;
   }
 
-  public void setMap(MapVersionEntity map) {
+  public void setMap(MapVersion map) {
     this.map = map;
   }
 
@@ -110,11 +112,11 @@ public class ReplayEntity {
   }
 
   @OneToMany(mappedBy = "replay")
-  public List<GamePlayerStatsEntity> getPlayerStats() {
+  public List<GamePlayerStats> getPlayerStats() {
     return playerStats;
   }
 
-  public void setPlayerStats(List<GamePlayerStatsEntity> playerStats) {
+  public void setPlayerStats(List<GamePlayerStats> playerStats) {
     this.playerStats = playerStats;
   }
 
@@ -131,7 +133,7 @@ public class ReplayEntity {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ReplayEntity that = (ReplayEntity) o;
+    Replay that = (Replay) o;
     return id == that.id &&
         gameMod == that.gameMod &&
         validity == that.validity &&

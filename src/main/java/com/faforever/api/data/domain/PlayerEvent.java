@@ -5,21 +5,22 @@ import com.yahoo.elide.annotation.Include;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
-@Table(name = "player_achievements")
-@Include(rootLevel = true, type = "player_achievement")
-public class PlayerAchievementEntity {
+@Table(name = "player_events")
+@Include(rootLevel = true, type = "player_event")
+public class PlayerEvent {
 
   private int id;
-  private Integer currentSteps;
-  private AchievementState state;
+  private int playerId;
+  private EventDefinition eventDefinition;
+  private int count;
   private Timestamp createTime;
   private Timestamp updateTime;
 
@@ -34,24 +35,33 @@ public class PlayerAchievementEntity {
   }
 
   @Basic
-  @Column(name = "current_steps")
-  public Integer getCurrentSteps() {
-    return currentSteps;
+  @Column(name = "player_id")
+  public int getPlayerId() {
+    return playerId;
   }
 
-  public void setCurrentSteps(Integer currentSteps) {
-    this.currentSteps = currentSteps;
+  public void setPlayerId(int playerId) {
+    this.playerId = playerId;
+  }
+
+  @ManyToOne
+  @JoinColumn(name = "event_id", updatable = false, insertable = false)
+  public EventDefinition getEventDefinition() {
+    return eventDefinition;
+  }
+
+  public void setEventDefinition(EventDefinition eventDefinition) {
+    this.eventDefinition = eventDefinition;
   }
 
   @Basic
-  @Column(name = "state")
-  @Enumerated(EnumType.STRING)
-  public AchievementState getState() {
-    return state;
+  @Column(name = "count")
+  public int getCount() {
+    return count;
   }
 
-  public void setState(AchievementState state) {
-    this.state = state;
+  public void setCount(int count) {
+    this.count = count;
   }
 
   @Basic
@@ -76,7 +86,7 @@ public class PlayerAchievementEntity {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, currentSteps, state, createTime, updateTime);
+    return Objects.hash(id, playerId, eventDefinition, count, createTime, updateTime);
   }
 
   @Override
@@ -87,10 +97,11 @@ public class PlayerAchievementEntity {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PlayerAchievementEntity that = (PlayerAchievementEntity) o;
+    PlayerEvent that = (PlayerEvent) o;
     return id == that.id &&
-        Objects.equals(currentSteps, that.currentSteps) &&
-        Objects.equals(state, that.state) &&
+        playerId == that.playerId &&
+        count == that.count &&
+        Objects.equals(eventDefinition, that.eventDefinition) &&
         Objects.equals(createTime, that.createTime) &&
         Objects.equals(updateTime, that.updateTime);
   }
