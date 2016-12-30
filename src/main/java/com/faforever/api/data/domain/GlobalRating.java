@@ -1,15 +1,19 @@
 package com.faforever.api.data.domain;
 
+import com.yahoo.elide.annotation.Include;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.Objects;
 
 @Entity
 @Table(name = "global_rating")
+@Include(rootLevel = true, type = "global_rating")
 public class GlobalRating {
 
   private int id;
@@ -70,6 +74,7 @@ public class GlobalRating {
   }
 
   @OneToOne
+  @JoinColumn(name = "id", updatable = false, insertable = false)
   public Player getPlayer() {
     return player;
   }
