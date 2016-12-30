@@ -9,8 +9,7 @@ git:
 
 install:
   - git clone https://github.com/FAForever/db.git
-  - docker build -t faf-db db
-  - docker run -d -p 3306 faf-db
+  - pushd db && ./setup_db.sh && popd
 
 script:
   - chmod +x gradlew && ./gradlew build
