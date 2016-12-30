@@ -37,7 +37,7 @@ public class JsonApiController {
     return elide.get(
         getJsonApiPath(request),
         new MultivaluedHashMap<>(allRequestParams),
-        authentication.getPrincipal()
+        authentication != null ? authentication.getPrincipal() : null
     ).getBody();
   }
 

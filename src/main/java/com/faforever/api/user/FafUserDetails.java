@@ -2,6 +2,7 @@ package com.faforever.api.user;
 
 import com.faforever.api.data.domain.User;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
@@ -9,12 +10,13 @@ import java.util.Collection;
 
 public class FafUserDetails implements UserDetails {
 
-  private final Collection<? extends GrantedAuthority> authorities;
+  private final Collection<GrantedAuthority> authorities;
   private User user;
 
   public FafUserDetails(User user) {
     this.user = user;
     authorities = new ArrayList<>();
+    authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
   }
 
   @Override
