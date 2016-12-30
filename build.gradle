@@ -112,7 +112,10 @@ task buildDockerImage(type: DockerBuildImage, dependsOn: createDockerfile) {
   tag "${project.group}/${rootProject.name}:${project.version}"
 }
 
-task pushDockerImage(type: DockerPushImage, dependsOn: buildDockerImage) {
+task pushDockerImageVersion(type: DockerPushImage, dependsOn: buildDockerImage) {
+  group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
+  description = "Publishes the created docker image tagged with the project's version."
+
   imageName "${project.group}/${rootProject.name}"
   tag project.version
 }
