@@ -19,5 +19,5 @@ script:
 
 after_success:
   - if [ "${TRAVIS_BRANCH}" == "master" ]; then
-      ./gradlew jacocoTestReport coveralls pushDockerImageVersion pushDockerImageLatest;
+      ./gradlew jacocoTestReport coveralls pushDockerImage;
     fi
