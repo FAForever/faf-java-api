@@ -15,7 +15,7 @@ install:
   - pushd db && ./setup_db.sh && popd
 
 script:
-  - chmod +x gradlew && ./gradlew build
+  - chmod +x gradlew && ./gradlew build --info
 
 after_success:
   - if [ "${TRAVIS_BRANCH}" == "master" ]; then
