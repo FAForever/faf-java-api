@@ -1,4 +1,4 @@
-package com.faforever.api.clients;
+package com.faforever.api.client;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

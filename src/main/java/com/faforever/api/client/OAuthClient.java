@@ -1,4 +1,4 @@
-package com.faforever.api.clients;
+package com.faforever.api.client;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Basic;

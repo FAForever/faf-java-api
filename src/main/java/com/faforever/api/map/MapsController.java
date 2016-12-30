@@ -1,4 +1,4 @@
-package com.faforever.api.maps;
+package com.faforever.api.map;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
