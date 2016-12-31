@@ -16,7 +16,7 @@ public class IsOwner {
     public boolean ok(Login login, RequestScope requestScope, Optional<ChangeSpec> changeSpec) {
       Object opaqueUser = requestScope.getUser().getOpaqueUser();
       return opaqueUser instanceof FafUserDetails
-          && login.getId().equals(((FafUserDetails) opaqueUser).getId());
+          && login.getId() == ((FafUserDetails) opaqueUser).getId();
     }
 
     @Override
