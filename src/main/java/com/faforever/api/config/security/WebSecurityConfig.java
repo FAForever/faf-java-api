@@ -45,8 +45,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     http.headers().cacheControl().disable();
 
     http.csrf().disable()
-        .authorizeRequests()
+        .formLogin().permitAll()
+        .and().authorizeRequests()
         .antMatchers(HttpMethod.OPTIONS).permitAll()
+        .antMatchers("/health").permitAll()
         // Elide JSON-API
         .antMatchers("/data/**").permitAll()
         // Redirects to Swagger UI
@@ -56,8 +58,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/swagger-resources/**").permitAll()
         .antMatchers("/v2/api-docs/**").permitAll()
         // Require authentication for everything else
-        .antMatchers("/**").authenticated()
-        // ... except the login form
-        .and().formLogin().permitAll();
+        .antMatchers("/**").authenticated();
   }
 }
