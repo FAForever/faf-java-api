@@ -8,13 +8,14 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
 @Table(name = "achievement_definitions")
-@Include(rootLevel = true, type = "achievement_definition")
+@Include(rootLevel = true, type = "achievement")
 public class AchievementDefinition {
 
   private String id;
@@ -29,6 +30,7 @@ public class AchievementDefinition {
   private int experiencePoints;
   private Timestamp createTime;
   private Timestamp updateTime;
+  private AchievementStatistics statistics;
 
   @Id
   @Column(name = "id")
@@ -178,5 +180,14 @@ public class AchievementDefinition {
         Objects.equals(initialState, that.initialState) &&
         Objects.equals(createTime, that.createTime) &&
         Objects.equals(updateTime, that.updateTime);
+  }
+
+  @OneToOne(mappedBy = "achievement")
+  public AchievementStatistics getStatistics() {
+    return statistics;
+  }
+
+  public void setStatistics(AchievementStatistics achievementStatistics) {
+    this.statistics = achievementStatistics;
   }
 }

@@ -8,6 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.sql.Timestamp;
 import java.util.Objects;
@@ -22,6 +24,7 @@ public class PlayerAchievement {
   private AchievementState state;
   private Timestamp createTime;
   private Timestamp updateTime;
+  private Player player;
 
   @Id
   @Column(name = "id")
@@ -72,6 +75,16 @@ public class PlayerAchievement {
 
   public void setUpdateTime(Timestamp updateTime) {
     this.updateTime = updateTime;
+  }
+
+  @ManyToOne
+  @JoinColumn(name = "player_id")
+  public Player getPlayer() {
+    return player;
+  }
+
+  public void setPlayer(Player player) {
+    this.player = player;
   }
 
   @Override

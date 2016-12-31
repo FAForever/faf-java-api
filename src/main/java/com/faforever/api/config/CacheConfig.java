@@ -24,7 +24,7 @@ public class CacheConfig {
     cacheManager.setCaches(Arrays.asList(
         // Elide caches
         new GuavaCache("default", newBuilder().expireAfterWrite(5, SECONDS).build()),
-        new GuavaCache("achievement_definition", newBuilder().expireAfterWrite(60, MINUTES).build()),
+        new GuavaCache("achievement", newBuilder().expireAfterWrite(60, MINUTES).build()),
         new GuavaCache("event_definition", newBuilder().expireAfterWrite(60, MINUTES).build()),
         // Other caches
         new GuavaCache(CLIENTS_CACHE_NAME, newBuilder().expireAfterWrite(5, SECONDS).build())
