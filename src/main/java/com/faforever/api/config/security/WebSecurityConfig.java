@@ -24,7 +24,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   @Profile("dev")
   public void developUserDetails(AuthenticationManagerBuilder auth) throws Exception {
     auth.inMemoryAuthentication()
-        .withUser("user").password("password").roles("USER");
+        .withUser("user").password("user").roles("USER")
+        .and().withUser("admin").password("admin").roles("USER", "ADMIN");
   }
 
   @Inject
@@ -44,11 +45,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   protected void configure(HttpSecurity http) throws Exception {
     http.headers().cacheControl().disable();
 
-    http.csrf().disable()
+    http
         .formLogin().permitAll()
         .and().authorizeRequests()
         .antMatchers(HttpMethod.OPTIONS).permitAll()
-        .antMatchers("/health").permitAll()
+        .antMatchers("/management/health").permitAll()
         // Elide JSON-API
         .antMatchers("/data/**").permitAll()
         // Redirects to Swagger UI

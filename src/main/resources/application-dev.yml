@@ -9,3 +9,7 @@ spring:
     password: ${DATABASE_PASSWORD:banana}
   jpa:
     show-sql: true
+
+management:
+  security:
+    roles: USER

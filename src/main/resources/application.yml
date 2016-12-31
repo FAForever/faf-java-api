@@ -28,7 +28,7 @@ server:
   port: 8080
 
 security:
-  basic:
-    enabled: true
-    realm: ${spring.application.name}
   enable-csrf: true
+
+management:
+  context-path: /management
