@@ -10,11 +10,10 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToOne;
-import java.io.Serializable;
 
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class Login implements Serializable {
+public abstract class Login {
 
   private int id;
   private String login;
@@ -75,7 +74,7 @@ public abstract class Login implements Serializable {
     this.userAgent = userAgent;
   }
 
-  @OneToOne(mappedBy = "user")
+  @OneToOne(mappedBy = "player")
   public BanDetails getBanDetails() {
     return banDetails;
   }

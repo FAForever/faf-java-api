@@ -1,5 +1,7 @@
 package com.faforever.api.data.domain;
 
+import com.yahoo.elide.annotation.Include;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -7,27 +9,37 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
 @Table(name = "lobby_ban")
-public class BanDetails implements Serializable {
+@Include(rootLevel = true, type = "ban_details")
+public class BanDetails {
 
-  private User user;
+  private int id;
+  private Player player;
   private String reason;
   private Timestamp expiresAt;
 
   @Id
-  @OneToOne
-  @JoinColumn(name = "idUser", updatable = false)
-  public User getUser() {
-    return user;
+  @Column(name = "idUser")
+  public int getId() {
+    return id;
   }
 
-  public void setUser(User idUser) {
-    this.user = idUser;
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  @OneToOne
+  @JoinColumn(name = "idUser", updatable = false)
+  public Player getPlayer() {
+    return player;
+  }
+
+  public void setPlayer(Player player) {
+    this.player = player;
   }
 
   @Basic
@@ -52,7 +64,7 @@ public class BanDetails implements Serializable {
 
   @Override
   public int hashCode() {
-    return Objects.hash(user, reason, expiresAt);
+    return Objects.hash(player, reason, expiresAt);
   }
 
   @Override
@@ -64,7 +76,7 @@ public class BanDetails implements Serializable {
       return false;
     }
     BanDetails banDetails = (BanDetails) o;
-    return user == banDetails.user &&
+    return player == banDetails.player &&
         Objects.equals(reason, banDetails.reason) &&
         Objects.equals(expiresAt, banDetails.expiresAt);
   }
