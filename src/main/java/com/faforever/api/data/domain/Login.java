@@ -9,24 +9,27 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToOne;
+import java.io.Serializable;
 
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class Login {
+public abstract class Login implements Serializable {
 
-  private Integer id;
+  private int id;
   private String login;
   private String eMail;
   private String steamId;
   private String userAgent;
+  private BanDetails banDetails;
 
   @Id
   @GeneratedValue
-  public Integer getId() {
+  public int getId() {
     return id;
   }
 
-  public void setId(Integer id) {
+  public void setId(int id) {
     this.id = id;
   }
 
@@ -70,5 +73,14 @@ public abstract class Login {
 
   public void setUserAgent(String userAgent) {
     this.userAgent = userAgent;
+  }
+
+  @OneToOne(mappedBy = "user")
+  public BanDetails getBanDetails() {
+    return banDetails;
+  }
+
+  public void setBanDetails(BanDetails banDetails) {
+    this.banDetails = banDetails;
   }
 }

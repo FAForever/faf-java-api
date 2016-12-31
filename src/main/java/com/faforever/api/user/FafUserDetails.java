@@ -1,62 +1,37 @@
 package com.faforever.api.user;
 
+import com.faforever.api.data.domain.BanDetails;
 import com.faforever.api.data.domain.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 
-public class FafUserDetails implements UserDetails {
+import static java.util.Collections.singletonList;
 
-  private final Collection<GrantedAuthority> authorities;
-  private User user;
+public class FafUserDetails extends org.springframework.security.core.userdetails.User {
+
+
+  private final int id;
 
   public FafUserDetails(User user) {
-    this.user = user;
-    authorities = new ArrayList<>();
-    authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-  }
-
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
     // TODO implement lobby_admin
-    return authorities;
+    this(user.getId(), user.getLogin(), user.getPassword(), isNonLocked(user.getBanDetails()), singletonList(new SimpleGrantedAuthority("ROLE_USER")));
   }
 
-  @Override
-  public String getPassword() {
-    return user.getPassword();
+  public FafUserDetails(int id, String username, String password, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
+    super(username, password, true, true, true, accountNonLocked, authorities);
+    this.id = id;
   }
 
-  @Override
-  public String getUsername() {
-    return user.getLogin();
+  private static boolean isNonLocked(BanDetails banDetails) {
+    return banDetails == null
+        || banDetails.getExpiresAt().before(Timestamp.from(Instant.now()));
   }
 
-  @Override
-  public boolean isAccountNonExpired() {
-    return true;
-  }
-
-  @Override
-  public boolean isAccountNonLocked() {
-    // TODO implement lobby_ban
-    return true;
-  }
-
-  @Override
-  public boolean isCredentialsNonExpired() {
-    return true;
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return true;
-  }
-
-  public Integer getId() {
-    return user.getId();
+  public int getId() {
+    return id;
   }
 }
