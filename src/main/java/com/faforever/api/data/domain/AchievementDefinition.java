@@ -1,21 +1,27 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.AchievementLocalizationListener;
+import com.yahoo.elide.annotation.ComputedAttribute;
+import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
 @Table(name = "achievement_definitions")
 @Include(rootLevel = true, type = "achievement")
+@EntityListeners(AchievementLocalizationListener.class)
 public class AchievementDefinition {
 
   private String id;
@@ -31,6 +37,10 @@ public class AchievementDefinition {
   private Timestamp createTime;
   private Timestamp updateTime;
   private AchievementStatistics statistics;
+
+  // Set by AchievementLocalizationListener
+  private String name;
+  private String description;
 
   @Id
   @Column(name = "id")
@@ -54,6 +64,7 @@ public class AchievementDefinition {
 
   @Basic
   @Column(name = "name_key")
+  @Exclude
   public String getNameKey() {
     return nameKey;
   }
@@ -63,13 +74,36 @@ public class AchievementDefinition {
   }
 
   @Basic
+  @Transient
+  @ComputedAttribute
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  @Basic
   @Column(name = "description_key")
+  @Exclude
   public String getDescriptionKey() {
     return descriptionKey;
   }
 
   public void setDescriptionKey(String descriptionKey) {
     this.descriptionKey = descriptionKey;
+  }
+
+  @Basic
+  @Transient
+  @ComputedAttribute
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 
   @Basic
