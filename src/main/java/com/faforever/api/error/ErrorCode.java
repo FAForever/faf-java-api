@@ -1,8 +1,8 @@
 package com.faforever.api.error;
 
 public enum ErrorCode {
-  ACHIEVEMENT_CANT_INCREMENT_STANDARD(100, "Invalid operation", "Only incremental achievements can be incremented. Achievement ID: {0}."),
-  ACHIEVEMENT_CANT_UNLOCK_INCREMENTAL(101, "Invalid operation", "Only standard achievements can be unlocked directly. Achievement ID: {0}."),
+  ACHIEVEMENT_NOT_INCREMENTAL(100, "Invalid operation", "Only incremental achievements can be incremented. Achievement ID: {0}."),
+  ACHIEVEMENT_NOT_STANDARD(101, "Invalid operation", "Only standard achievements can be unlocked directly. Achievement ID: {0}."),
   UPLOAD_FILE_MISSING(102, "Missing file", "A file has to be provided as parameter 'file'."),
   PARAMETER_MISSING(103, "Missing parameter", "A parameter '{0}' has to be provided."),
   UPLOAD_INVALID_FILE_EXTENSION(104, "Invalid file extension", "File must have the following extension: {0}."),

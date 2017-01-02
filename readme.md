@@ -7,6 +7,7 @@
 1. Clone the repository
 1. Import the project into IntelliJ
 1. Configure your JDK 8 if you haven't already
+1. Make sure you have the _IntelliJ Lombok plugin_ installed
 1. Launch `FafApiApplication`
  
 ## How to run from binary

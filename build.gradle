@@ -34,6 +34,7 @@ task wrapper(type: Wrapper) {
 configurations {
   compile.exclude module: "spring-boot-starter-tomcat"
   compile.exclude module: "tomcat-jdbc"
+  compile.exclude module: "assertj-core"
 }
 
 processResources {
@@ -132,6 +133,7 @@ dependencies {
   compile("org.springframework.security.oauth:spring-security-oauth2:${springSecurityOauth2Version}")
   compile("org.springframework:spring-context-support:${springContextSupportVersion}")
 
+  compile("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
   compile("com.google.guava:guava:${guavaVersion}")
   compile("io.springfox:springfox-swagger-ui:${swaggerVersion}")
   compile("io.springfox:springfox-swagger2:${swaggerVersion}")
