@@ -8,8 +8,10 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -26,6 +28,7 @@ public class Clan {
   private Player clanLeader;
   private String clanDesc;
   private String clanTagColor;
+  private List<ClanMembership> memberships;
 
   @Id
   @Column(name = "clan_id")
@@ -115,6 +118,15 @@ public class Clan {
 
   public void setClanTagColor(String clanTagColor) {
     this.clanTagColor = clanTagColor;
+  }
+
+  @OneToMany(mappedBy = "clan")
+  public List<ClanMembership> getMemberships() {
+    return memberships;
+  }
+
+  public void setMemberships(List<ClanMembership> memberships) {
+    this.memberships = memberships;
   }
 
   @Override
