@@ -1,4 +1,4 @@
-package com.faforever.api.data;
+package com.faforever.api.data.listeners;
 
 import com.faforever.api.data.domain.AchievementDefinition;
 import lombok.extern.slf4j.Slf4j;

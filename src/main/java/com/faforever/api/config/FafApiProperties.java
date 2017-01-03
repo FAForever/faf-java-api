@@ -28,6 +28,13 @@ public class FafApiProperties {
     private int queueCapacity = Integer.MAX_VALUE;
   }
 
+  @Data
+  public static class Map {
+
+    private String smallPreviewsUrlFormat = "http://content.faforever.com/faf/map_previews/small/%s";
+    private String largePreviewsUrlFormat = "http://content.faforever.com/faf/map_previews/large/%s";
+    private String downloadUrlFormat = "http://content.faforever.com/faf/vault/maps/%s";
+  }
   /**
    * The secret used for JWT token generation.
    */
@@ -36,4 +43,5 @@ public class FafApiProperties {
   private Jwt jwt = new Jwt();
   private OAuth2 oAuth2 = new OAuth2();
   private Async async = new Async();
+  private Map map = new Map();
 }
