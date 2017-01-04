@@ -32,6 +32,7 @@ DATABASE_USERNAME=faf_lobby
 DATABASE_PASSWORD=password
 DATABASE_NAME=faf_lobby
 API_PROFILE=prod
+JWT_SECRET=<your secret>
 ```
 
 And run with:

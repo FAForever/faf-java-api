@@ -35,6 +35,7 @@ public class FafApiProperties {
     private String largePreviewsUrlFormat = "http://content.faforever.com/faf/map_previews/large/%s";
     private String downloadUrlFormat = "http://content.faforever.com/faf/vault/maps/%s";
   }
+
   /**
    * The secret used for JWT token generation.
    */

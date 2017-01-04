@@ -139,7 +139,6 @@ dependencies {
   compile("io.springfox:springfox-swagger2:${swaggerVersion}")
   compile("javax.inject:javax.inject:${javaxInjectVersion}")
   compile("com.yahoo.elide:elide-datastore-hibernate5:${elideHibernateVersion}")
-  compile("io.jsonwebtoken:jjwt:${jjwtVersion}")
   compile("com.zaxxer:HikariCP:${hikariCpVersion}") {
     exclude(module: 'tools')
   }
