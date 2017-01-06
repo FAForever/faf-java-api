@@ -12,6 +12,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import javax.inject.Inject;
 
@@ -43,11 +46,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    http.headers().cacheControl().disable();
-
-    http
-        .formLogin().permitAll()
-        .and().authorizeRequests()
+    // @formatter:off
+    http.headers()
+      .cacheControl().disable()
+      .and().formLogin().permitAll()
+      .and().authorizeRequests()
         .antMatchers(HttpMethod.OPTIONS).permitAll()
         .antMatchers("/management/health").permitAll()
         // Elide JSON-API
@@ -60,5 +63,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/v2/api-docs/**").permitAll()
         // Require authentication for everything else
         .antMatchers("/**").authenticated();
+    // @formatter:on
+  }
+
+  @Bean
+  public WebMvcConfigurer corsConfigurer() {
+    return new WebMvcConfigurerAdapter() {
+      @Override
+      public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**");
+      }
+    };
   }
 }
