@@ -13,7 +13,8 @@ public class OAuthClientDetails extends BaseClientDetails {
     super(oAuthClient.getId(),
         null,
         oAuthClient.getDefaultScope().replace(' ', ','),
-        null,
+        // FIXME read from database instead of hardcoding (but DB migration is required)
+        "authorization_code,refresh_token,implicit,password",
         null);
     setClientSecret(oAuthClient.getClientSecret());
   }
