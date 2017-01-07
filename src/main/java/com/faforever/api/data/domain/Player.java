@@ -3,6 +3,7 @@ package com.faforever.api.data.domain;
 import com.yahoo.elide.annotation.Include;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "login")
@@ -11,6 +12,18 @@ public class Player extends Login {
 
   private Ladder1v1Rating ladder1v1Rating;
   private GlobalRating globalRating;
+
+  @Basic
+  @Column(name = "clan_join_date")
+  public Timestamp getClanJoinDate() {
+    return clanJoinDate;
+  }
+
+  public void setClanJoinDate(Timestamp clanJoinDate) {
+    this.clanJoinDate = clanJoinDate;
+  }
+
+  private Timestamp clanJoinDate;
 
   @OneToOne(mappedBy = "player")
   public Ladder1v1Rating getLadder1v1Rating() {
