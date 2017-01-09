@@ -1,6 +1,7 @@
 package com.faforever.api.config.elide;
 
 import com.faforever.api.config.elide.checks.IsOwner;
+import com.faforever.api.config.elide.checks.IsUser;
 import com.faforever.api.data.JsonApiController;
 import com.yahoo.elide.Elide;
 import com.yahoo.elide.audit.Slf4jLogger;
@@ -28,6 +29,7 @@ public class ElideConfig {
   @Bean
   public Elide elide(EntityManagerFactory entityManagerFactory) {
     ConcurrentHashMap<String, Class<? extends Check>> checks = new ConcurrentHashMap<>();
+    checks.put("is logged in", IsUser.class);
     checks.put("user is this user", IsOwner.Inline.class);
 
     EntityDictionary entityDictionary = new EntityDictionary(checks);
