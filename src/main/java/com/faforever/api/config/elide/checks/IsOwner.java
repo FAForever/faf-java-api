@@ -10,6 +10,8 @@ import java.util.Optional;
 
 public class IsOwner {
 
+  public static final String EXPRESSION = "is owner";
+
   public static class Inline extends InlineCheck<Login> {
 
     @Override
