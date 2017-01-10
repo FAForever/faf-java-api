@@ -61,7 +61,7 @@ public class ClansController {
 
     Player player = AuthenticationHelper.getPlayer(authentication, playerRepository);
     if (player.getClanMemberships().size() > 0) {
-      throw new ClanException("player has allready a clan");
+      throw new ClanException("Player is already member of a clan");
     }
 
     clan.setFounder(player);
