@@ -1,6 +1,7 @@
 package com.faforever.api.clan;
 
 import com.faforever.api.data.domain.Clan;
+import com.faforever.api.data.domain.ClanMembership;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.utils.AuthenticationHelper;
@@ -31,11 +32,15 @@ import java.util.Map;
 public class ClansController {
 
   private final ClanRepository clanRepository;
+  private final ClanMembershipRepository clanMembershipRepository;
   private final PlayerRepository playerRepository;
 
   @Inject
-  public ClansController(ClanRepository clanRepository, PlayerRepository playerRepository) {
+  public ClansController(ClanRepository clanRepository,
+                         ClanMembershipRepository clanMembershipRepository,
+                         PlayerRepository playerRepository) {
     this.clanRepository = clanRepository;
+    this.clanMembershipRepository = clanMembershipRepository;
     this.playerRepository = playerRepository;
   }
 
@@ -55,15 +60,19 @@ public class ClansController {
     clan.setDescription(description);
 
     Player player = AuthenticationHelper.getPlayer(authentication, playerRepository);
-    if (player.getClan().size() > 0) {
+    if (player.getClanMemberships().size() > 0) {
       throw new ClanException("player has allready a clan");
     }
 
     clan.setFounder(player);
     clan.setLeader(player);
-    clan.setMembers(Arrays.asList(player));
-
     clanRepository.save(clan);
+
+    ClanMembership membership = new ClanMembership();
+    membership.setClan(clan);
+    membership.setPlayer(player);
+    clanMembershipRepository.save(membership);
+
     return ImmutableMap.of("id", clan.getId(), "type", "clan");
   }
 
