@@ -1,5 +1,6 @@
 package com.faforever.api.config.elide;
 
+import com.faforever.api.config.elide.checks.IsAuthenticated;
 import com.faforever.api.config.elide.checks.IsOwner;
 import com.faforever.api.data.JsonApiController;
 import com.yahoo.elide.Elide;
@@ -28,7 +29,8 @@ public class ElideConfig {
   @Bean
   public Elide elide(EntityManagerFactory entityManagerFactory) {
     ConcurrentHashMap<String, Class<? extends Check>> checks = new ConcurrentHashMap<>();
-    checks.put("user is this user", IsOwner.Inline.class);
+    checks.put(IsAuthenticated.EXPRESSION, IsAuthenticated.Inline.class);
+    checks.put(IsOwner.EXPRESSION, IsOwner.Inline.class);
 
     EntityDictionary entityDictionary = new EntityDictionary(checks);
 
