@@ -4,6 +4,7 @@ import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.utils.AuthenticationHelper;
+import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -20,7 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Map;
 
 
 @RestController
@@ -38,15 +41,14 @@ public class ClansController {
 
   @ApiOperation("Create a clan with correct leader, founder and clan membership")
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Success"),
+      @ApiResponse(code = 200, message = "Success with JSON { id: <id>, type: clan}"),
       @ApiResponse(code = 400, message = "Bad Request")})
   @RequestMapping(path = "/create", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
   @Transactional
-  public void createClan(HttpServletResponse response,
-                         @RequestParam(value = "name") String name,
-                         @RequestParam(value = "tag") String tag,
-                         @RequestParam(value = "description", required = false) String description,
-                         Authentication authentication) throws IOException, ClanException {
+  public Map<String, Serializable> createClan(@RequestParam(value = "name") String name,
+                                              @RequestParam(value = "tag") String tag,
+                                              @RequestParam(value = "description", required = false) String description,
+                                              Authentication authentication) throws IOException, ClanException {
     Clan clan = new Clan();
     clan.setName(name);
     clan.setTag(tag);
@@ -62,7 +64,7 @@ public class ClansController {
     clan.setMembers(Arrays.asList(player));
 
     clanRepository.save(clan);
-    response.sendRedirect(String.format("/data/clan/%d", clan.getId()));
+    return ImmutableMap.of("id", clan.getId(), "type", "clan");
   }
 
   @ExceptionHandler(ClanException.class)
