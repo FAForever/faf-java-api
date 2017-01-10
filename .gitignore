@@ -9,6 +9,7 @@
 .idea/dictionaries
 .idea/sonarIssues.xml
 .idea/misc.xml
+.idea/dbnavigator.xml
 
 # Sensitive or high-churn files:
 .idea/dataSources*
@@ -47,6 +48,3 @@ gradle-app.setting
 
 # Included binaries
 !src/main/native/*
-
-/.idea/dbnavigator.xml
-/.idea/misc.xml
