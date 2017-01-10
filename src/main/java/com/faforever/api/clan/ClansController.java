@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,7 +24,6 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Map;
 
 
@@ -74,6 +74,25 @@ public class ClansController {
     clanMembershipRepository.save(membership);
 
     return ImmutableMap.of("id", clan.getId(), "type", "clan");
+  }
+
+  @ApiOperation("Kick a member from the clan, Delete the Clan Membership")
+  @ApiResponses(value = {
+      @ApiResponse(code = 200, message = "Success"),
+      @ApiResponse(code = 400, message = "Bad Request")})
+  @RequestMapping(path = "/kick", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+  @Transactional
+  public void createClan(@RequestParam(value = "membershipId") int membershipId,
+                         Authentication authentication) throws IOException, ClanException {
+    Player player = AuthenticationHelper.getPlayer(authentication, playerRepository);
+    ClanMembership membership = clanMembershipRepository.findOne(membershipId);
+    if (membership == null) {
+      throw new ClanException("Clan Membership not found");
+    }
+    if (membership.getClan().getLeader().getId() != player.getId()) {
+      throw new ClanException("Player is not the leader of the clan");
+    }
+    clanMembershipRepository.delete(membership);
   }
 
   @ExceptionHandler(ClanException.class)
