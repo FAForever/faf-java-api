@@ -1,5 +1,8 @@
 package com.faforever.api.error;
 
+import lombok.Getter;
+
+@Getter
 public enum ErrorCode {
   ACHIEVEMENT_NOT_INCREMENTAL(100, "Invalid operation", "Only incremental achievements can be incremented. Achievement ID: {0}."),
   ACHIEVEMENT_NOT_STANDARD(101, "Invalid operation", "Only standard achievements can be unlocked directly. Achievement ID: {0}."),
@@ -53,17 +56,5 @@ public enum ErrorCode {
     this.code = code;
     this.title = title;
     this.detail = detail;
-  }
-
-  public int getCode() {
-    return code;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public String getDetail() {
-    return detail;
   }
 }
