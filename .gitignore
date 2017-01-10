@@ -10,8 +10,10 @@
 .idea/tasks.xml
 .idea/dictionaries
 .idea/sonarIssues.xml
+.idea/misc.xml
 
 # Sensitive or high-churn files:
+.idea/dataSources
 .idea/dataSources.ids
 .idea/dataSources.xml
 .idea/sqlDataSources.xml
