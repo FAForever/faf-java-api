@@ -1,5 +1,6 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.config.elide.checks.IsOwner;
 import com.yahoo.elide.annotation.ReadPermission;
 
 import javax.persistence.Basic;
@@ -44,7 +45,7 @@ public abstract class Login {
 
   @Basic
   @Column(name = "email")
-  @ReadPermission(expression = "user is this user")
+  @ReadPermission(expression = IsOwner.EXPRESSION)
   public String getEMail() {
     return eMail;
   }
@@ -55,7 +56,7 @@ public abstract class Login {
 
   @Basic
   @Column(name = "steamid")
-  @ReadPermission(expression = "user is this user")
+  @ReadPermission(expression = IsOwner.EXPRESSION)
   public String getSteamId() {
     return steamId;
   }

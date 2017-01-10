@@ -47,7 +47,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     // @formatter:off
-    http.headers()
+      http
+      .csrf().disable() // http://stackoverflow.com/a/29917946
+      .headers()
       .cacheControl().disable()
       .and().formLogin().permitAll()
       .and().authorizeRequests()
