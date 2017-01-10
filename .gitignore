@@ -48,7 +48,5 @@ gradle-app.setting
 # Included binaries
 !src/main/native/*
 
-/.idea/copyright/profiles_settings.xml
 /.idea/dbnavigator.xml
-/.idea/runConfigurations/FafApiApplication.xml
 /.idea/misc.xml
