@@ -28,7 +28,7 @@ public class Clan {
   private Player leader;
   private String description;
   private String tagColor;
-  private List<Player> members;
+  private List<ClanMembership> memberships;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -82,12 +82,8 @@ public class Clan {
     return tagColor;
   }
 
-  @ManyToMany
-  @JoinTable(
-          name = "clan_membership",
-          joinColumns = @JoinColumn(name = "clan_id", referencedColumnName = "id"),
-          inverseJoinColumns = @JoinColumn(name = "player_id", referencedColumnName = "id"))
-  public List<Player> getMembers() {
-    return this.members;
+  @OneToMany(mappedBy = "clan")
+  public List<ClanMembership> getMemberships() {
+    return this.memberships;
   }
 }
