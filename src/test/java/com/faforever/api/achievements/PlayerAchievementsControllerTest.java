@@ -20,16 +20,16 @@ import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class AchievementsControllerTest {
+public class PlayerAchievementsControllerTest {
 
-  private AchievementsController instance;
+  private PlayerAchievementsController instance;
 
   @Mock
   private AchievementsService achievementService;
 
   @Before
   public void setUp() throws Exception {
-    instance = new AchievementsController(achievementService);
+    instance = new PlayerAchievementsController(achievementService);
   }
 
   @Test
