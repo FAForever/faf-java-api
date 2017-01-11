@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -74,6 +73,32 @@ public class ClansController {
     clanMembershipRepository.save(membership);
 
     return ImmutableMap.of("id", clan.getId(), "type", "clan");
+  }
+
+  @ApiOperation("Grab data about yourself and the clan")
+  @ApiResponses(value = {
+      @ApiResponse(code = 200, message = "Success"),
+      @ApiResponse(code = 400, message = "Bad Request")})
+  @RequestMapping(path = "/me", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+  @Transactional
+  public Map<String, Serializable> me(Authentication authentication) {
+    Player player = AuthenticationHelper.getPlayer(authentication, playerRepository);
+
+    ImmutableMap<String, Serializable> playerMap = ImmutableMap.of(
+        "id", player.getId(),
+        "login", player.getLogin());
+
+    Clan clan = (player.getClanMemberships().size() > 0)
+        ? player.getClanMemberships().get(0).getClan()
+        : null;
+    ImmutableMap<String, Serializable> clanMap = ImmutableMap.of();
+    if (clan != null) {
+      clanMap = ImmutableMap.of(
+          "id", clan.getId(),
+          "name", clan.getName(),
+          "tag", clan.getTag());
+    }
+    return ImmutableMap.of("player", playerMap, "clan", clanMap);
   }
 
   @ApiOperation("Kick a member from the clan, Delete the Clan Membership")
