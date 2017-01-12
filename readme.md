@@ -21,7 +21,7 @@ docker run --name faf-api \
   -e DATABASE_USERNAME=root \
   -e DATABASE_PASSWORD=banana \
   -e DATABASE_NAME=faf_lobby \
-  -d micheljung/faf-api:0.1.1-SNAPSHOT
+  -d micheljung/faf-api:0.2.0-SNAPSHOT
 ```
 
 To run in production, you probably want to create an environment file (e.g. `env.list`):
@@ -39,7 +39,7 @@ And run with:
 ```
 docker run --name faf-api \
   --env-file ./env.list \
-  -d micheljung/faf-api:0.1.1-SNAPSHOT
+  -d micheljung/faf-api:0.2.0-SNAPSHOT
 ```
 
 ## Sample routes
