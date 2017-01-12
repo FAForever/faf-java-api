@@ -21,6 +21,7 @@ docker run --name faf-api \
   -e DATABASE_USERNAME=root \
   -e DATABASE_PASSWORD=banana \
   -e DATABASE_NAME=faf_lobby \
+  -e JWT_SECRET=banana \
   -d micheljung/faf-api:0.2.0-SNAPSHOT
 ```
 
