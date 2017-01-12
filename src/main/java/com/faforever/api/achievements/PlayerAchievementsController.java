@@ -16,12 +16,12 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/player_achievements")
-public class AchievementsController {
+public class PlayerAchievementsController {
 
   private final AchievementsService achievementsService;
 
   @Inject
-  public AchievementsController(AchievementsService achievementsService) {
+  public PlayerAchievementsController(AchievementsService achievementsService) {
     this.achievementsService = achievementsService;
   }
 
