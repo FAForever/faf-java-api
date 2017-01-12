@@ -17,7 +17,7 @@
  
 ```
 docker run --name faf-api \
-  -e DATABASE_ADDRESS=localhost:3306 \
+  -e DATABASE_ADDRESS=faf-db:3306 \
   -e DATABASE_USERNAME=root \
   -e DATABASE_PASSWORD=banana \
   -e DATABASE_NAME=faf_lobby \
