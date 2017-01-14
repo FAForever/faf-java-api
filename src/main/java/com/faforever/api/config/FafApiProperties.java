@@ -46,6 +46,11 @@ public class FafApiProperties {
 
   }
 
+  @Data
+  public static class Clan {
+    private int expireDurationInMinutes = 60 * 24 * 3; // 3 days
+  }
+
   /**
    * The secret used for JWT token generation.
    */
@@ -55,4 +60,5 @@ public class FafApiProperties {
   private OAuth2 oAuth2 = new OAuth2();
   private Async async = new Async();
   private Map map = new Map();
+  private Clan clan = new Clan();
 }
