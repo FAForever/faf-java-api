@@ -1,5 +1,6 @@
 package com.faforever.api.clan;
 
+import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.ClanMembership;
 import com.faforever.api.data.domain.Player;
@@ -9,9 +10,14 @@ import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.jwt.Jwt;
+import org.springframework.security.jwt.JwtHelper;
+import org.springframework.security.jwt.crypto.sign.MacSigner;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,20 +33,27 @@ import java.util.Map;
 
 
 @RestController
-@RequestMapping(path = "/clans")
+@RequestMapping(path = ClansController.PATH)
 public class ClansController {
 
+  static final String PATH = "/clans";
   private final ClanRepository clanRepository;
   private final ClanMembershipRepository clanMembershipRepository;
   private final PlayerRepository playerRepository;
+  private final FafApiProperties fafApiProperties;
+  private final MacSigner macSigner;
+  private final ObjectMapper objectMapper;
 
   @Inject
   public ClansController(ClanRepository clanRepository,
                          ClanMembershipRepository clanMembershipRepository,
-                         PlayerRepository playerRepository) {
+                         PlayerRepository playerRepository, FafApiProperties fafApiProperties) {
     this.clanRepository = clanRepository;
     this.clanMembershipRepository = clanMembershipRepository;
     this.playerRepository = playerRepository;
+    this.fafApiProperties = fafApiProperties;
+    this.macSigner = new MacSigner(fafApiProperties.getJwtSecret());
+    this.objectMapper = new ObjectMapper();
   }
 
   @ApiOperation("Create a clan with correct leader, founder and clan membership")
@@ -80,7 +93,6 @@ public class ClansController {
       @ApiResponse(code = 200, message = "Success"),
       @ApiResponse(code = 400, message = "Bad Request")})
   @RequestMapping(path = "/me", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-  @Transactional
   public Map<String, Serializable> me(Authentication authentication) {
     Player player = AuthenticationHelper.getPlayer(authentication, playerRepository);
 
@@ -107,17 +119,122 @@ public class ClansController {
       @ApiResponse(code = 400, message = "Bad Request")})
   @RequestMapping(path = "/kick", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
   @Transactional
-  public void createClan(@RequestParam(value = "membershipId") int membershipId,
+  public void kickMember(@RequestParam(value = "membershipId") int membershipId,
                          Authentication authentication) throws IOException, ClanException {
     Player player = AuthenticationHelper.getPlayer(authentication, playerRepository);
     ClanMembership membership = clanMembershipRepository.findOne(membershipId);
-    if (membership == null) {
-      throw new ClanException("Clan Membership not found");
-    }
-    if (membership.getClan().getLeader().getId() != player.getId()) {
-      throw new ClanException("Player is not the leader of the clan");
+    checkObject(membership, "Clan Membership");
+    checkLeader(player, membership.getClan());
+    if (membership.getClan().getLeader().getId() == membership.getPlayer().getId()) {
+      throw new ClanException("Clan Leader cannot be kicked, please transfer Leadership first");
     }
     clanMembershipRepository.delete(membership);
+  }
+
+  @ApiOperation("Transfer Clan Leadership from current leader to a new Clan Member")
+  @ApiResponses(value = {
+      @ApiResponse(code = 200, message = "Success"),
+      @ApiResponse(code = 400, message = "Bad Request")})
+  @RequestMapping(path = "/transferLeadership", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+  @Transactional
+  public void transferClanLeadership(@RequestParam(value = "clanId") int clanId,
+                                     @RequestParam(value = "newLeaderId") int newLeaderId,
+                                     Authentication authentication) throws IOException, ClanException {
+    Player player = AuthenticationHelper.getPlayer(authentication, playerRepository);
+    Clan clan = clanRepository.findOne(clanId);
+    checkObject(clan, "Clan");
+    checkLeader(player, clan);
+    Player newLeader = playerRepository.getOne(newLeaderId);
+    checkObject(newLeader, "new Clan Leader");
+    if (clan.getMemberships()
+        .stream()
+        .noneMatch(membership -> membership.getPlayer().getId() == newLeader.getId())) {
+      throw new ClanException("New Clan Leader is not member of the clan");
+    }
+    clan.setLeader(newLeader);
+    clanRepository.save(clan);
+  }
+
+  @ApiOperation("Generate invitation link")
+  @ApiResponses(value = {
+      @ApiResponse(code = 200, message = "Success"),
+      @ApiResponse(code = 400, message = "Bad Request")})
+  @RequestMapping(path = "/generateInvitationLink",
+      method = RequestMethod.GET,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public Map<String, Serializable> generateInvitationLink(
+      @RequestParam(value = "clanId") int clanId,
+      @RequestParam(value = "playerId") int newMemberId,
+      Authentication authentication) throws IOException, ClanException {
+
+    Player player = AuthenticationHelper.getPlayer(authentication, playerRepository);
+    Clan clan = clanRepository.findOne(clanId);
+    checkObject(clan, "Clan");
+    checkLeader(player, clan);
+    Player newMember = playerRepository.getOne(newMemberId);
+    checkObject(newMember, "new Clan Member");
+    checkLeader(player, clan);
+    // TODO: not sure if this is a good idea, e.g. Time Zones
+    long expire = System.currentTimeMillis()
+        + (fafApiProperties.getClan().getExpireDurationInMinutes() * 60 * 1000);
+    String jwtToken = sign(
+        ImmutableMap.of("newMemberId", newMemberId,
+            "expire", expire,
+            "clan", ImmutableMap.of("id", clan.getId(),
+                "tag", clan.getTag(),
+                "name", clan.getName())));
+    return ImmutableMap.of("jwtToken", jwtToken);
+  }
+
+  @ApiOperation("Check invitation link and add Member to clan")
+  @ApiResponses(value = {
+      @ApiResponse(code = 200, message = "Success"),
+      @ApiResponse(code = 400, message = "Bad Request")})
+  @RequestMapping(path = "/joinClan",
+      method = RequestMethod.POST,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public void joinClan(
+      @RequestParam(value = "token") String stringToken,
+      Authentication authentication) throws IOException, ClanException {
+    Jwt token = JwtHelper.decode(stringToken);
+    token.verifySignature(this.macSigner);
+    JsonNode data = objectMapper.readTree(token.getClaims());
+    if(data.get("expire").asLong() < System.currentTimeMillis()) {
+      throw new ClanException("Invitation Link expired");
+    }
+    Player player = AuthenticationHelper.getPlayer(authentication, playerRepository);
+    Clan clan = clanRepository.findOne(data.get("clan").get("id").asInt());
+    checkObject(clan, "Clan");
+    checkLeader(player, clan);
+    Player newMember = playerRepository.findOne(data.get("newMemberId").asInt());
+    checkObject(newMember, "new Player");
+    if(player.getId() != newMember.getId()) {
+      throw new ClanException("You cannot accept the invitation link");
+    }
+    if (newMember.getClan() != null) {
+      throw new ClanException("Player is already in a Clan");
+    }
+    ClanMembership membership = new ClanMembership();
+    membership.setClan(clan);
+    membership.setPlayer(newMember);
+    clanMembershipRepository.save(membership);
+  }
+
+  private String sign(Map<String, Serializable> data) throws IOException {
+    Jwt token = JwtHelper.encode(objectMapper.writeValueAsString(data), this.macSigner);
+    return token.getEncoded();
+  }
+
+  private void checkObject(Object object, String Type) throws ClanException {
+    if (object == null) {
+      throw new ClanException(String.format("Cannot find %s", Type));
+    }
+  }
+
+  private void checkLeader(Player player, Clan clan) throws ClanException {
+    if (clan.getLeader().getId() != player.getId()) {
+      throw new ClanException("Player is not the leader of the clan");
+    }
   }
 
   @ExceptionHandler(ClanException.class)
