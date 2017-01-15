@@ -19,6 +19,7 @@ import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.MacSigner;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -199,7 +200,7 @@ public class ClansController {
     Jwt token = JwtHelper.decode(stringToken);
     token.verifySignature(this.macSigner);
     JsonNode data = objectMapper.readTree(token.getClaims());
-    if(data.get("expire").asLong() < System.currentTimeMillis()) {
+    if (data.get("expire").asLong() < System.currentTimeMillis()) {
       throw new ClanException("Invitation Link expired");
     }
     Player player = AuthenticationHelper.getPlayer(authentication, playerRepository);
@@ -208,7 +209,7 @@ public class ClansController {
     checkLeader(player, clan);
     Player newMember = playerRepository.findOne(data.get("newMemberId").asInt());
     checkObject(newMember, "new Player");
-    if(player.getId() != newMember.getId()) {
+    if (player.getId() != newMember.getId()) {
       throw new ClanException("You cannot accept the invitation link");
     }
     if (newMember.getClan() != null) {
@@ -235,6 +236,23 @@ public class ClansController {
     if (clan.getLeader().getId() != player.getId()) {
       throw new ClanException("Player is not the leader of the clan");
     }
+  }
+
+  @CrossOrigin(origins = "*")
+  @ApiOperation("Delete all clan member and then the clan")
+  @ApiResponses(value = {
+      @ApiResponse(code = 200, message = "Success with JSON { id: <id>, type: clan}"),
+      @ApiResponse(code = 400, message = "Bad Request")})
+  @RequestMapping(path = "/delete", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @Transactional
+  public void deleteClan(@RequestParam(value = "clanid") int clanId,
+                         Authentication authentication) throws IOException, ClanException {
+    Player player = AuthenticationHelper.getPlayer(authentication, playerRepository);
+    Clan clan = clanRepository.findOne(clanId);
+    checkObject(clan, "Clan");
+    checkLeader(player, clan);
+    clan.getMemberships().forEach(membership -> clanMembershipRepository.delete(membership));
+    clanRepository.delete(clan);
   }
 
   @ExceptionHandler(ClanException.class)

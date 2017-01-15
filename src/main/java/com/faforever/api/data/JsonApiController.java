@@ -30,6 +30,7 @@ public class JsonApiController {
     this.elide = elide;
   }
 
+  @CrossOrigin(origins = "*")
   @RequestMapping(
       method = RequestMethod.GET,
       produces = JSON_API_MEDIA_TYPE,
