@@ -48,7 +48,7 @@ public class JsonApiController {
     ).getBody();
   }
 
-  @CrossOrigin(origins = "*")
+  @CrossOrigin(origins = "*") // this is needed otherwise I get always an Invalid CORS Request message
   @RequestMapping(
       method = RequestMethod.PATCH,
       produces = JSON_API_MEDIA_TYPE,
