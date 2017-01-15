@@ -33,6 +33,7 @@ public class JsonApiController {
     return ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).replace(PATH_PREFIX, "");
   }
   
+  @CrossOrigin(origins = "*")
   @RequestMapping(
       method = RequestMethod.GET,
       produces = JSON_API_MEDIA_TYPE,
