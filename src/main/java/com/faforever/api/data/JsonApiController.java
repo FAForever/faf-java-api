@@ -47,6 +47,7 @@ public class JsonApiController {
     ).getBody();
   }
 
+  @CrossOrigin(origins = "*")
   @RequestMapping(
       method = RequestMethod.PATCH,
       produces = JSON_API_MEDIA_TYPE,
