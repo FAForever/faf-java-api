@@ -1,7 +1,9 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
-import lombok.Data;
+import com.yahoo.elide.annotation.UpdatePermission;
+import com.yahoo.elide.security.checks.prefab.Role;
+import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
@@ -13,7 +15,7 @@ import java.util.List;
 @Entity
 @Table(name = "login")
 @Include(rootLevel = true, type = "player")
-@Data
+@Setter
 public class Player extends Login {
 
   private Ladder1v1Rating ladder1v1Rating;
@@ -31,6 +33,7 @@ public class Player extends Login {
   }
 
   @OneToMany(mappedBy = "player")
+  @UpdatePermission(any = {Role.ALL.class}) // Permission is managed by ClanMembership class
   public List<ClanMembership> getClanMemberships() {
     return this.clanMemberships;
   }
