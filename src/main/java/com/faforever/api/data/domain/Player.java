@@ -17,7 +17,7 @@ import java.util.List;
 @Table(name = "login")
 @Include(rootLevel = true, type = "player")
 @SharePermission(any = Role.ALL.class) // needed to change leader of a clan
-@Setter
+@Setter // Don't generate toString with lombok to avoid loops
 public class Player extends Login {
 
   private Ladder1v1Rating ladder1v1Rating;

@@ -32,7 +32,7 @@ import java.util.List;
 @SharePermission(expression = IsClanLeader.EXPRESSION)
 @DeletePermission(expression = IsClanLeader.EXPRESSION)
 @CreatePermission(any = Role.ALL.class)
-@Setter
+@Setter // Don't generate toString with lombok to avoid loops
 @LeaderIsInClan
 public class Clan {
 
