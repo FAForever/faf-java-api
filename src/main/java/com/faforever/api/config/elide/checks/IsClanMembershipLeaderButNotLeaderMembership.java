@@ -9,8 +9,8 @@ import com.yahoo.elide.security.checks.InlineCheck;
 
 import java.util.Optional;
 
-public class IsClanMembershipLeader {
-  public static final String EXPRESSION = "is clan membership leader";
+public class IsClanMembershipLeaderButNotLeaderMembership {
+  public static final String EXPRESSION = "is clan membership leader but not clan leader";
 
   public static class Inline extends InlineCheck<ClanMembership> {
 
@@ -18,7 +18,8 @@ public class IsClanMembershipLeader {
     public boolean ok(ClanMembership membership, RequestScope requestScope, Optional<ChangeSpec> changeSpec) {
       Object opaqueUser = requestScope.getUser().getOpaqueUser();
       return opaqueUser instanceof FafUserDetails
-          && membership.getClan().getLeader().getId() == ((FafUserDetails) opaqueUser).getId();
+          && membership.getClan().getLeader().getId() == ((FafUserDetails) opaqueUser).getId()
+          && membership.getPlayer().getId() != membership.getClan().getId();
     }
 
     @Override
