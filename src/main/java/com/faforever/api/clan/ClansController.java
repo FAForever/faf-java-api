@@ -19,7 +19,6 @@ import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.MacSigner;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,6 +29,8 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 
@@ -72,16 +73,18 @@ public class ClansController {
     Clan clan = (player.getClanMemberships().size() > 0)
         ? player.getClanMemberships().get(0).getClan()
         : null;
-    ImmutableMap<String, Serializable> clanMap = ImmutableMap.of();
+    Serializable clanData = "";
     if (clan != null) {
-      clanMap = ImmutableMap.of(
+      clanData = ImmutableMap.of(
           "id", clan.getId(),
           "name", clan.getName(),
           "tag", clan.getTag());
     }
-    return ImmutableMap.of("player", playerMap, "clan", clanMap);
+    return ImmutableMap.of("player", playerMap, "clan", clanData);
   }
 
+  // This request cannot be handled by JSON API because we must simultaneously create two resources (a,b)
+  // a: the new clan with the leader membership, b: the leader membership with the new clan
   @ApiOperation("Create a clan with correct leader, founder and clan membership")
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "Success with JSON { id: ?, type: 'clan'}"),
@@ -104,12 +107,13 @@ public class ClansController {
 
     clan.setFounder(player);
     clan.setLeader(player);
-    clanRepository.save(clan);
 
     ClanMembership membership = new ClanMembership();
     membership.setClan(clan);
     membership.setPlayer(player);
-    clanMembershipRepository.save(membership);
+
+    clan.setMemberships(Arrays.asList(membership));
+    clanRepository.save(clan);
 
     return ImmutableMap.of("id", clan.getId(), "type", "clan");
   }
