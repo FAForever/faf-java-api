@@ -80,7 +80,7 @@ public class JsonApiController {
       produces = JSON_API_MEDIA_TYPE,
       value = {"/{entity}/{id}", "/{entity}/{id}/relationships/{entity2}"})
   @Transactional
-  public int jsonApiDelete(final HttpServletRequest request,
+  public void jsonApiDelete(final HttpServletRequest request,
                            final Authentication authentication) throws JsonApiException {
     ElideResponse response = elide.delete(
         getJsonApiPath(request),
@@ -90,7 +90,6 @@ public class JsonApiController {
     if (response.getResponseCode() / 100 != 2) {
       throw new JsonApiException("No Permission");
     }
-    return response.getResponseCode();
   }
 
   public static Object getPrincipal(final Authentication authentication) {
