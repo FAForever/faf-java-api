@@ -16,7 +16,7 @@ import javax.persistence.OneToOne;
 
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.JOINED)
-@Setter
+@Setter // Don't generate toString with lombok to avoid loops
 public abstract class Login {
 
   private int id;
