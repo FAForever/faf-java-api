@@ -60,6 +60,23 @@ public class JsonApiController {
     ).getBody();
   }
 
+  @CrossOrigin(origins = "*")
+  @RequestMapping(
+      method = RequestMethod.PATCH,
+      produces = JSON_API_MEDIA_TYPE,
+      value = {"/{entity}/{id}", "/{entity}/{id}/relationships/{entity2}"})
+  @Transactional
+  public String jsonApiPatch(final HttpServletRequest request, Authentication authentication) throws IOException {
+    // Note: We can only read the body ONCE with getReader
+    String body = request.getReader().lines().collect(Collectors.joining());
+    return elide.patch(JSON_API_MEDIA_TYPE,
+        JSON_API_MEDIA_TYPE,
+        getJsonApiPath(request),
+        body,
+        authentication != null ? authentication.getPrincipal() : null
+    ).getBody();
+  }
+
   public static String getJsonApiPath(HttpServletRequest request) {
     return ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).replace(PATH_PREFIX, "");
   }
