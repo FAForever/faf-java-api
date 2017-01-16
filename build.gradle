@@ -24,6 +24,7 @@ targetCompatibility = 1.8
 
 repositories {
   mavenCentral()
+  maven { url "https://jitpack.io" }
 }
 
 compileJava.dependsOn(processResources)
@@ -144,6 +145,10 @@ dependencies {
   compile("com.zaxxer:HikariCP:${hikariCpVersion}") {
     exclude(module: 'tools')
   }
+
+  compile("org.luaj:luaj-jse:${luajVersion}")
+  compile("com.github.micheljung:nocatch:${nocatchVersion}")
+  compile("commons-io:commons-io:${commonsIoVersion}")
 
   runtime("mysql:mysql-connector-java:${mysqlConnectorVersion}")
 

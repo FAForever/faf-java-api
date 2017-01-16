@@ -3,6 +3,8 @@ package com.faforever.api.config;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.nio.file.Path;
+
 @Data
 @ConfigurationProperties(prefix = "faf-api", ignoreUnknownFields = false)
 public class FafApiProperties {
@@ -34,6 +36,13 @@ public class FafApiProperties {
     private String smallPreviewsUrlFormat = "http://content.faforever.com/faf/map_previews/small/%s";
     private String largePreviewsUrlFormat = "http://content.faforever.com/faf/map_previews/large/%s";
     private String downloadUrlFormat = "http://content.faforever.com/faf/vault/maps/%s";
+    private String temporaryDirectory = "d:/tmp/faf/map";
+    private String finalDirectory = "d:/tmp/faf/map_final";
+    private String MapPreviewPathSmall = "d:/tmp/faf/preview_small";
+    private String MapPreviewPathLarge = "d:/tmp/faf/preview_large";
+    private int PreviewSizeSmall = 128;
+    private int PreviewSizeLarge = 512;
+
   }
 
   /**
