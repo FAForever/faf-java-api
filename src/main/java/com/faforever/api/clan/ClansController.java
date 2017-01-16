@@ -114,31 +114,6 @@ public class ClansController {
     return ImmutableMap.of("id", clan.getId(), "type", "clan");
   }
 
-  @ApiOperation("Transfer Clan Leadership from current leader to a new Clan Member")
-  @RequestMapping(path = "/transferLeadership", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-  @Transactional
-  public void transferClanLeadership(@RequestParam(value = "clanId") int clanId,
-                                     @RequestParam(value = "newLeaderId") int newLeaderId,
-                                     Authentication authentication) throws IOException, ClanException {
-    Player player = AuthenticationHelper.getPlayer(authentication, playerRepository);
-    Clan clan = clanRepository.findOne(clanId);
-
-    checkAgainstNull(clan, "Clan");
-    checkLeader(player, clan);
-
-    Player newLeader = playerRepository.getOne(newLeaderId);
-    checkAgainstNull(newLeader, "new Clan Leader");
-
-    if (clan.getMemberships()
-        .stream()
-        .noneMatch(membership -> membership.getPlayer().getId() == newLeader.getId())) {
-      throw new ClanException("New Clan Leader is not member of the clan");   // TODO: outsource to I18n?
-    }
-
-    clan.setLeader(newLeader);
-    clanRepository.save(clan);
-  }
-
   @ApiOperation("Generate invitation link")
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "Success with JSON { jwtToken: ? }"),
@@ -210,22 +185,6 @@ public class ClansController {
     membership.setClan(clan);
     membership.setPlayer(newMember);
     clanMembershipRepository.save(membership);
-  }
-
-  @CrossOrigin(origins = "*") // this is needed otherwise I get always an Invalid CORS Request message
-  @ApiOperation("Delete all clan member and then the clan")
-  @RequestMapping(path = "/delete", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-  @Transactional
-  public void deleteClan(@RequestParam(value = "clanid") int clanId,
-                         Authentication authentication) throws IOException, ClanException {
-    Player player = AuthenticationHelper.getPlayer(authentication, playerRepository);
-    Clan clan = clanRepository.findOne(clanId);
-
-    checkAgainstNull(clan, "Clan");
-    checkLeader(player, clan);
-
-    clan.getMemberships().forEach(membership -> clanMembershipRepository.delete(membership));
-    clanRepository.delete(clan);
   }
 
   private String sign(Map<String, Serializable> data) throws IOException {

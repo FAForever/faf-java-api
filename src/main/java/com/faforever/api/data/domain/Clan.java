@@ -2,6 +2,7 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.config.elide.checks.IsClanLeader;
 import com.faforever.api.data.validation.LeaderIsInClan;
+import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
@@ -9,6 +10,7 @@ import com.yahoo.elide.security.checks.prefab.Role;
 import lombok.Setter;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,6 +30,7 @@ import java.util.List;
 @Include(rootLevel = true, type = "clan")
 @UpdatePermission(expression = IsClanLeader.EXPRESSION)
 @SharePermission(expression = IsClanLeader.EXPRESSION)
+@DeletePermission(expression = IsClanLeader.EXPRESSION)
 @Setter
 @LeaderIsInClan
 public class Clan {
@@ -96,9 +99,9 @@ public class Clan {
     return tagColor;
   }
 
-  @OneToMany(mappedBy = "clan")
+  @OneToMany(mappedBy = "clan", cascade = CascadeType.ALL, orphanRemoval = true)
   @UpdatePermission(any = {Role.ALL.class}) // Permission is managed by ClanMembership class
-  @NotEmpty(message="At least the leader should be in the clan")
+  @NotEmpty(message = "At least the leader should be in the clan")
   public List<ClanMembership> getMemberships() {
     return this.memberships;
   }
