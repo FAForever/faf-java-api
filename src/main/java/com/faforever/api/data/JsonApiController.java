@@ -56,6 +56,24 @@ public class JsonApiController {
 
   @CrossOrigin(origins = "*") // this is needed otherwise I get always an Invalid CORS Request message
   @RequestMapping(
+      method = RequestMethod.POST,
+      produces = JSON_API_MEDIA_TYPE,
+      value = {"/{entity}", "/{entity}/{id}/relationships/{entity2}", "/{entity}/{id}/{child}", "/{entity}/{id}"})
+  @Transactional
+  @Cacheable(cacheResolver = "elideCacheResolver")
+  public String jsonApiPost(@RequestBody final String body,
+                            final HttpServletRequest request,
+                            final Authentication authentication) throws JsonApiException {
+    ElideResponse response =  elide.post(
+        getJsonApiPath(request),
+        body,
+        getPrincipal(authentication)
+    );
+    return getResponse(response);
+  }
+
+  @CrossOrigin(origins = "*") // this is needed otherwise I get always an Invalid CORS Request message
+  @RequestMapping(
       method = RequestMethod.PATCH,
       produces = JSON_API_MEDIA_TYPE,
       value = {"/{entity}/{id}", "/{entity}/{id}/relationships/{entity2}"})
@@ -63,16 +81,13 @@ public class JsonApiController {
   public String jsonApiPatch(@RequestBody final String body,
                              final HttpServletRequest request,
                              final Authentication authentication) throws JsonApiException {
-    try {
-      return elide.patch(JSON_API_MEDIA_TYPE,
-          JSON_API_MEDIA_TYPE,
-          getJsonApiPath(request),
-          body,
-          getPrincipal(authentication)
-      ).getBody();
-    } catch (ValidationException e) {
-      return "da";
-    }
+    ElideResponse response = elide.patch(JSON_API_MEDIA_TYPE,
+        JSON_API_MEDIA_TYPE,
+        getJsonApiPath(request),
+        body,
+        getPrincipal(authentication)
+    );
+    return getResponse(response);
   }
 
   @CrossOrigin(origins = "*") // this is needed otherwise I get always an Invalid CORS Request message
@@ -107,7 +122,7 @@ public class JsonApiController {
   }
 
 
-  // Show error message as result
+  // Show valid json error message as result
   @ExceptionHandler(ValidationException.class)
   @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
   @ResponseBody
@@ -115,11 +130,11 @@ public class JsonApiController {
     return errorResponse(ex.getMessage());
   }
 
-  // Show error message as result
+  // Show valid json error message as result
   @ExceptionHandler(JsonApiException.class)
   @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
   @ResponseBody
-  public Map<String, Serializable> handleClanException(JsonApiException ex){
+  public Map<String, Serializable> handleClanException(JsonApiException ex) {
     return errorResponse(ex.getMessage());
   }
 
