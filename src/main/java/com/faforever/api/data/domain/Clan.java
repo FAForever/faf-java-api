@@ -1,156 +1,113 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.config.elide.checks.IsClanLeader;
+import com.faforever.api.data.validation.LeaderIsInClan;
+import com.yahoo.elide.annotation.CreatePermission;
+import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
+import com.yahoo.elide.annotation.SharePermission;
+import com.yahoo.elide.annotation.UpdatePermission;
+import com.yahoo.elide.security.checks.prefab.Role;
+import lombok.Setter;
+import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
-@Table(name = "clan_list")
+@Table(name = "clan")
 @Include(rootLevel = true, type = "clan")
+@SharePermission(expression = IsClanLeader.EXPRESSION)
+@DeletePermission(expression = IsClanLeader.EXPRESSION)
+@CreatePermission(any = Role.ALL.class)
+@Setter // Don't generate toString with lombok to avoid loops
+@LeaderIsInClan
 public class Clan {
 
-  private int clanId;
-  private Timestamp createDate;
-  private int status;
-  private String clanName;
-  private String clanTag;
-  private Player clanFounder;
-  private Player clanLeader;
-  private String clanDesc;
-  private String clanTagColor;
+  private int id;
+  private Timestamp createTime;
+  private Timestamp updateTime;
+  private String name;
+  private String tag;
+  private Player founder;
+  private Player leader;
+  private String description;
+  private String tagColor;
   private List<ClanMembership> memberships;
 
   @Id
-  @Column(name = "clan_id")
-  public int getClanId() {
-    return clanId;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  public int getId() {
+    return id;
   }
 
-  public void setClanId(int clanId) {
-    this.clanId = clanId;
+  @Column(name = "create_time")
+  public Timestamp getCreateTime() {
+    return createTime;
   }
 
-  @Basic
-  @Column(name = "create_date")
-  public Timestamp getCreateDate() {
-    return createDate;
+  @Column(name = "update_time")
+  public Timestamp getUpdateTime() {
+    return updateTime;
   }
 
-  public void setCreateDate(Timestamp createDate) {
-    this.createDate = createDate;
+  @Column(name = "name")
+  @NotNull
+  @UpdatePermission(expression = IsClanLeader.EXPRESSION)
+  public String getName() {
+    return name;
   }
 
-  @Basic
-  @Column(name = "status")
-  public int getStatus() {
-    return status;
-  }
-
-  public void setStatus(int status) {
-    this.status = status;
-  }
-
-  @Basic
-  @Column(name = "clan_name")
-  public String getClanName() {
-    return clanName;
-  }
-
-  public void setClanName(String clanName) {
-    this.clanName = clanName;
-  }
-
-  @Basic
-  @Column(name = "clan_tag")
-  public String getClanTag() {
-    return clanTag;
-  }
-
-  public void setClanTag(String clanTag) {
-    this.clanTag = clanTag;
+  @Column(name = "tag")
+  @Size(max = 3)
+  @NotNull
+  @UpdatePermission(expression = IsClanLeader.EXPRESSION)
+  public String getTag() {
+    return tag;
   }
 
   @ManyToOne
-  @JoinColumn(name = "clan_founder_id")
-  public Player getClanFounder() {
-    return clanFounder;
-  }
-
-  public void setClanFounder(Player clanFounderId) {
-    this.clanFounder = clanFounderId;
+  @JoinColumn(name = "founder_id")
+  public Player getFounder() {
+    return founder;
   }
 
   @ManyToOne
-  @JoinColumn(name = "clan_leader_id")
-  public Player getClanLeader() {
-    return clanLeader;
+  @JoinColumn(name = "leader_id")
+  @UpdatePermission(expression = IsClanLeader.EXPRESSION)
+  public Player getLeader() {
+    return leader;
   }
 
-  public void setClanLeader(Player clanLeaderId) {
-    this.clanLeader = clanLeaderId;
+  @Column(name = "description")
+  @UpdatePermission(expression = IsClanLeader.EXPRESSION)
+  public String getDescription() {
+    return description;
   }
 
-  @Basic
-  @Column(name = "clan_desc")
-  public String getClanDesc() {
-    return clanDesc;
+  @Column(name = "tag_color")
+  public String getTagColor() {
+    return tagColor;
   }
 
-  public void setClanDesc(String clanDesc) {
-    this.clanDesc = clanDesc;
-  }
-
-  @Basic
-  @Column(name = "clan_tag_color")
-  public String getClanTagColor() {
-    return clanTagColor;
-  }
-
-  public void setClanTagColor(String clanTagColor) {
-    this.clanTagColor = clanTagColor;
-  }
-
-  @OneToMany(mappedBy = "clan")
+  @OneToMany(mappedBy = "clan", cascade = CascadeType.ALL, orphanRemoval = true)
+  // cascading is needed for Create & Delete
+  @UpdatePermission(any = {Role.ALL.class}) // Permission is managed by ClanMembership class
+  @NotEmpty(message = "At least the leader should be in the clan")
   public List<ClanMembership> getMemberships() {
-    return memberships;
-  }
-
-  public void setMemberships(List<ClanMembership> memberships) {
-    this.memberships = memberships;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(clanId, createDate, status, clanName, clanTag, clanFounder, clanLeader, clanDesc, clanTagColor);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    Clan clan = (Clan) o;
-    return clanId == clan.clanId &&
-        status == clan.status &&
-        clanFounder == clan.clanFounder &&
-        clanLeader == clan.clanLeader &&
-        Objects.equals(createDate, clan.createDate) &&
-        Objects.equals(clanName, clan.clanName) &&
-        Objects.equals(clanTag, clan.clanTag) &&
-        Objects.equals(clanDesc, clan.clanDesc) &&
-        Objects.equals(clanTagColor, clan.clanTagColor);
+    return this.memberships;
   }
 }

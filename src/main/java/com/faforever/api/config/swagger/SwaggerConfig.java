@@ -52,6 +52,7 @@ public class SwaggerConfig {
         regex("/oauth/(.*token.*|.*authorize)"),
         regex("/data/.*"),
         regex("/health.*"),
+        regex("/clans/.*"),
         regex("/maps/.*"));
   }
 }

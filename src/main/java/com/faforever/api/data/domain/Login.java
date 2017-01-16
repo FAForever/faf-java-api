@@ -2,6 +2,8 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.config.elide.checks.IsOwner;
 import com.yahoo.elide.annotation.ReadPermission;
+import lombok.Setter;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -14,6 +16,7 @@ import javax.persistence.OneToOne;
 
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.JOINED)
+@Setter // Don't generate toString with lombok to avoid loops
 public abstract class Login {
 
   private int id;
@@ -22,15 +25,12 @@ public abstract class Login {
   private String steamId;
   private String userAgent;
   private BanDetails banDetails;
+  private String lowerCaseLogin;
 
   @Id
   @GeneratedValue
   public int getId() {
     return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
   }
 
   @Basic
@@ -39,8 +39,10 @@ public abstract class Login {
     return login;
   }
 
-  public void setLogin(String login) {
-    this.login = login;
+  // neeeded for filter
+  @Formula("LOWER(login)")
+  public String getLowerCaseLogin() {
+    return lowerCaseLogin;
   }
 
   @Basic
@@ -50,19 +52,11 @@ public abstract class Login {
     return eMail;
   }
 
-  public void setEMail(String eMail) {
-    this.eMail = eMail;
-  }
-
   @Basic
   @Column(name = "steamid")
   @ReadPermission(expression = IsOwner.EXPRESSION)
   public String getSteamId() {
     return steamId;
-  }
-
-  public void setSteamId(String steamId) {
-    this.steamId = steamId;
   }
 
   @Basic
@@ -71,16 +65,8 @@ public abstract class Login {
     return userAgent;
   }
 
-  public void setUserAgent(String userAgent) {
-    this.userAgent = userAgent;
-  }
-
   @OneToOne(mappedBy = "player")
   public BanDetails getBanDetails() {
     return banDetails;
-  }
-
-  public void setBanDetails(BanDetails banDetails) {
-    this.banDetails = banDetails;
   }
 }
