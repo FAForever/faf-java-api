@@ -1,10 +1,13 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.config.elide.checks.IsClanLeader;
+import com.faforever.api.data.validation.LeaderIsInClan;
 import com.yahoo.elide.annotation.Include;
+import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import com.yahoo.elide.security.checks.prefab.Role;
 import lombok.Setter;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -24,7 +27,9 @@ import java.util.List;
 @Table(name = "clan")
 @Include(rootLevel = true, type = "clan")
 @UpdatePermission(expression = IsClanLeader.EXPRESSION)
+@SharePermission(expression = IsClanLeader.EXPRESSION)
 @Setter
+@LeaderIsInClan
 public class Clan {
 
   private int id;
@@ -70,6 +75,7 @@ public class Clan {
 
   @ManyToOne
   @JoinColumn(name = "founder_id")
+  @UpdatePermission(any = Role.NONE.class)
   public Player getFounder() {
     return founder;
   }
@@ -92,6 +98,7 @@ public class Clan {
 
   @OneToMany(mappedBy = "clan")
   @UpdatePermission(any = {Role.ALL.class}) // Permission is managed by ClanMembership class
+  @NotEmpty(message="At least the leader should be in the clan")
   public List<ClanMembership> getMemberships() {
     return this.memberships;
   }
