@@ -1,6 +1,7 @@
 package com.faforever.api.data.validation;
 
 import com.faforever.api.data.domain.Clan;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 

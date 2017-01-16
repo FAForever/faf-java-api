@@ -1,6 +1,5 @@
 package com.faforever.api.config.elide.checks;
 
-import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.ClanMembership;
 import com.faforever.api.user.FafUserDetails;
 import com.yahoo.elide.security.ChangeSpec;
