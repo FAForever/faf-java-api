@@ -36,10 +36,6 @@ public class JsonApiController {
   public JsonApiController(Elide elide) {
     this.elide = elide;
   }
-
-  public static String getJsonApiPath(HttpServletRequest request) {
-    return ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).replace(PATH_PREFIX, "");
-  }
   
   @CrossOrigin(origins = "*")
   @RequestMapping(
@@ -121,7 +117,7 @@ public class JsonApiController {
     return authentication != null ? authentication.getPrincipal() : null;
   }
 
-  public static String getJsonApiPath(HttpServletRequest request) {
+  public String getJsonApiPath(HttpServletRequest request) {
     return ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).replace(PATH_PREFIX, "");
   }
 

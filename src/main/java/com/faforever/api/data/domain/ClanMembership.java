@@ -4,6 +4,7 @@ import com.faforever.api.config.elide.checks.ClanMembershipLeaderOnlyEditableByL
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import lombok.Data;
+import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,7 +20,7 @@ import java.sql.Timestamp;
 @Table(name = "clan_membership")
 @Include(rootLevel = true, type = "clan_membership")
 @DeletePermission(expression = ClanMembershipLeaderOnlyEditableByLeader.EXPRESSION)
-@Data
+@Setter // Don't generate toString with lombok to avoid loops
 public class ClanMembership {
 
   private int id;

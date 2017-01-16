@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
+@Setter // Don't generate toString with lombok to avoid loops
 public class AchievementUpdateRequest {
 
   public enum Operation {
