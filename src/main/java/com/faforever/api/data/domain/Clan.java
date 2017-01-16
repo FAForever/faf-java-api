@@ -103,7 +103,8 @@ public class Clan {
     return tagColor;
   }
 
-  @OneToMany(mappedBy = "clan", cascade = CascadeType.ALL, orphanRemoval = true) // cascading is needed for Create & Delete
+  @OneToMany(mappedBy = "clan", cascade = CascadeType.ALL, orphanRemoval = true)
+  // cascading is needed for Create & Delete
   @UpdatePermission(any = {Role.ALL.class}) // Permission is managed by ClanMembership class
   @NotEmpty(message = "At least the leader should be in the clan")
   public List<ClanMembership> getMemberships() {

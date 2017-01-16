@@ -64,7 +64,7 @@ public class JsonApiController {
   public String jsonApiPost(@RequestBody final String body,
                             final HttpServletRequest request,
                             final Authentication authentication) throws JsonApiException {
-    ElideResponse response =  elide.post(
+    ElideResponse response = elide.post(
         getJsonApiPath(request),
         body,
         getPrincipal(authentication)

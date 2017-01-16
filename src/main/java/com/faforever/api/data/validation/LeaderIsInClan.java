@@ -11,15 +11,15 @@ import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@Target({ TYPE, ANNOTATION_TYPE })
+@Target({TYPE, ANNOTATION_TYPE})
 @Retention(RUNTIME)
 @Constraint(validatedBy = LeaderIsInClanValidator.class)
 @Documented
-public @interface LeaderIsInClan{
+public @interface LeaderIsInClan {
 
   String message() default "Clan Leader is not Clan Member";
 
-  Class<?>[] groups() default { };
+  Class<?>[] groups() default {};
 
-  Class<? extends Payload>[] payload() default { };
+  Class<? extends Payload>[] payload() default {};
 }

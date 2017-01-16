@@ -27,6 +27,6 @@ public class MeController {
       @ApiResponse(code = 400, message = "Bad Request")})
   @Secured({"ROLE_USER"})
   public Map<String, Serializable> me(@AuthenticationPrincipal FafUserDetails authentication) throws IOException {
-   return ImmutableMap.of("id", authentication.getId(), "type", "player");
+    return ImmutableMap.of("id", authentication.getId(), "type", "player");
   }
 }

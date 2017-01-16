@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableConfigurationProperties({FafApiProperties.class})
 public class FafApiApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(FafApiApplication.class, args);
-	}
+  public static void main(String[] args) {
+    SpringApplication.run(FafApiApplication.class, args);
+  }
 }
