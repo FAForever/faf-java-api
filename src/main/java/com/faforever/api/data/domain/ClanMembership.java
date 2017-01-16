@@ -1,7 +1,9 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.config.elide.checks.IsClanMembershipLeader;
+import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
-import lombok.Data;
+import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,7 +18,8 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "clan_membership")
 @Include(rootLevel = true, type = "clan_membership")
-@Data
+@DeletePermission(expression = IsClanMembershipLeader.EXPRESSION)
+@Setter
 public class ClanMembership {
 
   private int id;

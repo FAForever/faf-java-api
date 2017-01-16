@@ -1,10 +1,15 @@
 package com.faforever.api.data;
 
+import com.google.common.collect.ImmutableMap;
 import com.yahoo.elide.Elide;
+import com.yahoo.elide.ElideResponse;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,10 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MultivaluedHashMap;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = JsonApiController.PATH_PREFIX)
@@ -37,11 +43,13 @@ public class JsonApiController {
       value = {"/{entity}", "/{entity}/{id}/relationships/{entity2}", "/{entity}/{id}/{child}", "/{entity}/{id}"})
   @Transactional(readOnly = true)
   @Cacheable(cacheResolver = "elideCacheResolver")
-  public String jsonApiGet(@RequestParam Map<String, String> allRequestParams, HttpServletRequest request, Authentication authentication) {
+  public String jsonApiGet(@RequestParam final Map<String, String> allRequestParams,
+                           final HttpServletRequest request,
+                           final Authentication authentication) {
     return elide.get(
         getJsonApiPath(request),
         new MultivaluedHashMap<>(allRequestParams),
-        authentication != null ? authentication.getPrincipal() : null
+        getPrincipal(authentication)
     ).getBody();
   }
 
@@ -51,18 +59,53 @@ public class JsonApiController {
       produces = JSON_API_MEDIA_TYPE,
       value = {"/{entity}/{id}", "/{entity}/{id}/relationships/{entity2}"})
   @Transactional
-  public String jsonApiPatch(final HttpServletRequest request, Authentication authentication) throws IOException {
-    // Note: We can only read the body ONCE with getReader
-    String body = request.getReader().lines().collect(Collectors.joining());
+  public String jsonApiPatch(@RequestBody final String body,
+                             final HttpServletRequest request,
+                             final Authentication authentication) {
     return elide.patch(JSON_API_MEDIA_TYPE,
         JSON_API_MEDIA_TYPE,
         getJsonApiPath(request),
         body,
-        authentication != null ? authentication.getPrincipal() : null
+        getPrincipal(authentication)
     ).getBody();
+  }
+
+  @CrossOrigin(origins = "*") // this is needed otherwise I get always an Invalid CORS Request message
+  @RequestMapping(
+      method = RequestMethod.DELETE,
+      produces = JSON_API_MEDIA_TYPE,
+      value = {"/{entity}/{id}", "/{entity}/{id}/relationships/{entity2}"})
+  @Transactional
+  public int jsonApiDelete(final HttpServletRequest request,
+                           final Authentication authentication) throws JsonApiException {
+    ElideResponse response = elide.delete(
+        getJsonApiPath(request),
+        null,
+        getPrincipal(authentication)
+    );
+    if (response.getResponseCode() / 100 != 2) {
+      throw new JsonApiException("No Permission");
+    }
+    return response.getResponseCode();
+  }
+
+  public static Object getPrincipal(final Authentication authentication) {
+    return authentication != null ? authentication.getPrincipal() : null;
   }
 
   public static String getJsonApiPath(HttpServletRequest request) {
     return ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).replace(PATH_PREFIX, "");
+  }
+
+
+  // Show error message as result
+  @ExceptionHandler(JsonApiException.class)
+  public Map<String, Serializable> handleClanException(JsonApiException ex, HttpServletResponse response) throws IOException {
+    response.setStatus(HttpStatus.UNPROCESSABLE_ENTITY.value());
+    ImmutableMap source = ImmutableMap.of("pointer", "");
+    ImmutableMap<String, Serializable> error = ImmutableMap.of(
+        "title", ex.getMessage(),
+        "source", source);
+    return ImmutableMap.of("errors", new ImmutableMap[]{error});
   }
 }
