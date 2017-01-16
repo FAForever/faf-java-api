@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
+import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import com.yahoo.elide.security.checks.prefab.Role;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import java.util.List;
 @Entity
 @Table(name = "login")
 @Include(rootLevel = true, type = "player")
+@SharePermission(any = Role.ALL.class)
 @Setter
 public class Player extends Login {
 
