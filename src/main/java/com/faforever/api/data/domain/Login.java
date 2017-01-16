@@ -2,7 +2,7 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.config.elide.checks.IsOwner;
 import com.yahoo.elide.annotation.ReadPermission;
-import lombok.Data;
+import lombok.Setter;
 import org.hibernate.annotations.Formula;
 
 import javax.persistence.Basic;
@@ -16,7 +16,7 @@ import javax.persistence.OneToOne;
 
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.JOINED)
-@Data
+@Setter
 public abstract class Login {
 
   private int id;
