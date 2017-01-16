@@ -114,21 +114,6 @@ public class ClansController {
     return ImmutableMap.of("id", clan.getId(), "type", "clan");
   }
 
-  @ApiOperation("Kick a member from the clan, Delete the Clan Membership")
-  @RequestMapping(path = "/kick", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-  @Transactional
-  public void kickMember(@RequestParam(value = "membershipId") int membershipId,
-                         Authentication authentication) throws IOException, ClanException {
-    Player player = AuthenticationHelper.getPlayer(authentication, playerRepository);
-    ClanMembership membership = clanMembershipRepository.findOne(membershipId);
-    checkAgainstNull(membership, "Clan Membership");
-    checkLeader(player, membership.getClan());
-    if (membership.getClan().getLeader().getId() == membership.getPlayer().getId()) {
-      throw new ClanException("Clan Leader cannot be kicked, please transfer Leadership first");  // TODO: outsource to I18n?
-    }
-    clanMembershipRepository.delete(membership);
-  }
-
   @ApiOperation("Transfer Clan Leadership from current leader to a new Clan Member")
   @RequestMapping(path = "/transferLeadership", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
   @Transactional
