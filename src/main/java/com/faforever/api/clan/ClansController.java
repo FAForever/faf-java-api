@@ -113,7 +113,7 @@ public class ClansController {
     membership.setPlayer(player);
 
     clan.setMemberships(Arrays.asList(membership));
-    clanRepository.save(clan);
+    clanRepository.save(clan); // clan membership is saved over cascading, otherwise validation will fail
 
     return ImmutableMap.of("id", clan.getId(), "type", "clan");
   }

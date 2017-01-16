@@ -29,7 +29,6 @@ import java.util.List;
 @Entity
 @Table(name = "clan")
 @Include(rootLevel = true, type = "clan")
-@UpdatePermission(expression = IsClanLeader.EXPRESSION)
 @SharePermission(expression = IsClanLeader.EXPRESSION)
 @DeletePermission(expression = IsClanLeader.EXPRESSION)
 @CreatePermission(any = Role.ALL.class)
@@ -67,6 +66,7 @@ public class Clan {
 
   @Column(name = "name")
   @NotNull
+  @UpdatePermission(expression = IsClanLeader.EXPRESSION)
   public String getName() {
     return name;
   }
@@ -74,6 +74,7 @@ public class Clan {
   @Column(name = "tag")
   @Size(max = 3)
   @NotNull
+  @UpdatePermission(expression = IsClanLeader.EXPRESSION)
   public String getTag() {
     return tag;
   }
@@ -86,11 +87,13 @@ public class Clan {
 
   @ManyToOne
   @JoinColumn(name = "leader_id")
+  @UpdatePermission(expression = IsClanLeader.EXPRESSION)
   public Player getLeader() {
     return leader;
   }
 
   @Column(name = "description")
+  @UpdatePermission(expression = IsClanLeader.EXPRESSION)
   public String getDescription() {
     return description;
   }
@@ -100,7 +103,7 @@ public class Clan {
     return tagColor;
   }
 
-  @OneToMany(mappedBy = "clan", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "clan", cascade = CascadeType.ALL, orphanRemoval = true) // cascading is needed for Create & Delete
   @UpdatePermission(any = {Role.ALL.class}) // Permission is managed by ClanMembership class
   @NotEmpty(message = "At least the leader should be in the clan")
   public List<ClanMembership> getMemberships() {
