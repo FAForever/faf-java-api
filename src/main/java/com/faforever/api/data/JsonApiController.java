@@ -4,7 +4,6 @@ import com.yahoo.elide.Elide;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,6 +29,10 @@ public class JsonApiController {
     this.elide = elide;
   }
 
+  public static String getJsonApiPath(HttpServletRequest request) {
+    return ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).replace(PATH_PREFIX, "");
+  }
+  
   @RequestMapping(
       method = RequestMethod.GET,
       produces = JSON_API_MEDIA_TYPE,
@@ -43,7 +46,7 @@ public class JsonApiController {
         authentication != null ? authentication.getPrincipal() : null
     ).getBody();
   }
-  
+
   @RequestMapping(
       method = RequestMethod.PATCH,
       produces = JSON_API_MEDIA_TYPE,
@@ -58,9 +61,5 @@ public class JsonApiController {
         body,
         authentication != null ? authentication.getPrincipal() : null
     ).getBody();
-  }
-
-  public static String getJsonApiPath(HttpServletRequest request) {
-    return ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).replace(PATH_PREFIX, "");
   }
 }
