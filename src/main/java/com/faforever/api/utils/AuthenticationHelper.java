@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public class AuthenticationHelper {
 
   public static Player getPlayer(org.springframework.security.core.Authentication authentication,
-                                    JpaRepository<Player, Integer> playerRepo) {
+                                 JpaRepository<Player, Integer> playerRepo) {
     if (authentication != null
         && authentication.getPrincipal() != null
         && authentication.getPrincipal() instanceof FafUserDetails) {

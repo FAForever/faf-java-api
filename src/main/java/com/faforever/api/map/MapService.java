@@ -45,7 +45,7 @@ public class MapService {
   @Transactional
   public void uploadMap(byte[] mapData, String mapFilename, Player author) throws IOException {
     Path finalPath = Paths.get(fafApiProperties.getMap().getFinalDirectory(), mapFilename);
-    if(Files.exists(finalPath)) {
+    if (Files.exists(finalPath)) {
       throw new ValidationException("Zip Filename already in use");
     }
     UUID id = UUID.randomUUID();
@@ -73,10 +73,10 @@ public class MapService {
 
 
     Optional<Map> mapEntity = mapRepository.findOneByDisplayName(scenarioInfo.get("name").toString());
-    if(mapEntity.isPresent() && mapEntity.get().getAuthor().getId() != author.getId()) {
+    if (mapEntity.isPresent() && mapEntity.get().getAuthor().getId() != author.getId()) {
       throw new ValidationException("Your are not the author of the map");
     }
-    if(mapEntity.isPresent() && mapEntity.get().getVersions().stream()
+    if (mapEntity.isPresent() && mapEntity.get().getVersions().stream()
         .anyMatch(mapVersion -> mapVersion.getVersion() == scenarioInfo.get("map_version").toint())) {
       throw new ValidationException("Map Version already exists");
     }

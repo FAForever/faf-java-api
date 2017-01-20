@@ -3,8 +3,6 @@ package com.faforever.api.config;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.nio.file.Path;
-
 @Data
 @ConfigurationProperties(prefix = "faf-api", ignoreUnknownFields = false)
 public class FafApiProperties {
