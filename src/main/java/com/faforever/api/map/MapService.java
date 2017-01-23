@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -44,15 +46,23 @@ public class MapService {
       "_save.lua",
       "_scenario.lua",
       "_script.lua"};
+  private static final String[] INVALID_MAP_NAME = new String[] {
+      "save",
+      "script",
+      "map",
+      "tables"
+  };
   private final FafApiProperties fafApiProperties;
   private final MapRepository mapRepository;
   private final ContentService contentService;
+  private final Pattern luaMapPattern;
 
   @Inject
   public MapService(FafApiProperties fafApiProperties, MapRepository mapRepository, ContentService contentService) {
     this.fafApiProperties = fafApiProperties;
     this.mapRepository = mapRepository;
     this.contentService = contentService;
+    this.luaMapPattern = Pattern.compile("([^/]+)\\.scmap");
   }
 
   @Transactional
@@ -90,6 +100,7 @@ public class MapService {
     LuaValue luaRoot = noCatch(() -> loadFile(scenarioLuaPath), IllegalStateException.class);
     LuaValue scenarioInfo = luaRoot.get("ScenarioInfo");
 
+    validateName(scenarioInfo);
 
     Optional<Map> mapEntity = mapRepository.findOneByDisplayName(scenarioInfo.get("name").toString());
     if (mapEntity.isPresent() && mapEntity.get().getAuthor().getId() != author.getId()) {
@@ -143,6 +154,20 @@ public class MapService {
 
     // delete temporary folder
     FileSystemUtils.deleteRecursively(baseDir.toFile());
+  }
+
+  private void validateName(LuaValue scenarioInfo) {
+    String mapString = scenarioInfo.get("map").toString();
+    Matcher matcher = luaMapPattern.matcher(mapString);
+    if(!matcher.find()) {
+      throw new ApiException(new Error(ErrorCode.MAP_NO_VALID_MAP_NAME, mapString));
+    }
+    String result = com.google.common.io.Files.getNameWithoutExtension(matcher.group(0));
+    Arrays.stream(INVALID_MAP_NAME).forEach(name ->{
+      if(name.equalsIgnoreCase(result)) {
+        throw new ApiException(new Error(ErrorCode.MAP_NO_VALID_MAP_NAME, result));
+      }
+    });
   }
 
   private String generateMapName(Map map, MapVersion version, String extension) {

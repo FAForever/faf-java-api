@@ -130,7 +130,17 @@ public class MapServiceTest {
     }
   }
 
-
+  @Test
+  public void nameNotAllowed() throws IOException {
+    String[] files = new String[] {"name_save.zip", "name_map.zip", "name_script.zip", "name_tables.zip"};
+    for (String zipFilename : files) {
+      try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
+        byte[] mapData = ByteStreams.toByteArray(inputStream);
+        expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_NO_VALID_MAP_NAME));
+        instance.uploadMap(mapData, zipFilename, null);
+      }
+    }
+  }
 
   @Test
   public void positiveUploadTest() throws IOException {
