@@ -1,13 +1,11 @@
 package com.faforever.api.map;
 
-import com.faforever.api.achievements.AchievementDefinitionRepository;
-import com.faforever.api.achievements.AchievementsService;
-import com.faforever.api.achievements.PlayerAchievementRepository;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.Map;
-import com.faforever.api.data.domain.AchievementDefinition;
+import com.faforever.api.content.ContentService;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ErrorCode;
+import com.google.common.io.ByteStreams;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -18,9 +16,19 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
-
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.faforever.api.error.ApiExceptionWithCode.apiExceptionWithCode;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.empty;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -37,14 +45,19 @@ public class MapServiceTest {
   @Mock
   private FafApiProperties fafApiProperties;
   @Mock
-  private FafApiProperties.Map mapConfig;
-  @Mock
   private Player author;
+  @Mock
+  private ContentService contentService;
+
 
   @Before
   public void setUp() throws Exception {
-    instance = new MapService(fafApiProperties , mapRepository);
+    instance = new MapService(fafApiProperties, mapRepository, contentService);
+    when(fafApiProperties.getMap()).thenReturn(new Map()
+        .setFinalDirectory(temporaryDirectory.getRoot().getAbsolutePath()));
+    when(contentService.createTempDir()).thenReturn(temporaryDirectory.getRoot().toPath());
   }
+
 
 //  AchievementDefinition achievementDefinition = new AchievementDefinition();
 //  achievementDefinition.setId(achievementId);
@@ -54,11 +67,33 @@ public class MapServiceTest {
 //  when(achievementDefinitionRepository.getOne(achievementId)).thenReturn(achievementDefinition);
 
   @Test
-  public void ErrorIfZipFileanameAllreadyExists() throws IOException {
-    when(fafApiProperties.getMap()).thenReturn(mapConfig);
-    when(mapConfig.getFinalDirectory()).thenReturn("d:/tmp");
+  public void zipFileanameAllreadyExists() throws IOException {
+    String name = "myCollMap.zip";
+    Path conflicted = Paths.get(temporaryDirectory.getRoot().getAbsolutePath(), name);
+    conflicted.toFile().createNewFile();
     expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_NAME_CONFLICT));
-    instance.uploadMap(null, "myCollMap.zip", null);
+    instance.uploadMap(null, name, null);
+  }
+
+  @Test
+  public void emptyZip() throws IOException {
+    String zipFilename = "empty.zip";
+    byte[] mapData = ByteStreams.toByteArray(MapServiceTest.class.getResourceAsStream("/maps/" + zipFilename));
+    expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_MISSING_MAP_FOLDER_INSIDE_ZIP));
+    instance.uploadMap(mapData, zipFilename, null);
+  }
+
+  @Test
+  public void writeFileToTmpDirectory() throws IOException {
+    when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
+    try (InputStream inputStream = MapServiceTest.class.getResourceAsStream("/maps/scmp_037.zip")) {
+      byte[] mapData = ByteStreams.toByteArray(inputStream);
+      String zipFilename = "scmp_037.zip";
+      Path tmp = temporaryDirectory.getRoot().toPath();
+      instance.uploadMap(mapData, zipFilename, null);
+
+      assertFalse(Files.exists(tmp));
+    }
   }
 
 //  public void test_maps_upload_is_metadata_missing(Object oauth, Object app, String tmpdir) {

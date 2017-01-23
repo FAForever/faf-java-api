@@ -18,6 +18,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import static com.github.nocatch.NoCatch.noCatch;
 import static java.awt.Image.SCALE_SMOOTH;
@@ -38,22 +40,27 @@ public final class PreviewGenerator {
     throw new AssertionError("Not instantiatable");
   }
 
-  public static javafx.scene.image.Image generatePreview(Path mapFolder, int width, int height) {
-    Path mapPath = noCatch(() -> list(mapFolder))
-        .filter(file -> file.getFileName().toString().endsWith(".scmap"))
-        .findFirst()
-        .orElseThrow(() -> new RuntimeException("No map file was found in: " + mapFolder.toAbsolutePath()));
+  public static javafx.scene.image.Image generatePreview(Path mapFolder, int width, int height) throws IOException {
+    try (Stream<Path> mapFolderStream = list(mapFolder)) {
+      Optional<Path> mapPath = mapFolderStream
+          .filter(file -> file.getFileName().toString().endsWith(".scmap"))
+          .findFirst();
+      if (!mapPath.isPresent()) {
+        throw new RuntimeException("No map file was found in: " + mapFolder.toAbsolutePath());
+      }
 
-    return noCatch(() -> {
-      MapData mapData = parseMap(mapPath);
+      return noCatch(() -> {
+        MapData mapData = parseMap(mapPath.get());
 
-      BufferedImage previewImage = getDdsImage(mapData);
-      previewImage = scale(previewImage, width, height);
+        BufferedImage previewImage = getDdsImage(mapData);
+        previewImage = scale(previewImage, width, height);
 
-      addMarkers(previewImage, mapData);
+        addMarkers(previewImage, mapData);
 
-      return SwingFXUtils.toFXImage(previewImage, new WritableImage(width, height));
-    });
+        return SwingFXUtils.toFXImage(previewImage, new WritableImage(width, height));
+      });
+
+    }
   }
 
   private static MapData parseMap(Path mapPath) throws IOException {

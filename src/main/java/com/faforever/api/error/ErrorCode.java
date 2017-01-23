@@ -47,7 +47,8 @@ public enum ErrorCode {
   EMAIL_CHANGE_FAILED(140, "Email change failed", "An unknown error happened while updating the database."),
   STEAM_ID_UNCHANGEABLE(141, "Linking to Steam failed", "Your account is already bound to another Steam ID."),
   UNKNOWN_FEATURED_MOD(142, "Unknown featured mod", "There is no featured mod with ID '{}'."),
-  MAP_SCENARIO_LUA_MISSING(143, "Invalid Map File", "Zip File does not contain a *_scenario.lua");
+  MAP_SCENARIO_LUA_MISSING(143, "Invalid Map File", "Zip File does not contain a *_scenario.lua"),
+  MAP_MISSING_MAP_FOLDER_INSIDE_ZIP(144, "No folder inside Zip", "Zip file must contain a folder with all map data");
 
   private final int code;
   private final String title;
