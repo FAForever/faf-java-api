@@ -17,20 +17,6 @@ import java.util.Objects;
 @Table(name = "oauth_clients")
 public class OAuthClient {
 
-  @Converter(autoApply = true)
-  public static class ClientTypeConverter implements AttributeConverter<ClientType, String> {
-
-    @Override
-    public String convertToDatabaseColumn(ClientType attribute) {
-      return attribute.getString();
-    }
-
-    @Override
-    public ClientType convertToEntityAttribute(String dbData) {
-      return ClientType.fromString(dbData);
-    }
-  }
-
   private String id;
   private String name;
   private String clientSecret;
@@ -142,5 +128,19 @@ public class OAuthClient {
         Objects.equals(defaultRedirectUri, that.defaultRedirectUri) &&
         Objects.equals(defaultScope, that.defaultScope) &&
         Objects.equals(iconUrl, that.iconUrl);
+  }
+
+  @Converter(autoApply = true)
+  public static class ClientTypeConverter implements AttributeConverter<ClientType, String> {
+
+    @Override
+    public String convertToDatabaseColumn(ClientType attribute) {
+      return attribute.getString();
+    }
+
+    @Override
+    public ClientType convertToEntityAttribute(String dbData) {
+      return ClientType.fromString(dbData);
+    }
   }
 }

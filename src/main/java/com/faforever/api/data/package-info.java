@@ -10,5 +10,9 @@
 @SharePermission(any={Role.NONE.class })
 package com.faforever.api.data;
 
-import com.yahoo.elide.annotation.*;
+import com.yahoo.elide.annotation.CreatePermission;
+import com.yahoo.elide.annotation.DeletePermission;
+import com.yahoo.elide.annotation.ReadPermission;
+import com.yahoo.elide.annotation.SharePermission;
+import com.yahoo.elide.annotation.UpdatePermission;
 import com.yahoo.elide.security.checks.prefab.Role;
