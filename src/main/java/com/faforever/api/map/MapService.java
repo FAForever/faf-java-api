@@ -50,9 +50,8 @@ public class MapService {
     if (Files.exists(finalPath)) {
       throw new ApiException(new Error(ErrorCode.MAP_NAME_CONFLICT, mapFilename));
     }
-    UUID id = UUID.randomUUID();
-    Path tmpFile = Paths.get(fafApiProperties.getMap().getTemporaryDirectory(), id.toString(), mapFilename);
-    Path baseDir = tmpFile.getParent();
+    Path baseDir = com.google.common.io.Files.createTempDir().toPath();
+    Path tmpFile = Paths.get(baseDir.toString(), mapFilename);
     Files.createDirectories(baseDir);
     Files.write(tmpFile, mapData);
 
@@ -115,6 +114,7 @@ public class MapService {
 
 
     // move to final path
+    // TODO: normalize zip file and repack it https://github.com/FAForever/faftools/blob/87f0275b889e5dd1b1545252a220186732e77403/faf/tools/fa/maps.py#L222
     Files.createDirectories(finalPath.getParent());
     FileCopyUtils.copy(mapData, finalPath.toFile());
 

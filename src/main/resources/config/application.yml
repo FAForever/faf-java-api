@@ -1,5 +1,10 @@
 faf-api:
   version: #faf-api.version#
+  map:
+    final-directory: ${MAP_UPLOAD_PATH}
+    map-preview-path-large: ${MAP_PREVIEW_PATH}
+    large-previews-url-format: ${MAP_PREVIEW_PATH}
+
 
 spring:
   application:

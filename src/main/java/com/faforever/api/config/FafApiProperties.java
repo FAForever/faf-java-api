@@ -34,10 +34,9 @@ public class FafApiProperties {
     private String smallPreviewsUrlFormat = "http://content.faforever.com/faf/map_previews/small/%s";
     private String largePreviewsUrlFormat = "http://content.faforever.com/faf/map_previews/large/%s";
     private String downloadUrlFormat = "http://content.faforever.com/faf/vault/maps/%s";
-    private String temporaryDirectory = "d:/tmp/faf/map";
-    private String finalDirectory = "d:/tmp/faf/map_final";
-    private String MapPreviewPathSmall = "d:/tmp/faf/preview_small";
-    private String MapPreviewPathLarge = "d:/tmp/faf/preview_large";
+    private String finalDirectory = "/content/faf/vault/maps";
+    private String MapPreviewPathSmall = "/content/faf/vault/map_previews";
+    private String MapPreviewPathLarge = "/content/faf/vault/map_previews";
     private int PreviewSizeSmall = 128;
     private int PreviewSizeLarge = 512;
     private String[] allowedExtensions = new String[]{".zip"};
