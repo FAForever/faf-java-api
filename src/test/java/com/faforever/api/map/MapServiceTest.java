@@ -46,7 +46,6 @@ public class MapServiceTest {
   @Mock
   private ContentService contentService;
 
-
   @Before
   public void setUp() {
     instance = new MapService(fafApiProperties, mapRepository, contentService);
@@ -118,6 +117,20 @@ public class MapServiceTest {
       instance.uploadMap(mapData, zipFilename, me);
     }
   }
+
+  @Test
+  public void fileIsMissingInsideZip() throws IOException {
+    String[] files = new String[] {"without_scmap.zip", "without_scenariolua.zip", "without_scmap.zip", "without_scriptlua.zip"};
+    for (String zipFilename : files) {
+      try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
+        byte[] mapData = ByteStreams.toByteArray(inputStream);
+        expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING));
+        instance.uploadMap(mapData, zipFilename, null);
+      }
+    }
+  }
+
+
 
   @Test
   public void positiveUploadTest() throws IOException {

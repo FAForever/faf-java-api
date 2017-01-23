@@ -48,7 +48,8 @@ public enum ErrorCode {
   STEAM_ID_UNCHANGEABLE(141, "Linking to Steam failed", "Your account is already bound to another Steam ID."),
   UNKNOWN_FEATURED_MOD(142, "Unknown featured mod", "There is no featured mod with ID '{}'."),
   MAP_SCENARIO_LUA_MISSING(143, "Invalid Map File", "Zip File does not contain a *_scenario.lua"),
-  MAP_MISSING_MAP_FOLDER_INSIDE_ZIP(144, "No folder inside Zip", "Zip file must contain a folder with all map data");
+  MAP_MISSING_MAP_FOLDER_INSIDE_ZIP(144, "No folder inside Zip", "Zip file must contain a folder with all map data"),
+  MAP_FILE_INSIDE_ZIP_MISSING(145, "File is missing", "Cannot find inside the zip file {0}");
 
   private final int code;
   private final String title;

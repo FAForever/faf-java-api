@@ -73,7 +73,6 @@ public class MapService {
           .findFirst();
     }
 
-
     if (!mapFolder.isPresent()) {
       throw new ApiException(new Error(ErrorCode.MAP_MISSING_MAP_FOLDER_INSIDE_ZIP));
     }
@@ -172,7 +171,7 @@ public class MapService {
           .forEach(filePattern -> {
             if (filePaths.stream()
                 .noneMatch(filePath -> filePath.toString().endsWith(filePattern))) {
-              throw new IllegalStateException("File missing: " + filePattern);
+              throw new ApiException(new Error(ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING, filePattern));
             }
           });
     }
