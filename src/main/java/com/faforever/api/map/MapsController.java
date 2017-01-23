@@ -8,10 +8,10 @@ import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.utils.AuthenticationHelper;
 import com.faforever.api.utils.JsonApiErrorBuilder;
+import com.google.common.io.Files;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -55,7 +55,7 @@ public class MapsController {
     if (file == null) {
       throw new ApiException(new Error(ErrorCode.UPLOAD_FILE_MISSING));
     }
-    String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+    String extension = Files.getNameWithoutExtension(file.getOriginalFilename());
     if (Arrays.asList(fafApiProperties.getMap().getAllowedExtensions()).stream().noneMatch(
         allowedExtension -> extension.equals(allowedExtension))) {
       throw new ApiException(new Error(ErrorCode.UPLOAD_INVALID_FILE_EXTENSION, extension));

@@ -148,7 +148,6 @@ dependencies {
 
   compile("org.luaj:luaj-jse:${luajVersion}")
   compile("com.github.micheljung:nocatch:${nocatchVersion}")
-  compile("commons-io:commons-io:${commonsIoVersion}")
 
   runtime("mysql:mysql-connector-java:${mysqlConnectorVersion}")
 

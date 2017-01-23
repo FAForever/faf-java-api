@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Setter //Don't generate toString with lombok to avoid loops
+@Setter
 @Table(name = "map")
 @Include(rootLevel = true, type = "map")
 @Immutable

@@ -9,6 +9,5 @@ import java.util.Optional;
 @Repository
 public interface MapRepository extends JpaRepository<Map, Integer> {
 
-  // https://docs.spring.io/spring-data/jpa/docs/current/reference/html/
   Optional<Map> findOneByDisplayName(String displayName);
 }

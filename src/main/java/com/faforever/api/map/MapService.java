@@ -12,7 +12,6 @@ import com.faforever.api.utils.PreviewGenerator;
 import com.faforever.api.utils.Unzipper;
 import javafx.scene.image.Image;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.luaj.vm2.LuaValue;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,7 +54,7 @@ public class MapService {
     Path tmpFile = Paths.get(fafApiProperties.getMap().getTemporaryDirectory(), id.toString(), mapFilename);
     Path baseDir = tmpFile.getParent();
     Files.createDirectories(baseDir);
-    FileCopyUtils.copy(mapData, tmpFile.toFile());
+    Files.write(tmpFile, mapData);
 
 
     // unzip into temporary folder
@@ -107,7 +106,7 @@ public class MapService {
     mapRepository.save(map);
 
     // generate preview
-    String previewFilename = FilenameUtils.removeExtension(mapFilename) + ".png";
+    String previewFilename = com.google.common.io.Files.getNameWithoutExtension(mapFilename) + ".png";
     generateImage(Paths.get(
         fafApiProperties.getMap().getMapPreviewPathSmall(), previewFilename),
         baseDir,
