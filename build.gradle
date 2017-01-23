@@ -128,7 +128,9 @@ dependencies {
   compile("org.springframework.boot:spring-boot-starter-web")
   compile("org.springframework.boot:spring-boot-starter-jetty")
   compile("org.springframework.boot:spring-boot-starter-security")
+  compile("de.codecentric:spring-boot-admin-starter-client:${springBootAdminClientVersion}")
 
+  compile("org.jolokia:jolokia-core:${jolokiaVersion}")
   compile("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
   compile("org.springframework.security.oauth:spring-security-oauth2:${springSecurityOauth2Version}")
   compile("org.springframework:spring-context-support:${springContextSupportVersion}")
