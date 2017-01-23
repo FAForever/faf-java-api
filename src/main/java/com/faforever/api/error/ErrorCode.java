@@ -46,7 +46,8 @@ public enum ErrorCode {
   USERNAME_CHANGE_TOO_EARLY(139, "Username change not allowed", "Only one name change per 30 days is allowed. {0} more days to go."),
   EMAIL_CHANGE_FAILED(140, "Email change failed", "An unknown error happened while updating the database."),
   STEAM_ID_UNCHANGEABLE(141, "Linking to Steam failed", "Your account is already bound to another Steam ID."),
-  UNKNOWN_FEATURED_MOD(142, "Unknown featured mod", "There is no featured mod with ID '{}'.");
+  UNKNOWN_FEATURED_MOD(142, "Unknown featured mod", "There is no featured mod with ID '{}'."),
+  MAP_SCENARIO_LUA_MISSING(143, "Invalid Map File", "Zip File does not contain a *_scenario.lua");
 
   private final int code;
   private final String title;

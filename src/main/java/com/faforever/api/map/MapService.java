@@ -18,14 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 
 import javax.inject.Inject;
-import javax.validation.ValidationException;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
 import static com.faforever.api.utils.LuaUtil.loadFile;
@@ -52,7 +50,6 @@ public class MapService {
     }
     Path baseDir = com.google.common.io.Files.createTempDir().toPath();
     Path tmpFile = Paths.get(baseDir.toString(), mapFilename);
-    Files.createDirectories(baseDir);
     Files.write(tmpFile, mapData);
 
     try (ZipInputStream zipInputStream = new ZipInputStream(new BufferedInputStream(Files.newInputStream(tmpFile)))) {
@@ -63,7 +60,7 @@ public class MapService {
     Path scenarioLuaPath = noCatch(() -> list(baseDir))
         .filter(myFile -> myFile.toString().endsWith("_scenario.lua"))
         .findFirst()
-        .orElseThrow(() -> new IllegalStateException("Map folder does not contain a *_scenario.lua: " + baseDir.toAbsolutePath()));
+        .orElseThrow(() -> new ApiException(new Error(ErrorCode.MAP_SCENARIO_LUA_MISSING)));
 
     LuaValue luaRoot = noCatch(() -> loadFile(scenarioLuaPath), IllegalStateException.class);
     LuaValue scenarioInfo = luaRoot.get("ScenarioInfo");
@@ -71,30 +68,31 @@ public class MapService {
 
     Optional<Map> mapEntity = mapRepository.findOneByDisplayName(scenarioInfo.get("name").toString());
     if (mapEntity.isPresent() && mapEntity.get().getAuthor().getId() != author.getId()) {
-      throw new ValidationException("Your are not the author of the map");
+      throw new ApiException(new Error(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR, mapEntity.get().getDisplayName()));
     }
+    int newVersion = scenarioInfo.get("map_version").toint();
     if (mapEntity.isPresent() && mapEntity.get().getVersions().stream()
-        .anyMatch(mapVersion -> mapVersion.getVersion() == scenarioInfo.get("map_version").toint())) {
-      throw new ValidationException("Map Version already exists");
+        .anyMatch(mapVersion -> mapVersion.getVersion() == newVersion)) {
+      throw new ApiException(new Error(ErrorCode.MAP_VERSION_EXISTS, mapEntity.get().getDisplayName(), newVersion));
     }
 
     Map map = mapEntity.orElseGet(Map::new)
-    .setDisplayName(scenarioInfo.get("name").toString())
-    .setMapType(scenarioInfo.get("type").tojstring())
-    .setBattleType(scenarioInfo.get("Configurations").get("standard").get("teams").get(1).get("name").tojstring())
-    .setAuthor(author);
+        .setDisplayName(scenarioInfo.get("name").toString())
+        .setMapType(scenarioInfo.get("type").tojstring())
+        .setBattleType(scenarioInfo.get("Configurations").get("standard").get("teams").get(1).get("name").tojstring())
+        .setAuthor(author);
 
     // try to save entity to db to trigger validation
     LuaValue size = scenarioInfo.get("size");
     MapVersion version = new MapVersion()
-    .setFilename(mapFilename)
-    .setDescription(scenarioInfo.get("description").tojstring().replaceAll("<LOC .*?>", ""))
-    .setWidth((int) (size.get(1).toint() / MAP_SIZE_FACTOR))
-    .setHeight((int) (size.get(2).toint() / MAP_SIZE_FACTOR))
-    .setHidden(false)
-    .setRanked(false) // TODO: read from json data
-    .setMaxPlayers(scenarioInfo.get("Configurations").get("standard").get("teams").get(1).get("armies").length())
-    .setVersion(scenarioInfo.get("map_version").toint());
+        .setFilename(mapFilename)
+        .setDescription(scenarioInfo.get("description").tojstring().replaceAll("<LOC .*?>", ""))
+        .setWidth((int) (size.get(1).toint() / MAP_SIZE_FACTOR))
+        .setHeight((int) (size.get(2).toint() / MAP_SIZE_FACTOR))
+        .setHidden(false)
+        .setRanked(false) // TODO: read from json data
+        .setMaxPlayers(scenarioInfo.get("Configurations").get("standard").get("teams").get(1).get("armies").length())
+        .setVersion(scenarioInfo.get("map_version").toint());
 
     map.getVersions().add(version);
     version.setMap(map);
