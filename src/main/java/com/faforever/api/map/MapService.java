@@ -52,7 +52,6 @@ public class MapService {
       throw new ApiException(new Error(ErrorCode.MAP_NAME_CONFLICT, mapFilename));
     }
     Path baseDir = contentService.createTempDir();
-    Paths.get(baseDir.toString(), "testme").toFile().mkdir();
     Path tmpFile = Paths.get(baseDir.toString(), mapFilename);
     Files.write(tmpFile, mapData);
 
@@ -122,7 +121,6 @@ public class MapService {
             fafApiProperties.getMap().getMapPreviewPathLarge(), previewFilename),
             mapFolder.get(),
             fafApiProperties.getMap().getPreviewSizeLarge());
-
       }
     }
 

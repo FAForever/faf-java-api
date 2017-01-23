@@ -3,9 +3,11 @@ package com.faforever.api.map;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.Map;
 import com.faforever.api.content.ContentService;
+import com.faforever.api.data.domain.MapVersion;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ErrorCode;
 import com.google.common.io.ByteStreams;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -14,20 +16,18 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.util.FileSystemUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.faforever.api.error.ApiExceptionWithCode.apiExceptionWithCode;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -45,26 +45,23 @@ public class MapServiceTest {
   @Mock
   private FafApiProperties fafApiProperties;
   @Mock
-  private Player author;
-  @Mock
   private ContentService contentService;
 
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     instance = new MapService(fafApiProperties, mapRepository, contentService);
     when(fafApiProperties.getMap()).thenReturn(new Map()
         .setFinalDirectory(temporaryDirectory.getRoot().getAbsolutePath()));
     when(contentService.createTempDir()).thenReturn(temporaryDirectory.getRoot().toPath());
   }
 
-
-//  AchievementDefinition achievementDefinition = new AchievementDefinition();
-//  achievementDefinition.setId(achievementId);
-//  achievementDefinition.setType(type);
-//  achievementDefinition.setTotalSteps(totalSteps);
-//
-//  when(achievementDefinitionRepository.getOne(achievementId)).thenReturn(achievementDefinition);
+  @After
+  public void shutDown() {
+    if(Files.exists(temporaryDirectory.getRoot().toPath())) {
+      FileSystemUtils.deleteRecursively(temporaryDirectory.getRoot());
+    }
+  }
 
   @Test
   public void zipFileanameAllreadyExists() throws IOException {
@@ -78,22 +75,65 @@ public class MapServiceTest {
   @Test
   public void emptyZip() throws IOException {
     String zipFilename = "empty.zip";
-    byte[] mapData = ByteStreams.toByteArray(MapServiceTest.class.getResourceAsStream("/maps/" + zipFilename));
-    expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_MISSING_MAP_FOLDER_INSIDE_ZIP));
-    instance.uploadMap(mapData, zipFilename, null);
+    try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
+      byte[] mapData = ByteStreams.toByteArray(inputStream);
+      expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_MISSING_MAP_FOLDER_INSIDE_ZIP));
+      instance.uploadMap(mapData, zipFilename, null);
+    }
   }
 
   @Test
-  public void writeFileToTmpDirectory() throws IOException {
-    when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
-    try (InputStream inputStream = MapServiceTest.class.getResourceAsStream("/maps/scmp_037.zip")) {
+  public void notCorrectAuthor() throws IOException {
+    String zipFilename = "scmp_037.zip";
+
+    Player me = new Player();
+    me.setId(1);
+    Player bob = new Player();
+    bob.setId(2);
+
+    com.faforever.api.data.domain.Map map = new com.faforever.api.data.domain.Map().setAuthor(bob);
+    when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.of(map));
+    try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
-      String zipFilename = "scmp_037.zip";
+      expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR));
+      instance.uploadMap(mapData, zipFilename, me);
+    }
+  }
+
+  @Test
+  public void versionExistsAlready() throws IOException {
+    String zipFilename = "scmp_037.zip";
+
+    Player me = new Player();
+    me.setId(1);
+
+    com.faforever.api.data.domain.Map map = new com.faforever.api.data.domain.Map()
+        .setAuthor(me)
+        .setVersions(Arrays.asList(new MapVersion().setVersion(1)));
+
+    when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.of(map));
+    try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
+      byte[] mapData = ByteStreams.toByteArray(inputStream);
+      expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_VERSION_EXISTS));
+      instance.uploadMap(mapData, zipFilename, me);
+    }
+  }
+
+  @Test
+  public void positiveUploadTest() throws IOException {
+    String zipFilename = "scmp_037.zip";
+    when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
+    try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
+      byte[] mapData = ByteStreams.toByteArray(inputStream);
       Path tmp = temporaryDirectory.getRoot().toPath();
       instance.uploadMap(mapData, zipFilename, null);
 
       assertFalse(Files.exists(tmp));
     }
+  }
+
+  private InputStream loadMapResourceAsStream(String filename) {
+    return MapServiceTest.class.getResourceAsStream("/maps/" + filename);
   }
 
 //  public void test_maps_upload_is_metadata_missing(Object oauth, Object app, String tmpdir) {
