@@ -56,12 +56,8 @@ public class MapService {
     Files.createDirectories(baseDir);
     Files.write(tmpFile, mapData);
 
-
-    // unzip into temporary folder
     try (ZipInputStream zipInputStream = new ZipInputStream(new BufferedInputStream(Files.newInputStream(tmpFile)))) {
-      Unzipper unzipper = Unzipper.from(zipInputStream);
-      unzipper.to(baseDir);
-      unzipper.unzip();
+      Unzipper.from(zipInputStream).to(baseDir).unzip();
     }
 
     // read from Lua File
@@ -83,23 +79,23 @@ public class MapService {
       throw new ValidationException("Map Version already exists");
     }
 
-    Map map = mapEntity.isPresent() ? mapEntity.get() : new Map();
-    map.setDisplayName(scenarioInfo.get("name").toString());
-    map.setMapType(scenarioInfo.get("type").tojstring());
-    map.setBattleType(scenarioInfo.get("Configurations").get("standard").get("teams").get(1).get("name").tojstring());
-    map.setAuthor(author);
+    Map map = mapEntity.orElseGet(Map::new)
+    .setDisplayName(scenarioInfo.get("name").toString())
+    .setMapType(scenarioInfo.get("type").tojstring())
+    .setBattleType(scenarioInfo.get("Configurations").get("standard").get("teams").get(1).get("name").tojstring())
+    .setAuthor(author);
 
     // try to save entity to db to trigger validation
     LuaValue size = scenarioInfo.get("size");
-    MapVersion version = new MapVersion();
-    version.setFilename(mapFilename);
-    version.setDescription(scenarioInfo.get("description").tojstring().replaceAll("<LOC .*?>", ""));
-    version.setWidth((int) (size.get(1).toint() / MAP_SIZE_FACTOR));
-    version.setHeight((int) (size.get(2).toint() / MAP_SIZE_FACTOR));
-    version.setHidden(false);
-    version.setRanked(false);
-    version.setMaxPlayers(scenarioInfo.get("Configurations").get("standard").get("teams").get(1).get("armies").length());
-    version.setVersion(scenarioInfo.get("map_version").toint());
+    MapVersion version = new MapVersion()
+    .setFilename(mapFilename)
+    .setDescription(scenarioInfo.get("description").tojstring().replaceAll("<LOC .*?>", ""))
+    .setWidth((int) (size.get(1).toint() / MAP_SIZE_FACTOR))
+    .setHeight((int) (size.get(2).toint() / MAP_SIZE_FACTOR))
+    .setHidden(false)
+    .setRanked(false) // TODO: read from json data
+    .setMaxPlayers(scenarioInfo.get("Configurations").get("standard").get("teams").get(1).get("armies").length())
+    .setVersion(scenarioInfo.get("map_version").toint());
 
     map.getVersions().add(version);
     version.setMap(map);

@@ -14,6 +14,7 @@ import java.util.zip.ZipInputStream;
 
 import static java.nio.file.StandardOpenOption.CREATE;
 
+// TODO: move to shared faf code
 public final class Unzipper {
 
   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

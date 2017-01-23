@@ -25,6 +25,7 @@ import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
 import static java.nio.file.Files.isRegularFile;
 import static java.nio.file.Files.list;
 
+// TODO: move to shared faf code
 public final class PreviewGenerator {
 
   private static final double RESOURCE_ICON_RATIO = 20 / 1024d;
