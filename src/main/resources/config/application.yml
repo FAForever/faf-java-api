@@ -31,4 +31,6 @@ security:
   enable-csrf: true
 
 management:
-  context-path: /management
+  port: 8081
+  security:
+    enabled: false
