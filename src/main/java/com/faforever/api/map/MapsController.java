@@ -1,12 +1,17 @@
 package com.faforever.api.map;
 
+import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Player;
+import com.faforever.api.error.ApiException;
+import com.faforever.api.error.Error;
+import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.utils.AuthenticationHelper;
 import com.faforever.api.utils.JsonApiErrorBuilder;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.ValidationException;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Map;
 
 @RestController
@@ -28,11 +34,13 @@ import java.util.Map;
 public class MapsController {
   private final PlayerRepository playerRepository;
   private final MapService mapService;
+  private final FafApiProperties fafApiProperties;
 
   @Inject
-  public MapsController(PlayerRepository playerRepository, MapService mapService) {
+  public MapsController(PlayerRepository playerRepository, MapService mapService, FafApiProperties fafApiProperties) {
     this.playerRepository = playerRepository;
     this.mapService = mapService;
+    this.fafApiProperties = fafApiProperties;
   }
 
   @ApiOperation("Uploads a map")
@@ -45,11 +53,14 @@ public class MapsController {
                         Authentication authentication) throws IOException {
     Player player = AuthenticationHelper.getPlayer(authentication, playerRepository);
     if (file == null) {
-      throw new ValidationException("Please send the map with the 'key' file as Multipart File");
+      throw new ApiException(new Error(ErrorCode.UPLOAD_FILE_MISSING));
     }
-    if (!file.getOriginalFilename().endsWith(".zip")) {
-      throw new ValidationException("We only support zip files");
+    String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+    if (Arrays.asList(fafApiProperties.getMap().getAllowedExtensions()).stream().noneMatch(
+        allowedExtension -> extension.equals(allowedExtension))) {
+      throw new ApiException(new Error(ErrorCode.UPLOAD_INVALID_FILE_EXTENSION, extension));
     }
+    // TODO: read metadata json
     mapService.uploadMap(file.getBytes(), file.getOriginalFilename(), player);
   }
 

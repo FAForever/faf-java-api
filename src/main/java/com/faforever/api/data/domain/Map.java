@@ -15,6 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.sql.Timestamp;
@@ -75,6 +76,7 @@ public class Map {
 
   @OneToMany(mappedBy = "map", cascade = CascadeType.ALL, orphanRemoval = true)
   @NotEmpty
+  @Valid
   public List<MapVersion> getVersions() {
     return versions;
   }

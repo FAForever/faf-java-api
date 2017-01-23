@@ -40,6 +40,7 @@ public class FafApiProperties {
     private String MapPreviewPathLarge = "d:/tmp/faf/preview_large";
     private int PreviewSizeSmall = 128;
     private int PreviewSizeLarge = 512;
+    private String[] allowedExtensions = new String[]{".zip"};
 
   }
 

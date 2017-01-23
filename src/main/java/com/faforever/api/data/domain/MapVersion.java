@@ -52,19 +52,19 @@ public class MapVersion {
   }
 
   @Column(name = "width")
-  @NotNull
+  // FIXME: validation
   public int getWidth() {
     return width;
   }
 
   @Column(name = "height")
-  @NotNull
+  // FIXME: validation
   public int getHeight() {
     return height;
   }
 
   @Column(name = "version")
-  @NotNull
+  // FIXME: validation
   public int getVersion() {
     return version;
   }
@@ -76,13 +76,11 @@ public class MapVersion {
   }
 
   @Column(name = "ranked")
-  @NotNull
   public boolean getRanked() {
     return ranked;
   }
 
   @Column(name = "hidden")
-  @NotNull
   public boolean getHidden() {
     return hidden;
   }

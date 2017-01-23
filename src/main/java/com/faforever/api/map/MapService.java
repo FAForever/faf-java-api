@@ -4,6 +4,9 @@ import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Map;
 import com.faforever.api.data.domain.MapVersion;
 import com.faforever.api.data.domain.Player;
+import com.faforever.api.error.ApiException;
+import com.faforever.api.error.Error;
+import com.faforever.api.error.ErrorCode;
 import com.faforever.api.utils.JavaFxUtil;
 import com.faforever.api.utils.PreviewGenerator;
 import com.faforever.api.utils.Unzipper;
@@ -46,7 +49,7 @@ public class MapService {
   public void uploadMap(byte[] mapData, String mapFilename, Player author) throws IOException {
     Path finalPath = Paths.get(fafApiProperties.getMap().getFinalDirectory(), mapFilename);
     if (Files.exists(finalPath)) {
-      throw new ValidationException("Zip Filename already in use");
+      throw new ApiException(new Error(ErrorCode.MAP_NAME_CONFLICT, mapFilename));
     }
     UUID id = UUID.randomUUID();
     Path tmpFile = Paths.get(fafApiProperties.getMap().getTemporaryDirectory(), id.toString(), mapFilename);
