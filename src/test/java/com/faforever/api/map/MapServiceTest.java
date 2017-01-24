@@ -50,7 +50,9 @@ public class MapServiceTest {
   public void setUp() {
     instance = new MapService(fafApiProperties, mapRepository, contentService);
     when(fafApiProperties.getMap()).thenReturn(new Map()
-        .setFinalDirectory(temporaryDirectory.getRoot().getAbsolutePath()));
+        .setFinalDirectory(temporaryDirectory.getRoot().getAbsolutePath())
+        .setMapPreviewPathLarge(temporaryDirectory.getRoot().getAbsolutePath())
+        .setMapPreviewPathSmall(temporaryDirectory.getRoot().getAbsolutePath()));
     when(contentService.createTempDir()).thenReturn(temporaryDirectory.getRoot().toPath());
   }
 
@@ -120,7 +122,7 @@ public class MapServiceTest {
 
   @Test
   public void fileIsMissingInsideZip() throws IOException {
-    String[] files = new String[] {"without_scmap.zip", "without_scenariolua.zip", "without_scmap.zip", "without_scriptlua.zip"};
+    String[] files = new String[]{"without_scmap.zip", "without_scenariolua.zip", "without_scmap.zip", "without_scriptlua.zip"};
     for (String zipFilename : files) {
       try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
         byte[] mapData = ByteStreams.toByteArray(inputStream);
@@ -132,7 +134,7 @@ public class MapServiceTest {
 
   @Test
   public void nameNotAllowed() throws IOException {
-    String[] files = new String[] {"name_save.zip", "name_map.zip", "name_script.zip", "name_tables.zip"};
+    String[] files = new String[]{"name_save.zip", "name_map.zip", "name_script.zip", "name_tables.zip"};
     for (String zipFilename : files) {
       try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
         byte[] mapData = ByteStreams.toByteArray(inputStream);
