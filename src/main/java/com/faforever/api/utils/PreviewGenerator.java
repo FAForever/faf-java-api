@@ -81,10 +81,10 @@ public final class PreviewGenerator {
       mapData.setDdsData(buffer);
 
       Path lua = Paths.get(mapPath.toAbsolutePath().toString().replace(".scmap", "_save.lua"));
-      if (isRegularFile(lua)) {
+//      if (isRegularFile(lua)) {
         LuaTable markers = LuaUtil.loadFile(lua).get("Scenario").get("MasterChain").get("_MASTERCHAIN_").get("Markers").checktable();
         mapData.setMarkers(markers);
-      }
+//      }
     }
     return mapData;
   }

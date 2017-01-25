@@ -231,7 +231,7 @@ public class MapService {
     try (Stream<Path> mapFileStream = Files.list(mapFolder)) {
       mapFileStream.forEach(path -> {
         String filename = com.google.common.io.Files.getNameWithoutExtension(path.toString());
-        if (filename.equals(oldMapName)) {
+        if (filename.equalsIgnoreCase(oldMapName)) {
           try {
             Files.move(path, Paths.get(path.getParent().toString(), newMapName));
           } catch (IOException e) {
