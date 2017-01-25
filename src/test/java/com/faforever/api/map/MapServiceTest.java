@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -37,6 +38,8 @@ public class MapServiceTest {
   @Rule
   public TemporaryFolder temporaryDirectory = new TemporaryFolder();
   @Rule
+  public TemporaryFolder finalDirectory = new TemporaryFolder();
+  @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Mock
@@ -50,9 +53,9 @@ public class MapServiceTest {
   public void setUp() {
     instance = new MapService(fafApiProperties, mapRepository, contentService);
     when(fafApiProperties.getMap()).thenReturn(new Map()
-        .setFinalDirectory(temporaryDirectory.getRoot().getAbsolutePath())
-        .setMapPreviewPathLarge(temporaryDirectory.getRoot().getAbsolutePath())
-        .setMapPreviewPathSmall(temporaryDirectory.getRoot().getAbsolutePath()));
+        .setFinalDirectory(finalDirectory.getRoot().getAbsolutePath())
+        .setMapPreviewPathLarge(Paths.get(finalDirectory.getRoot().getAbsolutePath(), "large").toString())
+        .setMapPreviewPathSmall(Paths.get(finalDirectory.getRoot().getAbsolutePath(), "small").toString()));
     when(contentService.createTempDir()).thenReturn(temporaryDirectory.getRoot().toPath());
   }
 
@@ -60,6 +63,9 @@ public class MapServiceTest {
   public void shutDown() {
     if (Files.exists(temporaryDirectory.getRoot().toPath())) {
       FileSystemUtils.deleteRecursively(temporaryDirectory.getRoot());
+    }
+    if (Files.exists(temporaryDirectory.getRoot().toPath())) {
+      FileSystemUtils.deleteRecursively(finalDirectory.getRoot());
     }
   }
 
@@ -138,10 +144,10 @@ public class MapServiceTest {
     when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
-      Path tmp = temporaryDirectory.getRoot().toPath();
+      Path tmpDir = temporaryDirectory.getRoot().toPath();
       instance.uploadMap(mapData, zipFilename, null, true);
 
-      assertFalse(Files.exists(tmp));
+      assertFalse(Files.exists(tmpDir));
     }
   }
 
