@@ -187,6 +187,10 @@ public class MapService {
         this.fafApiProperties.getMap().getFinalDirectory(),
         progressData.getFinalZipName()));
 
+    if (Files.exists(progressData.getFinalZipFile())) {
+      throw new ApiException(new Error(ErrorCode.MAP_NAME_CONFLICT, progressData.getFinalZipName()));
+    }
+
     // save entity to db to trigger validation
     // TODO: Manual test if transaction is reverted on exception
     mapRepository.save(map);

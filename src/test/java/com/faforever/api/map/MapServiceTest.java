@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.util.FileSystemUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -69,15 +70,18 @@ public class MapServiceTest {
     }
   }
 
-// FIXME
-//  @Test
-//  public void zipFileanameAllreadyExists() throws IOException {
-//    String name = "myCollMap.zip";
-//    Path conflicted = Paths.get(temporaryDirectory.getRoot().getAbsolutePath(), name);
-//    conflicted.toFile().createNewFile();
-//    expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_NAME_CONFLICT));
-//    instance.uploadMap(null, name, null);
-//  }
+  @Test
+  public void zipFilenameAllreadyExists() throws IOException {
+    Path clashedMap = Paths.get(finalDirectory.getRoot().getAbsolutePath(), "sludge_test.v0001.zip");
+    clashedMap.toFile().createNewFile();
+    String zipFilename = "scmp_037.zip";
+    when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
+    try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
+      byte[] mapData = ByteStreams.toByteArray(inputStream);
+      expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_NAME_CONFLICT));
+      instance.uploadMap(mapData, zipFilename, null, true);
+    }
+  }
 
   @Test
   public void emptyZip() throws IOException {
