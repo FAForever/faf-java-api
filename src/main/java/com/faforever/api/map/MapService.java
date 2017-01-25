@@ -107,9 +107,11 @@ public class MapService {
     // FIXME
   }
 
+  @SneakyThrows
   private void renameFolderNameAndAdaptLuaFiles(MapUploadData progressData) {
-    // FIXME
-    progressData.setNewMapFolder(progressData.getOriginalMapFolder());
+    progressData.setNewMapFolder(Paths.get(progressData.getBaseDir().toString(), progressData.getNewFolderName()));
+    Files.move(progressData.getOriginalMapFolder(), progressData.getNewMapFolder());
+    updateLuaFiles(progressData);
   }
 
   private Path copyToTemporaryDirectory(byte[] mapData, MapUploadData progressData) throws IOException {
@@ -158,6 +160,9 @@ public class MapService {
     map.getVersions().add(version);
     version.setMap(map);
 
+    progressData.setMapEntity(map);
+    progressData.setMapVersionEntity(version);
+
     // save entity to db to trigger validation
     // TODO: Manual test if transaction is reverted on exception
     mapRepository.save(map);
@@ -181,17 +186,14 @@ public class MapService {
 
   @SneakyThrows
   private void parseScenarioLua(MapUploadData progressData) {
-    Path scenarioLuaPath;
-    // read from Lua File
     try (Stream<Path> mapFilesStream = Files.list(progressData.getOriginalMapFolder())) {
-      scenarioLuaPath = noCatch(() -> mapFilesStream)
+      Path scenarioLuaPath = noCatch(() -> mapFilesStream)
           .filter(myFile -> myFile.toString().endsWith("_scenario.lua"))
           .findFirst()
           .orElseThrow(() -> new ApiException(new Error(ErrorCode.MAP_SCENARIO_LUA_MISSING)));
+      LuaValue root = noCatch(() -> loadFile(scenarioLuaPath), IllegalStateException.class);
+      progressData.setLuaRoot(root);
     }
-
-    LuaValue root = noCatch(() -> loadFile(scenarioLuaPath), IllegalStateException.class);
-    progressData.setLuaRoot(root);
   }
 
 
@@ -220,13 +222,13 @@ public class MapService {
     if (Files.exists(finalPath)) {
       throw new ApiException(new Error(ErrorCode.MAP_NAME_CONFLICT, mapVersion.getFilename()));
     }
-    String newMapName = com.google.common.io.Files.getNameWithoutExtension(mapVersion.getFilename());
-    Path newMapFolder = Paths.get(mapFolder.getParent().toString(), newMapName);
-    if (!newMapName.equals(oldMapName)) {
-      renameFiles(mapFolder, oldMapName, newMapName);
-      updateLua(mapFolder, oldMapName, mapVersion.getMap());
-      Files.move(mapFolder, newMapFolder);
-    }
+//    String newMapName = com.google.common.io.Files.getNameWithoutExtension(mapVersion.getFilename());
+//    Path newMapFolder = Paths.get(mapFolder.getParent().toString(), newMapName);
+//    if (!newMapName.equals(oldMapName)) {
+//      renameFiles(mapFolder, oldMapName, newMapName);
+//      updateLua(mapFolder, oldMapName, mapVersion.getMap());
+//      Files.move(mapFolder, newMapFolder);
+//    }
 
 //    try (ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(finalPath)))) {
 //      Zipper.contentOf(mapFolder).to(zipOutputStream).zip();
@@ -234,16 +236,13 @@ public class MapService {
   }
 
   @SneakyThrows
-  private void updateLua(Path mapFolder, String oldMapName, Map map) {
-    String oldNameFolder = "/maps/" + oldMapName;
-    String newNameFolder = "/maps/" + normalizeMapName(map.getDisplayName());
-    String oldName = "/" + oldMapName;
-    String newName = "/" + normalizeMapName(map.getDisplayName());
-    try (Stream<Path> mapFileStream = Files.list(mapFolder)) {
+  private void updateLuaFiles(MapUploadData mapData) {
+    String oldNameFolder = "/maps/" + mapData.getUploadFolderName();
+    String newNameFolder = "/maps/" + mapData.getNewFolderName();
+    try (Stream<Path> mapFileStream = Files.list(mapData.getNewMapFolder())) {
       mapFileStream.forEach(path -> noCatch(() -> {
         List<String> collect = Files.readAllLines(path, MAP_CHARSET).stream()
-            .map(line -> line.replaceAll(oldNameFolder, newNameFolder)
-                .replaceAll(oldName, newName))
+            .map(line -> line.replaceAll(oldNameFolder, newNameFolder))
             .collect(Collectors.toList());
         Files.write(path, collect, MAP_CHARSET);
       }));
@@ -298,7 +297,6 @@ public class MapService {
     JavaFxUtil.writeImage(image, target, "png");
   }
 
-  // TODO: use this
   @Data
   private class MapUploadData {
     private String uploadFileName;
@@ -320,6 +318,22 @@ public class MapService {
         throw new IllegalStateException("*_scenario.lua parse result not available");
       }
       return getLuaRoot().get("ScenarioInfo");
+    }
+
+    private String normalizeMapName(String mapName) {
+      return Paths.get(mapName.toLowerCase().replaceAll(" ", "_")).normalize().toString();
+    }
+
+    public String getNewFolderName() {
+      return  generateNewMapNameWithVersion("");
+    }
+
+    public String generateNewMapNameWithVersion(String extension) {
+      return Paths.get(String.format("%s.v%04d%s",
+          normalizeMapName(mapEntity.getDisplayName()),
+          mapVersionEntity.getVersion(),
+          extension))
+          .normalize().toString();
     }
   }
 }
