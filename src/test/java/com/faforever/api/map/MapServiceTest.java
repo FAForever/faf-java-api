@@ -79,7 +79,7 @@ public class MapServiceTest {
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
       expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_MISSING_MAP_FOLDER_INSIDE_ZIP));
-      instance.uploadMap(mapData, zipFilename, null);
+      instance.uploadMap(mapData, zipFilename, null, true);
     }
   }
 
@@ -97,7 +97,7 @@ public class MapServiceTest {
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
       expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR));
-      instance.uploadMap(mapData, zipFilename, me);
+      instance.uploadMap(mapData, zipFilename, me, true);
     }
   }
 
@@ -116,7 +116,7 @@ public class MapServiceTest {
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
       expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_VERSION_EXISTS));
-      instance.uploadMap(mapData, zipFilename, me);
+      instance.uploadMap(mapData, zipFilename, me, true);
     }
   }
 
@@ -127,19 +127,7 @@ public class MapServiceTest {
       try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
         byte[] mapData = ByteStreams.toByteArray(inputStream);
         expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING));
-        instance.uploadMap(mapData, zipFilename, null);
-      }
-    }
-  }
-
-  @Test
-  public void nameNotAllowed() throws IOException {
-    String[] files = new String[]{"name_save.zip", "name_map.zip", "name_script.zip", "name_tables.zip"};
-    for (String zipFilename : files) {
-      try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
-        byte[] mapData = ByteStreams.toByteArray(inputStream);
-        expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_NO_VALID_MAP_NAME));
-        instance.uploadMap(mapData, zipFilename, null);
+        instance.uploadMap(mapData, zipFilename, null, true);
       }
     }
   }
@@ -151,7 +139,7 @@ public class MapServiceTest {
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
       Path tmp = temporaryDirectory.getRoot().toPath();
-      instance.uploadMap(mapData, zipFilename, null);
+      instance.uploadMap(mapData, zipFilename, null, true);
 
       assertFalse(Files.exists(tmp));
     }

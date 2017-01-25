@@ -60,8 +60,8 @@ public class MapsController {
         allowedExtension -> extension.equals(allowedExtension))) {
       throw new ApiException(new Error(ErrorCode.UPLOAD_INVALID_FILE_EXTENSION, fafApiProperties.getMap().getAllowedExtensions()));
     }
-    // TODO: read metadata json
-    mapService.uploadMap(file.getBytes(), file.getOriginalFilename(), player);
+    // TODO: read metadata json and parse isranked
+    mapService.uploadMap(file.getBytes(), file.getOriginalFilename(), player, true);
   }
 
   // Show error message as result
