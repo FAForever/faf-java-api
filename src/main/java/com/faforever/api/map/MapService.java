@@ -62,7 +62,12 @@ public class MapService {
 
   @Transactional
   public void uploadMap(byte[] mapData, String mapFilename, Player author, boolean isRanked) throws IOException {
-    // TODO: validate input: mapFilename, mapFilename, author
+    if (author == null) {
+      throw new IllegalStateException("author cannot be null");
+    }
+    if (mapData.length <= 0) {
+      throw new IllegalStateException("mapData is empty");
+    }
     MapUploadData progressData = new MapUploadData()
         .setBaseDir(contentService.createTempDir())
         .setUploadFileName(mapFilename)

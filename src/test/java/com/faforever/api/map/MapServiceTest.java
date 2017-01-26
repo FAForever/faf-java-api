@@ -61,6 +61,8 @@ public class MapServiceTest {
   private FafApiProperties fafApiProperties;
   @Mock
   private ContentService contentService;
+  @Mock
+  private Player author;
 
   @Before
   public void setUp() {
@@ -91,7 +93,7 @@ public class MapServiceTest {
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
       expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_NAME_CONFLICT));
-      instance.uploadMap(mapData, zipFilename, null, true);
+      instance.uploadMap(mapData, zipFilename, author, true);
       verify(mapRepository, Mockito.never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
@@ -102,7 +104,7 @@ public class MapServiceTest {
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
       expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_MISSING_MAP_FOLDER_INSIDE_ZIP));
-      instance.uploadMap(mapData, zipFilename, null, true);
+      instance.uploadMap(mapData, zipFilename, author, true);
       verify(mapRepository, Mockito.never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
@@ -153,7 +155,7 @@ public class MapServiceTest {
       try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
         byte[] mapData = ByteStreams.toByteArray(inputStream);
         expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING));
-        instance.uploadMap(mapData, zipFilename, null, true);
+        instance.uploadMap(mapData, zipFilename, author, true);
         verify(mapRepository, Mockito.never()).save(any(com.faforever.api.data.domain.Map.class));
       }
     }
@@ -167,7 +169,7 @@ public class MapServiceTest {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
 
       Path tmpDir = temporaryDirectory.getRoot().toPath();
-      instance.uploadMap(mapData, zipFilename, null, true);
+      instance.uploadMap(mapData, zipFilename, author, true);
 
       ArgumentCaptor<com.faforever.api.data.domain.Map> mapCaptor = ArgumentCaptor.forClass(com.faforever.api.data.domain.Map.class);
       verify(mapRepository, Mockito.times(1)).save(mapCaptor.capture());

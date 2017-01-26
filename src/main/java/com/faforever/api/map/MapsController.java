@@ -8,7 +8,9 @@ import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.utils.AuthenticationHelper;
 import com.faforever.api.utils.JsonApiErrorBuilder;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.io.Files;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -50,6 +52,7 @@ public class MapsController {
       @ApiResponse(code = 500, message = "Failure")})
   @RequestMapping(path = "/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
   public void uploadMap(@RequestParam("file") MultipartFile file,
+                        @RequestParam("metadata") JsonNode metadata,
                         Authentication authentication) throws IOException {
     Player player = AuthenticationHelper.getPlayer(authentication, playerRepository);
     if (file == null) {
@@ -60,8 +63,7 @@ public class MapsController {
         allowedExtension -> extension.equals(allowedExtension))) {
       throw new ApiException(new Error(ErrorCode.UPLOAD_INVALID_FILE_EXTENSION, fafApiProperties.getMap().getAllowedExtensions()));
     }
-    // TODO: read metadata json and parse isranked
-    mapService.uploadMap(file.getBytes(), file.getOriginalFilename(), player, true);
+    mapService.uploadMap(file.getBytes(), file.getOriginalFilename(), player, metadata.get("is_ranked").asBoolean(false));
   }
 
   // Show error message as result
