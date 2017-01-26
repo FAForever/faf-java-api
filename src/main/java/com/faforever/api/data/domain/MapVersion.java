@@ -22,7 +22,7 @@ public class MapVersion {
 
   private int id;
   private String description;
-  private Integer maxPlayers;
+  private int maxPlayers;
   private int width;
   private int height;
   private int version;
@@ -47,7 +47,7 @@ public class MapVersion {
 
   @Column(name = "max_players")
   @NotNull
-  public Integer getMaxPlayers() {
+  public int getMaxPlayers() {
     return maxPlayers;
   }
 

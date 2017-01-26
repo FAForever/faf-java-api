@@ -5,6 +5,7 @@ import com.faforever.api.config.FafApiProperties.Map;
 import com.faforever.api.content.ContentService;
 import com.faforever.api.data.domain.MapVersion;
 import com.faforever.api.data.domain.Player;
+import com.faforever.api.data.domain.PlayerAchievement;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.utils.Unzipper;
 import com.google.common.io.ByteStreams;
@@ -16,7 +17,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.util.FileSystemUtils;
 
@@ -37,6 +40,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -87,6 +92,7 @@ public class MapServiceTest {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
       expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_NAME_CONFLICT));
       instance.uploadMap(mapData, zipFilename, null, true);
+      verify(mapRepository, Mockito.never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
 
@@ -97,6 +103,7 @@ public class MapServiceTest {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
       expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_MISSING_MAP_FOLDER_INSIDE_ZIP));
       instance.uploadMap(mapData, zipFilename, null, true);
+      verify(mapRepository, Mockito.never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
 
@@ -115,6 +122,7 @@ public class MapServiceTest {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
       expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR));
       instance.uploadMap(mapData, zipFilename, me, true);
+      verify(mapRepository, Mockito.never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
 
@@ -134,6 +142,7 @@ public class MapServiceTest {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
       expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_VERSION_EXISTS));
       instance.uploadMap(mapData, zipFilename, me, true);
+      verify(mapRepository, Mockito.never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
 
@@ -145,6 +154,7 @@ public class MapServiceTest {
         byte[] mapData = ByteStreams.toByteArray(inputStream);
         expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING));
         instance.uploadMap(mapData, zipFilename, null, true);
+        verify(mapRepository, Mockito.never()).save(any(com.faforever.api.data.domain.Map.class));
       }
     }
   }
@@ -155,8 +165,24 @@ public class MapServiceTest {
     when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
+
       Path tmpDir = temporaryDirectory.getRoot().toPath();
       instance.uploadMap(mapData, zipFilename, null, true);
+
+      ArgumentCaptor<com.faforever.api.data.domain.Map> mapCaptor = ArgumentCaptor.forClass(com.faforever.api.data.domain.Map.class);
+      verify(mapRepository, Mockito.times(1)).save(mapCaptor.capture());
+      assertEquals("Sludge_Test", mapCaptor.getValue().getDisplayName());
+      assertEquals("skirmish", mapCaptor.getValue().getMapType());
+      assertEquals("FFA", mapCaptor.getValue().getBattleType());
+      assertEquals(1, mapCaptor.getValue().getVersions().size());
+
+      MapVersion mapVersion = mapCaptor.getValue().getVersions().get(0);
+      assertEquals("The thick, brackish water clings to everything, staining anything it touches. If it weren't for this planet's proximity to the Quarantine Zone, no one would ever bother coming here.", mapVersion.getDescription());
+      assertEquals(1, mapVersion.getVersion());
+      assertEquals(256, mapVersion.getHeight());
+      assertEquals(256, mapVersion.getWidth());
+      assertEquals(3, mapVersion.getMaxPlayers());
+      assertEquals("sludge_test.v0001.zip", mapVersion.getFilename());
 
       assertFalse(Files.exists(tmpDir));
 

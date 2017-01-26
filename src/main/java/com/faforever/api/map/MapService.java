@@ -43,7 +43,6 @@ import static com.github.nocatch.NoCatch.noCatch;
 
 @Service
 public class MapService {
-  private static final float MAP_SIZE_FACTOR = 51.2f;
   private static final String[] REQUIRED_FILES = new String[]{
       ".scmap",
       "_save.lua",
@@ -170,8 +169,8 @@ public class MapService {
     LuaValue size = scenarioInfo.get("size");
     MapVersion version = new MapVersion()
         .setDescription(scenarioInfo.get("description").tojstring().replaceAll("<LOC .*?>", ""))
-        .setWidth((int) (size.get(1).toint() / MAP_SIZE_FACTOR))
-        .setHeight((int) (size.get(2).toint() / MAP_SIZE_FACTOR))
+        .setWidth(size.get(1).toint())
+        .setHeight(size.get(2).toint())
         .setHidden(false)
         .setRanked(progressData.isRanked())
         .setMaxPlayers(scenarioInfo.get("Configurations").get("standard").get("teams").get(1).get("armies").length())
