@@ -3,6 +3,7 @@ package com.faforever.api.utils;
 import com.google.common.io.LittleEndianDataInputStream;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.WritableImage;
+import lombok.SneakyThrows;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 
@@ -24,7 +25,6 @@ import java.util.stream.Stream;
 import static com.github.nocatch.NoCatch.noCatch;
 import static java.awt.Image.SCALE_SMOOTH;
 import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
-import static java.nio.file.Files.isRegularFile;
 import static java.nio.file.Files.list;
 
 // TODO: move to shared faf code
@@ -51,6 +51,9 @@ public final class PreviewGenerator {
 
       return noCatch(() -> {
         MapData mapData = parseMap(mapPath.get());
+        if (mapData == null) {
+          throw new RuntimeException("mapdata is null after parseMap from: " + mapPath.get());
+        }
 
         BufferedImage previewImage = getDdsImage(mapData);
         previewImage = scale(previewImage, width, height);
@@ -63,7 +66,8 @@ public final class PreviewGenerator {
     }
   }
 
-  private static MapData parseMap(Path mapPath) throws IOException {
+  @SneakyThrows
+  private static MapData parseMap(Path mapPath) {
     MapData mapData = new MapData();
     try (LittleEndianDataInputStream mapInput = new LittleEndianDataInputStream(Files.newInputStream(mapPath))) {
       mapInput.skip(16);
@@ -81,10 +85,12 @@ public final class PreviewGenerator {
       mapData.setDdsData(buffer);
 
       Path lua = Paths.get(mapPath.toAbsolutePath().toString().replace(".scmap", "_save.lua"));
-      if (isRegularFile(lua)) {
-        LuaTable markers = LuaUtil.loadFile(lua).get("Scenario").get("MasterChain").get("_MASTERCHAIN_").get("Markers").checktable();
-        mapData.setMarkers(markers);
+      // java.nio.file.Files.isRegularFile does not work on Linux
+      if (!Files.exists(lua)) {
+        throw new RuntimeException("Path does not exists: " + lua);
       }
+      LuaTable markers = LuaUtil.loadFile(lua).get("Scenario").get("MasterChain").get("_MASTERCHAIN_").get("Markers").checktable();
+      mapData.setMarkers(markers);
     }
     return mapData;
   }
