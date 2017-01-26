@@ -164,6 +164,17 @@ public class MapServiceTest {
   }
 
   @Test
+  public void battleTypeNotFFA() throws IOException {
+    String zipFilename = "wrong_team_name.zip";
+    when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
+    try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
+      byte[] mapData = ByteStreams.toByteArray(inputStream);
+      expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_FIRST_TEAM_FFA));
+      instance.uploadMap(mapData, zipFilename, author, true);
+    }
+  }
+
+  @Test
   public void positiveUploadTest() throws IOException {
     String zipFilename = "scmp_037.zip";
     when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());

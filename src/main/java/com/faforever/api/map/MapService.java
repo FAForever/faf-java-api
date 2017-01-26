@@ -171,6 +171,10 @@ public class MapService {
         .setBattleType(scenarioInfo.get("Configurations").get("standard").get("teams").get(1).get("name").tojstring())
         .setAuthor(progressData.getAuthorEntity());
 
+    if (!map.getBattleType().equals("FFA")) {
+      throw new ApiException(new Error(ErrorCode.MAP_FIRST_TEAM_FFA));
+    }
+
     LuaValue size = scenarioInfo.get("size");
     MapVersion version = new MapVersion()
         .setDescription(scenarioInfo.get("description").tojstring().replaceAll("<LOC .*?>", ""))
