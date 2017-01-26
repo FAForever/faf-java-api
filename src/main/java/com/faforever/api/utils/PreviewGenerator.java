@@ -84,10 +84,15 @@ public final class PreviewGenerator {
 
       mapData.setDdsData(buffer);
 
-      Path lua = Paths.get(mapPath.toAbsolutePath().toString().replace(".scmap", "_save.lua"));
-      // java.nio.file.Files.isRegularFile does not work on Linux
-      if (!Files.exists(lua)) {
-        throw new RuntimeException("Path does not exists: " + lua);
+      Path lua;
+      try (Stream<Path> fileStream = Files.list(mapPath.getParent())) {
+        Optional<Path> saveLua = fileStream
+            .filter(filePath -> filePath.toString().toLowerCase().endsWith("_save.lua"))
+            .findFirst();
+        lua = saveLua.get();
+      }
+      if (!Files.isRegularFile(lua)) {
+        throw new RuntimeException("Path is no regular file: " + lua);
       }
       LuaTable markers = LuaUtil.loadFile(lua).get("Scenario").get("MasterChain").get("_MASTERCHAIN_").get("Markers").checktable();
       mapData.setMarkers(markers);

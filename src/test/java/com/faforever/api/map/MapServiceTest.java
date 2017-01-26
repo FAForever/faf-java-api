@@ -47,6 +47,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class MapServiceTest {
   private MapService instance;
+  private Map mapProperties;
 
   @Rule
   public TemporaryFolder temporaryDirectory = new TemporaryFolder();
@@ -67,10 +68,11 @@ public class MapServiceTest {
   @Before
   public void setUp() {
     instance = new MapService(fafApiProperties, mapRepository, contentService);
-    when(fafApiProperties.getMap()).thenReturn(new Map()
+    mapProperties = new Map()
         .setFinalDirectory(finalDirectory.getRoot().getAbsolutePath())
         .setMapPreviewPathLarge(Paths.get(finalDirectory.getRoot().getAbsolutePath(), "large").toString())
-        .setMapPreviewPathSmall(Paths.get(finalDirectory.getRoot().getAbsolutePath(), "small").toString()));
+        .setMapPreviewPathSmall(Paths.get(finalDirectory.getRoot().getAbsolutePath(), "small").toString());
+    when(fafApiProperties.getMap()).thenReturn(mapProperties);
     when(contentService.createTempDir()).thenReturn(temporaryDirectory.getRoot().toPath());
   }
 
@@ -216,6 +218,9 @@ public class MapServiceTest {
                 finalGeneratedFile.resolve(expectedFile.getFileName().toString()).toFile())
 
         );
+
+        assertTrue(Files.exists(Paths.get(mapProperties.getMapPreviewPathLarge(), "sludge_test.v0001.png")));
+        assertTrue(Files.exists(Paths.get(mapProperties.getMapPreviewPathSmall(), "sludge_test.v0001.png")));
       }
     }
   }
