@@ -81,6 +81,7 @@ public class MapService {
     postProcessZipFiles(progressData);
 
     parseScenarioLua(progressData);
+    checkLua(progressData);
     postProcessLuaFile(progressData);
 
     updateMapEntities(progressData);
@@ -144,6 +145,43 @@ public class MapService {
     }
   }
 
+  private void checkLua(MapUploadData progressData) {
+    List<Error> errors = new ArrayList<>();
+    LuaValue scenarioInfo = progressData.getLuaScenarioInfo();
+    Object da = scenarioInfo.get("name");
+    if (scenarioInfo.get("name") == LuaValue.NIL) {
+      errors.add(new Error(ErrorCode.MAP_NAME_MISSING));
+    }
+    if (scenarioInfo.get("description") == LuaValue.NIL) {
+      errors.add(new Error(ErrorCode.MAP_DESCRIPTION_MISSING));
+    }
+    if (invalidTeam(scenarioInfo)) {
+      errors.add(new Error(ErrorCode.MAP_FIRST_TEAM_FFA));
+    }
+    if (scenarioInfo.get("type") == LuaValue.NIL) {
+      errors.add(new Error(ErrorCode.MAP_TYPE_MISSING));
+    }
+    if (scenarioInfo.get("size") == LuaValue.NIL) {
+      errors.add(new Error(ErrorCode.MAP_SIZE_MISSING));
+    }
+    if (scenarioInfo.get("map_version") == LuaValue.NIL) {
+      errors.add(new Error(ErrorCode.MAP_VERSION_MISSING));
+    }
+    if(errors.size() > 0) {
+      throw new ApiException(errors.toArray(new Error[0]));
+    }
+  }
+
+  private boolean invalidTeam(LuaValue scenarioInfo) {
+    return scenarioInfo.get("Configurations") == LuaValue.NIL
+        || scenarioInfo.get("Configurations").get("standard") == LuaValue.NIL
+        || scenarioInfo.get("Configurations").get("standard").get("teams") == LuaValue.NIL
+        || scenarioInfo.get("Configurations").get("standard").get("teams").get(1) == LuaValue.NIL
+        || scenarioInfo.get("Configurations").get("standard").get("teams").get(1).get("name") == LuaValue.NIL
+        || scenarioInfo.get("Configurations").get("standard").get("teams").get(1).get("armies") == LuaValue.NIL
+        || !scenarioInfo.get("Configurations").get("standard").get("teams").get(1).get("name").tojstring().equals("FFA");
+  }
+
   private void postProcessLuaFile(MapUploadData progressData) {
     LuaValue scenarioInfo = progressData.getLuaScenarioInfo();
     Optional<Map> mapEntity = mapRepository.findOneByDisplayName(scenarioInfo.get("name").toString());
@@ -170,10 +208,6 @@ public class MapService {
         .setMapType(scenarioInfo.get("type").tojstring())
         .setBattleType(scenarioInfo.get("Configurations").get("standard").get("teams").get(1).get("name").tojstring())
         .setAuthor(progressData.getAuthorEntity());
-
-    if (!map.getBattleType().equals("FFA")) {
-      throw new ApiException(new Error(ErrorCode.MAP_FIRST_TEAM_FFA));
-    }
 
     LuaValue size = scenarioInfo.get("size");
     MapVersion version = new MapVersion()

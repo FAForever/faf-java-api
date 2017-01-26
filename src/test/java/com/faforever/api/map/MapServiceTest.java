@@ -6,6 +6,7 @@ import com.faforever.api.content.ContentService;
 import com.faforever.api.data.domain.MapVersion;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.data.domain.PlayerAchievement;
+import com.faforever.api.error.ApiExceptionWithMutlipleCodes;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.utils.Unzipper;
 import com.google.common.io.ByteStreams;
@@ -170,6 +171,23 @@ public class MapServiceTest {
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
       expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_FIRST_TEAM_FFA));
+      instance.uploadMap(mapData, zipFilename, author, true);
+    }
+  }
+
+  @Test
+  public void invalidScenario() throws IOException {
+    String zipFilename = "invalid_scenario.zip";
+    when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
+    try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
+      byte[] mapData = ByteStreams.toByteArray(inputStream);
+      expectedException.expect(ApiExceptionWithMutlipleCodes.apiExceptionWithCode(
+          ErrorCode.MAP_NAME_MISSING,
+          ErrorCode.MAP_DESCRIPTION_MISSING,
+          ErrorCode.MAP_FIRST_TEAM_FFA,
+          ErrorCode.MAP_TYPE_MISSING,
+          ErrorCode.MAP_SIZE_MISSING,
+          ErrorCode.MAP_VERSION_MISSING));
       instance.uploadMap(mapData, zipFilename, author, true);
     }
   }
@@ -344,25 +362,6 @@ public class MapServiceTest {
 //        assertThat(result.getMap_id() == 5
 //  }
 //
-//  public void test_upload_existing_map(Object oauth, maps, upload_dir, preview_dir) {
-//    map_zip = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../data/scmp 037.zip')
-//    with open (map_zip, 'rb')as file:
-//    oauth.post('/maps/upload',
-//        data = {'file':(file, os.path.basename(map_zip)),
-//    'metadata':json.dumps(dict(is_ranked = True))})
-//
-//    with open (map_zip, 'rb')as file:
-//    response = oauth.post('/maps/upload',
-//        data = {'file':(file, os.path.basename(map_zip)),
-//    'metadata':json.dumps(dict(is_ranked = True))})
-//
-//    result = json.loads(response.data.decode('utf-8'))
-//
-//    assertThat(response.status_code == 400
-//        assertThat(result.getErrors()[0].getCode() == ErrorCode.MAP_VERSION_EXISTS.value.getCode()
-//            assertThat(result.getErrors()[0].getMeta().getArgs() ==['Sludge Test', 1]
-//
-//  }
 //
 //  public void test_upload_map_with_name_clash(Object oauth, maps, upload_dir, preview_dir) {
 //    map_zip = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../data/scmp_037.zip')
