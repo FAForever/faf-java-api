@@ -148,6 +148,7 @@ dependencies {
 
   compile("org.luaj:luaj-jse:${luajVersion}")
   compile("com.github.micheljung:nocatch:${nocatchVersion}")
+  compile("junit-addons:junit-addons:${junitAddonsVersion}")
 
   runtime("mysql:mysql-connector-java:${mysqlConnectorVersion}")
 

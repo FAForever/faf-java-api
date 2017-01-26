@@ -6,7 +6,9 @@ import com.faforever.api.content.ContentService;
 import com.faforever.api.data.domain.MapVersion;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.utils.Unzipper;
 import com.google.common.io.ByteStreams;
+import junitx.framework.FileAssert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -18,7 +20,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.util.FileSystemUtils;
 
-import java.io.File;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -26,9 +29,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Stream;
+import java.util.zip.ZipInputStream;
 
 import static com.faforever.api.error.ApiExceptionWithCode.apiExceptionWithCode;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -152,8 +159,39 @@ public class MapServiceTest {
       instance.uploadMap(mapData, zipFilename, null, true);
 
       assertFalse(Files.exists(tmpDir));
+
+      Path generatedFile = Paths.get(finalDirectory.getRoot().getAbsolutePath(), "sludge_test.v0001.zip");
+      assertTrue(Files.exists(generatedFile));
+
+      Path generatedFiles = Paths.get(finalDirectory.getRoot().getAbsolutePath(), "generated_files");
+      try (ZipInputStream inputStreamOfExpectedFile = new ZipInputStream(
+          new BufferedInputStream(new FileInputStream(generatedFile.toFile())))) {
+        Unzipper.from(inputStreamOfExpectedFile).to(generatedFiles).unzip();
+      }
+
+      Path expectedFiles = Paths.get(finalDirectory.getRoot().getAbsolutePath(), "expected_files");
+      try (ZipInputStream inputStreamOfExpectedFile = new ZipInputStream(new BufferedInputStream(
+          loadMapResourceAsStream("sludge_test.v0001.zip")))) {
+        Unzipper.from(inputStreamOfExpectedFile).to(expectedFiles).unzip();
+      }
+
+      expectedFiles = expectedFiles.resolve("sludge_test.v0001");
+      try (Stream<Path> fileStream = Files.list(expectedFiles)) {
+        assertEquals(fileStream.count(), (long) 4);
+      }
+
+      try (Stream<Path> fileStream = Files.list(expectedFiles)) {
+        Path finalGeneratedFile = generatedFiles.resolve("sludge_test.v0001");
+        fileStream.forEach(expectedFile ->
+            FileAssert.assertEquals("Difference in " + expectedFile.getFileName().toString(),
+                expectedFile.toFile(),
+                finalGeneratedFile.resolve(expectedFile.getFileName().toString()).toFile())
+
+        );
+      }
     }
   }
+
 
   private InputStream loadMapResourceAsStream(String filename) {
     return MapServiceTest.class.getResourceAsStream("/maps/" + filename);
