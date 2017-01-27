@@ -44,9 +44,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-// TODO: test_maps_upload_is_metadata_missing
-// TODO: test_maps_upload_no_file_results_400
-// TODO: test_maps_upload_txt_results_400
 @RunWith(MockitoJUnitRunner.class)
 public class MapServiceTest {
   private MapService instance;

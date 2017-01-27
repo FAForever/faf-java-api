@@ -84,7 +84,7 @@ public final class PreviewGenerator {
       mapData.setDdsData(buffer);
 
       Path lua;
-      try (Stream<Path> fileStream = Files.list(mapPath.getParent())) {
+      try (Stream<Path> fileStream = list(mapPath.getParent())) {
         Optional<Path> saveLua = fileStream
             .filter(filePath -> filePath.toString().toLowerCase().endsWith("_save.lua"))
             .findFirst();
