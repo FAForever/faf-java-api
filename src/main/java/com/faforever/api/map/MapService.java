@@ -148,7 +148,6 @@ public class MapService {
   private void checkLua(MapUploadData progressData) {
     List<Error> errors = new ArrayList<>();
     LuaValue scenarioInfo = progressData.getLuaScenarioInfo();
-    Object da = scenarioInfo.get("name");
     if (scenarioInfo.get("name") == LuaValue.NIL) {
       errors.add(new Error(ErrorCode.MAP_NAME_MISSING));
     }
@@ -234,7 +233,6 @@ public class MapService {
     }
 
     // save entity to db to trigger validation
-    // TODO: Manual test if transaction is reverted on exception
     mapRepository.save(map);
   }
 

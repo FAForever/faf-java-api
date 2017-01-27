@@ -5,7 +5,6 @@ import com.faforever.api.config.FafApiProperties.Map;
 import com.faforever.api.content.ContentService;
 import com.faforever.api.data.domain.MapVersion;
 import com.faforever.api.data.domain.Player;
-import com.faforever.api.data.domain.PlayerAchievement;
 import com.faforever.api.error.ApiExceptionWithMutlipleCodes;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.utils.Unzipper;
@@ -100,7 +99,7 @@ public class MapServiceTest {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
       expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_NAME_CONFLICT));
       instance.uploadMap(mapData, zipFilename, author, true);
-      verify(mapRepository, Mockito.never()).save(any(com.faforever.api.data.domain.Map.class));
+      verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
 
@@ -111,7 +110,7 @@ public class MapServiceTest {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
       expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_MISSING_MAP_FOLDER_INSIDE_ZIP));
       instance.uploadMap(mapData, zipFilename, author, true);
-      verify(mapRepository, Mockito.never()).save(any(com.faforever.api.data.domain.Map.class));
+      verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
 
@@ -130,7 +129,7 @@ public class MapServiceTest {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
       expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR));
       instance.uploadMap(mapData, zipFilename, me, true);
-      verify(mapRepository, Mockito.never()).save(any(com.faforever.api.data.domain.Map.class));
+      verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
 
@@ -150,7 +149,7 @@ public class MapServiceTest {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
       expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_VERSION_EXISTS));
       instance.uploadMap(mapData, zipFilename, me, true);
-      verify(mapRepository, Mockito.never()).save(any(com.faforever.api.data.domain.Map.class));
+      verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
 
@@ -162,7 +161,7 @@ public class MapServiceTest {
         byte[] mapData = ByteStreams.toByteArray(inputStream);
         expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING));
         instance.uploadMap(mapData, zipFilename, author, true);
-        verify(mapRepository, Mockito.never()).save(any(com.faforever.api.data.domain.Map.class));
+        verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
       }
     }
   }

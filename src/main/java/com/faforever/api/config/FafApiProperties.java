@@ -39,7 +39,7 @@ public class FafApiProperties {
     private String MapPreviewPathLarge = "/content/faf/vault/map_previews/large";
     private int PreviewSizeSmall = 128;
     private int PreviewSizeLarge = 512;
-    private String[] allowedExtensions = new String[]{".zip"};
+    private String[] allowedExtensions = new String[]{"zip"};
 
   }
 
