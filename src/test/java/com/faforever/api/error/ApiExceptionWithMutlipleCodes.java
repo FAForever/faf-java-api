@@ -4,8 +4,6 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public final class ApiExceptionWithMutlipleCodes extends BaseMatcher<ApiException> {
 

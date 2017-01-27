@@ -166,7 +166,7 @@ public class MapService {
     if (scenarioInfo.get("map_version") == LuaValue.NIL) {
       errors.add(new Error(ErrorCode.MAP_VERSION_MISSING));
     }
-    if(errors.size() > 0) {
+    if (errors.size() > 0) {
       throw new ApiException(errors.toArray(new Error[0]));
     }
   }
