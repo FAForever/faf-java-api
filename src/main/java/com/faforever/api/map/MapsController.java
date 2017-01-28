@@ -1,20 +1,17 @@
 package com.faforever.api.map;
 
+import com.faforever.api.authentication.AuthenticationService;
 import com.faforever.api.config.FafApiProperties;
-import com.faforever.api.config.FafApiProperties.Map;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerRepository;
-import com.faforever.api.authentication.AuthenticationService;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.json.JSONException;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ExceptionHandler;
