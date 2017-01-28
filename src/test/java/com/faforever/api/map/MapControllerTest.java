@@ -13,13 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.InputStream;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(MapsController.class)
-@ImportAutoConfiguration(TestWebSecurityConfig.class)
+@Import(TestWebSecurityConfig.class)
 public class MapControllerTest {
 
   @Autowired
@@ -82,7 +82,7 @@ public class MapControllerTest {
 
       this.mvc.perform(fileUpload("/maps/upload")
           .file(file).param("metadata", jsonString)
-          )
+      )
           .andExpect(status().isOk());
     }
   }
