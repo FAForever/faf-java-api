@@ -1,8 +1,12 @@
 package com.faforever.api.map;
 
+import com.faforever.api.authentication.AuthenticationService;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.TestWebSecurityConfig;
 import com.faforever.api.player.PlayerRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.ByteStreams;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,15 +17,17 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.io.InputStream;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(MapsController.class)
 @ImportAutoConfiguration(TestWebSecurityConfig.class)
-// TODO: test_maps_upload_is_metadata_missing
-// TODO: test_maps_upload_no_file_results_400
-// TODO: test_maps_upload_txt_results_400
 public class MapControllerTest {
 
   @Autowired
@@ -34,6 +40,10 @@ public class MapControllerTest {
   private MapService mapService;
   @MockBean
   private FafApiProperties fafApiProperties;
+  @MockBean
+  private AuthenticationService authenticationService;
+  @MockBean
+  private ObjectMapper objectMapper;
 
 
   @Test
@@ -46,11 +56,38 @@ public class MapControllerTest {
 
   @Test
   public void jsonMetaDataMissing() throws Exception {
-    MockMultipartFile firstFile = new MockMultipartFile("file", "filename.txt", "text/plain", "some xml".getBytes());
+    MockMultipartFile file = new MockMultipartFile("file", "filename.txt", "text/plain", "some xml".getBytes());
 
     this.mvc.perform(fileUpload("/maps/upload")
-        .file(firstFile))
+        .file(file))
         .andExpect(status().is(400))
         .andExpect(status().reason("Required String parameter 'metadata' is not present"));
+  }
+
+  @Test
+  public void successUpload() throws Exception {
+    FafApiProperties props = new FafApiProperties();
+    String jsonString = "{}";
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode node = mapper.readTree(jsonString);
+
+    when(fafApiProperties.getMap()).thenReturn(props.getMap());
+    when(objectMapper.readTree(anyString())).thenReturn(node);
+    String zipFile = "scmp_037.zip";
+    try (InputStream inputStream = loadMapResourceAsStream(zipFile)) {
+      MockMultipartFile file = new MockMultipartFile("file",
+          zipFile,
+          "application/zip",
+          ByteStreams.toByteArray(inputStream));
+
+      this.mvc.perform(fileUpload("/maps/upload")
+          .file(file).param("metadata", jsonString)
+          )
+          .andExpect(status().isOk());
+    }
+  }
+
+  private InputStream loadMapResourceAsStream(String filename) {
+    return MapControllerTest.class.getResourceAsStream("/maps/" + filename);
   }
 }

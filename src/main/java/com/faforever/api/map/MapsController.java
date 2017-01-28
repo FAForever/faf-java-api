@@ -1,12 +1,14 @@
 package com.faforever.api.map;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.config.FafApiProperties.Map;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerRepository;
-import com.faforever.api.utils.AuthenticationHelper;
+import com.faforever.api.authentication.AuthenticationService;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
 import io.swagger.annotations.ApiOperation;
@@ -34,13 +36,15 @@ public class MapsController {
   private final MapService mapService;
   private final FafApiProperties fafApiProperties;
   private final ObjectMapper objectMapper;
+  private final AuthenticationService authenticationService;
 
   @Inject
-  public MapsController(PlayerRepository playerRepository, MapService mapService, FafApiProperties fafApiProperties, ObjectMapper objectMapper) {
+  public MapsController(PlayerRepository playerRepository, MapService mapService, FafApiProperties fafApiProperties, ObjectMapper objectMapper, AuthenticationService authenticationService) {
     this.playerRepository = playerRepository;
     this.mapService = mapService;
     this.fafApiProperties = fafApiProperties;
     this.objectMapper = objectMapper;
+    this.authenticationService = authenticationService;
   }
 
   @ApiOperation("Uploads a map")
@@ -52,7 +56,7 @@ public class MapsController {
   public void uploadMap(@RequestParam("file") MultipartFile file,
                         @RequestParam("metadata") String jsonString,
                         Authentication authentication) throws IOException {
-    Player player = AuthenticationHelper.getPlayer(authentication, playerRepository);
+    Player player = authenticationService.getPlayer(authentication, playerRepository);
     if (file == null) {
       throw new ApiException(new Error(ErrorCode.UPLOAD_FILE_MISSING));
     }
@@ -63,8 +67,8 @@ public class MapsController {
     }
     boolean ranked;
     try {
-      ranked = objectMapper.readTree(jsonString).get("is_ranked").asBoolean(false);
-    } catch (JSONException e) {
+      ranked = objectMapper.readTree(jsonString).path("is_ranked").asBoolean(false);
+    } catch (Exception e) {
       throw new ApiException(new Error(ErrorCode.MAP_NO_VALID_JSON_METADATA));
     }
     mapService.uploadMap(file.getBytes(), file.getOriginalFilename(), player, ranked);
