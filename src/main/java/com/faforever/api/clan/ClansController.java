@@ -29,7 +29,6 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Map;
 
 
@@ -44,16 +43,18 @@ public class ClansController {
   private final FafApiProperties fafApiProperties;
   private final MacSigner macSigner;
   private final ObjectMapper objectMapper;
+  private final ClanService clanService;
 
   @Inject
   public ClansController(ClanRepository clanRepository,
                          ClanMembershipRepository clanMembershipRepository,
-                         PlayerRepository playerRepository, FafApiProperties fafApiProperties) {
+                         PlayerRepository playerRepository, FafApiProperties fafApiProperties, ClanService clanService) {
     this.clanRepository = clanRepository;
     this.clanMembershipRepository = clanMembershipRepository;
     this.playerRepository = playerRepository;
     this.fafApiProperties = fafApiProperties;
     this.macSigner = new MacSigner(fafApiProperties.getJwtSecret());
+    this.clanService = clanService;
     this.objectMapper = new ObjectMapper();
   }
 
@@ -94,26 +95,8 @@ public class ClansController {
                                               @RequestParam(value = "tag") String tag,
                                               @RequestParam(value = "description", required = false) String description,
                                               Authentication authentication) throws IOException, ClanException {
-    Clan clan = new Clan();
-    clan.setName(name);
-    clan.setTag(tag);
-    clan.setDescription(description);
-
     Player player = AuthenticationHelper.getPlayer(authentication, playerRepository);
-    if (player.getClanMemberships().size() > 0) {
-      throw new ClanException("Player is already member of a clan"); // TODO: outsource to I18n?
-    }
-
-    clan.setFounder(player);
-    clan.setLeader(player);
-
-    ClanMembership membership = new ClanMembership();
-    membership.setClan(clan);
-    membership.setPlayer(player);
-
-    clan.setMemberships(Arrays.asList(membership));
-    clanRepository.save(clan); // clan membership is saved over cascading, otherwise validation will fail
-
+    Clan clan = clanService.create(name, tag, description, player);
     return ImmutableMap.of("id", clan.getId(), "type", "clan");
   }
 
