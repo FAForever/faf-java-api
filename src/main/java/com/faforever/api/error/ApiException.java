@@ -9,11 +9,11 @@ public class ApiException extends RuntimeException {
 
   private final Error[] errors;
 
-  public ApiException(Error error, Object... args) {
+  public ApiException(Error error) {
     this.errors = new Error[]{error};
   }
 
-  public ApiException(Error[] errors, Object... args) {
+  public ApiException(Error[] errors) {
     this.errors = errors;
   }
 }

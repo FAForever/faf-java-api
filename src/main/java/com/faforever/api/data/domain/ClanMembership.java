@@ -3,7 +3,6 @@ package com.faforever.api.data.domain;
 import com.faforever.api.config.elide.checks.ClanMembershipLeaderOnlyEditableByLeader;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
-import lombok.Data;
 import lombok.Setter;
 
 import javax.persistence.Column;

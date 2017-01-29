@@ -9,7 +9,6 @@ public class LeaderIsInClanValidator implements ConstraintValidator<LeaderIsInCl
 
   @Override
   public void initialize(LeaderIsInClan constraintAnnotation) {
-
   }
 
   @Override

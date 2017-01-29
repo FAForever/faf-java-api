@@ -28,15 +28,15 @@ import java.util.Map;
 @RequestMapping(path = JsonApiController.PATH_PREFIX)
 public class JsonApiController {
 
-  static final String PATH_PREFIX = "/data";
-  static final String JSON_API_MEDIA_TYPE = "application/vnd.api+json";
+  public static final String PATH_PREFIX = "/data";
+  public static final String JSON_API_MEDIA_TYPE = "application/vnd.api+json";
 
   private Elide elide;
 
   public JsonApiController(Elide elide) {
     this.elide = elide;
   }
-  
+
   @CrossOrigin(origins = "*")
   @RequestMapping(
       method = RequestMethod.GET,

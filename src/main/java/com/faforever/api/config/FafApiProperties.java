@@ -9,6 +9,16 @@ import java.nio.file.Paths;
 @Data
 @ConfigurationProperties(prefix = "faf-api", ignoreUnknownFields = false)
 public class FafApiProperties {
+  /**
+   * The secret used for JWT token generation.
+   */
+  private String jwtSecret = "banana";
+  private String version = "dev";
+  private Jwt jwt = new Jwt();
+  private OAuth2 oAuth2 = new OAuth2();
+  private Async async = new Async();
+  private Map map = new Map();
+  private Clan clan = new Clan();
 
   @Data
   public static class OAuth2 {
@@ -50,15 +60,4 @@ public class FafApiProperties {
   public static class Clan {
     private int expireDurationInMinutes = 60 * 24 * 3; // 3 days
   }
-
-  /**
-   * The secret used for JWT token generation.
-   */
-  private String jwtSecret = "banana";
-  private String version = "dev";
-  private Jwt jwt = new Jwt();
-  private OAuth2 oAuth2 = new OAuth2();
-  private Async async = new Async();
-  private Map map = new Map();
-  private Clan clan = new Clan();
 }

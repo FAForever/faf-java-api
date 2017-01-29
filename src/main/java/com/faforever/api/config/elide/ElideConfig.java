@@ -18,6 +18,7 @@ import org.springframework.cache.interceptor.CacheOperationInvocationContext;
 import org.springframework.cache.interceptor.CacheResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.HandlerMapping;
 
 import javax.persistence.EntityManagerFactory;
 import javax.servlet.http.HttpServletRequest;
@@ -57,7 +58,7 @@ public class ElideConfig {
     return new AbstractCacheResolver(cacheManager) {
       @Override
       protected Collection<String> getCacheNames(CacheOperationInvocationContext<?> context) {
-        String jsonApiPath = JsonApiController.getJsonApiPath((HttpServletRequest) context.getArgs()[1]);
+        String jsonApiPath = getJsonApiPath((HttpServletRequest) context.getArgs()[1]);
         String type = jsonApiPath.split("/")[0];
 
         if (!cacheManager.getCacheNames().contains(type)) {
@@ -67,5 +68,10 @@ public class ElideConfig {
         return Collections.singletonList(type);
       }
     };
+  }
+
+  private String getJsonApiPath(HttpServletRequest request) {
+    return ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE))
+        .replace(JsonApiController.PATH_PREFIX, "");
   }
 }
