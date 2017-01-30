@@ -5,6 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 
 @Data
 @ConfigurationProperties(prefix = "faf-api", ignoreUnknownFields = false)
@@ -58,6 +59,6 @@ public class FafApiProperties {
 
   @Data
   public static class Clan {
-    private int expireDurationInMinutes = 60 * 24 * 3; // 3 days
+    private long inviteLinkExpireDurationInMinutes = Duration.ofDays(3).toMinutes();
   }
 }

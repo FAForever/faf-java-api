@@ -14,7 +14,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "avatars_list")
 @Include(rootLevel = true, type = "avatar")
-@Setter // Don't generate toString with lombok to avoid loops
+@Setter
 public class Avatar {
 
   private int id;

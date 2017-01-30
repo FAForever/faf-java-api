@@ -19,7 +19,7 @@ import java.sql.Timestamp;
 @Table(name = "clan_membership")
 @Include(rootLevel = true, type = "clan_membership")
 @DeletePermission(expression = ClanMembershipLeaderOnlyEditableByLeader.EXPRESSION)
-@Setter // Don't generate toString with lombok to avoid loops
+@Setter
 public class ClanMembership {
 
   private int id;

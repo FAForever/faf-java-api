@@ -29,7 +29,7 @@ import java.util.Map;
 public class JsonApiController {
 
   public static final String PATH_PREFIX = "/data";
-  public static final String JSON_API_MEDIA_TYPE = "application/vnd.api+json";
+  private static final String JSON_API_MEDIA_TYPE = "application/vnd.api+json";
 
   private Elide elide;
 
@@ -106,23 +106,22 @@ public class JsonApiController {
     getResponse(response);
   }
 
-  public String getResponse(ElideResponse response) throws JsonApiException {
+  private String getResponse(ElideResponse response) throws JsonApiException {
     if (response.getResponseCode() / 100 != 2) {
       throw new JsonApiException("No Permission");
     }
     return response.getBody();
   }
 
-  public static Object getPrincipal(final Authentication authentication) {
+  private static Object getPrincipal(final Authentication authentication) {
     return authentication != null ? authentication.getPrincipal() : null;
   }
 
-  public String getJsonApiPath(HttpServletRequest request) {
+  private String getJsonApiPath(HttpServletRequest request) {
     return ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).replace(PATH_PREFIX, "");
   }
 
-
-  // Show valid json error message as result
+  
   @ExceptionHandler(ValidationException.class)
   @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
   @ResponseBody
@@ -130,7 +129,6 @@ public class JsonApiController {
     return errorResponse(ex.getMessage());
   }
 
-  // Show valid json error message as result
   @ExceptionHandler(JsonApiException.class)
   @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
   @ResponseBody
@@ -138,7 +136,7 @@ public class JsonApiController {
     return errorResponse(ex.getMessage());
   }
 
-  public Map<String, Serializable> errorResponse(String title) {
+  private Map<String, Serializable> errorResponse(String title) {
     ImmutableMap source = ImmutableMap.of("pointer", "");
     ImmutableMap<String, Serializable> error = ImmutableMap.of(
         "title", title,

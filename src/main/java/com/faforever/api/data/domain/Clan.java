@@ -32,7 +32,7 @@ import java.util.List;
 @SharePermission(expression = IsClanLeader.EXPRESSION)
 @DeletePermission(expression = IsClanLeader.EXPRESSION)
 @CreatePermission(any = Role.ALL.class)
-@Setter // Don't generate toString with lombok to avoid loops
+@Setter
 @LeaderIsInClan
 public class Clan {
 
@@ -104,7 +104,7 @@ public class Clan {
   }
 
   @OneToMany(mappedBy = "clan", cascade = CascadeType.ALL, orphanRemoval = true)
-  // cascading is needed for Create & Delete
+  // Cascading is needed for Create & Delete
   @UpdatePermission(any = {Role.ALL.class}) // Permission is managed by ClanMembership class
   @NotEmpty(message = "At least the leader should be in the clan")
   public List<ClanMembership> getMemberships() {
