@@ -10,6 +10,8 @@ import com.faforever.api.error.ApiExceptionWithMutlipleCodes;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.utils.Unzipper;
 import com.google.common.io.ByteStreams;
+import com.googlecode.zohhak.api.TestWith;
+import com.googlecode.zohhak.api.runners.ZohhakRunner;
 import junitx.framework.FileAssert;
 import org.junit.After;
 import org.junit.Before;
@@ -19,9 +21,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.BufferedInputStream;
@@ -43,11 +43,12 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(ZohhakRunner.class)
 public class MapServiceTest {
   private MapService instance;
   private Map mapProperties;
@@ -59,14 +60,10 @@ public class MapServiceTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  @Mock
-  private MapRepository mapRepository;
-  @Mock
-  private FafApiProperties fafApiProperties;
-  @Mock
-  private ContentService contentService;
-  @Mock
-  private Player author;
+  private MapRepository mapRepository = mock(MapRepository.class);
+  private FafApiProperties fafApiProperties = mock(FafApiProperties.class);
+  private ContentService contentService = mock(ContentService.class);
+  private Player author = mock(Player.class);
 
   @Before
   public void setUp() {
@@ -169,27 +166,8 @@ public class MapServiceTest {
     }
   }
 
-  @Test
-  public void fileIsMissingInsideZipWithoutSaveLua() throws IOException {
-    fileIsMissingInsideZip("without_savelua.zip");
-  }
-
-  @Test
-  public void fileIsMissingInsideZipWithoutScenarioLua() throws IOException {
-    fileIsMissingInsideZip("without_scenariolua.zip");
-  }
-
-  @Test
-  public void fileIsMissingInsideZipWithoutScmapFile() throws IOException {
-    fileIsMissingInsideZip("without_scmap.zip");
-  }
-
-  @Test
-  public void fileIsMissingInsideZipWithoutScriptLuaa() throws IOException {
-    fileIsMissingInsideZip("without_scriptlua.zip");
-  }
-
-  private void fileIsMissingInsideZip(String zipFilename) throws IOException {
+  @TestWith({"without_savelua.zip", "without_scenariolua.zip", "without_scmap.zip", "without_scriptlua.zip"})
+  public void fileIsMissingInsideZip(String zipFilename) throws IOException {
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       try {
         byte[] mapData = ByteStreams.toByteArray(inputStream);

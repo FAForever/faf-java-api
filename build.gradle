@@ -60,10 +60,11 @@ jacocoTestReport {
 
 apply plugin: 'com.bmuschko.docker-remote-api'
 apply plugin: 'application'
+
+import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
 
 applicationName = rootProject.name
 docker {
@@ -149,6 +150,7 @@ dependencies {
   compile("org.luaj:luaj-jse:${luajVersion}")
   compile("com.github.micheljung:nocatch:${nocatchVersion}")
   compile("junit-addons:junit-addons:${junitAddonsVersion}")
+  compile("com.googlecode.zohhak:zohhak:${zohhakVersion}")
 
   runtime("mysql:mysql-connector-java:${mysqlConnectorVersion}")
 
