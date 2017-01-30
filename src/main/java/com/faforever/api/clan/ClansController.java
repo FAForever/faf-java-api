@@ -1,8 +1,8 @@
 package com.faforever.api.clan;
 
-import com.faforever.api.authentication.AuthenticationService;
 import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.Player;
+import com.faforever.api.player.PlayerService;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -27,12 +27,12 @@ public class ClansController {
 
   public static final String PATH = "/clans";
   private final ClanService clanService;
-  private final AuthenticationService authenticationService;
+  private final PlayerService playerService;
 
   @Inject
-  public ClansController(ClanService clanService, AuthenticationService authenticationService) {
+  public ClansController(ClanService clanService, PlayerService playerService) {
     this.clanService = clanService;
-    this.authenticationService = authenticationService;
+    this.playerService = playerService;
   }
 
   @ApiOperation("Grab data about yourself and the clan")
@@ -41,13 +41,13 @@ public class ClansController {
       @ApiResponse(code = 400, message = "Bad Request")})
   @RequestMapping(path = "/me", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
   public Map<String, Serializable> me(Authentication authentication) {
-    Player player = authenticationService.getPlayer(authentication);
+    Player player = playerService.getPlayer(authentication);
 
     ImmutableMap<String, Serializable> playerMap = ImmutableMap.of(
         "id", player.getId(),
         "login", player.getLogin());
 
-    Clan clan = (player.getClanMemberships().size() > 0)
+    Clan clan = (!player.getClanMemberships().isEmpty())
         ? player.getClanMemberships().get(0).getClan()
         : null;
     Serializable clanData = "";
@@ -71,8 +71,8 @@ public class ClansController {
   public Map<String, Serializable> createClan(@RequestParam(value = "name") String name,
                                               @RequestParam(value = "tag") String tag,
                                               @RequestParam(value = "description", required = false) String description,
-                                              Authentication authentication) throws IOException, ClanException {
-    Player player = authenticationService.getPlayer(authentication);
+                                              Authentication authentication) throws IOException {
+    Player player = playerService.getPlayer(authentication);
     Clan clan = clanService.create(name, tag, description, player);
     return ImmutableMap.of("id", clan.getId(), "type", "clan");
   }
@@ -87,8 +87,8 @@ public class ClansController {
   public Map<String, Serializable> generateInvitationLink(
       @RequestParam(value = "clanId") int clanId,
       @RequestParam(value = "playerId") int newMemberId,
-      Authentication authentication) throws IOException, ClanException {
-    Player player = authenticationService.getPlayer(authentication);
+      Authentication authentication) throws IOException {
+    Player player = playerService.getPlayer(authentication);
     String jwtToken = clanService.generatePlayerInvitationToken(player, newMemberId, clanId);
     return ImmutableMap.of("jwtToken", jwtToken);
   }
@@ -100,7 +100,7 @@ public class ClansController {
   @Transactional
   public void joinClan(
       @RequestParam(value = "token") String stringToken,
-      Authentication authentication) throws IOException, ClanException {
+      Authentication authentication) throws IOException {
     clanService.acceptPlayerInvitationToken(stringToken, authentication);
   }
 }

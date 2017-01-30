@@ -16,7 +16,7 @@ import javax.persistence.OneToOne;
 
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.JOINED)
-@Setter // Don't generate toString with lombok to avoid loops
+@Setter
 public abstract class Login {
 
   private int id;
@@ -39,7 +39,7 @@ public abstract class Login {
     return login;
   }
 
-  // neeeded for filter
+  // Needed for filter, e.g. at the clan app
   @Formula("LOWER(login)")
   public String getLowerCaseLogin() {
     return lowerCaseLogin;

@@ -16,8 +16,8 @@ import java.util.List;
 @Entity
 @Table(name = "login")
 @Include(rootLevel = true, type = "player")
-@SharePermission(any = Role.ALL.class) // needed to change leader of a clan
-@Setter // Don't generate toString with lombok to avoid loops
+@SharePermission(any = Role.ALL.class) // Needed to change leader of a clan
+@Setter
 public class Player extends Login {
 
   private Ladder1v1Rating ladder1v1Rating;
@@ -42,7 +42,7 @@ public class Player extends Login {
 
   @Transient
   public Clan getClan() {
-    if (getClanMemberships().size() == 1) {
+    if (getClanMemberships() != null && getClanMemberships().size() == 1) {
       return getClanMemberships().get(0).getClan();
     }
     return null;

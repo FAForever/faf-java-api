@@ -1,6 +1,5 @@
 package com.faforever.api.clan;
 
-import com.faforever.api.authentication.AuthenticationService;
 import com.faforever.api.authentication.JwtService;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Clan;
@@ -11,6 +10,7 @@ import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.error.ProgrammingError;
 import com.faforever.api.player.PlayerRepository;
+import com.faforever.api.player.PlayerService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
@@ -20,7 +20,9 @@ import org.springframework.security.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
-import java.util.Arrays;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 
 @Service
 public class ClanService {
@@ -30,26 +32,28 @@ public class ClanService {
   private final FafApiProperties fafApiProperties;
   private final JwtService jwtService;
   private final ObjectMapper objectMapper;
-  private final AuthenticationService authenticationService;
+  private final PlayerService playerService;
   private final ClanMembershipRepository clanMembershipRepository;
 
   @Inject
   public ClanService(ClanRepository clanRepository,
                      PlayerRepository playerRepository,
                      FafApiProperties fafApiProperties,
-                     JwtService jwtService, AuthenticationService authenticationService, ClanMembershipRepository clanMembershipRepository) {
+                     JwtService jwtService,
+                     PlayerService playerService,
+                     ClanMembershipRepository clanMembershipRepository) {
     this.clanRepository = clanRepository;
     this.playerRepository = playerRepository;
     this.fafApiProperties = fafApiProperties;
     this.jwtService = jwtService;
-    this.authenticationService = authenticationService;
+    this.playerService = playerService;
     this.clanMembershipRepository = clanMembershipRepository;
     this.objectMapper = new ObjectMapper();
   }
 
   @SneakyThrows
   public Clan create(String name, String tag, String description, Player creator) {
-    if (creator.getClanMemberships().size() > 0) {
+    if (!creator.getClanMemberships().isEmpty()) {
       throw new ApiException(new Error(ErrorCode.CLAN_CREATE_CREATOR_IS_IN_A_CLAN));
     }
 
@@ -65,8 +69,10 @@ public class ClanService {
     membership.setClan(clan);
     membership.setPlayer(creator);
 
-    clan.setMemberships(Arrays.asList(membership));
-    clanRepository.save(clan); // clan membership is saved over cascading, otherwise validation will fail
+    clan.setMemberships(Collections.singletonList(membership));
+
+    // clan membership is saved over cascading, otherwise validation will fail
+    clanRepository.save(clan);
     return clan;
   }
 
@@ -86,17 +92,16 @@ public class ClanService {
       throw new ApiException(new Error(ErrorCode.CLAN_GENERATE_LINK_PLAYER_NOT_FOUND, newMemberId));
     }
 
-    // TODO: not sure if this is a good idea, e.g. Time Zones
-    long expire = System.currentTimeMillis()
-        + (fafApiProperties.getClan().getExpireDurationInMinutes() * 60 * 1000);
+    long expire = Instant.now()
+        .plus(fafApiProperties.getClan().getInviteLinkExpireDurationInMinutes(), ChronoUnit.MINUTES)
+        .toEpochMilli();
 
-    String jwtToken = jwtService.sign(
+    return jwtService.sign(
         ImmutableMap.of("newMemberId", newMemberId,
             "expire", expire,
             "clan", ImmutableMap.of("id", clan.getId(),
                 "tag", clan.getTag(),
                 "name", clan.getName())));
-    return jwtToken;
   }
 
   @SneakyThrows
@@ -108,7 +113,7 @@ public class ClanService {
       throw new ApiException(new Error(ErrorCode.CLAN_ACCEPT_TOKEN_EXPIRE));
     }
 
-    Player player = authenticationService.getPlayer(authentication);
+    Player player = playerService.getPlayer(authentication);
     Clan clan = clanRepository.findOne(data.get("clan").get("id").asInt());
 
     if (clan == null) {
@@ -117,8 +122,7 @@ public class ClanService {
 
     Player newMember = playerRepository.findOne(data.get("newMemberId").asInt());
     if (newMember == null) {
-      throw new ProgrammingError("ClanMember does not exist: "
-          + data.get("newMemberId").asInt());
+      throw new ProgrammingError("ClanMember does not exist: " + data.get("newMemberId").asInt());
     }
 
     if (player.getId() != newMember.getId()) {
