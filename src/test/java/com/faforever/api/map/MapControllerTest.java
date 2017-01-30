@@ -1,9 +1,9 @@
 package com.faforever.api.map;
 
-import com.faforever.api.authentication.AuthenticationService;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.TestWebSecurityConfig;
 import com.faforever.api.player.PlayerRepository;
+import com.faforever.api.player.PlayerService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
@@ -40,7 +40,7 @@ public class MapControllerTest {
   @MockBean
   private FafApiProperties fafApiProperties;
   @MockBean
-  private AuthenticationService authenticationService;
+  private PlayerService playerService;
   @MockBean
   private ObjectMapper objectMapper;
 

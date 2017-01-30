@@ -1,12 +1,12 @@
 package com.faforever.api.map;
 
-import com.faforever.api.authentication.AuthenticationService;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerRepository;
+import com.faforever.api.player.PlayerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
 import io.swagger.annotations.ApiOperation;
@@ -33,15 +33,15 @@ public class MapsController {
   private final MapService mapService;
   private final FafApiProperties fafApiProperties;
   private final ObjectMapper objectMapper;
-  private final AuthenticationService authenticationService;
+  private final PlayerService playerService;
 
   @Inject
-  public MapsController(PlayerRepository playerRepository, MapService mapService, FafApiProperties fafApiProperties, ObjectMapper objectMapper, AuthenticationService authenticationService) {
+  public MapsController(PlayerRepository playerRepository, MapService mapService, FafApiProperties fafApiProperties, ObjectMapper objectMapper, PlayerService playerService) {
     this.playerRepository = playerRepository;
     this.mapService = mapService;
     this.fafApiProperties = fafApiProperties;
     this.objectMapper = objectMapper;
-    this.authenticationService = authenticationService;
+    this.playerService = playerService;
   }
 
   @ApiOperation("Uploads a map")
@@ -53,7 +53,7 @@ public class MapsController {
   public void uploadMap(@RequestParam("file") MultipartFile file,
                         @RequestParam("metadata") String jsonString,
                         Authentication authentication) throws IOException {
-    Player player = authenticationService.getPlayer(authentication, playerRepository);
+    Player player = playerService.getPlayer(authentication, playerRepository);
     if (file == null) {
       throw new ApiException(new Error(ErrorCode.UPLOAD_FILE_MISSING));
     }
