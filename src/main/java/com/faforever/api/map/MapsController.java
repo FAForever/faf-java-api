@@ -5,7 +5,6 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
-import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.player.PlayerService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,15 +29,13 @@ import java.util.Arrays;
 @RestController
 @RequestMapping(path = "/maps")
 public class MapsController {
-  private final PlayerRepository playerRepository;
   private final MapService mapService;
   private final FafApiProperties fafApiProperties;
   private final ObjectMapper objectMapper;
   private final PlayerService playerService;
 
   @Inject
-  public MapsController(PlayerRepository playerRepository, MapService mapService, FafApiProperties fafApiProperties, ObjectMapper objectMapper, PlayerService playerService) {
-    this.playerRepository = playerRepository;
+  public MapsController(MapService mapService, FafApiProperties fafApiProperties, ObjectMapper objectMapper, PlayerService playerService) {
     this.mapService = mapService;
     this.fafApiProperties = fafApiProperties;
     this.objectMapper = objectMapper;
@@ -54,15 +51,17 @@ public class MapsController {
   public void uploadMap(@RequestParam("file") MultipartFile file,
                         @RequestParam("metadata") String jsonString,
                         Authentication authentication) throws IOException {
-    Player player = playerService.getPlayer(authentication, playerRepository);
+    Player player = playerService.getPlayer(authentication);
     if (file == null) {
       throw new ApiException(new Error(ErrorCode.UPLOAD_FILE_MISSING));
     }
+
     String extension = Files.getFileExtension(file.getOriginalFilename());
     if (Arrays.asList(fafApiProperties.getMap().getAllowedExtensions()).stream().noneMatch(
         extension::equals)) {
       throw new ApiException(new Error(ErrorCode.UPLOAD_INVALID_FILE_EXTENSION, fafApiProperties.getMap().getAllowedExtensions()));
     }
+
     boolean ranked;
     try {
       JsonNode node = objectMapper.readTree(jsonString);
@@ -70,6 +69,7 @@ public class MapsController {
     } catch (IOException e) {
       throw new ApiException(new Error(ErrorCode.MAP_NO_VALID_JSON_METADATA));
     }
+
     mapService.uploadMap(file.getBytes(), file.getOriginalFilename(), player, ranked);
   }
 

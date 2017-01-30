@@ -2,7 +2,6 @@ package com.faforever.api.map;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.TestWebSecurityConfig;
-import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.player.PlayerService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,10 +30,6 @@ public class MapControllerTest {
 
   @Autowired
   private MockMvc mvc;
-  @MockBean
-  private PlayerRepository playerRepository;
-  @MockBean
-  private MapRepository mapRepository;
   @MockBean
   private MapService mapService;
   @MockBean
