@@ -5,6 +5,7 @@ import com.faforever.api.config.FafApiProperties.Map;
 import com.faforever.api.content.ContentService;
 import com.faforever.api.data.domain.MapVersion;
 import com.faforever.api.data.domain.Player;
+import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ApiExceptionWithMutlipleCodes;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.utils.Unzipper;
@@ -38,7 +39,9 @@ import java.util.zip.ZipInputStream;
 import static com.faforever.api.error.ApiExceptionWithCode.apiExceptionWithCode;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -93,9 +96,13 @@ public class MapServiceTest {
     String zipFilename = "scmp_037.zip";
     when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
-      byte[] mapData = ByteStreams.toByteArray(inputStream);
-      expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_NAME_CONFLICT));
-      instance.uploadMap(mapData, zipFilename, author, true);
+      try {
+        byte[] mapData = ByteStreams.toByteArray(inputStream);
+        instance.uploadMap(mapData, zipFilename, author, true);
+        fail();
+      } catch (ApiException e) {
+        assertThat(e, apiExceptionWithCode(ErrorCode.MAP_NAME_CONFLICT));
+      }
       verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
@@ -104,9 +111,13 @@ public class MapServiceTest {
   public void emptyZip() throws IOException {
     String zipFilename = "empty.zip";
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
-      byte[] mapData = ByteStreams.toByteArray(inputStream);
-      expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_MISSING_MAP_FOLDER_INSIDE_ZIP));
-      instance.uploadMap(mapData, zipFilename, author, true);
+      try {
+        byte[] mapData = ByteStreams.toByteArray(inputStream);
+        instance.uploadMap(mapData, zipFilename, author, true);
+        fail();
+      } catch (ApiException e) {
+        assertThat(e, apiExceptionWithCode(ErrorCode.MAP_MISSING_MAP_FOLDER_INSIDE_ZIP));
+      }
       verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
@@ -123,9 +134,13 @@ public class MapServiceTest {
     com.faforever.api.data.domain.Map map = new com.faforever.api.data.domain.Map().setAuthor(bob);
     when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.of(map));
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
-      byte[] mapData = ByteStreams.toByteArray(inputStream);
-      expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR));
-      instance.uploadMap(mapData, zipFilename, me, true);
+      try {
+        byte[] mapData = ByteStreams.toByteArray(inputStream);
+        instance.uploadMap(mapData, zipFilename, me, true);
+        fail();
+      } catch (ApiException e) {
+        assertThat(e, apiExceptionWithCode(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR));
+      }
       verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
@@ -143,9 +158,13 @@ public class MapServiceTest {
 
     when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.of(map));
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
-      byte[] mapData = ByteStreams.toByteArray(inputStream);
-      expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_VERSION_EXISTS));
-      instance.uploadMap(mapData, zipFilename, me, true);
+      try {
+        byte[] mapData = ByteStreams.toByteArray(inputStream);
+        instance.uploadMap(mapData, zipFilename, me, true);
+        fail();
+      } catch (ApiException e) {
+        assertThat(e, apiExceptionWithCode(ErrorCode.MAP_VERSION_EXISTS));
+      }
       verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
@@ -155,9 +174,13 @@ public class MapServiceTest {
     String[] files = new String[]{"without_scmap.zip", "without_scenariolua.zip", "without_scmap.zip", "without_scriptlua.zip"};
     for (String zipFilename : files) {
       try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
-        byte[] mapData = ByteStreams.toByteArray(inputStream);
-        expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING));
-        instance.uploadMap(mapData, zipFilename, author, true);
+        try {
+          byte[] mapData = ByteStreams.toByteArray(inputStream);
+          instance.uploadMap(mapData, zipFilename, author, true);
+          fail();
+        } catch (ApiException e) {
+          assertThat(e, apiExceptionWithCode(ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING));
+        }
         verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
       }
     }
