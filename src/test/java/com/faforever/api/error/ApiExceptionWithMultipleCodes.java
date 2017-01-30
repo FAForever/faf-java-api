@@ -5,17 +5,17 @@ import org.hamcrest.Description;
 
 import java.util.Arrays;
 
-public final class ApiExceptionWithMutlipleCodes extends BaseMatcher<ApiException> {
+public final class ApiExceptionWithMultipleCodes extends BaseMatcher<ApiException> {
 
   private final ErrorCode[] errorCode;
 
-  private ApiExceptionWithMutlipleCodes(ErrorCode... errorCode) {
+  private ApiExceptionWithMultipleCodes(ErrorCode... errorCode) {
     this.errorCode = errorCode;
   }
 
   @Override
   public void describeTo(Description description) {
-    description.appendText("an ApiException with exactly multiple errors: " + Arrays.toString(errorCode));
+    description.appendText("an ApiException with multiple errors: " + Arrays.toString(errorCode));
   }
 
   @Override
@@ -26,7 +26,7 @@ public final class ApiExceptionWithMutlipleCodes extends BaseMatcher<ApiExceptio
 
   }
 
-  public static ApiExceptionWithMutlipleCodes apiExceptionWithCode(ErrorCode... errorCode) {
-    return new ApiExceptionWithMutlipleCodes(errorCode);
+  public static ApiExceptionWithMultipleCodes apiExceptionWithCode(ErrorCode... errorCode) {
+    return new ApiExceptionWithMultipleCodes(errorCode);
   }
 }

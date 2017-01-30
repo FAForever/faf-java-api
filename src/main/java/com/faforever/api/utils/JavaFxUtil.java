@@ -9,6 +9,7 @@ import static com.github.nocatch.NoCatch.noCatch;
 import static java.nio.file.Files.createDirectories;
 import static javax.imageio.ImageIO.write;
 
+// TODO move to shared FAF code
 public class JavaFxUtil {
   public static void writeImage(Image image, Path path, String format) {
     if (path.getParent() != null) {

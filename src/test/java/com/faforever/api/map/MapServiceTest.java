@@ -6,7 +6,7 @@ import com.faforever.api.content.ContentService;
 import com.faforever.api.data.domain.MapVersion;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
-import com.faforever.api.error.ApiExceptionWithMutlipleCodes;
+import com.faforever.api.error.ApiExceptionWithMultipleCodes;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.utils.Unzipper;
 import com.google.common.io.ByteStreams;
@@ -197,7 +197,7 @@ public class MapServiceTest {
     when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
-      expectedException.expect(ApiExceptionWithMutlipleCodes.apiExceptionWithCode(
+      expectedException.expect(ApiExceptionWithMultipleCodes.apiExceptionWithCode(
           ErrorCode.MAP_NAME_MISSING,
           ErrorCode.MAP_DESCRIPTION_MISSING,
           ErrorCode.MAP_FIRST_TEAM_FFA,

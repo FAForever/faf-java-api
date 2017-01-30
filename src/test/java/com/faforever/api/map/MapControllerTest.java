@@ -80,9 +80,9 @@ public class MapControllerTest {
           ByteStreams.toByteArray(inputStream));
 
       this.mvc.perform(fileUpload("/maps/upload")
-          .file(file).param("metadata", jsonString)
-      )
-          .andExpect(status().isOk());
+          .file(file)
+          .param("metadata", jsonString)
+      ).andExpect(status().isOk());
     }
   }
 

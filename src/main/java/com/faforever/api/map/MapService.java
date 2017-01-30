@@ -8,6 +8,7 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.error.ProgrammingError;
 import com.faforever.api.utils.JavaFxUtil;
 import com.faforever.api.utils.PreviewGenerator;
 import com.faforever.api.utils.Unzipper;
@@ -23,7 +24,6 @@ import org.springframework.util.FileSystemUtils;
 import javax.inject.Inject;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -48,7 +48,7 @@ public class MapService {
       "_save.lua",
       "_scenario.lua",
       "_script.lua"};
-  public static final Charset MAP_CHARSET = StandardCharsets.ISO_8859_1;
+  private static final Charset MAP_CHARSET = StandardCharsets.ISO_8859_1;
   private final FafApiProperties fafApiProperties;
   private final MapRepository mapRepository;
   private final ContentService contentService;
@@ -61,12 +61,13 @@ public class MapService {
   }
 
   @Transactional
-  public void uploadMap(byte[] mapData, String mapFilename, Player author, boolean isRanked) throws IOException {
+  @SneakyThrows
+  public void uploadMap(byte[] mapData, String mapFilename, Player author, boolean isRanked) {
     if (author == null) {
-      throw new IllegalStateException("author cannot be null");
+      throw new ProgrammingError("'author' cannot be null");
     }
     if (mapData.length <= 0) {
-      throw new IllegalStateException("mapData is empty");
+      throw new ProgrammingError("'mapData' is empty");
     }
     MapUploadData progressData = new MapUploadData()
         .setBaseDir(contentService.createTempDir())
@@ -86,14 +87,15 @@ public class MapService {
 
     updateMapEntities(progressData);
 
-    renameFolderNameAndAdaptLuaFiles(progressData);
+    renameFolderNameAndCorrectPathInLuaFiles(progressData);
     generatePreview(progressData);
 
     zipMapData(progressData);
     cleanup(progressData);
   }
 
-  private Path copyToTemporaryDirectory(byte[] mapData, MapUploadData progressData) throws IOException {
+  @SneakyThrows
+  private Path copyToTemporaryDirectory(byte[] mapData, MapUploadData progressData) {
     return Files.write(progressData.getUploadedFile(), mapData);
   }
 
@@ -122,7 +124,7 @@ public class MapService {
 
     List<Path> filePaths = new ArrayList<>();
     try (Stream<Path> mapFileStream = Files.list(mapUploadData.getOriginalMapFolder())) {
-      mapFileStream.forEach(myPath -> filePaths.add(myPath));
+      mapFileStream.forEach(filePaths::add);
       Arrays.stream(REQUIRED_FILES)
           .forEach(filePattern -> {
             if (filePaths.stream()
@@ -184,17 +186,18 @@ public class MapService {
   private void postProcessLuaFile(MapUploadData progressData) {
     LuaValue scenarioInfo = progressData.getLuaScenarioInfo();
     Optional<Map> mapEntity = mapRepository.findOneByDisplayName(scenarioInfo.get("name").toString());
-    if (mapEntity.isPresent()) {
-      if (mapEntity.get().getAuthor().getId() != progressData.getAuthorEntity().getId()) {
-        throw new ApiException(new Error(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR, mapEntity.get().getDisplayName()));
-      }
-      int newVersion = scenarioInfo.get("map_version").toint();
-      if (mapEntity.get().getVersions().stream()
-          .anyMatch(mapVersion -> mapVersion.getVersion() == newVersion)) {
-        throw new ApiException(new Error(ErrorCode.MAP_VERSION_EXISTS, mapEntity.get().getDisplayName(), newVersion));
-      }
-      progressData.setMapEntity(mapEntity.get());
+    if (!mapEntity.isPresent()) {
+      return;
     }
+    if (mapEntity.get().getAuthor().getId() != progressData.getAuthorEntity().getId()) {
+      throw new ApiException(new Error(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR, mapEntity.get().getDisplayName()));
+    }
+    int newVersion = scenarioInfo.get("map_version").toint();
+    if (mapEntity.get().getVersions().stream()
+        .anyMatch(mapVersion -> mapVersion.getVersion() == newVersion)) {
+      throw new ApiException(new Error(ErrorCode.MAP_VERSION_EXISTS, mapEntity.get().getDisplayName(), newVersion));
+    }
+    progressData.setMapEntity(mapEntity.get());
   }
 
   private void updateMapEntities(MapUploadData progressData) {
@@ -232,12 +235,12 @@ public class MapService {
       throw new ApiException(new Error(ErrorCode.MAP_NAME_CONFLICT, progressData.getFinalZipName()));
     }
 
-    // save entity to db to trigger validation
+    // this triggers validation
     mapRepository.save(map);
   }
 
   @SneakyThrows
-  private void renameFolderNameAndAdaptLuaFiles(MapUploadData progressData) {
+  private void renameFolderNameAndCorrectPathInLuaFiles(MapUploadData progressData) {
     progressData.setNewMapFolder(Paths.get(progressData.getBaseDir().toString(), progressData.getNewFolderName()));
     Files.move(progressData.getOriginalMapFolder(), progressData.getNewMapFolder());
     updateLuaFiles(progressData);
@@ -251,16 +254,17 @@ public class MapService {
       mapFileStream
           .filter(path -> path.toString().toLowerCase().endsWith(".lua"))
           .forEach(path -> noCatch(() -> {
-            List<String> collect = Files.readAllLines(path, MAP_CHARSET).stream()
+            List<String> lines = Files.readAllLines(path, MAP_CHARSET).stream()
                 .map(line -> line.replaceAll("(?i)" + oldNameFolder, newNameFolder))
                 .collect(Collectors.toList());
-            Files.write(path, collect, MAP_CHARSET);
+            Files.write(path, lines, MAP_CHARSET);
           }));
     }
   }
 
 
-  private void generatePreview(MapUploadData mapData) throws IOException {
+  @SneakyThrows
+  private void generatePreview(MapUploadData mapData) {
     String previewFilename = mapData.getNewFolderName() + ".png";
     generateImage(Paths.get(
         fafApiProperties.getMap().getFolderPreviewPathSmall(), previewFilename),
@@ -282,11 +286,12 @@ public class MapService {
     }
   }
 
-  private void cleanupBaseDir(MapUploadData progressData) throws IOException {
+  @SneakyThrows
+  private void cleanupBaseDir(MapUploadData progressData) {
     Files.delete(progressData.getUploadedFile());
     try (Stream<Path> stream = Files.list(progressData.getBaseDir())) {
       if (stream.count() != 1) {
-        throw new IllegalStateException("Folder containing unknown data: " + progressData.getBaseDir());
+        throw new ProgrammingError("Folder containing unknown data: " + progressData.getBaseDir());
       }
     }
   }
@@ -317,23 +322,27 @@ public class MapService {
     private MapVersion mapVersionEntity;
     private Player authorEntity;
     private boolean isRanked;
+    private LuaValue scenarioInfo;
 
-    public LuaValue getLuaScenarioInfo() {
+    private LuaValue getLuaScenarioInfo() {
       if (getLuaRoot() == null) {
         throw new IllegalStateException("*_scenario.lua parse result not available");
       }
-      return getLuaRoot().get("ScenarioInfo");
+      if (scenarioInfo == null) {
+        scenarioInfo = getLuaRoot().get("ScenarioInfo");
+      }
+      return scenarioInfo;
     }
 
     private String normalizeMapName(String mapName) {
       return Paths.get(mapName.toLowerCase().replaceAll(" ", "_")).normalize().toString();
     }
 
-    public String getNewFolderName() {
+    private String getNewFolderName() {
       return generateNewMapNameWithVersion("");
     }
 
-    public String generateNewMapNameWithVersion(String extension) {
+    private String generateNewMapNameWithVersion(String extension) {
       return Paths.get(String.format("%s.v%04d%s",
           normalizeMapName(mapEntity.getDisplayName()),
           mapVersionEntity.getVersion(),
@@ -341,7 +350,7 @@ public class MapService {
           .normalize().toString();
     }
 
-    public String getFinalZipName() {
+    private String getFinalZipName() {
       return generateNewMapNameWithVersion(".zip");
     }
   }

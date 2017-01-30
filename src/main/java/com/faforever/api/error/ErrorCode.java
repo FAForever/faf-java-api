@@ -34,7 +34,7 @@ public enum ErrorCode {
   QUERY_INVALID_RATING_TYPE(127, "Invalid rating type", "Rating type is not valid: {0}. Please pick '1v1' or 'global'."),
   LOGIN_DENIED_BANNED(128, "Login denied", "You are currently banned: {0}"),
   MOD_NAME_CONFLICT(129, "Name clash", "Another mod with file name '{0}' already exists."),
-  INVALID_EMAIL(130, "Invalid account data", "The entered email-adress is invalid: {0}"),
+  INVALID_EMAIL(130, "Invalid account data", "The entered email-address is invalid: {0}"),
   INVALID_USERNAME(131, "Invalid account data", "The entered username is invalid: {0}"),
   USERNAME_TAKEN(132, "Invalid account data", "The entered username is already in use: {0}"),
   EMAIL_REGISTERED(133, "Invalid account data", "The entered email address `{0}` already has an associated account."),
@@ -47,12 +47,12 @@ public enum ErrorCode {
   EMAIL_CHANGE_FAILED(140, "Email change failed", "An unknown error happened while updating the database."),
   STEAM_ID_UNCHANGEABLE(141, "Linking to Steam failed", "Your account is already bound to another Steam ID."),
   UNKNOWN_FEATURED_MOD(142, "Unknown featured mod", "There is no featured mod with ID '{}'."),
-  MAP_SCENARIO_LUA_MISSING(143, "Invalid Map File", "Zip File does not contain a *_scenario.lua"),
+  MAP_SCENARIO_LUA_MISSING(143, "Invalid Map File", "Zip file does not contain a *_scenario.lua"),
   MAP_MISSING_MAP_FOLDER_INSIDE_ZIP(144, "No folder inside Zip", "Zip file must contain a folder with all map data"),
-  MAP_FILE_INSIDE_ZIP_MISSING(145, "File is missing", "Cannot find inside the zip file {0}"),
-  MAP_NO_VALID_JSON_METADATA(146, "No valid json", "metadata json is not valid"),
-  MAP_RENAME_FAILED(147, "Cannot rename to correct name failed ", "Cannot rename file {0}"),
-  VALIDATION_FAILED(900, "Validation failed", "{0}");;
+  MAP_FILE_INSIDE_ZIP_MISSING(145, "File is missing", "Cannot find needed file with pattern '{0}' inside zip file"),
+  MAP_NO_VALID_JSON_METADATA(146, "No valid json", "Metadata json is not valid"),
+  MAP_RENAME_FAILED(147, "Cannot rename to correct name failed ", "Cannot rename file '{0}'"),
+  VALIDATION_FAILED(900, "Validation failed", "{0}");
 
   private final int code;
   private final String title;

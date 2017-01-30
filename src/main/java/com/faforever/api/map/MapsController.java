@@ -7,6 +7,7 @@ import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.player.PlayerService;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
 import io.swagger.annotations.ApiOperation;
@@ -59,20 +60,21 @@ public class MapsController {
     }
     String extension = Files.getFileExtension(file.getOriginalFilename());
     if (Arrays.asList(fafApiProperties.getMap().getAllowedExtensions()).stream().noneMatch(
-        allowedExtension -> extension.equals(allowedExtension))) {
+        extension::equals)) {
       throw new ApiException(new Error(ErrorCode.UPLOAD_INVALID_FILE_EXTENSION, fafApiProperties.getMap().getAllowedExtensions()));
     }
     boolean ranked;
     try {
-      ranked = objectMapper.readTree(jsonString).path("is_ranked").asBoolean(false);
-    } catch (Exception e) {
+      JsonNode node = objectMapper.readTree(jsonString);
+      ranked = node.path("is_ranked").asBoolean(false);
+    } catch (IOException e) {
       throw new ApiException(new Error(ErrorCode.MAP_NO_VALID_JSON_METADATA));
     }
     mapService.uploadMap(file.getBytes(), file.getOriginalFilename(), player, ranked);
   }
 
   @ExceptionHandler(ValidationException.class)
-  public void handleClanException(ValidationException ex) {
+  public void handleValidationException(ValidationException ex) {
     throw new ApiException(new Error(ErrorCode.VALIDATION_FAILED, ex.getMessage()));
   }
 }
