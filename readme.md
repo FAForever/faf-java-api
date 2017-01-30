@@ -1,4 +1,7 @@
 # Spring Boot based FAF-API Prototype
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/12eecd69a3cf4f6c96ffa043a7d70198)](https://www.codacy.com/app/micheljung/faf-java-api?utm_source=github.com&utm_medium=referral&utm_content=micheljung/faf-java-api&utm_campaign=badger)
+
  
  This is a prototype of a Spring Boot based API application for Forged Alliance Forever.
  
