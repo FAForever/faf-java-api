@@ -69,9 +69,9 @@ public class MapServiceTest {
   public void setUp() {
     instance = new MapService(fafApiProperties, mapRepository, contentService);
     mapProperties = new Map()
-        .setFinalDirectory(finalDirectory.getRoot().getAbsolutePath())
-        .setMapPreviewPathLarge(Paths.get(finalDirectory.getRoot().getAbsolutePath(), "large").toString())
-        .setMapPreviewPathSmall(Paths.get(finalDirectory.getRoot().getAbsolutePath(), "small").toString());
+        .setFolderZipFiles(finalDirectory.getRoot().getAbsolutePath())
+        .setFolderPreviewPathLarge(Paths.get(finalDirectory.getRoot().getAbsolutePath(), "large").toString())
+        .setFolderPreviewPathSmall(Paths.get(finalDirectory.getRoot().getAbsolutePath(), "small").toString());
     when(fafApiProperties.getMap()).thenReturn(mapProperties);
     when(contentService.createTempDir()).thenReturn(temporaryDirectory.getRoot().toPath());
   }
@@ -264,8 +264,8 @@ public class MapServiceTest {
 
         );
 
-        assertTrue(Files.exists(Paths.get(mapProperties.getMapPreviewPathLarge(), "sludge_test.v0001.png")));
-        assertTrue(Files.exists(Paths.get(mapProperties.getMapPreviewPathSmall(), "sludge_test.v0001.png")));
+        assertTrue(Files.exists(Paths.get(mapProperties.getFolderPreviewPathLarge(), "sludge_test.v0001.png")));
+        assertTrue(Files.exists(Paths.get(mapProperties.getFolderPreviewPathSmall(), "sludge_test.v0001.png")));
       }
     }
   }

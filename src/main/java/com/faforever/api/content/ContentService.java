@@ -1,5 +1,6 @@
 package com.faforever.api.content;
 
+import com.google.common.io.Files;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
@@ -8,6 +9,6 @@ import java.nio.file.Path;
 public class ContentService {
 
   public Path createTempDir() {
-    return com.google.common.io.Files.createTempDir().toPath();
+    return Files.createTempDir().toPath();
   }
 }

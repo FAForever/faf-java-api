@@ -225,7 +225,7 @@ public class MapService {
 
     version.setFilename(progressData.getFinalZipName());
     progressData.setFinalZipFile(Paths.get(
-        this.fafApiProperties.getMap().getFinalDirectory(),
+        this.fafApiProperties.getMap().getFolderZipFiles(),
         progressData.getFinalZipName()));
 
     if (Files.exists(progressData.getFinalZipFile())) {
@@ -263,12 +263,12 @@ public class MapService {
   private void generatePreview(MapUploadData mapData) throws IOException {
     String previewFilename = mapData.getNewFolderName() + ".png";
     generateImage(Paths.get(
-        fafApiProperties.getMap().getMapPreviewPathSmall(), previewFilename),
+        fafApiProperties.getMap().getFolderPreviewPathSmall(), previewFilename),
         mapData.getNewMapFolder(),
         fafApiProperties.getMap().getPreviewSizeSmall());
 
     generateImage(Paths.get(
-        fafApiProperties.getMap().getMapPreviewPathLarge(), previewFilename),
+        fafApiProperties.getMap().getFolderPreviewPathLarge(), previewFilename),
         mapData.getNewMapFolder(),
         fafApiProperties.getMap().getPreviewSizeLarge());
   }
