@@ -170,19 +170,35 @@ public class MapServiceTest {
   }
 
   @Test
-  public void fileIsMissingInsideZip() throws IOException {
-    String[] files = new String[]{"without_scmap.zip", "without_scenariolua.zip", "without_scmap.zip", "without_scriptlua.zip"};
-    for (String zipFilename : files) {
-      try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
-        try {
-          byte[] mapData = ByteStreams.toByteArray(inputStream);
-          instance.uploadMap(mapData, zipFilename, author, true);
-          fail();
-        } catch (ApiException e) {
-          assertThat(e, apiExceptionWithCode(ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING));
-        }
-        verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
+  public void fileIsMissingInsideZipWithoutSaveLua() throws IOException {
+    fileIsMissingInsideZip("without_savelua.zip");
+  }
+
+  @Test
+  public void fileIsMissingInsideZipWithoutScenarioLua() throws IOException {
+    fileIsMissingInsideZip("without_scenariolua.zip");
+  }
+
+  @Test
+  public void fileIsMissingInsideZipWithoutScmapFile() throws IOException {
+    fileIsMissingInsideZip("without_scmap.zip");
+  }
+
+  @Test
+  public void fileIsMissingInsideZipWithoutScriptLuaa() throws IOException {
+    fileIsMissingInsideZip("without_scriptlua.zip");
+  }
+
+  private void fileIsMissingInsideZip(String zipFilename) throws IOException {
+    try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
+      try {
+        byte[] mapData = ByteStreams.toByteArray(inputStream);
+        instance.uploadMap(mapData, zipFilename, author, true);
+        fail();
+      } catch (ApiException e) {
+        assertThat(e, apiExceptionWithCode(ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING));
       }
+      verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
 
