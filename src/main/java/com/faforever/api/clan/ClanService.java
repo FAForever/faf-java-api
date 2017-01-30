@@ -71,19 +71,19 @@ public class ClanService {
   }
 
   @SneakyThrows
-  public String generatePlayerInvitationToken(Player requestor, int newMemberId, int clanId) {
+  public String generatePlayerInvitationToken(Player requester, int newMemberId, int clanId) {
     Clan clan = clanRepository.findOne(clanId);
 
     if (clan == null) {
       throw new ApiException(new Error(ErrorCode.CLAN_NOT_EXISTS));
     }
-    if (requestor.getId() != clan.getLeader().getId()) {
-      throw new ApiException(new Error(ErrorCode.CLAN_NOT_LEADER));
+    if (requester.getId() != clan.getLeader().getId()) {
+      throw new ApiException(new Error(ErrorCode.CLAN_NOT_LEADER, clanId));
     }
 
-    Player newMember = playerRepository.getOne(newMemberId);
+    Player newMember = playerRepository.findOne(newMemberId);
     if (newMember == null) {
-      throw new ProgrammingError("ClanMember does not exist: " + newMemberId);
+      throw new ApiException(new Error(ErrorCode.CLAN_GENERATE_LINK_PLAYER_NOT_FOUND, newMemberId));
     }
 
     // TODO: not sure if this is a good idea, e.g. Time Zones
