@@ -13,9 +13,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({TYPE, ANNOTATION_TYPE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = LeaderIsInClanValidator.class)
+@Constraint(validatedBy = IsLeaderInClanValidator.class)
 @Documented
-public @interface LeaderIsInClan {
+public @interface IsLeaderInClan {
 
   String message() default "Clan Leader is not Clan Member";
 

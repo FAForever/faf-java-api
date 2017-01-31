@@ -1,7 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.config.elide.checks.IsClanLeader;
-import com.faforever.api.data.validation.LeaderIsInClan;
+import com.faforever.api.data.validation.IsLeaderInClan;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
@@ -33,7 +33,7 @@ import java.util.List;
 @DeletePermission(expression = IsClanLeader.EXPRESSION)
 @CreatePermission(any = Role.ALL.class)
 @Setter
-@LeaderIsInClan
+@IsLeaderInClan
 public class Clan {
 
   private int id;

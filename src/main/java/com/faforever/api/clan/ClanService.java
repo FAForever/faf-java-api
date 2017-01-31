@@ -97,11 +97,13 @@ public class ClanService {
         .toEpochMilli();
 
     return jwtService.sign(
-        ImmutableMap.of("newMemberId", newMemberId,
-            "expire", expire,
-            "clan", ImmutableMap.of("id", clan.getId(),
-                "tag", clan.getTag(),
-                "name", clan.getName())));
+        ImmutableMap.of(JwtKeys.NEW_MEMBER_ID, newMemberId,
+            JwtKeys.EXPIRE_IN, expire,
+            JwtKeys.CLAN, ImmutableMap.of(
+                JwtKeys.CLAN_ID, clan.getId(),
+                JwtKeys.CLAN_TAG, clan.getTag(),
+                JwtKeys.CLAN_NAME, clan.getName())
+        ));
   }
 
   @SneakyThrows
@@ -109,20 +111,20 @@ public class ClanService {
     Jwt token = jwtService.decodeAndVerify(stringToken);
     JsonNode data = objectMapper.readTree(token.getClaims());
 
-    if (data.get("expire").asLong() < System.currentTimeMillis()) {
+    if (data.get(JwtKeys.EXPIRE_IN).asLong() < System.currentTimeMillis()) {
       throw new ApiException(new Error(ErrorCode.CLAN_ACCEPT_TOKEN_EXPIRE));
     }
 
     Player player = playerService.getPlayer(authentication);
-    Clan clan = clanRepository.findOne(data.get("clan").get("id").asInt());
+    Clan clan = clanRepository.findOne(data.get(JwtKeys.CLAN).get(JwtKeys.CLAN_ID).asInt());
 
     if (clan == null) {
       throw new ApiException(new Error(ErrorCode.CLAN_NOT_EXISTS));
     }
 
-    Player newMember = playerRepository.findOne(data.get("newMemberId").asInt());
+    Player newMember = playerRepository.findOne(data.get(JwtKeys.NEW_MEMBER_ID).asInt());
     if (newMember == null) {
-      throw new ProgrammingError("ClanMember does not exist: " + data.get("newMemberId").asInt());
+      throw new ProgrammingError("ClanMember does not exist: " + data.get(JwtKeys.NEW_MEMBER_ID).asInt());
     }
 
     if (player.getId() != newMember.getId()) {
@@ -136,5 +138,14 @@ public class ClanService {
     membership.setClan(clan);
     membership.setPlayer(newMember);
     clanMembershipRepository.save(membership);
+  }
+
+  private class JwtKeys {
+    public static final String NEW_MEMBER_ID = "newMemberId";
+    public static final String EXPIRE_IN = "expire";
+    public static final String CLAN = "clan";
+    public static final String CLAN_ID = "id";
+    public static final String CLAN_TAG = "tag";
+    public static final String CLAN_NAME = "name";
   }
 }
