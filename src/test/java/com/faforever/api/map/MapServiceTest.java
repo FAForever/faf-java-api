@@ -188,6 +188,7 @@ public class MapServiceTest {
       expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_FIRST_TEAM_FFA));
       instance.uploadMap(mapData, zipFilename, author, true);
     }
+    verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
   }
 
   @Test
@@ -204,6 +205,21 @@ public class MapServiceTest {
           ErrorCode.MAP_SIZE_MISSING,
           ErrorCode.MAP_VERSION_MISSING));
       instance.uploadMap(mapData, zipFilename, author, true);
+    }
+    verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
+  }
+
+  @Test
+  public void mapWithMoreRootFoldersInZip() throws IOException {
+    String zipFilename = "scmp_037_invalid.zip";
+    when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
+    try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
+      byte[] mapData = ByteStreams.toByteArray(inputStream);
+      try {
+        instance.uploadMap(mapData, zipFilename, author, true);
+      } catch (ApiException e) {
+        assertThat(e, apiExceptionWithCode(ErrorCode.MAP_INVALID_ZIP));
+      }
     }
   }
 

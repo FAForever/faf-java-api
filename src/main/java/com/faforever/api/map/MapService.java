@@ -119,6 +119,13 @@ public class MapService {
     if (!mapFolder.isPresent()) {
       throw new ApiException(new Error(ErrorCode.MAP_MISSING_MAP_FOLDER_INSIDE_ZIP));
     }
+
+    try (Stream<Path> mapFolderStream = Files.list(mapUploadData.getBaseDir())) {
+      if (mapFolderStream.count() != 2) {
+        throw new ApiException(new Error(ErrorCode.MAP_INVALID_ZIP));
+      }
+    }
+
     mapUploadData.setOriginalMapFolder(mapFolder.get());
     mapUploadData.setUploadFolderName(mapUploadData.getOriginalMapFolder().getFileName().toString());
 
@@ -150,49 +157,69 @@ public class MapService {
   private void checkLua(MapUploadData progressData) {
     List<Error> errors = new ArrayList<>();
     LuaValue scenarioInfo = progressData.getLuaScenarioInfo();
-    if (scenarioInfo.get("name") == LuaValue.NIL) {
+    if (scenarioInfo.get(ScenarioMapInfo.NAME) == LuaValue.NIL) {
       errors.add(new Error(ErrorCode.MAP_NAME_MISSING));
     }
-    if (scenarioInfo.get("description") == LuaValue.NIL) {
+    if (scenarioInfo.get(ScenarioMapInfo.DESCRIPTION) == LuaValue.NIL) {
       errors.add(new Error(ErrorCode.MAP_DESCRIPTION_MISSING));
     }
     if (invalidTeam(scenarioInfo)) {
       errors.add(new Error(ErrorCode.MAP_FIRST_TEAM_FFA));
     }
-    if (scenarioInfo.get("type") == LuaValue.NIL) {
+    if (scenarioInfo.get(ScenarioMapInfo.TYPE) == LuaValue.NIL) {
       errors.add(new Error(ErrorCode.MAP_TYPE_MISSING));
     }
-    if (scenarioInfo.get("size") == LuaValue.NIL) {
+    if (scenarioInfo.get(ScenarioMapInfo.SIZE) == LuaValue.NIL) {
       errors.add(new Error(ErrorCode.MAP_SIZE_MISSING));
     }
-    if (scenarioInfo.get("map_version") == LuaValue.NIL) {
+    if (scenarioInfo.get(ScenarioMapInfo.MAP_VERSION) == LuaValue.NIL) {
       errors.add(new Error(ErrorCode.MAP_VERSION_MISSING));
     }
-    if (errors.size() > 0) {
-      throw new ApiException(errors.toArray(new Error[0]));
+    if (!errors.isEmpty()) {
+      throw new ApiException(errors.toArray(new Error[errors.size()]));
     }
   }
 
   private boolean invalidTeam(LuaValue scenarioInfo) {
-    return scenarioInfo.get("Configurations") == LuaValue.NIL
-        || scenarioInfo.get("Configurations").get("standard") == LuaValue.NIL
-        || scenarioInfo.get("Configurations").get("standard").get("teams") == LuaValue.NIL
-        || scenarioInfo.get("Configurations").get("standard").get("teams").get(1) == LuaValue.NIL
-        || scenarioInfo.get("Configurations").get("standard").get("teams").get(1).get("name") == LuaValue.NIL
-        || scenarioInfo.get("Configurations").get("standard").get("teams").get(1).get("armies") == LuaValue.NIL
-        || !scenarioInfo.get("Configurations").get("standard").get("teams").get(1).get("name").tojstring().equals("FFA");
+    LuaValue scenario = scenarioInfo.get(ScenarioMapInfo.CONFIGURATIONS);
+    if (scenario == LuaValue.NIL) {
+      return true;
+    }
+    LuaValue standard = scenario.get(ScenarioMapInfo.CONFIGURATION_STANDARD);
+    if (standard == LuaValue.NIL) {
+      return true;
+    }
+    LuaValue teams = standard.get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS);
+    if (teams == LuaValue.NIL) {
+      return true;
+    }
+    LuaValue firstTeam = teams.get(1);
+    if (firstTeam == LuaValue.NIL) {
+      return true;
+    }
+    LuaValue teamName = firstTeam.get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS_NAME);
+    if (teamName == LuaValue.NIL) {
+      return true;
+    }
+    LuaValue armies = firstTeam.get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS_ARMIES);
+    if (armies == LuaValue.NIL) {
+      return true;
+    }
+
+    return !teamName.tojstring().equals("FFA");
   }
 
   private void postProcessLuaFile(MapUploadData progressData) {
     LuaValue scenarioInfo = progressData.getLuaScenarioInfo();
-    Optional<Map> mapEntity = mapRepository.findOneByDisplayName(scenarioInfo.get("name").toString());
+    Optional<Map> mapEntity = mapRepository.findOneByDisplayName(
+        scenarioInfo.get(ScenarioMapInfo.NAME).toString());
     if (!mapEntity.isPresent()) {
       return;
     }
     if (mapEntity.get().getAuthor().getId() != progressData.getAuthorEntity().getId()) {
       throw new ApiException(new Error(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR, mapEntity.get().getDisplayName()));
     }
-    int newVersion = scenarioInfo.get("map_version").toint();
+    int newVersion = scenarioInfo.get(ScenarioMapInfo.MAP_VERSION).toint();
     if (mapEntity.get().getVersions().stream()
         .anyMatch(mapVersion -> mapVersion.getVersion() == newVersion)) {
       throw new ApiException(new Error(ErrorCode.MAP_VERSION_EXISTS, mapEntity.get().getDisplayName(), newVersion));
@@ -206,20 +233,22 @@ public class MapService {
     if (map == null) {
       map = new Map();
     }
-    map.setDisplayName(scenarioInfo.get("name").toString())
-        .setMapType(scenarioInfo.get("type").tojstring())
-        .setBattleType(scenarioInfo.get("Configurations").get("standard").get("teams").get(1).get("name").tojstring())
+    map.setDisplayName(scenarioInfo.get(ScenarioMapInfo.NAME).toString())
+        .setMapType(scenarioInfo.get(ScenarioMapInfo.TYPE).tojstring())
+        .setBattleType(scenarioInfo.get(ScenarioMapInfo.CONFIGURATIONS).get(ScenarioMapInfo.CONFIGURATION_STANDARD).get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS).get(1)
+            .get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS_NAME).tojstring())
         .setAuthor(progressData.getAuthorEntity());
 
-    LuaValue size = scenarioInfo.get("size");
+    LuaValue size = scenarioInfo.get(ScenarioMapInfo.SIZE);
     MapVersion version = new MapVersion()
-        .setDescription(scenarioInfo.get("description").tojstring().replaceAll("<LOC .*?>", ""))
+        .setDescription(scenarioInfo.get(ScenarioMapInfo.DESCRIPTION).tojstring().replaceAll("<LOC .*?>", ""))
         .setWidth(size.get(1).toint())
         .setHeight(size.get(2).toint())
         .setHidden(false)
         .setRanked(progressData.isRanked())
-        .setMaxPlayers(scenarioInfo.get("Configurations").get("standard").get("teams").get(1).get("armies").length())
-        .setVersion(scenarioInfo.get("map_version").toint());
+        .setMaxPlayers(scenarioInfo.get(ScenarioMapInfo.CONFIGURATIONS).get(ScenarioMapInfo.CONFIGURATION_STANDARD).get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS).get(1)
+            .get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS_ARMIES).length())
+        .setVersion(scenarioInfo.get(ScenarioMapInfo.MAP_VERSION).toint());
     map.getVersions().add(version);
     version.setMap(map);
 
@@ -354,5 +383,18 @@ public class MapService {
     private String getFinalZipName() {
       return generateNewMapNameWithVersion(".zip");
     }
+  }
+
+  private class ScenarioMapInfo {
+    private static final String CONFIGURATIONS = "Configurations";
+    private static final String NAME = "name";
+    private static final String DESCRIPTION = "description";
+    private static final String TYPE = "type";
+    private static final String SIZE = "size";
+    private static final String MAP_VERSION = "map_version";
+    private static final String CONFIGURATION_STANDARD = "standard";
+    private static final String CONFIGURATION_STANDARD_TEAMS = "teams";
+    private static final String CONFIGURATION_STANDARD_TEAMS_NAME = "name";
+    private static final String CONFIGURATION_STANDARD_TEAMS_ARMIES = "armies";
   }
 }

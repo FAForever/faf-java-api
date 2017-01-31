@@ -74,7 +74,7 @@ public class MapsController {
   }
 
   @ExceptionHandler(ValidationException.class)
-  public void handleValidationException(ValidationException ex) {
-    throw new ApiException(new Error(ErrorCode.VALIDATION_FAILED, ex.getMessage()));
+  public void handleValidationException(ValidationException exception) {
+    throw new ApiException(new Error(ErrorCode.VALIDATION_FAILED, exception.getMessage()));
   }
 }
