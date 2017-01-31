@@ -24,8 +24,7 @@ public class FafUserAuthenticationConverter extends DefaultUserAuthenticationCon
 
   @Override
   public Map<String, ?> convertUserAuthentication(Authentication authentication) {
-    UsernamePasswordAuthenticationToken authenticationToken = (UsernamePasswordAuthenticationToken) authentication;
-    FafUserDetails fafUserDetails = (FafUserDetails) authenticationToken.getPrincipal();
+    FafUserDetails fafUserDetails = (FafUserDetails) authentication.getPrincipal();
 
     @SuppressWarnings("unchecked")
     Map<String, Object> response = (Map<String, Object>) super.convertUserAuthentication(authentication);
