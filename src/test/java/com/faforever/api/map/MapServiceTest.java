@@ -150,7 +150,7 @@ public class MapServiceTest {
 
     com.faforever.api.data.domain.Map map = new com.faforever.api.data.domain.Map()
         .setAuthor(me)
-        .setVersions(Collections.singletonList((new MapVersion().setVersion(1)));
+        .setVersions(Collections.singletonList(new MapVersion().setVersion(1)));
 
     when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.of(map));
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {

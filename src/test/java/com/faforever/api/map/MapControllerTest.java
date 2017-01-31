@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -16,6 +15,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.inject.Inject;
 import java.io.InputStream;
 
 import static org.mockito.Matchers.anyString;
@@ -28,7 +28,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(TestWebSecurityConfig.class)
 public class MapControllerTest {
 
-  @Autowired
   private MockMvc mvc;
   @MockBean
   private MapService mapService;
@@ -39,6 +38,10 @@ public class MapControllerTest {
   @MockBean
   private ObjectMapper objectMapper;
 
+  @Inject
+  public void init(MockMvc mvc) {
+    this.mvc = mvc;
+  }
 
   @Test
   public void fileMissing() throws Exception {

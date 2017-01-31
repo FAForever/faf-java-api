@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -68,8 +69,8 @@ public final class Zipper {
   }
 
   public void zip() throws IOException {
-    Validator.notNull(zipOutputStream, "zipOutputStream must not be null");
-    Validator.notNull(directoryToZip, "directoryToZip must not be null");
+    Objects.requireNonNull(zipOutputStream, "zipOutputStream must not be null");
+    Objects.requireNonNull(directoryToZip, "directoryToZip must not be null");
 
     bytesTotal = calculateTotalBytes();
     bytesDone = 0;

@@ -67,7 +67,7 @@ public class MapService {
       throw new ProgrammingError("'author' cannot be null");
     }
     if (mapData.length <= 0) {
-      throw new ProgrammingError("'mapData' is empty");
+      throw new IllegalArgumentException("'mapData' is empty");
     }
     MapUploadData progressData = new MapUploadData()
         .setBaseDir(contentService.createTempDir())
