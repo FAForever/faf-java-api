@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.zip.ZipInputStream;
@@ -53,16 +53,16 @@ public class MapServiceTest {
   private Map mapProperties;
 
   @Rule
-  public TemporaryFolder temporaryDirectory = new TemporaryFolder();
+  public final TemporaryFolder temporaryDirectory = new TemporaryFolder();
   @Rule
-  public TemporaryFolder finalDirectory = new TemporaryFolder();
+  public final TemporaryFolder finalDirectory = new TemporaryFolder();
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public final ExpectedException expectedException = ExpectedException.none();
 
-  private MapRepository mapRepository = mock(MapRepository.class);
-  private FafApiProperties fafApiProperties = mock(FafApiProperties.class);
-  private ContentService contentService = mock(ContentService.class);
-  private Player author = mock(Player.class);
+  private final MapRepository mapRepository = mock(MapRepository.class);
+  private final FafApiProperties fafApiProperties = mock(FafApiProperties.class);
+  private final ContentService contentService = mock(ContentService.class);
+  private final Player author = mock(Player.class);
 
   @Before
   public void setUp() {
@@ -150,7 +150,7 @@ public class MapServiceTest {
 
     com.faforever.api.data.domain.Map map = new com.faforever.api.data.domain.Map()
         .setAuthor(me)
-        .setVersions(Arrays.asList(new MapVersion().setVersion(1)));
+        .setVersions(Collections.singletonList((new MapVersion().setVersion(1)));
 
     when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.of(map));
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
