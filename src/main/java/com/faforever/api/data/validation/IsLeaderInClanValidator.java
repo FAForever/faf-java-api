@@ -5,10 +5,11 @@ import com.faforever.api.data.domain.Clan;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class LeaderIsInClanValidator implements ConstraintValidator<LeaderIsInClan, Clan> {
+public class IsLeaderInClanValidator implements ConstraintValidator<IsLeaderInClan, Clan> {
 
   @Override
-  public void initialize(LeaderIsInClan constraintAnnotation) {
+  public void initialize(IsLeaderInClan constraintAnnotation) {
+    //Comment for codacy to show that this constructor is intentional empty
   }
 
   @Override
