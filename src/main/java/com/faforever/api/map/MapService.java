@@ -62,7 +62,7 @@ public class MapService {
 
   @Transactional
   @SneakyThrows
-  public void uploadMap(byte[] mapData, String mapFilename, Player author, boolean isRanked) {
+  void uploadMap(byte[] mapData, String mapFilename, Player author, boolean isRanked) {
     if (author == null) {
       throw new ProgrammingError("'author' cannot be null");
     }
@@ -228,7 +228,7 @@ public class MapService {
 
     version.setFilename(progressData.getFinalZipName());
     progressData.setFinalZipFile(Paths.get(
-        this.fafApiProperties.getMap().getFolderZipFiles(),
+        this.fafApiProperties.getMap().getFolderZipFiles().toString(),
         progressData.getFinalZipName()));
 
     if (Files.exists(progressData.getFinalZipFile())) {
@@ -267,12 +267,12 @@ public class MapService {
   private void generatePreview(MapUploadData mapData) {
     String previewFilename = mapData.getNewFolderName() + ".png";
     generateImage(Paths.get(
-        fafApiProperties.getMap().getFolderPreviewPathSmall(), previewFilename),
+        fafApiProperties.getMap().getFolderPreviewPathSmall().toString(), previewFilename),
         mapData.getNewMapFolder(),
         fafApiProperties.getMap().getPreviewSizeSmall());
 
     generateImage(Paths.get(
-        fafApiProperties.getMap().getFolderPreviewPathLarge(), previewFilename),
+        fafApiProperties.getMap().getFolderPreviewPathLarge().toString(), previewFilename),
         mapData.getNewMapFolder(),
         fafApiProperties.getMap().getPreviewSizeLarge());
   }
@@ -280,6 +280,7 @@ public class MapService {
   @SneakyThrows
   private void zipMapData(MapUploadData progressData) {
     cleanupBaseDir(progressData);
+    Files.createDirectories(progressData.getFinalZipFile().getParent());
     try (ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(
         Files.newOutputStream(progressData.getFinalZipFile())))) {
       Zipper.contentOf(progressData.getBaseDir()).to(zipOutputStream).zip();
