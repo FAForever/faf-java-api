@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -70,8 +69,8 @@ public class MapServiceTest {
     instance = new MapService(fafApiProperties, mapRepository, contentService);
     mapProperties = new Map()
         .setFolderZipFiles(finalDirectory.getRoot().toPath())
-        .setFolderPreviewPathLarge(Paths.get(finalDirectory.getRoot().toString(), "large"))
-        .setFolderPreviewPathSmall(Paths.get(finalDirectory.getRoot().toString(), "small"));
+        .setFolderPreviewPathLarge(finalDirectory.getRoot().toPath().resolve("large"))
+        .setFolderPreviewPathSmall(finalDirectory.getRoot().toPath().resolve("small"));
     when(fafApiProperties.getMap()).thenReturn(mapProperties);
     when(contentService.createTempDir()).thenReturn(temporaryDirectory.getRoot().toPath());
   }
@@ -88,7 +87,7 @@ public class MapServiceTest {
 
   @Test
   public void zipFilenameAllreadyExists() throws IOException {
-    Path clashedMap = Paths.get(finalDirectory.getRoot().getAbsolutePath(), "sludge_test.v0001.zip");
+    Path clashedMap = finalDirectory.getRoot().toPath().resolve("sludge_test.v0001.zip");
     clashedMap.toFile().createNewFile();
     String zipFilename = "scmp_037.zip";
     when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
@@ -235,16 +234,16 @@ public class MapServiceTest {
 
       assertFalse(Files.exists(tmpDir));
 
-      Path generatedFile = Paths.get(finalDirectory.getRoot().getAbsolutePath(), "sludge_test.v0001.zip");
+      Path generatedFile = finalDirectory.getRoot().toPath().resolve("sludge_test.v0001.zip");
       assertTrue(Files.exists(generatedFile));
 
-      Path generatedFiles = Paths.get(finalDirectory.getRoot().getAbsolutePath(), "generated_files");
+      Path generatedFiles = finalDirectory.getRoot().toPath().resolve("generated_files");
       try (ZipInputStream inputStreamOfExpectedFile = new ZipInputStream(
           new BufferedInputStream(new FileInputStream(generatedFile.toFile())))) {
         Unzipper.from(inputStreamOfExpectedFile).to(generatedFiles).unzip();
       }
 
-      Path expectedFiles = Paths.get(finalDirectory.getRoot().getAbsolutePath(), "expected_files");
+      Path expectedFiles = finalDirectory.getRoot().toPath().resolve("expected_files");
       try (ZipInputStream inputStreamOfExpectedFile = new ZipInputStream(new BufferedInputStream(
           loadMapResourceAsStream("sludge_test.v0001.zip")))) {
         Unzipper.from(inputStreamOfExpectedFile).to(expectedFiles).unzip();
@@ -264,8 +263,8 @@ public class MapServiceTest {
 
         );
 
-        assertTrue(Files.exists(Paths.get(mapProperties.getFolderPreviewPathLarge().toString(), "sludge_test.v0001.png")));
-        assertTrue(Files.exists(Paths.get(mapProperties.getFolderPreviewPathSmall().toString(), "sludge_test.v0001.png")));
+        assertTrue(Files.exists(mapProperties.getFolderPreviewPathLarge().resolve("sludge_test.v0001.png")));
+        assertTrue(Files.exists(mapProperties.getFolderPreviewPathSmall().resolve("sludge_test.v0001.png")));
       }
     }
   }

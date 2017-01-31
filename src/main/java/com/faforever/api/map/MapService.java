@@ -75,7 +75,7 @@ public class MapService {
         .setAuthorEntity(author)
         .setRanked(isRanked);
 
-    progressData.setUploadedFile(Paths.get(progressData.getBaseDir().toString(), mapFilename));
+    progressData.setUploadedFile(progressData.getBaseDir().resolve(mapFilename));
     copyToTemporaryDirectory(mapData, progressData);
 
     unzipFile(progressData);
@@ -227,9 +227,9 @@ public class MapService {
     progressData.setMapVersionEntity(version);
 
     version.setFilename(progressData.getFinalZipName());
-    progressData.setFinalZipFile(Paths.get(
-        this.fafApiProperties.getMap().getFolderZipFiles().toString(),
-        progressData.getFinalZipName()));
+    progressData.setFinalZipFile(
+        this.fafApiProperties.getMap().getFolderZipFiles()
+            .resolve(progressData.getFinalZipName()));
 
     if (Files.exists(progressData.getFinalZipFile())) {
       throw new ApiException(new Error(ErrorCode.MAP_NAME_CONFLICT, progressData.getFinalZipName()));
@@ -241,7 +241,7 @@ public class MapService {
 
   @SneakyThrows
   private void renameFolderNameAndCorrectPathInLuaFiles(MapUploadData progressData) {
-    progressData.setNewMapFolder(Paths.get(progressData.getBaseDir().toString(), progressData.getNewFolderName()));
+    progressData.setNewMapFolder(progressData.getBaseDir().resolve(progressData.getNewFolderName()));
     Files.move(progressData.getOriginalMapFolder(), progressData.getNewMapFolder());
     updateLuaFiles(progressData);
   }
@@ -266,13 +266,13 @@ public class MapService {
   @SneakyThrows
   private void generatePreview(MapUploadData mapData) {
     String previewFilename = mapData.getNewFolderName() + ".png";
-    generateImage(Paths.get(
-        fafApiProperties.getMap().getFolderPreviewPathSmall().toString(), previewFilename),
+    generateImage(
+        fafApiProperties.getMap().getFolderPreviewPathSmall().resolve(previewFilename),
         mapData.getNewMapFolder(),
         fafApiProperties.getMap().getPreviewSizeSmall());
 
-    generateImage(Paths.get(
-        fafApiProperties.getMap().getFolderPreviewPathLarge().toString(), previewFilename),
+    generateImage(
+        fafApiProperties.getMap().getFolderPreviewPathLarge().resolve(previewFilename),
         mapData.getNewMapFolder(),
         fafApiProperties.getMap().getPreviewSizeLarge());
   }
