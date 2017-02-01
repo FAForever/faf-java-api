@@ -28,7 +28,7 @@ public class Clan {
   private Player clanLeader;
   private String clanDesc;
   private String clanTagColor;
-  private List<ClanMembership> memberships;
+  private List<Player> members;
 
   @Id
   @Column(name = "clan_id")
@@ -121,13 +121,9 @@ public class Clan {
   }
 
   @OneToMany(mappedBy = "clan")
-  public List<ClanMembership> getMemberships() {
-    return memberships;
-  }
+  public List<Player> getMembers() { return  members; }
 
-  public void setMemberships(List<ClanMembership> memberships) {
-    this.memberships = memberships;
-  }
+  public void setMembers(List<Player> newMembers) { this.members = newMembers; }
 
   @Override
   public int hashCode() {
