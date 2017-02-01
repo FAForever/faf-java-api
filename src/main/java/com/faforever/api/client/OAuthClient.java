@@ -1,17 +1,17 @@
 package com.faforever.api.client;
 
 import lombok.Setter;
+import org.springframework.util.Assert;
 
-import javax.persistence.Basic;
+import javax.persistence.AttributeConverter;
 import javax.persistence.Column;
+import javax.persistence.Converter;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 
-/**
- * Represents an entry in {@code oauth_clients}.
- */
 @Entity
 @Table(name = "oauth_clients")
 @Setter
@@ -20,7 +20,7 @@ public class OAuthClient {
   private String id;
   private String name;
   private String clientSecret;
-  private String clientType;
+  private ClientType clientType;
   private String redirectUris;
   private String defaultRedirectUri;
   private String defaultScope;
@@ -32,46 +32,60 @@ public class OAuthClient {
     return id;
   }
 
-  @Basic
+  @NotNull
   @Column(name = "name")
   public String getName() {
     return name;
   }
 
-  @Basic
+  @NotNull
   @Column(name = "client_secret")
   public String getClientSecret() {
     return clientSecret;
   }
 
-  @Basic
+  @NotNull
   @Column(name = "client_type")
-  public String getClientType() {
+  public ClientType getClientType() {
     return clientType;
   }
 
-  @Basic
+  @NotNull
   @Column(name = "redirect_uris")
   public String getRedirectUris() {
     return redirectUris;
   }
 
-  @Basic
+  @NotNull
   @Column(name = "default_redirect_uri")
   public String getDefaultRedirectUri() {
     return defaultRedirectUri;
   }
 
-  @Basic
+  @NotNull
   @Column(name = "default_scope")
   public String getDefaultScope() {
     return defaultScope;
   }
 
-  @Basic
   @Column(name = "icon_url")
   public String getIconUrl() {
     return iconUrl;
   }
 
+  @Converter(autoApply = true)
+  public static class ClientTypeConverter implements AttributeConverter<ClientType, String> {
+
+    @Override
+    public String convertToDatabaseColumn(ClientType attribute) {
+      Assert.isTrue(attribute != null, "'attribute' cannot be null");
+      return attribute.getString();
+    }
+
+    @Override
+    public ClientType convertToEntityAttribute(String dbData) {
+      Assert.isTrue(dbData != null, "'dbData' cannot be null");
+      return ClientType.fromString(dbData);
+    }
+  }
 }

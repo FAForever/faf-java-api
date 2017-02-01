@@ -2,6 +2,7 @@ package com.faforever.api.data;
 
 import com.faforever.api.clan.ClanMembershipRepository;
 import com.faforever.api.clan.ClanRepository;
+import com.faforever.api.client.ClientType;
 import com.faforever.api.client.OAuthClient;
 import com.faforever.api.client.OAuthClientRepository;
 import com.faforever.api.data.domain.Clan;
@@ -96,15 +97,22 @@ public class JsonApiClanTest {
     clanRepository.deleteAll();
     userRepository.deleteAll();
     oAuthClientRepository.deleteAll();
+    assertEquals(0, clanMembershipRepository.count());
+    assertEquals(0, clanRepository.count());
+    assertEquals(0, userRepository.count());
+    assertEquals(0, oAuthClientRepository.count());
   }
 
   @SneakyThrows
   public String createUserAndGetAccessToken(String login, String password) {
     OAuthClient client = new OAuthClient()
         .setId(OAUTH_CLIENT_ID)
+        .setName("test")
         .setClientSecret(OAUTH_SECRET)
+        .setRedirectUris("test")
         .setDefaultRedirectUri("test")
-        .setDefaultScope("test");
+        .setDefaultScope("test")
+        .setClientType(ClientType.PUBLIC);
     oAuthClientRepository.save(client);
 
     User user = (User) new User()
