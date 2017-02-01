@@ -9,13 +9,14 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.user.UserRepository;
+import lombok.SneakyThrows;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -40,13 +41,17 @@ public class JsonApiClanTest {
   private ClanRepository clanRepository;
   private UserRepository userRepository;
   private PlayerRepository playerRepository;
-  private AuthenticationManager authenticationManager;
   private OAuthClientRepository oAuthClientRepository;
   private Filter springSecurityFilterChain;
   private ObjectMapper objectMapper;
+  private ShaPasswordEncoder shaPasswordEncoder;
+
+  private static final String OAUTH_CLIENT_ID = "1234";
+  private static final String OAUTH_SECRET = "secret";
 
   public JsonApiClanTest() {
     objectMapper = new ObjectMapper();
+    shaPasswordEncoder = new ShaPasswordEncoder(256);
   }
 
   @Inject
@@ -54,14 +59,12 @@ public class JsonApiClanTest {
                    ClanRepository clanRepository,
                    UserRepository userRepository,
                    PlayerRepository playerRepository,
-                   AuthenticationManager authenticationManager,
                    OAuthClientRepository oAuthClientRepository,
                    Filter springSecurityFilterChain) {
     this.context = context;
     this.clanRepository = clanRepository;
     this.userRepository = userRepository;
     this.playerRepository = playerRepository;
-    this.authenticationManager = authenticationManager;
     this.oAuthClientRepository = oAuthClientRepository;
     this.springSecurityFilterChain = springSecurityFilterChain;
   }
@@ -74,46 +77,48 @@ public class JsonApiClanTest {
         .build();
   }
 
-  @Test
-  public void cannotKickLeaderFromClan() throws Exception {
-    User user = (User) new User()
-        .setPassword("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08")
-        .setLogin("Dragonfire")
-        .setEMail("dragonfire@faforever.com");
-    userRepository.save(user);
-
+  @SneakyThrows
+  public String createUserAndGetAccessToken(String login, String password) {
     OAuthClient client = new OAuthClient()
-        .setId("secret")
-        .setClientSecret("secret")
+        .setId(OAUTH_CLIENT_ID)
+        .setClientSecret(OAUTH_SECRET)
         .setDefaultRedirectUri("test")
         .setDefaultScope("test");
     oAuthClientRepository.save(client);
 
-    Player player = playerRepository.findOne(user.getId());
+    User user = (User) new User()
+        .setPassword(shaPasswordEncoder.encodePassword(password, null))
+        .setLogin(login)
+        .setEMail(login + "@faforever.com");
+    userRepository.save(user);
+
+    String authorization = "Basic "
+        + new String(Base64Utils.encode((OAUTH_CLIENT_ID + ":" + OAUTH_SECRET).getBytes()));
+    ResultActions auth = mvc
+        .perform(
+            post("/oauth/token")
+                .header("Authorization", authorization)
+                .param("username", login)
+                .param("password", password)
+                .param("grant_type", "password"));
+    auth.andExpect(status().isOk());
+    JsonNode node = objectMapper.readTree(auth.andReturn().getResponse().getContentAsString());
+    return "Bearer " + node.get("access_token").asText();
+  }
+
+  @Test
+  @SneakyThrows
+  public void cannotKickLeaderFromClan() {
+    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+
+    Player player = playerRepository.findOne(1);
     Clan clan = new Clan().setLeader(player).setTag("123").setName("abcClanName");
     ClanMembership membership = new ClanMembership().setPlayer(player).setClan(clan);
     clan.setMemberships(Collections.singletonList(membership));
     clanRepository.save(clan);
 
-//    Player dbPlayer = playerRepository.findOne(1);
-//    User dbUser = userRepository.findOneByLoginIgnoreCase("Dragonfire");
-//    UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken("Dragonfire", "test");
-//    Authentication token = authenticationManager.authenticate(login);
-
-    String authorization = "Basic "
-        + new String(Base64Utils.encode("secret:secret".getBytes()));
-    ResultActions auth = mvc
-        .perform(
-            post("/oauth/token")
-                .header("Authorization", authorization)
-                .param("username", "Dragonfire")
-                .param("password", "test")
-                .param("grant_type", "password"));
-    JsonNode node = objectMapper.readTree(auth.andReturn().getResponse().getContentAsString());
-    String accessToken = node.get("access_token").asText();
-    ResultActions action = this.mvc.perform(delete("/data/clan_membership/1")
-        .header("Authorization", "Bearer " + accessToken));
-    action
+    this.mvc.perform(delete("/data/clan_membership/1")
+        .header("Authorization", accessToken))
         .andExpect(content().string("{\"errors\":[\"ForbiddenAccessException\"]}"))
         .andExpect(status().is(403));
   }
