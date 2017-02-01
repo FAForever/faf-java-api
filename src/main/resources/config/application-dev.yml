@@ -6,9 +6,9 @@ faf-api:
     folder-preview-path-large: ${MAP_PREVIEW_PATH_LARGE:tmp/map/map_previews/large}
 spring:
   datasource:
-    url: jdbc:mysql://${DATABASE_ADDRESS:localhost}/${DATABASE_NAME:faf}?useSSL=false
+    url: jdbc:mysql://${DATABASE_ADDRESS:localhost}/${DATABASE_NAME:faf_test}?useSSL=false
     name: faf
-    username: ${DATABASE_USERNAME:faf-api}
+    username: ${DATABASE_USERNAME:root}
     password: ${DATABASE_PASSWORD:banana}
   jpa:
     show-sql: true
