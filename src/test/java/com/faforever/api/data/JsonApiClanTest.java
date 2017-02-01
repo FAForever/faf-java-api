@@ -1,5 +1,6 @@
 package com.faforever.api.data;
 
+import com.faforever.api.clan.ClanMembershipRepository;
 import com.faforever.api.clan.ClanRepository;
 import com.faforever.api.client.OAuthClient;
 import com.faforever.api.client.OAuthClientRepository;
@@ -12,6 +13,7 @@ import com.faforever.api.user.UserRepository;
 import lombok.SneakyThrows;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,8 +28,10 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.inject.Inject;
 import javax.servlet.Filter;
+import java.util.Arrays;
 import java.util.Collections;
 
+import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -38,13 +42,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class JsonApiClanTest {
   private MockMvc mvc;
   private WebApplicationContext context;
+  private Filter springSecurityFilterChain;
+
   private ClanRepository clanRepository;
   private UserRepository userRepository;
+  private ClanMembershipRepository clanMembershipRepository;
   private PlayerRepository playerRepository;
   private OAuthClientRepository oAuthClientRepository;
-  private Filter springSecurityFilterChain;
+
+
   private ObjectMapper objectMapper;
   private ShaPasswordEncoder shaPasswordEncoder;
+
+  private Player me;
 
   private static final String OAUTH_CLIENT_ID = "1234";
   private static final String OAUTH_SECRET = "secret";
@@ -60,13 +70,15 @@ public class JsonApiClanTest {
                    UserRepository userRepository,
                    PlayerRepository playerRepository,
                    OAuthClientRepository oAuthClientRepository,
-                   Filter springSecurityFilterChain) {
+                   Filter springSecurityFilterChain,
+                   ClanMembershipRepository clanMembershipRepository) {
     this.context = context;
     this.clanRepository = clanRepository;
     this.userRepository = userRepository;
     this.playerRepository = playerRepository;
     this.oAuthClientRepository = oAuthClientRepository;
     this.springSecurityFilterChain = springSecurityFilterChain;
+    this.clanMembershipRepository = clanMembershipRepository;
   }
 
   @Before
@@ -75,6 +87,15 @@ public class JsonApiClanTest {
         .webAppContextSetup(context)
         .addFilter(springSecurityFilterChain)
         .build();
+    me = null;
+  }
+
+  @After
+  public void tearDown() {
+    clanMembershipRepository.deleteAll();
+    clanRepository.deleteAll();
+    userRepository.deleteAll();
+    oAuthClientRepository.deleteAll();
   }
 
   @SneakyThrows
@@ -91,6 +112,7 @@ public class JsonApiClanTest {
         .setLogin(login)
         .setEMail(login + "@faforever.com");
     userRepository.save(user);
+    me = playerRepository.findOne(user.getId());
 
     String authorization = "Basic "
         + new String(Base64Utils.encode((OAUTH_CLIENT_ID + ":" + OAUTH_SECRET).getBytes()));
@@ -106,14 +128,22 @@ public class JsonApiClanTest {
     return "Bearer " + node.get("access_token").asText();
   }
 
+  private Player createPlayer(String login) {
+    User user = (User) new User()
+        .setPassword("foo")
+        .setLogin(login)
+        .setEMail(login + "@faforever.com");
+    userRepository.save(user);
+    return playerRepository.findOne(user.getId());
+  }
+
   @Test
   @SneakyThrows
   public void cannotKickLeaderFromClan() {
     String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
 
-    Player player = playerRepository.findOne(1);
-    Clan clan = new Clan().setLeader(player).setTag("123").setName("abcClanName");
-    ClanMembership membership = new ClanMembership().setPlayer(player).setClan(clan);
+    Clan clan = new Clan().setLeader(me).setTag("123").setName("abcClanName");
+    ClanMembership membership = new ClanMembership().setPlayer(me).setClan(clan);
     clan.setMemberships(Collections.singletonList(membership));
     clanRepository.save(clan);
 
@@ -123,4 +153,22 @@ public class JsonApiClanTest {
         .andExpect(status().is(403));
   }
 
+  @Test
+  @SneakyThrows
+  public void canKickMember() {
+    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+
+    Player bob = createPlayer("Bob");
+    Clan clan = new Clan().setLeader(me).setTag("123").setName("abcClanName");
+    ClanMembership myMembership = new ClanMembership().setPlayer(me).setClan(clan);
+    ClanMembership bobsMembership = new ClanMembership().setPlayer(bob).setClan(clan);
+    clan.setMemberships(Arrays.asList(myMembership, bobsMembership));
+    clanRepository.save(clan);
+
+    assertEquals(2, clanMembershipRepository.count());
+    this.mvc.perform(delete("/data/clan_membership/" + bobsMembership.getId())
+        .header("Authorization", accessToken))
+        .andExpect(status().is(204));
+    assertEquals(1, clanMembershipRepository.count());
+  }
 }
