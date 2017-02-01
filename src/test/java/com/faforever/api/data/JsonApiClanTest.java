@@ -147,10 +147,32 @@ public class JsonApiClanTest {
     clan.setMemberships(Collections.singletonList(membership));
     clanRepository.save(clan);
 
-    this.mvc.perform(delete("/data/clan_membership/1")
+    assertEquals(1, clanMembershipRepository.count());
+    this.mvc.perform(delete("/data/clan_membership/" + membership.getId())
         .header("Authorization", accessToken))
         .andExpect(content().string("{\"errors\":[\"ForbiddenAccessException\"]}"))
         .andExpect(status().is(403));
+    assertEquals(1, clanMembershipRepository.count());
+  }
+
+  @Test
+  @SneakyThrows
+  public void cannotKickAsMember() {
+    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+
+    Player bob = createPlayer("Bob");
+    Clan clan = new Clan().setLeader(bob).setTag("123").setName("abcClanName");
+    ClanMembership myMembership = new ClanMembership().setPlayer(me).setClan(clan);
+    ClanMembership bobsMembership = new ClanMembership().setPlayer(bob).setClan(clan);
+    clan.setMemberships(Arrays.asList(myMembership, bobsMembership));
+    clanRepository.save(clan);
+
+    assertEquals(2, clanMembershipRepository.count());
+    this.mvc.perform(delete("/data/clan_membership/" + bobsMembership.getId())
+        .header("Authorization", accessToken))
+        .andExpect(content().string("{\"errors\":[\"ForbiddenAccessException\"]}"))
+        .andExpect(status().is(403));
+    assertEquals(2, clanMembershipRepository.count());
   }
 
   @Test
