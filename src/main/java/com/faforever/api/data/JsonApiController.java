@@ -1,28 +1,21 @@
 package com.faforever.api.data;
 
-import com.google.common.collect.ImmutableMap;
 import com.yahoo.elide.Elide;
 import com.yahoo.elide.ElideResponse;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.ValidationException;
 import javax.ws.rs.core.MultivaluedHashMap;
-import java.io.Serializable;
 import java.util.Map;
 
 @RestController
@@ -118,21 +111,5 @@ public class JsonApiController {
 
   private String getJsonApiPath(HttpServletRequest request) {
     return ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).replace(PATH_PREFIX, "");
-  }
-
-
-  @ExceptionHandler(ValidationException.class)
-  @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-  @ResponseBody
-  public Map<String, Serializable> processValidationError(ValidationException ex) {
-    return errorResponse(ex.getMessage());
-  }
-
-  private Map<String, Serializable> errorResponse(String title) {
-    ImmutableMap source = ImmutableMap.of("pointer", "");
-    ImmutableMap<String, Serializable> error = ImmutableMap.of(
-        "title", title,
-        "source", source);
-    return ImmutableMap.of("errors", new ImmutableMap[]{error});
   }
 }
