@@ -5,7 +5,6 @@ import org.springframework.util.Assert;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Column;
-import javax.persistence.Converter;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -20,7 +19,7 @@ public class OAuthClient {
   private String id;
   private String name;
   private String clientSecret;
-  private ClientType clientType;
+  private String clientType;
   private String redirectUris;
   private String defaultRedirectUri;
   private String defaultScope;
