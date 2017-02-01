@@ -1,6 +1,9 @@
 faf-api:
   jwt-secret: banana
-
+  map:
+    folder-zip-files: ${MAP_UPLOAD_PATH:tmp/map/maps}
+    folder-preview-path-small: ${MAP_PREVIEW_PATH_SMALL:tmp/map/map_previews/small}
+    folder-preview-path-large: ${MAP_PREVIEW_PATH_LARGE:tmp/map/map_previews/large}
 spring:
   datasource:
     url: jdbc:mysql://${DATABASE_ADDRESS:localhost}/${DATABASE_NAME:faf}?useSSL=false

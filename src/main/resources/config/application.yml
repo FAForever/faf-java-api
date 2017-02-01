@@ -1,5 +1,9 @@
 faf-api:
   version: #faf-api.version#
+  map:
+    folder-zip-files: ${MAP_UPLOAD_PATH:/content/faf/vault/maps}
+    folder-preview-path-small: ${MAP_PREVIEW_PATH_SMALL:/content/faf/vault/map_previews/small}
+    folder-preview-path-large: ${MAP_PREVIEW_PATH_LARGE:/content/faf/vault/map_previews/large}
 
 spring:
   application:

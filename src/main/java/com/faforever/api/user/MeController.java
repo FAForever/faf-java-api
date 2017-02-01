@@ -21,6 +21,7 @@ public class MeController {
   @Secured({"ROLE_USER"})
   public void me(HttpServletResponse response,
                  @AuthenticationPrincipal FafUserDetails authentication) throws IOException {
+    // TODO: Find a better way to call elide player route
     response.sendRedirect(String.format("/data/player/%d", authentication.getId()));
   }
 }

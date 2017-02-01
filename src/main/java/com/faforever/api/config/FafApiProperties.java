@@ -3,6 +3,9 @@ package com.faforever.api.config;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 @Data
 @ConfigurationProperties(prefix = "faf-api", ignoreUnknownFields = false)
 public class FafApiProperties {
@@ -34,6 +37,13 @@ public class FafApiProperties {
     private String smallPreviewsUrlFormat = "http://content.faforever.com/faf/map_previews/small/%s";
     private String largePreviewsUrlFormat = "http://content.faforever.com/faf/map_previews/large/%s";
     private String downloadUrlFormat = "http://content.faforever.com/faf/vault/maps/%s";
+    private Path folderZipFiles = Paths.get("/content/faf/vault/maps");
+    private Path folderPreviewPathSmall = Paths.get("/content/faf/vault/map_previews/small");
+    private Path folderPreviewPathLarge = Paths.get("/content/faf/vault/map_previews/large");
+    private int previewSizeSmall = 128;
+    private int previewSizeLarge = 512;
+    private String[] allowedExtensions = new String[]{"zip"};
+
   }
 
   /**

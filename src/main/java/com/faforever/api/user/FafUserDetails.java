@@ -2,6 +2,7 @@ package com.faforever.api.user;
 
 import com.faforever.api.data.domain.BanDetails;
 import com.faforever.api.data.domain.User;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -11,8 +12,8 @@ import java.util.Collection;
 
 import static java.util.Collections.singletonList;
 
+@Getter
 public class FafUserDetails extends org.springframework.security.core.userdetails.User {
-
 
   private final int id;
 
@@ -29,9 +30,5 @@ public class FafUserDetails extends org.springframework.security.core.userdetail
   private static boolean isNonLocked(BanDetails banDetails) {
     return banDetails == null
         || banDetails.getExpiresAt().before(Timestamp.from(Instant.now()));
-  }
-
-  public int getId() {
-    return id;
   }
 }

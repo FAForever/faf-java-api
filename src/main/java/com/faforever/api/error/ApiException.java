@@ -1,8 +1,10 @@
 package com.faforever.api.error;
 
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class ApiException extends RuntimeException {
 
   private final Error[] errors;

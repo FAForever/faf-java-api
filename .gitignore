@@ -48,3 +48,6 @@ gradle-app.setting
 
 # Included binaries
 !src/main/native/*
+
+# temporary server files
+tmp
