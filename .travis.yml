@@ -9,10 +9,14 @@ git:
 
 before_install:
   - sudo /etc/init.d/mysql stop
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/1.10.0/docker-compose-`uname -s`-`uname -m` > /tmp/docker-compose
+  - chmod +x /tmp/docker-compose
+  - sudo mv /tmp/docker-compose /usr/local/bin
 
 install:
-  - git clone -b feature/docker-improvement https://github.com/FAForever/db.git
-  - pushd db && ./setup_db.sh && popd
+  - git clone https://github.com/FAForever/faf-stack.git
+  - docker-compose -f faf-stack/docker-compose.yml up -d faf-db
 
 script:
   - chmod +x gradlew && ./gradlew build --info

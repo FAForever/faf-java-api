@@ -4,7 +4,7 @@ faf-api:
 spring:
   datasource:
     url: jdbc:mysql://${DATABASE_ADDRESS:localhost}/${DATABASE_NAME:faf}?useSSL=false
-    name: faf_lobby
+    name: faf
     username: ${DATABASE_USERNAME:faf-api}
     password: ${DATABASE_PASSWORD:banana}
   jpa:
