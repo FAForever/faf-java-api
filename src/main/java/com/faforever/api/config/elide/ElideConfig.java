@@ -1,6 +1,8 @@
 package com.faforever.api.config.elide;
 
 import com.faforever.api.config.elide.checks.IsAuthenticated;
+import com.faforever.api.config.elide.checks.IsClanLeader;
+import com.faforever.api.config.elide.checks.IsClanMembershipDeletable;
 import com.faforever.api.config.elide.checks.IsOwner;
 import com.faforever.api.data.JsonApiController;
 import com.yahoo.elide.Elide;
@@ -16,6 +18,7 @@ import org.springframework.cache.interceptor.CacheOperationInvocationContext;
 import org.springframework.cache.interceptor.CacheResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.HandlerMapping;
 
 import javax.persistence.EntityManagerFactory;
 import javax.servlet.http.HttpServletRequest;
@@ -31,6 +34,8 @@ public class ElideConfig {
     ConcurrentHashMap<String, Class<? extends Check>> checks = new ConcurrentHashMap<>();
     checks.put(IsAuthenticated.EXPRESSION, IsAuthenticated.Inline.class);
     checks.put(IsOwner.EXPRESSION, IsOwner.Inline.class);
+    checks.put(IsClanLeader.EXPRESSION, IsClanLeader.Inline.class);
+    checks.put(IsClanMembershipDeletable.EXPRESSION, IsClanMembershipDeletable.Inline.class);
 
     EntityDictionary entityDictionary = new EntityDictionary(checks);
 
@@ -53,7 +58,7 @@ public class ElideConfig {
     return new AbstractCacheResolver(cacheManager) {
       @Override
       protected Collection<String> getCacheNames(CacheOperationInvocationContext<?> context) {
-        String jsonApiPath = JsonApiController.getJsonApiPath((HttpServletRequest) context.getArgs()[1]);
+        String jsonApiPath = getJsonApiPath((HttpServletRequest) context.getArgs()[1]);
         String type = jsonApiPath.split("/")[0];
 
         if (!cacheManager.getCacheNames().contains(type)) {
@@ -63,5 +68,10 @@ public class ElideConfig {
         return Collections.singletonList(type);
       }
     };
+  }
+
+  private String getJsonApiPath(HttpServletRequest request) {
+    return ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE))
+        .replace(JsonApiController.PATH_PREFIX, "");
   }
 }

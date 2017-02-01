@@ -5,10 +5,21 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 
 @Data
 @ConfigurationProperties(prefix = "faf-api", ignoreUnknownFields = false)
 public class FafApiProperties {
+  /**
+   * The secret used for JWT token generation.
+   */
+  private String jwtSecret = "banana";
+  private String version = "dev";
+  private Jwt jwt = new Jwt();
+  private OAuth2 oAuth2 = new OAuth2();
+  private Async async = new Async();
+  private Map map = new Map();
+  private Clan clan = new Clan();
 
   @Data
   public static class OAuth2 {
@@ -46,13 +57,8 @@ public class FafApiProperties {
 
   }
 
-  /**
-   * The secret used for JWT token generation.
-   */
-  private String jwtSecret = "banana";
-  private String version = "dev";
-  private Jwt jwt = new Jwt();
-  private OAuth2 oAuth2 = new OAuth2();
-  private Async async = new Async();
-  private Map map = new Map();
+  @Data
+  public static class Clan {
+    private long inviteLinkExpireDurationInMinutes = Duration.ofDays(3).toMinutes();
+  }
 }
