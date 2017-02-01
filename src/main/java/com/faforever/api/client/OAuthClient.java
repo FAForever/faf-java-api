@@ -1,13 +1,12 @@
 package com.faforever.api.client;
 
-import javax.persistence.AttributeConverter;
+import lombok.Setter;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
-import javax.persistence.Converter;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Objects;
 
 
 /**
@@ -15,12 +14,13 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "oauth_clients")
+@Setter
 public class OAuthClient {
 
   private String id;
   private String name;
   private String clientSecret;
-  private ClientType clientType;
+  private String clientType;
   private String redirectUris;
   private String defaultRedirectUri;
   private String defaultScope;
@@ -32,18 +32,10 @@ public class OAuthClient {
     return id;
   }
 
-  public void setId(String id) {
-    this.id = id;
-  }
-
   @Basic
   @Column(name = "name")
   public String getName() {
     return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
   }
 
   @Basic
@@ -52,18 +44,10 @@ public class OAuthClient {
     return clientSecret;
   }
 
-  public void setClientSecret(String clientSecret) {
-    this.clientSecret = clientSecret;
-  }
-
   @Basic
-  @Column(name = "client_type", columnDefinition = "enum('confidential', 'public')")
-  public ClientType getClientType() {
+  @Column(name = "client_type")
+  public String getClientType() {
     return clientType;
-  }
-
-  public void setClientType(ClientType clientType) {
-    this.clientType = clientType;
   }
 
   @Basic
@@ -72,18 +56,10 @@ public class OAuthClient {
     return redirectUris;
   }
 
-  public void setRedirectUris(String redirectUris) {
-    this.redirectUris = redirectUris;
-  }
-
   @Basic
   @Column(name = "default_redirect_uri")
   public String getDefaultRedirectUri() {
     return defaultRedirectUri;
-  }
-
-  public void setDefaultRedirectUri(String defaultRedirectUri) {
-    this.defaultRedirectUri = defaultRedirectUri;
   }
 
   @Basic
@@ -92,55 +68,10 @@ public class OAuthClient {
     return defaultScope;
   }
 
-  public void setDefaultScope(String defaultScope) {
-    this.defaultScope = defaultScope;
-  }
-
   @Basic
   @Column(name = "icon_url")
   public String getIconUrl() {
     return iconUrl;
   }
 
-  public void setIconUrl(String iconUrl) {
-    this.iconUrl = iconUrl;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, name, clientSecret, clientType, redirectUris, defaultRedirectUri, defaultScope, iconUrl);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    OAuthClient that = (OAuthClient) o;
-    return Objects.equals(id, that.id) &&
-        Objects.equals(name, that.name) &&
-        Objects.equals(clientSecret, that.clientSecret) &&
-        Objects.equals(clientType, that.clientType) &&
-        Objects.equals(redirectUris, that.redirectUris) &&
-        Objects.equals(defaultRedirectUri, that.defaultRedirectUri) &&
-        Objects.equals(defaultScope, that.defaultScope) &&
-        Objects.equals(iconUrl, that.iconUrl);
-  }
-
-  @Converter(autoApply = true)
-  public static class ClientTypeConverter implements AttributeConverter<ClientType, String> {
-
-    @Override
-    public String convertToDatabaseColumn(ClientType attribute) {
-      return attribute.getString();
-    }
-
-    @Override
-    public ClientType convertToEntityAttribute(String dbData) {
-      return ClientType.fromString(dbData);
-    }
-  }
 }
