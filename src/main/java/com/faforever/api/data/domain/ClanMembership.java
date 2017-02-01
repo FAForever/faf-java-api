@@ -1,6 +1,6 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.config.elide.checks.ClanMembershipLeaderOnlyEditableByLeader;
+import com.faforever.api.config.elide.checks.IsClanMembershipDeletable;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import lombok.Setter;
@@ -18,7 +18,7 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "clan_membership")
 @Include(rootLevel = true, type = "clan_membership")
-@DeletePermission(expression = ClanMembershipLeaderOnlyEditableByLeader.EXPRESSION)
+@DeletePermission(expression = IsClanMembershipDeletable.EXPRESSION)
 @Setter
 public class ClanMembership {
 
