@@ -5,6 +5,7 @@ import com.yahoo.elide.Elide;
 import com.yahoo.elide.ElideResponse;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -44,14 +45,15 @@ public class JsonApiController {
       value = {"/{entity}", "/{entity}/{id}/relationships/{entity2}", "/{entity}/{id}/{child}", "/{entity}/{id}"})
   @Transactional(readOnly = true)
   @Cacheable(cacheResolver = "elideCacheResolver")
-  public String jsonApiGet(@RequestParam final Map<String, String> allRequestParams,
-                           final HttpServletRequest request,
-                           final Authentication authentication) {
-    return elide.get(
+  public ResponseEntity<String> jsonApiGet(@RequestParam final Map<String, String> allRequestParams,
+                                           final HttpServletRequest request,
+                                           final Authentication authentication) {
+    ElideResponse response = elide.get(
         getJsonApiPath(request),
         new MultivaluedHashMap<>(allRequestParams),
         getPrincipal(authentication)
-    ).getBody();
+    );
+    return encodeResponse(response);
   }
 
   @CrossOrigin(origins = "*") // this is needed otherwise I get always an Invalid CORS Request message
@@ -61,15 +63,15 @@ public class JsonApiController {
       value = {"/{entity}", "/{entity}/{id}/relationships/{entity2}", "/{entity}/{id}/{child}", "/{entity}/{id}"})
   @Transactional
   @Cacheable(cacheResolver = "elideCacheResolver")
-  public String jsonApiPost(@RequestBody final String body,
-                            final HttpServletRequest request,
-                            final Authentication authentication) throws JsonApiException {
+  public ResponseEntity<String> jsonApiPost(@RequestBody final String body,
+                                            final HttpServletRequest request,
+                                            final Authentication authentication) {
     ElideResponse response = elide.post(
         getJsonApiPath(request),
         body,
         getPrincipal(authentication)
     );
-    return getResponse(response);
+    return encodeResponse(response);
   }
 
   @CrossOrigin(origins = "*") // this is needed otherwise I get always an Invalid CORS Request message
@@ -78,16 +80,16 @@ public class JsonApiController {
       produces = JSON_API_MEDIA_TYPE,
       value = {"/{entity}/{id}", "/{entity}/{id}/relationships/{entity2}"})
   @Transactional
-  public String jsonApiPatch(@RequestBody final String body,
-                             final HttpServletRequest request,
-                             final Authentication authentication) throws JsonApiException {
+  public ResponseEntity<String> jsonApiPatch(@RequestBody final String body,
+                                             final HttpServletRequest request,
+                                             final Authentication authentication) {
     ElideResponse response = elide.patch(JSON_API_MEDIA_TYPE,
         JSON_API_MEDIA_TYPE,
         getJsonApiPath(request),
         body,
         getPrincipal(authentication)
     );
-    return getResponse(response);
+    return encodeResponse(response);
   }
 
   @CrossOrigin(origins = "*") // this is needed otherwise I get always an Invalid CORS Request message
@@ -96,21 +98,18 @@ public class JsonApiController {
       produces = JSON_API_MEDIA_TYPE,
       value = {"/{entity}/{id}", "/{entity}/{id}/relationships/{entity2}"})
   @Transactional
-  public void jsonApiDelete(final HttpServletRequest request,
-                            final Authentication authentication) throws JsonApiException {
+  public ResponseEntity<String> jsonApiDelete(final HttpServletRequest request,
+                                              final Authentication authentication) {
     ElideResponse response = elide.delete(
         getJsonApiPath(request),
         null,
         getPrincipal(authentication)
     );
-    getResponse(response);
+    return encodeResponse(response);
   }
 
-  private String getResponse(ElideResponse response) throws JsonApiException {
-    if (response.getResponseCode() / 100 != 2) {
-      throw new JsonApiException("No Permission");
-    }
-    return response.getBody();
+  private ResponseEntity<String> encodeResponse(ElideResponse response) {
+    return ResponseEntity.status(response.getResponseCode()).body(response.getBody());
   }
 
   private static Object getPrincipal(final Authentication authentication) {
@@ -121,18 +120,11 @@ public class JsonApiController {
     return ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).replace(PATH_PREFIX, "");
   }
 
-  
+
   @ExceptionHandler(ValidationException.class)
   @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
   @ResponseBody
   public Map<String, Serializable> processValidationError(ValidationException ex) {
-    return errorResponse(ex.getMessage());
-  }
-
-  @ExceptionHandler(JsonApiException.class)
-  @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-  @ResponseBody
-  public Map<String, Serializable> handleClanException(JsonApiException ex) {
     return errorResponse(ex.getMessage());
   }
 
