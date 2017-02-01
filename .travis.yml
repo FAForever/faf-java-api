@@ -11,7 +11,7 @@ before_install:
   - sudo /etc/init.d/mysql stop
 
 install:
-  - git clone https://github.com/FAForever/db.git
+  - git clone -b feature/docker-improvement https://github.com/FAForever/db.git
   - pushd db && ./setup_db.sh && popd
 
 script:
