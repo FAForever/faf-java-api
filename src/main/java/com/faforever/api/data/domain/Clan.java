@@ -1,15 +1,9 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
+import lombok.Setter;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
@@ -28,7 +22,8 @@ public class Clan {
   private Player clanLeader;
   private String clanDesc;
   private String clanTagColor;
-  private List<ClanMembership> memberships;
+  @Setter
+  private List<Player> members;
 
   @Id
   @Column(name = "clan_id")
@@ -120,14 +115,12 @@ public class Clan {
     this.clanTagColor = clanTagColor;
   }
 
-  @OneToMany(mappedBy = "clan")
-  public List<ClanMembership> getMemberships() {
-    return memberships;
-  }
-
-  public void setMemberships(List<ClanMembership> memberships) {
-    this.memberships = memberships;
-  }
+  @ManyToMany
+  @JoinTable(
+          name="clan_membership",
+          joinColumns=@JoinColumn(name="clan_id", referencedColumnName="clan_id"),
+          inverseJoinColumns=@JoinColumn(name="player_id", referencedColumnName="id"))
+  public List<Player> getMembers() { return this.members; }
 
   @Override
   public int hashCode() {
