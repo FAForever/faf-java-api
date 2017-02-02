@@ -25,10 +25,13 @@ script:
   - chmod +x gradlew && ./gradlew build --info
 
 after_success:
+  - ./gradlew jacocoTestReport coveralls
   - if [ "${TRAVIS_BRANCH}" == "master" ]; then
-      ./gradlew jacocoTestReport coveralls pushDockerImage;
+      ./gradlew pushDockerImage;
     fi
-  - ~/jpm/bin/codacy-coverage-reporter -l Java -r build/reports/jacoco/test/jacocoTestReport.xml
+  - if [ "${TRAVIS_BRANCH}" == "develop" ]; then
+      ~/jpm/bin/codacy-coverage-reporter -l Java -r build/reports/jacoco/test/jacocoTestReport.xml;
+    fi
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
