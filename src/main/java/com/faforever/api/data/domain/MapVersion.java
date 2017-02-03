@@ -17,7 +17,7 @@ import java.sql.Timestamp;
 @Entity
 @Setter
 @Table(name = "map_version")
-@Include(rootLevel = true, type = "map_version")
+@Include(rootLevel = true, type = "mapVersion")
 public class MapVersion {
 
   private int id;

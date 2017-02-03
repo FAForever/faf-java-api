@@ -1,24 +1,20 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
+import lombok.Setter;
 
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Objects;
 
 @Entity
 @Table(name = "event_definitions")
-@Include(rootLevel = true, type = "event_definition")
+@Include(rootLevel = true, type = "event")
+@Setter
 public class EventDefinition {
-
-  public enum Type {
-    NUMERIC, TIME;
-  }
 
   private String id;
   private String nameKey;
@@ -31,58 +27,23 @@ public class EventDefinition {
     return id;
   }
 
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  @Basic
   @Column(name = "name_key")
   public String getNameKey() {
     return nameKey;
   }
 
-  public void setNameKey(String nameKey) {
-    this.nameKey = nameKey;
-  }
-
-  @Basic
   @Column(name = "image_url")
   public String getImageUrl() {
     return imageUrl;
   }
 
-  public void setImageUrl(String imageUrl) {
-    this.imageUrl = imageUrl;
-  }
-
-  @Basic
   @Column(name = "type")
   @Enumerated(EnumType.STRING)
   public Type getType() {
     return type;
   }
 
-  public void setType(Type type) {
-    this.type = type;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, nameKey, imageUrl, type);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    EventDefinition that = (EventDefinition) o;
-    return Objects.equals(id, that.id) &&
-        Objects.equals(nameKey, that.nameKey) &&
-        Objects.equals(imageUrl, that.imageUrl) &&
-        Objects.equals(type, that.type);
+  public enum Type {
+    NUMERIC, TIME;
   }
 }

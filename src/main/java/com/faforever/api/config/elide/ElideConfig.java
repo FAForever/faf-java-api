@@ -8,7 +8,6 @@ import com.faforever.api.data.JsonApiController;
 import com.yahoo.elide.Elide;
 import com.yahoo.elide.audit.Slf4jLogger;
 import com.yahoo.elide.core.EntityDictionary;
-import com.yahoo.elide.core.filter.dialect.RSQLFilterDialect;
 import com.yahoo.elide.datastores.hibernate5.HibernateStore;
 import com.yahoo.elide.security.checks.Check;
 import org.hibernate.SessionFactory;
@@ -39,13 +38,14 @@ public class ElideConfig {
 
     EntityDictionary entityDictionary = new EntityDictionary(checks);
 
-    RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary);
+    // TODO can't use RSQL yet: https://github.com/yahoo/elide/issues/384
+//    RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary);
 
     return new Elide.Builder(new HibernateStore(entityManagerFactory.unwrap(SessionFactory.class)))
         .withAuditLogger(new Slf4jLogger())
         .withEntityDictionary(entityDictionary)
-        .withJoinFilterDialect(rsqlFilterDialect)
-        .withSubqueryFilterDialect(rsqlFilterDialect)
+//        .withJoinFilterDialect(rsqlFilterDialect)
+//        .withSubqueryFilterDialect(rsqlFilterDialect)
         .build();
   }
 
