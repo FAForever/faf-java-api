@@ -1,6 +1,6 @@
 package com.faforever.api.security;
 
-import com.faforever.api.data.domain.BanDetails;
+import com.faforever.api.data.domain.BanInfo;
 import com.faforever.api.data.domain.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,7 +19,7 @@ public class FafUserDetails extends org.springframework.security.core.userdetail
 
   public FafUserDetails(User user) {
     // TODO implement lobby_admin
-    this(user.getId(), user.getLogin(), user.getPassword(), isNonLocked(user.getBanDetails()), singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+    this(user.getId(), user.getLogin(), user.getPassword(), isNonLocked(user.getBanInfo()), singletonList(new SimpleGrantedAuthority("ROLE_USER")));
   }
 
   public FafUserDetails(int id, String username, String password, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
@@ -27,8 +27,8 @@ public class FafUserDetails extends org.springframework.security.core.userdetail
     this.id = id;
   }
 
-  private static boolean isNonLocked(BanDetails banDetails) {
-    return banDetails == null
-        || banDetails.getExpiresAt().before(Timestamp.from(Instant.now()));
+  private static boolean isNonLocked(BanInfo banInfo) {
+    return banInfo == null
+        || banInfo.getExpiresAt().before(Timestamp.from(Instant.now()));
   }
 }

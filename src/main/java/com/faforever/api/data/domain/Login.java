@@ -24,7 +24,7 @@ public abstract class Login {
   private String eMail;
   private String steamId;
   private String userAgent;
-  private BanDetails banDetails;
+  private BanInfo banInfo;
   private String lowerCaseLogin;
 
   @Id
@@ -66,7 +66,7 @@ public abstract class Login {
   }
 
   @OneToOne(mappedBy = "player")
-  public BanDetails getBanDetails() {
-    return banDetails;
+  public BanInfo getBanInfo() {
+    return banInfo;
   }
 }

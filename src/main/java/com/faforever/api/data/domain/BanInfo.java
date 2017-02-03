@@ -13,9 +13,9 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "lobby_ban")
-@Include(rootLevel = true, type = "banDetails")
+@Include(rootLevel = true, type = "banInfo")
 @Setter
-public class BanDetails {
+public class BanInfo {
 
   private int id;
   private Player player;
