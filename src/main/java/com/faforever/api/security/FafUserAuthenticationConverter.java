@@ -1,6 +1,5 @@
-package com.faforever.api.config.security.oauth2;
+package com.faforever.api.security;
 
-import com.faforever.api.user.FafUserDetails;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

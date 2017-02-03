@@ -1,7 +1,7 @@
 package com.faforever.api.player;
 
 import com.faforever.api.data.domain.Player;
-import com.faforever.api.user.FafUserDetails;
+import com.faforever.api.security.FafUserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;

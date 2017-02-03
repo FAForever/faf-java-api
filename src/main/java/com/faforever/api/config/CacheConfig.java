@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
 
-import static com.faforever.api.config.security.oauth2.OAuthClientDetailsService.CLIENTS_CACHE_NAME;
+import static com.faforever.api.security.OAuthClientDetailsService.CLIENTS_CACHE_NAME;
 import static com.google.common.cache.CacheBuilder.newBuilder;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;

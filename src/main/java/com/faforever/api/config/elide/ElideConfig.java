@@ -1,10 +1,10 @@
 package com.faforever.api.config.elide;
 
-import com.faforever.api.config.elide.checks.IsAuthenticated;
-import com.faforever.api.config.elide.checks.IsClanLeader;
-import com.faforever.api.config.elide.checks.IsClanMembershipDeletable;
-import com.faforever.api.config.elide.checks.IsOwner;
 import com.faforever.api.data.JsonApiController;
+import com.faforever.api.data.checks.IsAuthenticated;
+import com.faforever.api.data.checks.IsClanLeader;
+import com.faforever.api.data.checks.IsClanMembershipDeletable;
+import com.faforever.api.data.checks.IsOwner;
 import com.yahoo.elide.Elide;
 import com.yahoo.elide.audit.Slf4jLogger;
 import com.yahoo.elide.core.EntityDictionary;

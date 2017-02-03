@@ -1,4 +1,4 @@
-package com.faforever.api.config.security.oauth2;
+package com.faforever.api.security;
 
 import com.faforever.api.client.OAuthClientRepository;
 import com.faforever.api.config.FafApiProperties;

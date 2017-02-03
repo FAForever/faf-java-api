@@ -1,5 +1,6 @@
-package com.faforever.api.user;
+package com.faforever.api.security;
 
+import com.faforever.api.user.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

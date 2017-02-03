@@ -1,4 +1,4 @@
-package com.faforever.api.config.elide.checks;
+package com.faforever.api.data.checks;
 
 import com.yahoo.elide.security.User;
 import com.yahoo.elide.security.checks.UserCheck;

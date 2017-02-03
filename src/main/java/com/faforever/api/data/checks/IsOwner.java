@@ -1,7 +1,7 @@
-package com.faforever.api.config.elide.checks;
+package com.faforever.api.data.checks;
 
 import com.faforever.api.data.domain.Login;
-import com.faforever.api.user.FafUserDetails;
+import com.faforever.api.security.FafUserDetails;
 import com.yahoo.elide.security.ChangeSpec;
 import com.yahoo.elide.security.RequestScope;
 import com.yahoo.elide.security.checks.InlineCheck;

@@ -1,4 +1,4 @@
-package com.faforever.api.user;
+package com.faforever.api.security;
 
 import com.faforever.api.data.domain.BanDetails;
 import com.faforever.api.data.domain.User;

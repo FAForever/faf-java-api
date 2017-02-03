@@ -1,6 +1,6 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.config.elide.checks.IsOwner;
+import com.faforever.api.data.checks.IsOwner;
 import com.yahoo.elide.annotation.ReadPermission;
 import lombok.Setter;
 import org.hibernate.annotations.Formula;

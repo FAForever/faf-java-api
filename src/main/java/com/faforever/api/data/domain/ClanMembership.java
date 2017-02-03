@@ -1,6 +1,6 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.config.elide.checks.IsClanMembershipDeletable;
+import com.faforever.api.data.checks.IsClanMembershipDeletable;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import lombok.Setter;

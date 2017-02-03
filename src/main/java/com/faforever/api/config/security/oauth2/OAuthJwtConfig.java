@@ -1,6 +1,7 @@
 package com.faforever.api.config.security.oauth2;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.security.FafUserAuthenticationConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;

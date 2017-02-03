@@ -1,6 +1,6 @@
 package com.faforever.api;
 
-import com.faforever.api.user.FafUserDetails;
+import com.faforever.api.security.FafUserDetails;
 
 import java.util.Collections;
 

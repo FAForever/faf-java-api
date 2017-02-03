@@ -1,6 +1,6 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.config.elide.checks.IsClanLeader;
+import com.faforever.api.data.checks.IsClanLeader;
 import com.faforever.api.data.validation.IsLeaderInClan;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;

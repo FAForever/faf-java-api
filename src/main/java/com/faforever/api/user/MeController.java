@@ -1,5 +1,6 @@
 package com.faforever.api.user;
 
+import com.faforever.api.security.FafUserDetails;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
