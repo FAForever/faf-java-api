@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.sql.Timestamp;
 
@@ -18,7 +19,7 @@ import java.sql.Timestamp;
 public class PlayerEvent {
 
   private int id;
-  private int playerId;
+  private Player player;
   private EventDefinition eventDefinition;
   private int count;
   private Timestamp createTime;
@@ -30,9 +31,10 @@ public class PlayerEvent {
     return id;
   }
 
-  @Column(name = "player_id")
-  public int getPlayerId() {
-    return playerId;
+  @OneToOne
+  @JoinColumn(name = "player_id")
+  public Player getPlayer() {
+    return player;
   }
 
   @ManyToOne

@@ -21,18 +21,18 @@ public class GamePlayerStats {
 
   private long id;
   private Player player;
-  private byte ai;
-  private byte faction;
+  private boolean ai;
+  private Faction faction;
   private byte color;
   private byte team;
-  private byte place;
-  private Double mean;
-  private Double deviation;
+  private byte startSpot;
+  private Double beforeMean;
+  private Double beforeDeviation;
   private Double afterMean;
   private Double afterDeviation;
   private byte score;
   private Timestamp scoreTime;
-  private Replay replay;
+  private Game game;
 
   @Id
   @Column(name = "id")
@@ -47,12 +47,12 @@ public class GamePlayerStats {
   }
 
   @Column(name = "AI")
-  public byte getAi() {
+  public boolean getAi() {
     return ai;
   }
 
   @Column(name = "faction")
-  public byte getFaction() {
+  public Faction getFaction() {
     return faction;
   }
 
@@ -67,18 +67,18 @@ public class GamePlayerStats {
   }
 
   @Column(name = "place")
-  public byte getPlace() {
-    return place;
+  public byte getStartSpot() {
+    return startSpot;
   }
 
   @Column(name = "mean")
-  public Double getMean() {
-    return mean;
+  public Double getBeforeMean() {
+    return beforeMean;
   }
 
   @Column(name = "deviation")
-  public Double getDeviation() {
-    return deviation;
+  public Double getBeforeDeviation() {
+    return beforeDeviation;
   }
 
   @Column(name = "after_mean")
@@ -103,7 +103,7 @@ public class GamePlayerStats {
 
   @ManyToOne
   @JoinColumn(name = "gameId")
-  public Replay getReplay() {
-    return replay;
+  public Game getGame() {
+    return game;
   }
 }

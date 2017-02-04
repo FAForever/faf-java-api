@@ -13,13 +13,13 @@ import java.sql.Time;
 
 @Entity
 @Table(name = "coop_leaderboard")
-@Include(rootLevel = true, type = "coopLeaderboard")
+@Include(rootLevel = true, type = "coopResult")
 @Setter
-public class CoopLeaderboard {
+public class CoopResult {
 
   private int id;
   private short mission;
-  private Replay replay;
+  private Game game;
   private boolean secondaryObjectives;
   private Time duration;
   private short playerCount;
@@ -37,8 +37,8 @@ public class CoopLeaderboard {
 
   @OneToOne
   @JoinColumn(name = "gameuid")
-  public Replay getReplay() {
-    return replay;
+  public Game getGame() {
+    return game;
   }
 
   @Column(name = "secondary")

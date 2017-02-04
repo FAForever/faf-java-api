@@ -6,6 +6,8 @@ import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -16,19 +18,19 @@ import java.util.List;
 
 @Entity
 @Table(name = "game_stats")
-@Include(rootLevel = true, type = "replay")
+@Include(rootLevel = true, type = "game")
 @Immutable
 @Setter
-public class Replay {
+public class Game {
 
   private int id;
   private Timestamp startTime;
   private VictoryCondition victoryCondition;
-  private byte gameMod;
+  private FeaturedMod featuredMod;
   private Player host;
-  private MapVersion map;
-  private String gameName;
-  private byte validity;
+  private MapVersion mapVersion;
+  private String name;
+  private Rankiness rankiness;
   private List<GamePlayerStats> playerStats;
 
   @Id
@@ -47,9 +49,10 @@ public class Replay {
     return victoryCondition;
   }
 
-  @Column(name = "gameMod")
-  public byte getGameMod() {
-    return gameMod;
+  @ManyToOne
+  @JoinColumn(name = "gameMod")
+  public FeaturedMod getFeaturedMod() {
+    return featuredMod;
   }
 
   @ManyToOne
@@ -60,21 +63,22 @@ public class Replay {
 
   @ManyToOne
   @JoinColumn(name = "mapId")
-  public MapVersion getMap() {
-    return map;
+  public MapVersion getMapVersion() {
+    return mapVersion;
   }
 
   @Column(name = "gameName")
-  public String getGameName() {
-    return gameName;
+  public String getName() {
+    return name;
   }
 
   @Column(name = "validity")
-  public byte getValidity() {
-    return validity;
+  @Enumerated(EnumType.ORDINAL)
+  public Rankiness getRankiness() {
+    return rankiness;
   }
 
-  @OneToMany(mappedBy = "replay")
+  @OneToMany(mappedBy = "game")
   public List<GamePlayerStats> getPlayerStats() {
     return playerStats;
   }

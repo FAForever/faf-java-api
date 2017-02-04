@@ -2,6 +2,7 @@ package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,9 +20,10 @@ public class GlobalRating {
   private int id;
   private Double mean;
   private Double deviation;
-  private short numGames;
+  private int numGames;
   private boolean isActive;
   private Player player;
+  private double rating;
 
   @Id
   @Column(name = "id")
@@ -40,7 +42,7 @@ public class GlobalRating {
   }
 
   @Column(name = "numGames")
-  public short getNumGames() {
+  public int getNumGames() {
     return numGames;
   }
 
@@ -53,5 +55,10 @@ public class GlobalRating {
   @JoinColumn(name = "id", updatable = false, insertable = false)
   public Player getPlayer() {
     return player;
+  }
+
+  @Formula("mean - 3 * deviation")
+  public double getRating() {
+    return rating;
   }
 }
