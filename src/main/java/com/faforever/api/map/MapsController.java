@@ -57,8 +57,7 @@ public class MapsController {
     }
 
     String extension = Files.getFileExtension(file.getOriginalFilename());
-    if (Arrays.asList(fafApiProperties.getMap().getAllowedExtensions()).stream().noneMatch(
-        extension::equals)) {
+    if (Arrays.stream(fafApiProperties.getMap().getAllowedExtensions()).noneMatch(extension::equals)) {
       throw new ApiException(new Error(ErrorCode.UPLOAD_INVALID_FILE_EXTENSION, fafApiProperties.getMap().getAllowedExtensions()));
     }
 
