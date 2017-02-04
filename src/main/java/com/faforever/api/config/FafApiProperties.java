@@ -20,6 +20,7 @@ public class FafApiProperties {
   private Async async = new Async();
   private Map map = new Map();
   private Clan clan = new Clan();
+  private FeaturedMods featuredMods = new FeaturedMods();
 
   @Data
   public static class OAuth2 {
@@ -54,7 +55,11 @@ public class FafApiProperties {
     private int previewSizeSmall = 128;
     private int previewSizeLarge = 512;
     private String[] allowedExtensions = new String[]{"zip"};
+  }
 
+  @Data
+  public static class FeaturedMods {
+    private String fileUrlFormat = "http://content.faforever.com/faf/updaterNew/%s/%s";
   }
 
   @Data
