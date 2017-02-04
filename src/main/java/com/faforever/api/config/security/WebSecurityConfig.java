@@ -56,6 +56,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers(HttpMethod.OPTIONS).permitAll()
         // Elide JSON-API
         .antMatchers("/data/**").permitAll()
+        // Additional APIs
+        .antMatchers("/leaderboards/**").permitAll()
         // Redirects to Swagger UI
         .antMatchers("/").permitAll()
         // Swagger UI
