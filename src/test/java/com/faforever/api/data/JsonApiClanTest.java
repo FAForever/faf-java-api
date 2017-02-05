@@ -34,6 +34,7 @@ import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -200,5 +201,21 @@ public class JsonApiClanTest {
         .header("Authorization", accessToken))
         .andExpect(status().is(204));
     assertEquals(1, clanMembershipRepository.count());
+  }
+
+  @Test
+  @SneakyThrows
+  public void getFilteredPlayerForClanInvite() {
+    String[] players = new String[]{"Dragonfire", "DRAGON", "Fire of Dragon", "d r a g o n", "firedragon"};
+    Arrays.stream(players).forEach(name -> createPlayer(name));
+    assertEquals(players.length, playerRepository.count());
+    ResultActions action = this.mvc.perform(get("/data/player?filter=lowerCaseLogin==dragon*&sort=lowerCaseLogin"));
+    JsonNode node = objectMapper.readTree(action.andReturn().getResponse().getContentAsString());
+
+    assertEquals(2, node.get("data").size());
+    assertEquals(players[1], node.get("data").get(0).get("attributes").get("login").asText());
+    assertEquals(players[0], node.get("data").get(1).get("attributes").get("login").asText());
+
+    action.andExpect(status().isOk());
   }
 }
