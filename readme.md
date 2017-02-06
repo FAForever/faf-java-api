@@ -1,7 +1,12 @@
 # Spring Boot based FAF-API Prototype
 
+#### master
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/12eecd69a3cf4f6c96ffa043a7d70198)](https://www.codacy.com/app/micheljung/faf-java-api?utm_source=github.com&utm_medium=referral&utm_content=micheljung/faf-java-api&utm_campaign=badger)
+[![Build Status](https://travis-ci.org/FAForever/downlords-faf-client.svg?branch=master)](https://travis-ci.org/FAForever/downlords-faf-client)
 
+#### develop
+[![Build Status](https://travis-ci.org/FAForever/faf-java-api.svg?branch=master)](https://travis-ci.org/FAForever/faf-java-api)
+[![Coverage Status](https://coveralls.io/repos/github/FAForever/faf-java-api/badge.svg?branch=develop)](https://coveralls.io/github/FAForever/faf-java-api?branch=develop)
  
  This is a prototype of a Spring Boot based API application for Forged Alliance Forever.
  
