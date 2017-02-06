@@ -8,6 +8,7 @@ import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -24,7 +25,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.inject.Inject;
 import javax.validation.ValidationException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Map;
 
 @RestController
 @RequestMapping(path = "/maps")
@@ -73,7 +76,14 @@ public class MapsController {
   }
 
   @ExceptionHandler(ValidationException.class)
-  public void handleValidationException(ValidationException exception) {
-    throw new ApiException(new Error(ErrorCode.VALIDATION_FAILED, exception.getMessage()));
+  public Map<String, Serializable> handleValidationException(ValidationException exception) {
+    return errorResponse(ErrorCode.VALIDATION_FAILED.getTitle(), exception.getMessage());
+  }
+
+  private Map<String, Serializable> errorResponse(String title, String message) {
+    ImmutableMap<String, Serializable> error = ImmutableMap.of(
+        "title", title,
+        "detail", message);
+    return ImmutableMap.of("errors", new ImmutableMap[]{error});
   }
 }
