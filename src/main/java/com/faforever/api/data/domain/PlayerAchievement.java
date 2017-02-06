@@ -3,7 +3,6 @@ package com.faforever.api.data.domain;
 import com.yahoo.elide.annotation.Include;
 import lombok.Setter;
 
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -37,26 +36,22 @@ public class PlayerAchievement {
     return id;
   }
 
-  @Basic
   @Column(name = "current_steps")
   public Integer getCurrentSteps() {
     return currentSteps;
   }
 
-  @Basic
   @Column(name = "state")
   @Enumerated(EnumType.STRING)
   public AchievementState getState() {
     return state;
   }
 
-  @Basic
   @Column(name = "create_time")
   public Timestamp getCreateTime() {
     return createTime;
   }
 
-  @Basic
   @Column(name = "update_time")
   public Timestamp getUpdateTime() {
     return updateTime;

@@ -5,7 +5,6 @@ import com.yahoo.elide.annotation.ReadPermission;
 import lombok.Setter;
 import org.hibernate.annotations.Formula;
 
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -33,7 +32,6 @@ public abstract class Login {
     return id;
   }
 
-  @Basic
   @Column(name = "login")
   public String getLogin() {
     return login;
@@ -45,21 +43,18 @@ public abstract class Login {
     return lowerCaseLogin;
   }
 
-  @Basic
   @Column(name = "email")
   @ReadPermission(expression = IsOwner.EXPRESSION)
   public String getEMail() {
     return eMail;
   }
 
-  @Basic
   @Column(name = "steamid")
   @ReadPermission(expression = IsOwner.EXPRESSION)
   public String getSteamId() {
     return steamId;
   }
 
-  @Basic
   @Column(name = "user_agent")
   public String getUserAgent() {
     return userAgent;
