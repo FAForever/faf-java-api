@@ -221,6 +221,25 @@ public class JsonApiClanTest {
     action.andExpect(status().isOk());
   }
 
+  private String generateTransferLeadershipContent(int clanId, int newLeaderId) {
+    ObjectNode node = this.objectMapper.createObjectNode();
+    ObjectNode data = this.objectMapper.createObjectNode();
+    ObjectNode relationships = this.objectMapper.createObjectNode();
+    ObjectNode leaderData = this.objectMapper.createObjectNode();
+    ObjectNode leader = this.objectMapper.createObjectNode();
+
+    node.put("data", data);
+    data.put("id", clanId);
+    data.put("type", "clan");
+    data.put("relationships", relationships);
+    relationships.put("leader", leaderData);
+    leaderData.put("data", leader);
+    leader.put("id", newLeaderId);
+    leader.put("type", "player");
+
+    return node.toString();
+  }
+
   @Test
   @SneakyThrows
   public void transferLeadership() {
@@ -233,22 +252,7 @@ public class JsonApiClanTest {
     clan.setMemberships(Arrays.asList(myMembership, bobsMembership));
     clanRepository.save(clan);
 
-    ObjectNode node = this.objectMapper.createObjectNode();
-    ObjectNode data = this.objectMapper.createObjectNode();
-    ObjectNode relationships = this.objectMapper.createObjectNode();
-    ObjectNode leaderData = this.objectMapper.createObjectNode();
-    ObjectNode leader = this.objectMapper.createObjectNode();
-
-    node.put("data", data);
-    data.put("id", clan.getId());
-    data.put("type", "clan");
-    data.put("relationships", relationships);
-    relationships.put("leader", leaderData);
-    leaderData.put("data", leader);
-    leader.put("id", bob.getId());
-    leader.put("type", "player");
-
-    String dataString = node.toString();
+    String dataString = generateTransferLeadershipContent(clan.getId(), bob.getId());
 
     clan = clanRepository.findOne(clan.getId());
     assertEquals(me.getId(), clan.getLeader().getId());
@@ -258,8 +262,94 @@ public class JsonApiClanTest {
         .header("Authorization", accessToken));
     action.andExpect(content().string(""))
         .andExpect(status().is(204));
-    
+
     clan = clanRepository.findOne(clan.getId());
     assertEquals(bob.getId(), clan.getLeader().getId());
   }
+
+  @Test
+  @SneakyThrows
+  public void transferLeadershipToOldLeader() {
+    String accessToken = createUserAndGetAccessToken("Leader", "foo");
+
+    Clan clan = new Clan().setLeader(me).setTag("123").setName("abcClanName");
+    ClanMembership myMembership = new ClanMembership().setPlayer(me).setClan(clan);
+    clan.setMemberships(Collections.singletonList(myMembership));
+    clanRepository.save(clan);
+
+    String dataString = generateTransferLeadershipContent(clan.getId(), me.getId());
+
+    clan = clanRepository.findOne(clan.getId());
+    assertEquals(me.getId(), clan.getLeader().getId());
+
+    ResultActions action = this.mvc.perform(patch("/data/clan/" + clan.getId())
+        .content(dataString)
+        .header("Authorization", accessToken));
+    action.andExpect(content().string(""))
+        .andExpect(status().is(204));
+
+    clan = clanRepository.findOne(clan.getId());
+    assertEquals(me.getId(), clan.getLeader().getId());
+  }
+
+  @Test
+  @SneakyThrows
+  public void transferLeadershipToNonClanMember() {
+    String accessToken = createUserAndGetAccessToken("Leader", "foo");
+
+    Player bob = createPlayer("Bob");
+
+    Clan clan = new Clan().setLeader(me).setTag("123").setName("abcClanName");
+    ClanMembership myMembership = new ClanMembership().setPlayer(me).setClan(clan);
+    clan.setMemberships(Collections.singletonList(myMembership));
+    clanRepository.save(clan);
+
+    String dataString = generateTransferLeadershipContent(clan.getId(), bob.getId());
+
+    clan = clanRepository.findOne(clan.getId());
+    assertEquals(me.getId(), clan.getLeader().getId());
+
+    ResultActions action = this.mvc.perform(patch("/data/clan/" + clan.getId())
+        .content(dataString)
+        .header("Authorization", accessToken));
+    action.andExpect(status().is(422));
+
+    JsonNode resultNode = objectMapper.readTree(action.andReturn().getResponse().getContentAsString());
+    assertEquals(1, resultNode.get("errors").size());
+    assertEquals("Validation failed", resultNode.get("errors").get(0).get("title").asText());
+
+    clan = clanRepository.findOne(clan.getId());
+    assertEquals(me.getId(), clan.getLeader().getId());
+  }
+
+  @Test
+  @SneakyThrows
+  public void transferLeadershipAsNonLeader() {
+    String accessToken = createUserAndGetAccessToken("Leader", "foo");
+
+    Player bob = createPlayer("Bob");
+    Player charlie = createPlayer("Charlie");
+
+    Clan clan = new Clan().setLeader(bob).setTag("123").setName("abcClanName");
+    ClanMembership myMembership = new ClanMembership().setPlayer(me).setClan(clan);
+    ClanMembership bobsMembership = new ClanMembership().setPlayer(bob).setClan(clan);
+    ClanMembership charlieMembership = new ClanMembership().setPlayer(charlie).setClan(clan);
+    clan.setMemberships(Arrays.asList(myMembership, bobsMembership, charlieMembership));
+    clanRepository.save(clan);
+
+    String dataString = generateTransferLeadershipContent(clan.getId(), charlie.getId());
+
+    clan = clanRepository.findOne(clan.getId());
+    assertEquals(bob.getId(), clan.getLeader().getId());
+
+    ResultActions action = this.mvc.perform(patch("/data/clan/" + clan.getId())
+        .content(dataString)
+        .header("Authorization", accessToken));
+    action.andExpect(content().string("{\"errors\":[\"ForbiddenAccessException\"]}"))
+        .andExpect(status().is(403));
+
+    clan = clanRepository.findOne(clan.getId());
+    assertEquals(bob.getId(), clan.getLeader().getId());
+  }
+
 }
