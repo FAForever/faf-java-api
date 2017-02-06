@@ -14,6 +14,7 @@ import com.faforever.api.user.UserRepository;
 import lombok.SneakyThrows;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ObjectNode;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +36,7 @@ import java.util.Collections;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -217,5 +219,47 @@ public class JsonApiClanTest {
     assertEquals(players[0], node.get("data").get(1).get("attributes").get("login").asText());
 
     action.andExpect(status().isOk());
+  }
+
+  @Test
+  @SneakyThrows
+  public void transferLeadership() {
+    String accessToken = createUserAndGetAccessToken("Leader", "foo");
+
+    Player bob = createPlayer("Bob");
+    Clan clan = new Clan().setLeader(me).setTag("123").setName("abcClanName");
+    ClanMembership myMembership = new ClanMembership().setPlayer(me).setClan(clan);
+    ClanMembership bobsMembership = new ClanMembership().setPlayer(bob).setClan(clan);
+    clan.setMemberships(Arrays.asList(myMembership, bobsMembership));
+    clanRepository.save(clan);
+
+    ObjectNode node = this.objectMapper.createObjectNode();
+    ObjectNode data = this.objectMapper.createObjectNode();
+    ObjectNode relationships = this.objectMapper.createObjectNode();
+    ObjectNode leaderData = this.objectMapper.createObjectNode();
+    ObjectNode leader = this.objectMapper.createObjectNode();
+
+    node.put("data", data);
+    data.put("id", clan.getId());
+    data.put("type", "clan");
+    data.put("relationships", relationships);
+    relationships.put("leader", leaderData);
+    leaderData.put("data", leader);
+    leader.put("id", bob.getId());
+    leader.put("type", "player");
+
+    String dataString = node.toString();
+
+    clan = clanRepository.findOne(clan.getId());
+    assertEquals(me.getId(), clan.getLeader().getId());
+
+    ResultActions action = this.mvc.perform(patch("/data/clan/" + clan.getId())
+        .content(dataString)
+        .header("Authorization", accessToken));
+    action.andExpect(content().string(""))
+        .andExpect(status().is(204));
+    
+    clan = clanRepository.findOne(clan.getId());
+    assertEquals(bob.getId(), clan.getLeader().getId());
   }
 }
