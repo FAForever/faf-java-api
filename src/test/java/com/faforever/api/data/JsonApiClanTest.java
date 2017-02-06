@@ -211,7 +211,7 @@ public class JsonApiClanTest {
     String[] players = new String[]{"Dragonfire", "DRAGON", "Fire of Dragon", "d r a g o n", "firedragon"};
     Arrays.stream(players).forEach(name -> createPlayer(name));
     assertEquals(players.length, playerRepository.count());
-    ResultActions action = this.mvc.perform(get("/data/player?filter=lowerCaseLogin==dragon*&sort=lowerCaseLogin"));
+    ResultActions action = this.mvc.perform(get("/data/player?filter[player.lowerCaseLogin][prefix]=dragon&sort=lowerCaseLogin"));
     JsonNode node = objectMapper.readTree(action.andReturn().getResponse().getContentAsString());
 
     assertEquals(2, node.get("data").size());
@@ -350,6 +350,28 @@ public class JsonApiClanTest {
 
     clan = clanRepository.findOne(clan.getId());
     assertEquals(bob.getId(), clan.getLeader().getId());
+  }
+
+  @Test
+  @SneakyThrows
+  public void deleteClan() {
+    String accessToken = createUserAndGetAccessToken("Leader", "foo");
+
+    Clan clan = new Clan().setLeader(me).setTag("123").setName("abcClanName");
+    ClanMembership myMembership = new ClanMembership().setPlayer(me).setClan(clan);
+    clan.setMemberships(Collections.singletonList(myMembership));
+    clanRepository.save(clan);
+
+    clan = clanRepository.findOne(clan.getId());
+    assertEquals(me.getId(), clan.getLeader().getId());
+
+    ResultActions action = this.mvc.perform(delete("/data/clan/" + clan.getId())
+        .header("Authorization", accessToken));
+    action.andExpect(content().string(""))
+        .andExpect(status().is(204));
+
+    assertEquals(0, clanRepository.count());
+    assertEquals(0, clanMembershipRepository.count());
   }
 
 }
