@@ -1,20 +1,20 @@
 package com.faforever.api.client;
 
+import lombok.Setter;
+import org.springframework.util.Assert;
+
 import javax.persistence.AttributeConverter;
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Converter;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Objects;
+import javax.validation.constraints.NotNull;
 
 
-/**
- * Represents an entry in {@code oauth_clients}.
- */
 @Entity
 @Table(name = "oauth_clients")
+@Setter
 public class OAuthClient {
 
   private String id;
@@ -32,102 +32,45 @@ public class OAuthClient {
     return id;
   }
 
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  @Basic
+  @NotNull
   @Column(name = "name")
   public String getName() {
     return name;
   }
 
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  @Basic
+  @NotNull
   @Column(name = "client_secret")
   public String getClientSecret() {
     return clientSecret;
   }
 
-  public void setClientSecret(String clientSecret) {
-    this.clientSecret = clientSecret;
-  }
-
-  @Basic
-  @Column(name = "client_type", columnDefinition = "enum('confidential', 'public')")
+  @NotNull
+  @Column(name = "client_type")
   public ClientType getClientType() {
     return clientType;
   }
 
-  public void setClientType(ClientType clientType) {
-    this.clientType = clientType;
-  }
-
-  @Basic
+  @NotNull
   @Column(name = "redirect_uris")
   public String getRedirectUris() {
     return redirectUris;
   }
 
-  public void setRedirectUris(String redirectUris) {
-    this.redirectUris = redirectUris;
-  }
-
-  @Basic
+  @NotNull
   @Column(name = "default_redirect_uri")
   public String getDefaultRedirectUri() {
     return defaultRedirectUri;
   }
 
-  public void setDefaultRedirectUri(String defaultRedirectUri) {
-    this.defaultRedirectUri = defaultRedirectUri;
-  }
-
-  @Basic
+  @NotNull
   @Column(name = "default_scope")
   public String getDefaultScope() {
     return defaultScope;
   }
 
-  public void setDefaultScope(String defaultScope) {
-    this.defaultScope = defaultScope;
-  }
-
-  @Basic
   @Column(name = "icon_url")
   public String getIconUrl() {
     return iconUrl;
-  }
-
-  public void setIconUrl(String iconUrl) {
-    this.iconUrl = iconUrl;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, name, clientSecret, clientType, redirectUris, defaultRedirectUri, defaultScope, iconUrl);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    OAuthClient that = (OAuthClient) o;
-    return Objects.equals(id, that.id) &&
-        Objects.equals(name, that.name) &&
-        Objects.equals(clientSecret, that.clientSecret) &&
-        Objects.equals(clientType, that.clientType) &&
-        Objects.equals(redirectUris, that.redirectUris) &&
-        Objects.equals(defaultRedirectUri, that.defaultRedirectUri) &&
-        Objects.equals(defaultScope, that.defaultScope) &&
-        Objects.equals(iconUrl, that.iconUrl);
   }
 
   @Converter(autoApply = true)
@@ -135,11 +78,13 @@ public class OAuthClient {
 
     @Override
     public String convertToDatabaseColumn(ClientType attribute) {
+      Assert.isTrue(attribute != null, "'attribute' cannot be null");
       return attribute.getString();
     }
 
     @Override
     public ClientType convertToEntityAttribute(String dbData) {
+      Assert.isTrue(dbData != null, "'dbData' cannot be null");
       return ClientType.fromString(dbData);
     }
   }
