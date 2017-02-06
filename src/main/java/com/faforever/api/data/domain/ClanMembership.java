@@ -17,7 +17,7 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "clan_membership")
-@Include(rootLevel = true, type = "clan_membership")
+@Include(rootLevel = true, type = "clanMembership")
 @DeletePermission(expression = IsClanMembershipDeletable.EXPRESSION)
 @Setter
 public class ClanMembership {

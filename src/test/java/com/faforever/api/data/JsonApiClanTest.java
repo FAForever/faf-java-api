@@ -159,7 +159,7 @@ public class JsonApiClanTest {
     clanRepository.save(clan);
 
     assertEquals(1, clanMembershipRepository.count());
-    this.mvc.perform(delete("/data/clan_membership/" + membership.getId())
+    this.mvc.perform(delete("/data/clanMembership/" + membership.getId())
         .header("Authorization", accessToken))
         .andExpect(content().string("{\"errors\":[\"ForbiddenAccessException\"]}"))
         .andExpect(status().is(403));
@@ -179,7 +179,7 @@ public class JsonApiClanTest {
     clanRepository.save(clan);
 
     assertEquals(2, clanMembershipRepository.count());
-    this.mvc.perform(delete("/data/clan_membership/" + bobsMembership.getId())
+    this.mvc.perform(delete("/data/clanMembership/" + bobsMembership.getId())
         .header("Authorization", accessToken))
         .andExpect(content().string("{\"errors\":[\"ForbiddenAccessException\"]}"))
         .andExpect(status().is(403));
@@ -199,7 +199,7 @@ public class JsonApiClanTest {
     clanRepository.save(clan);
 
     assertEquals(2, clanMembershipRepository.count());
-    this.mvc.perform(delete("/data/clan_membership/" + bobsMembership.getId())
+    this.mvc.perform(delete("/data/clanMembership/" + bobsMembership.getId())
         .header("Authorization", accessToken))
         .andExpect(status().is(204));
     assertEquals(1, clanMembershipRepository.count());
