@@ -24,7 +24,11 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.inject.Inject;
 import javax.validation.ValidationException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Map;
+
+import static com.faforever.api.data.JsonApiController.errorResponse;
 
 @RestController
 @RequestMapping(path = "/maps")
@@ -73,7 +77,7 @@ public class MapsController {
   }
 
   @ExceptionHandler(ValidationException.class)
-  public void handleValidationException(ValidationException exception) {
-    throw new ApiException(new Error(ErrorCode.VALIDATION_FAILED, exception.getMessage()));
+  public Map<String, Serializable> handleValidationException(ValidationException exception) {
+    return errorResponse(ErrorCode.VALIDATION_FAILED.getTitle(), exception.getMessage());
   }
 }
