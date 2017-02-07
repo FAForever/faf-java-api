@@ -8,7 +8,7 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ApiExceptionWithMultipleCodes;
 import com.faforever.api.error.ErrorCode;
-import com.faforever.api.utils.Unzipper;
+import com.faforever.commons.zip.Unzipper;
 import com.google.common.io.ByteStreams;
 import com.googlecode.zohhak.api.TestWith;
 import com.googlecode.zohhak.api.runners.ZohhakRunner;
@@ -49,20 +49,18 @@ import static org.mockito.Mockito.when;
 
 @RunWith(ZohhakRunner.class)
 public class MapServiceTest {
-  private MapService instance;
-  private Map mapProperties;
-
   @Rule
   public final TemporaryFolder temporaryDirectory = new TemporaryFolder();
   @Rule
   public final TemporaryFolder finalDirectory = new TemporaryFolder();
   @Rule
   public final ExpectedException expectedException = ExpectedException.none();
-
   private final MapRepository mapRepository = mock(MapRepository.class);
   private final FafApiProperties fafApiProperties = mock(FafApiProperties.class);
   private final ContentService contentService = mock(ContentService.class);
   private final Player author = mock(Player.class);
+  private MapService instance;
+  private Map mapProperties;
 
   @Before
   public void setUp() {
@@ -276,7 +274,6 @@ public class MapServiceTest {
             FileAssert.assertEquals("Difference in " + expectedFile.getFileName().toString(),
                 expectedFile.toFile(),
                 finalGeneratedFile.resolve(expectedFile.getFileName().toString()).toFile())
-
         );
 
         assertTrue(Files.exists(mapProperties.getFolderPreviewPathLarge().resolve("sludge_test.v0001.png")));
@@ -284,7 +281,6 @@ public class MapServiceTest {
       }
     }
   }
-
 
   private InputStream loadMapResourceAsStream(String filename) {
     return MapServiceTest.class.getResourceAsStream("/maps/" + filename);

@@ -13,6 +13,8 @@ import javax.persistence.Transient;
 @Immutable
 @Entity
 @EntityListeners(FeaturedModFileEnricher.class)
+// Thanks to the dynamic table nature of the legacy updater, this class is not mapped to an underlying database but
+// a native query instead. This is why the columns here can't be found in any table.
 public class FeaturedModFile {
 
   private int id;
@@ -22,6 +24,7 @@ public class FeaturedModFile {
   private short version;
   private String url;
   private String folderName;
+  private int fileId;
 
   @Id
   @Column(name = "id")
@@ -49,6 +52,11 @@ public class FeaturedModFile {
     return version;
   }
 
+  @Column(name = "fileId")
+  public int getFileId() {
+    return fileId;
+  }
+
   @Transient
   // Enriched by FeaturedModFileEnricher
   public String getUrl() {
@@ -56,8 +64,8 @@ public class FeaturedModFile {
   }
 
   /**
-   * Returns the name of the folder in which the file resides (e.g. {@code updates_faf_files}). Used by the
-   * FeaturedModFileEnricher.
+   * Returns the name of the folder on the server in which the file resides (e.g. {@code updates_faf_files}). Used by
+   * the {@link FeaturedModFileEnricher}.
    */
   @Column(name = "folderName")
   public String getFolderName() {
