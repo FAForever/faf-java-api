@@ -28,4 +28,12 @@ public class LeaderboardService {
   public List<GlobalLeaderboardEntry> getGlobalLeaderboard() {
     return globalLeaderboardRepository.getLeaderboard();
   }
+
+  public GlobalLeaderboardEntry getGlobalEntry(int playerId) {
+    return globalLeaderboardRepository.findByPlayerId(playerId);
+  }
+
+  public Ladder1v1LeaderboardEntry getLadder1v1Entry(int playerId) {
+    return ladder1v1LeaderboardRepository.findByPlayerId(playerId);
+  }
 }
