@@ -39,6 +39,17 @@ public class JsonApiController {
     this.elide = elide;
   }
 
+  private static Object getPrincipal(final Authentication authentication) {
+    return authentication != null ? authentication.getPrincipal() : null;
+  }
+
+  public static Map<String, Serializable> errorResponse(String title, String message) {
+    ImmutableMap<String, Serializable> error = ImmutableMap.of(
+        "title", title,
+        "detail", message);
+    return ImmutableMap.of("errors", new ImmutableMap[]{error});
+  }
+
   @CrossOrigin(origins = "*")
   @RequestMapping(
       method = RequestMethod.GET,
@@ -113,10 +124,6 @@ public class JsonApiController {
     return ResponseEntity.status(response.getResponseCode()).body(response.getBody());
   }
 
-  private static Object getPrincipal(final Authentication authentication) {
-    return authentication != null ? authentication.getPrincipal() : null;
-  }
-
   private String getJsonApiPath(HttpServletRequest request) {
     return ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).replace(PATH_PREFIX, "");
   }
@@ -126,12 +133,5 @@ public class JsonApiController {
   @ResponseBody
   public Map<String, Serializable> processValidationError(ValidationException ex) {
     return errorResponse(ErrorCode.VALIDATION_FAILED.getTitle(), ex.getMessage());
-  }
-
-  private Map<String, Serializable> errorResponse(String title, String message) {
-    ImmutableMap<String, Serializable> error = ImmutableMap.of(
-        "title", title,
-        "detail", message);
-    return ImmutableMap.of("errors", new ImmutableMap[]{error});
   }
 }

@@ -11,7 +11,6 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.user.UserRepository;
-import lombok.SneakyThrows;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
@@ -33,6 +32,7 @@ import javax.servlet.Filter;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static com.github.nocatch.NoCatch.noCatch;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -44,24 +44,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class JsonApiClanTest {
+  private static final String OAUTH_CLIENT_ID = "1234";
+  private static final String OAUTH_SECRET = "secret";
   private MockMvc mvc;
   private WebApplicationContext context;
   private Filter springSecurityFilterChain;
-
   private ClanRepository clanRepository;
   private UserRepository userRepository;
   private ClanMembershipRepository clanMembershipRepository;
   private PlayerRepository playerRepository;
   private OAuthClientRepository oAuthClientRepository;
-
-
   private ObjectMapper objectMapper;
   private ShaPasswordEncoder shaPasswordEncoder;
-
   private Player me;
-
-  private static final String OAUTH_CLIENT_ID = "1234";
-  private static final String OAUTH_SECRET = "secret";
 
   public JsonApiClanTest() {
     objectMapper = new ObjectMapper();
@@ -106,8 +101,7 @@ public class JsonApiClanTest {
     assertEquals(0, oAuthClientRepository.count());
   }
 
-  @SneakyThrows
-  public String createUserAndGetAccessToken(String login, String password) {
+  public String createUserAndGetAccessToken(String login, String password) throws Exception {
     OAuthClient client = new OAuthClient()
         .setId(OAUTH_CLIENT_ID)
         .setName("test")
@@ -139,7 +133,7 @@ public class JsonApiClanTest {
     return "Bearer " + node.get("access_token").asText();
   }
 
-  private Player createPlayer(String login) {
+  private Player createPlayer(String login) throws Exception {
     User user = (User) new User()
         .setPassword("foo")
         .setLogin(login)
@@ -149,8 +143,7 @@ public class JsonApiClanTest {
   }
 
   @Test
-  @SneakyThrows
-  public void cannotKickLeaderFromClan() {
+  public void cannotKickLeaderFromClan() throws Exception {
     String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
 
     Clan clan = new Clan().setLeader(me).setTag("123").setName("abcClanName");
@@ -167,8 +160,7 @@ public class JsonApiClanTest {
   }
 
   @Test
-  @SneakyThrows
-  public void cannotKickAsMember() {
+  public void cannotKickAsMember() throws Exception {
     String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
 
     Player bob = createPlayer("Bob");
@@ -187,8 +179,7 @@ public class JsonApiClanTest {
   }
 
   @Test
-  @SneakyThrows
-  public void canKickMember() {
+  public void canKickMember() throws Exception {
     String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
 
     Player bob = createPlayer("Bob");
@@ -206,10 +197,9 @@ public class JsonApiClanTest {
   }
 
   @Test
-  @SneakyThrows
-  public void getFilteredPlayerForClanInvite() {
+  public void getFilteredPlayerForClanInvite() throws Exception {
     String[] players = new String[]{"Dragonfire", "DRAGON", "Fire of Dragon", "d r a g o n", "firedragon"};
-    Arrays.stream(players).forEach(name -> createPlayer(name));
+    Arrays.stream(players).forEach(name -> noCatch(() -> createPlayer(name)));
     assertEquals(players.length, playerRepository.count());
     ResultActions action = this.mvc.perform(get("/data/player?filter[player.lowerCaseLogin][prefix]=dragon&sort=lowerCaseLogin"));
     JsonNode node = objectMapper.readTree(action.andReturn().getResponse().getContentAsString());
@@ -221,7 +211,7 @@ public class JsonApiClanTest {
     action.andExpect(status().isOk());
   }
 
-  private String generateTransferLeadershipContent(int clanId, int newLeaderId) {
+  private String generateTransferLeadershipContent(int clanId, int newLeaderId) throws Exception {
     ObjectNode node = this.objectMapper.createObjectNode();
     ObjectNode data = this.objectMapper.createObjectNode();
     ObjectNode relationships = this.objectMapper.createObjectNode();
@@ -241,8 +231,7 @@ public class JsonApiClanTest {
   }
 
   @Test
-  @SneakyThrows
-  public void transferLeadership() {
+  public void transferLeadership() throws Exception {
     String accessToken = createUserAndGetAccessToken("Leader", "foo");
 
     Player bob = createPlayer("Bob");
@@ -268,8 +257,7 @@ public class JsonApiClanTest {
   }
 
   @Test
-  @SneakyThrows
-  public void transferLeadershipToOldLeader() {
+  public void transferLeadershipToOldLeader() throws Exception {
     String accessToken = createUserAndGetAccessToken("Leader", "foo");
 
     Clan clan = new Clan().setLeader(me).setTag("123").setName("abcClanName");
@@ -293,8 +281,7 @@ public class JsonApiClanTest {
   }
 
   @Test
-  @SneakyThrows
-  public void transferLeadershipToNonClanMember() {
+  public void transferLeadershipToNonClanMember() throws Exception {
     String accessToken = createUserAndGetAccessToken("Leader", "foo");
 
     Player bob = createPlayer("Bob");
@@ -323,8 +310,7 @@ public class JsonApiClanTest {
   }
 
   @Test
-  @SneakyThrows
-  public void transferLeadershipAsNonLeader() {
+  public void transferLeadershipAsNonLeader() throws Exception {
     String accessToken = createUserAndGetAccessToken("Leader", "foo");
 
     Player bob = createPlayer("Bob");
@@ -353,8 +339,7 @@ public class JsonApiClanTest {
   }
 
   @Test
-  @SneakyThrows
-  public void deleteClan() {
+  public void deleteClan() throws Exception {
     String accessToken = createUserAndGetAccessToken("Leader", "foo");
 
     Clan clan = new Clan().setLeader(me).setTag("123").setName("abcClanName");

@@ -38,10 +38,9 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ClanServiceTest {
-  private ClanService instance;
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
+  private ClanService instance;
   @Mock
   private ClanRepository clanRepository;
   @Mock
@@ -61,7 +60,7 @@ public class ClanServiceTest {
   }
 
   @Test
-  public void createClanWhereLeaderIsAllreadyInAClan() {
+  public void createClanWhereLeaderIsAlreadyInAClan() {
     String clanName = "My cool Clan";
     String tag = "123";
     String description = "A cool clan for testing";
@@ -347,5 +346,4 @@ public class ClanServiceTest {
     assertEquals(newMember.getId(), captor.getValue().getPlayer().getId());
     assertEquals(clan.getId(), captor.getValue().getClan().getId());
   }
-
 }

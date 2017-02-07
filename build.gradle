@@ -151,8 +151,6 @@ dependencies {
   compile("com.github.micheljung:nocatch:${nocatchVersion}")
   compile("junit-addons:junit-addons:${junitAddonsVersion}")
   compile("com.googlecode.zohhak:zohhak:${zohhakVersion}")
-  compile("com.h2database:h2:${h2Version}")
-  compile("org.springframework.security:spring-security-test:${springSecurityTest}")
 
   runtime("mysql:mysql-connector-java:${mysqlConnectorVersion}")
 
@@ -160,4 +158,6 @@ dependencies {
 
   testCompile("org.springframework.boot:spring-boot-starter-test")
   testCompile("org.springframework.restdocs:spring-restdocs-mockmvc")
+  testCompile("org.springframework.security:spring-security-test")
+  testCompile("com.h2database:h2:${h2Version}")
 }

@@ -29,7 +29,7 @@ spring:
     active: ${API_PROFILE:dev}
 
 server:
-  port: ${API_PORT:5000}
+  port: ${API_PORT:8080}
 
 security:
   enable-csrf: true
