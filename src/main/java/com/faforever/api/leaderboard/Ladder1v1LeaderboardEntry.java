@@ -10,7 +10,7 @@ import javax.persistence.Table;
 @Setter
 @Entity
 @Table(name = "ladder1v1_rating")
-public class Ranked1v1LeaderboardEntry {
+public class Ladder1v1LeaderboardEntry {
   private int id;
   private String playerName;
   private Double mean;

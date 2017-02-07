@@ -21,11 +21,11 @@ public class LeaderboardController {
     this.leaderboardService = leaderboardService;
   }
 
-  @RequestMapping(path = "/ranked1v1")
+  @RequestMapping(path = "/ladder1v1")
   @Async
-  public CompletableFuture<JsonApiDocument> getRanked1v1() {
-    List<Resource> values = leaderboardService.getRanked1v1Leaderboard().stream()
-        .map(entry -> new Resource("ranked1v1LeaderboardEntry", String.valueOf(entry.getId()),
+  public CompletableFuture<JsonApiDocument> getLadder1v1() {
+    List<Resource> values = leaderboardService.getLadder1v1Leaderboard().stream()
+        .map(entry -> new Resource("ladder1v1LeaderboardEntry", String.valueOf(entry.getId()),
             ImmutableMap.<String, Object>builder()
                 .put("name", entry.getPlayerName())
                 .put("mean", entry.getMean())

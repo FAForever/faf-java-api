@@ -33,13 +33,13 @@ public class LeaderboardControllerTest {
   }
 
   @Test
-  public void getRanked1v1() throws Exception {
-    when(leaderboardService.getRanked1v1Leaderboard()).thenReturn(Arrays.asList(
-        new Ranked1v1LeaderboardEntry().setId(14).setPlayerName("JUnit 14").setMean(1500d).setDeviation(51d).setNumGames((short) 514).setRank(1).setWonGames((short) 270),
-        new Ranked1v1LeaderboardEntry().setId(5).setPlayerName("JUnit 5").setMean(1400d).setDeviation(67d).setNumGames((short) 65).setRank(2).setWonGames((short) 32)
+  public void getLadder1v1() throws Exception {
+    when(leaderboardService.getLadder1v1Leaderboard()).thenReturn(Arrays.asList(
+        new Ladder1v1LeaderboardEntry().setId(14).setPlayerName("JUnit 14").setMean(1500d).setDeviation(51d).setNumGames((short) 514).setRank(1).setWonGames((short) 270),
+        new Ladder1v1LeaderboardEntry().setId(5).setPlayerName("JUnit 5").setMean(1400d).setDeviation(67d).setNumGames((short) 65).setRank(2).setWonGames((short) 32)
     ));
 
-    CompletableFuture<JsonApiDocument> result = instance.getRanked1v1();
+    CompletableFuture<JsonApiDocument> result = instance.getLadder1v1();
     assertThat(result.get(), is(notNullValue()));
 
     Collection<Resource> resources = result.get().getData().get();

@@ -22,22 +22,22 @@ public class LeaderboardServiceTest {
   @Mock
   private GlobalLeaderboardRepository globalLeaderboardRepository;
   @Mock
-  private Ranked1v1LeaderboardRepository ranked1v1LeaderboardRepository;
+  private Ladder1v1LeaderboardRepository ladder1v1LeaderboardRepository;
 
   @Before
   public void setUp() throws Exception {
-    instance = new LeaderboardService(globalLeaderboardRepository, ranked1v1LeaderboardRepository);
+    instance = new LeaderboardService(globalLeaderboardRepository, ladder1v1LeaderboardRepository);
   }
 
   @Test
-  public void getRanked1v1Leaderboard() throws Exception {
-    List<Ranked1v1LeaderboardEntry> leaderboard = Collections.emptyList();
-    when(ranked1v1LeaderboardRepository.getLeaderboard()).thenReturn(leaderboard);
+  public void getLadder1v1Leaderboard() throws Exception {
+    List<Ladder1v1LeaderboardEntry> leaderboard = Collections.emptyList();
+    when(ladder1v1LeaderboardRepository.getLeaderboard()).thenReturn(leaderboard);
 
-    List<Ranked1v1LeaderboardEntry> result = instance.getRanked1v1Leaderboard();
+    List<Ladder1v1LeaderboardEntry> result = instance.getLadder1v1Leaderboard();
 
     assertThat(result, is(leaderboard));
-    verify(ranked1v1LeaderboardRepository).getLeaderboard();
+    verify(ladder1v1LeaderboardRepository).getLeaderboard();
   }
 
   @Test
