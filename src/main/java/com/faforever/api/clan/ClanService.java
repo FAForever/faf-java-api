@@ -41,14 +41,15 @@ public class ClanService {
                      FafApiProperties fafApiProperties,
                      JwtService jwtService,
                      PlayerService playerService,
-                     ClanMembershipRepository clanMembershipRepository) {
+                     ClanMembershipRepository clanMembershipRepository,
+                     ObjectMapper objectMapper) {
     this.clanRepository = clanRepository;
     this.playerRepository = playerRepository;
     this.fafApiProperties = fafApiProperties;
     this.jwtService = jwtService;
     this.playerService = playerService;
     this.clanMembershipRepository = clanMembershipRepository;
-    this.objectMapper = new ObjectMapper();
+    this.objectMapper = objectMapper;
   }
 
   @SneakyThrows
@@ -107,6 +108,7 @@ public class ClanService {
   }
 
   @SneakyThrows
+  // TODO @dragonfire don't manually read JSON values, deserialize into a Java object?
   public void acceptPlayerInvitationToken(String stringToken, Authentication authentication) {
     Jwt token = jwtService.decodeAndVerify(stringToken);
     JsonNode data = objectMapper.readTree(token.getClaims());

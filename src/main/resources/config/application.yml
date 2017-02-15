@@ -25,6 +25,9 @@ spring:
       hibernate:
         current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
         dialect: org.hibernate.dialect.MySQL5Dialect
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
   profiles:
     active: ${API_PROFILE:dev}
 

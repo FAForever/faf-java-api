@@ -5,10 +5,12 @@ import com.faforever.api.data.checks.IsAuthenticated;
 import com.faforever.api.data.checks.IsClanLeader;
 import com.faforever.api.data.checks.IsClanMembershipDeletable;
 import com.faforever.api.data.checks.IsOwner;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yahoo.elide.Elide;
 import com.yahoo.elide.audit.Slf4jLogger;
 import com.yahoo.elide.core.EntityDictionary;
 import com.yahoo.elide.datastores.hibernate5.HibernateStore;
+import com.yahoo.elide.jsonapi.JsonApiMapper;
 import com.yahoo.elide.security.checks.Check;
 import org.hibernate.SessionFactory;
 import org.springframework.cache.CacheManager;
@@ -29,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ElideConfig {
 
   @Bean
-  public Elide elide(EntityManagerFactory entityManagerFactory) {
+  public Elide elide(EntityManagerFactory entityManagerFactory, ObjectMapper objectMapper) {
     ConcurrentHashMap<String, Class<? extends Check>> checks = new ConcurrentHashMap<>();
     checks.put(IsAuthenticated.EXPRESSION, IsAuthenticated.Inline.class);
     checks.put(IsOwner.EXPRESSION, IsOwner.Inline.class);
@@ -42,6 +44,7 @@ public class ElideConfig {
 //    RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary);
 
     return new Elide.Builder(new HibernateStore(entityManagerFactory.unwrap(SessionFactory.class)))
+        .withJsonApiMapper(new JsonApiMapper(entityDictionary, objectMapper))
         .withAuditLogger(new Slf4jLogger())
         .withEntityDictionary(entityDictionary)
 //        .withJoinFilterDialect(rsqlFilterDialect)

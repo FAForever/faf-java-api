@@ -1,7 +1,7 @@
 package com.faforever.api.authentication;
 
 import com.faforever.api.config.FafApiProperties;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.MacSigner;
@@ -18,9 +18,9 @@ public class JwtService {
   private final ObjectMapper objectMapper;
 
   @Inject
-  public JwtService(FafApiProperties fafApiProperties) {
-    this.objectMapper = new ObjectMapper();
+  public JwtService(FafApiProperties fafApiProperties, ObjectMapper objectMapper) {
     this.macSigner = new MacSigner(fafApiProperties.getJwtSecret());
+    this.objectMapper = objectMapper;
   }
 
   public String sign(Map<String, Serializable> data) throws IOException {

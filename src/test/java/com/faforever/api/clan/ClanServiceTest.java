@@ -11,6 +11,7 @@ import com.faforever.api.error.ErrorCode;
 import com.faforever.api.error.ProgrammingError;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.player.PlayerService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -56,7 +57,7 @@ public class ClanServiceTest {
 
   @Before
   public void setUp() throws Exception {
-    instance = new ClanService(clanRepository, playerRepository, fafApiProperties, jwtService, playerService, clanMembershipRepository);
+    instance = new ClanService(clanRepository, playerRepository, fafApiProperties, jwtService, playerService, clanMembershipRepository, new ObjectMapper());
   }
 
   @Test

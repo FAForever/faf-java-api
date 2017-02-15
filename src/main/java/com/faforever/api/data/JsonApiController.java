@@ -28,12 +28,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(path = JsonApiController.PATH_PREFIX)
+@CrossOrigin(origins = "*")
 public class JsonApiController {
 
   public static final String PATH_PREFIX = "/data";
   private static final String JSON_API_MEDIA_TYPE = "application/vnd.api+json";
 
-  private Elide elide;
+  private final Elide elide;
 
   public JsonApiController(Elide elide) {
     this.elide = elide;
@@ -50,7 +51,6 @@ public class JsonApiController {
     return ImmutableMap.of("errors", new ImmutableMap[]{error});
   }
 
-  @CrossOrigin(origins = "*")
   @RequestMapping(
       method = RequestMethod.GET,
       produces = JSON_API_MEDIA_TYPE,
@@ -65,10 +65,9 @@ public class JsonApiController {
         new MultivaluedHashMap<>(allRequestParams),
         getPrincipal(authentication)
     );
-    return encodeResponse(response);
+    return wrapResponse(response);
   }
 
-  @CrossOrigin(origins = "*") // this is needed otherwise I get always an Invalid CORS Request message
   @RequestMapping(
       method = RequestMethod.POST,
       produces = JSON_API_MEDIA_TYPE,
@@ -83,10 +82,9 @@ public class JsonApiController {
         body,
         getPrincipal(authentication)
     );
-    return encodeResponse(response);
+    return wrapResponse(response);
   }
 
-  @CrossOrigin(origins = "*") // this is needed otherwise I get always an Invalid CORS Request message
   @RequestMapping(
       method = RequestMethod.PATCH,
       produces = JSON_API_MEDIA_TYPE,
@@ -101,10 +99,9 @@ public class JsonApiController {
         body,
         getPrincipal(authentication)
     );
-    return encodeResponse(response);
+    return wrapResponse(response);
   }
 
-  @CrossOrigin(origins = "*") // this is needed otherwise I get always an Invalid CORS Request message
   @RequestMapping(
       method = RequestMethod.DELETE,
       produces = JSON_API_MEDIA_TYPE,
@@ -117,10 +114,10 @@ public class JsonApiController {
         null,
         getPrincipal(authentication)
     );
-    return encodeResponse(response);
+    return wrapResponse(response);
   }
 
-  private ResponseEntity<String> encodeResponse(ElideResponse response) {
+  private ResponseEntity<String> wrapResponse(ElideResponse response) {
     return ResponseEntity.status(response.getResponseCode()).body(response.getBody());
   }
 
