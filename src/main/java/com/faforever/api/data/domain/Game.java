@@ -13,7 +13,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.sql.Timestamp;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Entity
@@ -24,7 +24,7 @@ import java.util.List;
 public class Game {
 
   private int id;
-  private Timestamp startTime;
+  private OffsetDateTime startTime;
   private VictoryCondition victoryCondition;
   private FeaturedMod featuredMod;
   private Player host;
@@ -40,7 +40,7 @@ public class Game {
   }
 
   @Column(name = "startTime")
-  public Timestamp getStartTime() {
+  public OffsetDateTime getStartTime() {
     return startTime;
   }
 

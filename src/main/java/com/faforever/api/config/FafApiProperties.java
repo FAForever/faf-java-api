@@ -19,6 +19,7 @@ public class FafApiProperties {
   private OAuth2 oAuth2 = new OAuth2();
   private Async async = new Async();
   private Map map = new Map();
+  private Mod mod = new Mod();
   private Clan clan = new Clan();
   private FeaturedMods featuredMods = new FeaturedMods();
 
@@ -46,15 +47,21 @@ public class FafApiProperties {
   @Data
   public static class Map {
 
-    private String smallPreviewsUrlFormat = "http://content.faforever.com/faf/map_previews/small/%s";
-    private String largePreviewsUrlFormat = "http://content.faforever.com/faf/map_previews/large/%s";
+    private String smallPreviewsUrlFormat = "http://content.faforever.com/faf/vault/map_previews/small/%s";
+    private String largePreviewsUrlFormat = "http://content.faforever.com/faf/vault/map_previews/large/%s";
     private String downloadUrlFormat = "http://content.faforever.com/faf/vault/maps/%s";
     private Path folderZipFiles = Paths.get("/content/faf/vault/maps");
     private Path folderPreviewPathSmall = Paths.get("/content/faf/vault/map_previews/small");
     private Path folderPreviewPathLarge = Paths.get("/content/faf/vault/map_previews/large");
     private int previewSizeSmall = 128;
     private int previewSizeLarge = 512;
-    private String[] allowedExtensions = new String[]{"zip"};
+    private String[] allowedExtensions = {"zip"};
+  }
+
+  @Data
+  public static class Mod {
+    private String previewUrlFormat = "http://content.faforever.com/faf/vault/mods_thumbs/%s";
+    private String downloadUrlFormat = "http://content.faforever.com/faf/vault/mods/%s";
   }
 
   @Data

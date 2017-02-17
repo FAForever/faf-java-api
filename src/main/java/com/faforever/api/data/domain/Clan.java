@@ -23,7 +23,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.sql.Timestamp;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Entity
@@ -37,8 +37,8 @@ import java.util.List;
 public class Clan {
 
   private int id;
-  private Timestamp createTime;
-  private Timestamp updateTime;
+  private OffsetDateTime createTime;
+  private OffsetDateTime updateTime;
   private String name;
   private String tag;
   private Player founder;
@@ -55,12 +55,12 @@ public class Clan {
   }
 
   @Column(name = "create_time")
-  public Timestamp getCreateTime() {
+  public OffsetDateTime getCreateTime() {
     return createTime;
   }
 
   @Column(name = "update_time")
-  public Timestamp getUpdateTime() {
+  public OffsetDateTime getUpdateTime() {
     return updateTime;
   }
 

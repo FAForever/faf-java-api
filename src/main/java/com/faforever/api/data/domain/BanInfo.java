@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.sql.Timestamp;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "lobby_ban")
@@ -20,7 +20,7 @@ public class BanInfo {
   private int id;
   private Player player;
   private String reason;
-  private Timestamp expiresAt;
+  private OffsetDateTime expiresAt;
 
   @Id
   @Column(name = "idUser")
@@ -40,7 +40,7 @@ public class BanInfo {
   }
 
   @Column(name = "expires_at")
-  public Timestamp getExpiresAt() {
+  public OffsetDateTime getExpiresAt() {
     return expiresAt;
   }
 }

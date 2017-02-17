@@ -26,11 +26,14 @@ public class CacheConfig {
   public CacheManager cacheManager() {
     SimpleCacheManager cacheManager = new SimpleCacheManager();
     cacheManager.setCaches(Arrays.asList(
-        // Elide caches
+        // Elide caches. Cache names equal the type name, except "default" which is the fallback.
+        // TODO use constants for type names
         new GuavaCache("default", newBuilder().expireAfterWrite(5, SECONDS).build()),
         new GuavaCache("achievement", newBuilder().expireAfterWrite(60, MINUTES).build()),
-        new GuavaCache("eventDefinition", newBuilder().expireAfterWrite(60, MINUTES).build()),
         new GuavaCache("achievementDefinition", newBuilder().expireAfterWrite(60, MINUTES).build()),
+        new GuavaCache("eventDefinition", newBuilder().expireAfterWrite(60, MINUTES).build()),
+        new GuavaCache("map", newBuilder().expireAfterWrite(1, MINUTES).build()),
+        new GuavaCache("mapVersion", newBuilder().expireAfterWrite(1, MINUTES).build()),
         // Other caches
         new GuavaCache(LEADERBOARD_RANKED_1V1_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
         new GuavaCache(LEADERBOARD_GLOBAL_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),

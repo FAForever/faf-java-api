@@ -10,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.sql.Timestamp;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "game_player_stats")
@@ -31,7 +31,7 @@ public class GamePlayerStats {
   private Double afterMean;
   private Double afterDeviation;
   private byte score;
-  private Timestamp scoreTime;
+  private OffsetDateTime scoreTime;
   private Game game;
 
   @Id
@@ -97,7 +97,7 @@ public class GamePlayerStats {
   }
 
   @Column(name = "scoreTime")
-  public Timestamp getScoreTime() {
+  public OffsetDateTime getScoreTime() {
     return scoreTime;
   }
 

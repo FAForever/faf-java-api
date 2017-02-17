@@ -13,7 +13,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.sql.Timestamp;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "player_achievements")
@@ -24,8 +24,8 @@ public class PlayerAchievement {
   private int id;
   private Integer currentSteps;
   private AchievementState state;
-  private Timestamp createTime;
-  private Timestamp updateTime;
+  private OffsetDateTime createTime;
+  private OffsetDateTime updateTime;
   private Player player;
   private AchievementDefinition achievement;
 
@@ -48,12 +48,12 @@ public class PlayerAchievement {
   }
 
   @Column(name = "create_time")
-  public Timestamp getCreateTime() {
+  public OffsetDateTime getCreateTime() {
     return createTime;
   }
 
   @Column(name = "update_time")
-  public Timestamp getUpdateTime() {
+  public OffsetDateTime getUpdateTime() {
     return updateTime;
   }
 

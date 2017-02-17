@@ -6,8 +6,7 @@ import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.sql.Timestamp;
-import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 
 import static java.util.Collections.singletonList;
@@ -29,6 +28,6 @@ public class FafUserDetails extends org.springframework.security.core.userdetail
 
   private static boolean isNonLocked(BanInfo banInfo) {
     return banInfo == null
-        || banInfo.getExpiresAt().before(Timestamp.from(Instant.now()));
+        || banInfo.getExpiresAt().isBefore(OffsetDateTime.now());
   }
 }

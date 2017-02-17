@@ -13,7 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.sql.Timestamp;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "clan_membership")
@@ -23,8 +23,8 @@ import java.sql.Timestamp;
 public class ClanMembership {
 
   private int id;
-  private Timestamp createTime;
-  private Timestamp updateTime;
+  private OffsetDateTime createTime;
+  private OffsetDateTime updateTime;
   private Clan clan;
   private Player player;
 
@@ -48,12 +48,12 @@ public class ClanMembership {
   }
 
   @Column(name = "create_time")
-  public Timestamp getCreateTime() {
+  public OffsetDateTime getCreateTime() {
     return createTime;
   }
 
   @Column(name = "update_time")
-  public Timestamp getUpdateTime() {
+  public OffsetDateTime getUpdateTime() {
     return updateTime;
   }
 }

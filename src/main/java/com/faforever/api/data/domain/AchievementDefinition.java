@@ -15,7 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.sql.Timestamp;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "achievement_definitions")
@@ -34,8 +34,8 @@ public class AchievementDefinition {
   private String unlockedIconUrl;
   private AchievementState initialState;
   private int experiencePoints;
-  private Timestamp createTime;
-  private Timestamp updateTime;
+  private OffsetDateTime createTime;
+  private OffsetDateTime updateTime;
   private AchievementStatistics statistics;
 
   // Set by AchievementLocalizationListener
@@ -110,12 +110,12 @@ public class AchievementDefinition {
   }
 
   @Column(name = "create_time")
-  public Timestamp getCreateTime() {
+  public OffsetDateTime getCreateTime() {
     return createTime;
   }
 
   @Column(name = "update_time")
-  public Timestamp getUpdateTime() {
+  public OffsetDateTime getUpdateTime() {
     return updateTime;
   }
 

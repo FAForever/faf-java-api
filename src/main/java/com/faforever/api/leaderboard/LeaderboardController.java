@@ -38,7 +38,7 @@ public class LeaderboardController {
                 .put("numGames", entry.getNumGames())
                 .put("wonGames", entry.getWonGames())
                 .put("rank", entry.getRank())
-                .put("rating", entry.getMean() - 3 * entry.getDeviation())
+                .put("rating", (int) (entry.getMean() - 3 * entry.getDeviation()))
                 .build(),
             null, null, null))
         .collect(Collectors.toList());
@@ -57,7 +57,7 @@ public class LeaderboardController {
                 .put("deviation", entry.getDeviation())
                 .put("numGames", entry.getNumGames())
                 .put("rank", entry.getRank())
-                .put("rating", entry.getMean() - 3 * entry.getDeviation())
+                .put("rating", (int) (entry.getMean() - 3 * entry.getDeviation()))
                 .build(),
             null, null, null))
         .collect(Collectors.toList());
@@ -73,13 +73,14 @@ public class LeaderboardController {
       throw new ResourceNotFoundException();
     }
 
-    Resource resource = new Resource(GLOBAL_LEADERBOARD_ENTRY, playerId, ImmutableMap.<String, Object>builder()
+    Resource resource = new Resource(LADDER_1V1_LEADERBOARD_ENTRY, playerId, ImmutableMap.<String, Object>builder()
         .put("name", entry.getPlayerName())
         .put("mean", entry.getMean())
         .put("deviation", entry.getDeviation())
         .put("numGames", entry.getNumGames())
+        .put("wonGames", entry.getWonGames())
         .put("rank", entry.getRank())
-        .put("rating", entry.getMean() - 3 * entry.getDeviation())
+        .put("rating", (int) (entry.getMean() - 3 * entry.getDeviation()))
         .build(),
         null, null, null);
 
@@ -100,7 +101,7 @@ public class LeaderboardController {
         .put("deviation", entry.getDeviation())
         .put("numGames", entry.getNumGames())
         .put("rank", entry.getRank())
-        .put("rating", entry.getMean() - 3 * entry.getDeviation())
+        .put("rating", (int) (entry.getMean() - 3 * entry.getDeviation()))
         .build(),
         null, null, null);
 

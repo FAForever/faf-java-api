@@ -49,22 +49,22 @@ public class LeaderboardControllerTest {
     Resource firstEntry = iterator.next();
     assertThat(firstEntry.getId(), is("14"));
     assertThat(firstEntry.getAttributes().get("name"), is("JUnit 14"));
-    assertThat(firstEntry.getAttributes().get("mean"), is(1500d));
-    assertThat(firstEntry.getAttributes().get("deviation"), is(51d));
+    assertThat(firstEntry.getAttributes().get("mean"), is(1500f));
+    assertThat(firstEntry.getAttributes().get("deviation"), is(51f));
     assertThat(firstEntry.getAttributes().get("numGames"), is((short) 514));
     assertThat(firstEntry.getAttributes().get("wonGames"), is((short) 270));
     assertThat(firstEntry.getAttributes().get("rank"), is(1));
-    assertThat(firstEntry.getAttributes().get("rating"), is(1347.0));
+    assertThat(firstEntry.getAttributes().get("rating"), is(1347));
 
     Resource secondEntry = iterator.next();
     assertThat(secondEntry.getId(), is("5"));
     assertThat(secondEntry.getAttributes().get("name"), is("JUnit 5"));
-    assertThat(secondEntry.getAttributes().get("mean"), is(1400d));
-    assertThat(secondEntry.getAttributes().get("deviation"), is(67d));
+    assertThat(secondEntry.getAttributes().get("mean"), is(1400f));
+    assertThat(secondEntry.getAttributes().get("deviation"), is(67f));
     assertThat(secondEntry.getAttributes().get("numGames"), is((short) 65));
     assertThat(secondEntry.getAttributes().get("wonGames"), is((short) 32));
     assertThat(secondEntry.getAttributes().get("rank"), is(2));
-    assertThat(secondEntry.getAttributes().get("rating"), is(1199d));
+    assertThat(secondEntry.getAttributes().get("rating"), is(1199));
   }
 
   @Test
@@ -84,19 +84,19 @@ public class LeaderboardControllerTest {
     Resource firstEntry = iterator.next();
     assertThat(firstEntry.getId(), is("14"));
     assertThat(firstEntry.getAttributes().get("name"), is("JUnit 14"));
-    assertThat(firstEntry.getAttributes().get("mean"), is(1500d));
-    assertThat(firstEntry.getAttributes().get("deviation"), is(51d));
+    assertThat(firstEntry.getAttributes().get("mean"), is(1500f));
+    assertThat(firstEntry.getAttributes().get("deviation"), is(51f));
     assertThat(firstEntry.getAttributes().get("numGames"), is((short) 514));
     assertThat(firstEntry.getAttributes().get("rank"), is(1));
-    assertThat(firstEntry.getAttributes().get("rating"), is(1347.0));
+    assertThat(firstEntry.getAttributes().get("rating"), is(1347));
 
     Resource secondEntry = iterator.next();
     assertThat(secondEntry.getId(), is("5"));
     assertThat(secondEntry.getAttributes().get("name"), is("JUnit 5"));
-    assertThat(secondEntry.getAttributes().get("mean"), is(1400d));
-    assertThat(secondEntry.getAttributes().get("deviation"), is(67d));
+    assertThat(secondEntry.getAttributes().get("mean"), is(1400f));
+    assertThat(secondEntry.getAttributes().get("deviation"), is(67f));
     assertThat(secondEntry.getAttributes().get("numGames"), is((short) 65));
     assertThat(secondEntry.getAttributes().get("rank"), is(2));
-    assertThat(secondEntry.getAttributes().get("rating"), is(1199d));
+    assertThat(secondEntry.getAttributes().get("rating"), is(1199));
   }
 }

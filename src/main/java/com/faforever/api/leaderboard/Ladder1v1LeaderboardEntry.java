@@ -13,8 +13,8 @@ import javax.persistence.Table;
 public class Ladder1v1LeaderboardEntry {
   private int id;
   private String playerName;
-  private Double mean;
-  private Double deviation;
+  private Float mean;
+  private Float deviation;
   private short numGames;
   private short wonGames;
   private int rank;
@@ -31,12 +31,12 @@ public class Ladder1v1LeaderboardEntry {
   }
 
   @Column(name = "mean")
-  public Double getMean() {
+  public Float getMean() {
     return mean;
   }
 
   @Column(name = "deviation")
-  public Double getDeviation() {
+  public Float getDeviation() {
     return deviation;
   }
 
