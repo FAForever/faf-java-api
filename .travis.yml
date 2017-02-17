@@ -9,15 +9,35 @@ git:
 
 before_install:
   - sudo /etc/init.d/mysql stop
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/1.10.0/docker-compose-`uname -s`-`uname -m` > /tmp/docker-compose
+  - chmod +x /tmp/docker-compose
+  - sudo mv /tmp/docker-compose /usr/local/bin
+  - curl -sL https://github.com/jpm4j/jpm4j.installers/raw/master/dist/biz.aQute.jpm.run.jar >jpm4j.jar
+  - java -jar jpm4j.jar -u init
+  - ~/jpm/bin/jpm install com.codacy:codacy-coverage-reporter:assembly
 
 install:
-  - git clone https://github.com/FAForever/db.git
-  - pushd db && ./setup_db.sh && popd
+  - git clone https://github.com/FAForever/faf-stack.git
+  - docker-compose -f faf-stack/docker-compose.yml up -d faf-db
 
 script:
   - chmod +x gradlew && ./gradlew build --info
 
 after_success:
+  - ./gradlew jacocoTestReport coveralls
   - if [ "${TRAVIS_BRANCH}" == "master" ]; then
-      ./gradlew jacocoTestReport coveralls pushDockerImage;
+      ./gradlew pushDockerImage;
     fi
+  - if [ "${TRAVIS_BRANCH}" == "develop" ]; then
+      ~/jpm/bin/codacy-coverage-reporter -l Java -r build/reports/jacoco/test/jacocoTestReport.xml;
+    fi
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/

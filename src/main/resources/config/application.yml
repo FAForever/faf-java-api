@@ -1,5 +1,9 @@
 faf-api:
   version: #faf-api.version#
+  map:
+    folder-zip-files: ${MAP_UPLOAD_PATH:/content/faf/vault/maps}
+    folder-preview-path-small: ${MAP_PREVIEW_PATH_SMALL:/content/faf/vault/map_previews/small}
+    folder-preview-path-large: ${MAP_PREVIEW_PATH_LARGE:/content/faf/vault/map_previews/large}
 
 spring:
   application:
@@ -21,16 +25,20 @@ spring:
       hibernate:
         current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
         dialect: org.hibernate.dialect.MySQL5Dialect
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
   profiles:
     active: ${API_PROFILE:dev}
 
 server:
-  port: 8080
+  port: ${API_PORT:8010}
 
 security:
   enable-csrf: true
 
 management:
+  context-path: /management
   port: 8081
   security:
     enabled: false

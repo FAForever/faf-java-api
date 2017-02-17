@@ -9,7 +9,3 @@ spring:
     password: ${DATABASE_PASSWORD}
   jpa:
     show-sql: false
-
-management:
-  security:
-    roles: ADMIN

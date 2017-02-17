@@ -1,166 +1,144 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.listeners.MapVersionEnricher;
+import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
+import lombok.Setter;
 
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.sql.Timestamp;
-import java.util.Objects;
+import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
+import java.time.OffsetDateTime;
 
 @Entity
+@Setter
+@EntityListeners(MapVersionEnricher.class)
 @Table(name = "map_version")
-@Include(rootLevel = true, type = "map_version")
+@Include(rootLevel = true, type = "mapVersion")
 public class MapVersion {
 
-  private Integer id;
+  private int id;
   private String description;
-  private Integer maxPlayers;
+  private int maxPlayers;
   private int width;
   private int height;
   private int version;
   private String filename;
-  private byte ranked;
-  private byte hidden;
-  private Timestamp createTime;
-  private Timestamp updateTime;
+  private String folderName;
+  private boolean ranked;
+  private boolean hidden;
+  private OffsetDateTime createTime;
+  private OffsetDateTime updateTime;
+  private Map map;
+  private MapVersionStatistics statistics;
+  private String thumbnailUrlSmall;
+  private String thumbnailUrlLarge;
+  private String downloadUrl;
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  public Integer getId() {
+  public int getId() {
     return id;
   }
 
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  @Basic
   @Column(name = "description")
   public String getDescription() {
     return description;
   }
 
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  @Basic
   @Column(name = "max_players")
-  public Integer getMaxPlayers() {
+  @NotNull
+  public int getMaxPlayers() {
     return maxPlayers;
   }
 
-  public void setMaxPlayers(Integer maxPlayers) {
-    this.maxPlayers = maxPlayers;
-  }
-
-  @Basic
   @Column(name = "width")
+  // FIXME: validation
   public int getWidth() {
     return width;
   }
 
-  public void setWidth(int width) {
-    this.width = width;
-  }
-
-  @Basic
   @Column(name = "height")
+  // FIXME: validation
   public int getHeight() {
     return height;
   }
 
-  public void setHeight(int height) {
-    this.height = height;
-  }
-
-  @Basic
   @Column(name = "version")
+  // FIXME: validation
   public int getVersion() {
     return version;
   }
 
-  public void setVersion(int version) {
-    this.version = version;
-  }
-
-  @Basic
   @Column(name = "filename")
+  @NotNull
   public String getFilename() {
     return filename;
   }
 
-  public void setFilename(String filename) {
-    this.filename = filename;
-  }
-
-  @Basic
   @Column(name = "ranked")
-  public byte getRanked() {
+  public boolean isRanked() {
     return ranked;
   }
 
-  public void setRanked(byte ranked) {
-    this.ranked = ranked;
-  }
-
-  @Basic
   @Column(name = "hidden")
-  public byte getHidden() {
+  public boolean isHidden() {
     return hidden;
   }
 
-  public void setHidden(byte hidden) {
-    this.hidden = hidden;
-  }
-
-  @Basic
   @Column(name = "create_time")
-  public Timestamp getCreateTime() {
+  public OffsetDateTime getCreateTime() {
     return createTime;
   }
 
-  public void setCreateTime(Timestamp createTime) {
-    this.createTime = createTime;
-  }
-
-  @Basic
   @Column(name = "update_time")
-  public Timestamp getUpdateTime() {
+  public OffsetDateTime getUpdateTime() {
     return updateTime;
   }
 
-  public void setUpdateTime(Timestamp updateTime) {
-    this.updateTime = updateTime;
+  @ManyToOne
+  @JoinColumn(name = "map_id")
+  @NotNull
+  public Map getMap() {
+    return this.map;
   }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, description, maxPlayers, width, height, version, filename, ranked, hidden, createTime, updateTime);
+  @OneToOne(mappedBy = "mapVersion")
+  public MapVersionStatistics getStatistics() {
+    return statistics;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    MapVersion that = (MapVersion) o;
-    return width == that.width &&
-        height == that.height &&
-        version == that.version &&
-        ranked == that.ranked &&
-        hidden == that.hidden &&
-        Objects.equals(id, that.id) &&
-        Objects.equals(description, that.description) &&
-        Objects.equals(maxPlayers, that.maxPlayers) &&
-        Objects.equals(filename, that.filename) &&
-        Objects.equals(createTime, that.createTime) &&
-        Objects.equals(updateTime, that.updateTime);
+  @Transient
+  @ComputedAttribute
+  public String getThumbnailUrlSmall() {
+    return thumbnailUrlSmall;
+  }
+
+  @Transient
+  @ComputedAttribute
+  public String getThumbnailUrlLarge() {
+    return thumbnailUrlLarge;
+  }
+
+  @Transient
+  @ComputedAttribute
+  public String getDownloadUrl() {
+    return downloadUrl;
+  }
+
+  @Transient
+  @ComputedAttribute
+  public String getFolderName() {
+    return folderName;
   }
 }

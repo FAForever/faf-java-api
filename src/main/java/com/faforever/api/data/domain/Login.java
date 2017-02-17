@@ -1,9 +1,10 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.config.elide.checks.IsOwner;
+import com.faforever.api.data.checks.IsOwner;
 import com.yahoo.elide.annotation.ReadPermission;
+import lombok.Setter;
+import org.hibernate.annotations.Formula;
 
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -14,6 +15,7 @@ import javax.persistence.OneToOne;
 
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.JOINED)
+@Setter
 public abstract class Login {
 
   private int id;
@@ -21,7 +23,8 @@ public abstract class Login {
   private String eMail;
   private String steamId;
   private String userAgent;
-  private BanDetails banDetails;
+  private BanInfo banInfo;
+  private String lowerCaseLogin;
 
   @Id
   @GeneratedValue
@@ -29,58 +32,36 @@ public abstract class Login {
     return id;
   }
 
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  @Basic
   @Column(name = "login")
   public String getLogin() {
     return login;
   }
 
-  public void setLogin(String login) {
-    this.login = login;
+  // Needed for filter, e.g. at the clan app
+  @Formula("LOWER(login)")
+  public String getLowerCaseLogin() {
+    return lowerCaseLogin;
   }
 
-  @Basic
   @Column(name = "email")
   @ReadPermission(expression = IsOwner.EXPRESSION)
   public String getEMail() {
     return eMail;
   }
 
-  public void setEMail(String eMail) {
-    this.eMail = eMail;
-  }
-
-  @Basic
   @Column(name = "steamid")
   @ReadPermission(expression = IsOwner.EXPRESSION)
   public String getSteamId() {
     return steamId;
   }
 
-  public void setSteamId(String steamId) {
-    this.steamId = steamId;
-  }
-
-  @Basic
   @Column(name = "user_agent")
   public String getUserAgent() {
     return userAgent;
   }
 
-  public void setUserAgent(String userAgent) {
-    this.userAgent = userAgent;
-  }
-
   @OneToOne(mappedBy = "player")
-  public BanDetails getBanDetails() {
-    return banDetails;
-  }
-
-  public void setBanDetails(BanDetails banDetails) {
-    this.banDetails = banDetails;
+  public BanInfo getBanInfo() {
+    return banInfo;
   }
 }

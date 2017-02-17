@@ -1,9 +1,8 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
-import lombok.Data;
+import lombok.Setter;
 
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,7 +13,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "avatars_list")
 @Include(rootLevel = true, type = "avatar")
-@Data
+@Setter
 public class Avatar {
 
   private int id;
@@ -28,13 +27,11 @@ public class Avatar {
     return id;
   }
 
-  @Basic
   @Column(name = "url")
   public String getUrl() {
     return url;
   }
 
-  @Basic
   @Column(name = "tooltip")
   public String getTooltip() {
     return tooltip;

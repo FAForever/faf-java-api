@@ -11,7 +11,7 @@ class AchievementUpdateResponse {
   private final AchievementState state;
   private final boolean newlyUnlocked;
 
-  public AchievementUpdateResponse(boolean newlyUnlocked, AchievementState state) {
+  AchievementUpdateResponse(boolean newlyUnlocked, AchievementState state) {
     this(newlyUnlocked, state, null);
   }
 

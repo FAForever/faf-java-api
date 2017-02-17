@@ -1,0 +1,63 @@
+package com.faforever.api.featuredmods;
+
+import com.faforever.api.data.domain.FeaturedMod;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.yahoo.elide.jsonapi.models.Data;
+import com.yahoo.elide.jsonapi.models.JsonApiDocument;
+import com.yahoo.elide.jsonapi.models.Resource;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping(path = "/featuredMods")
+public class FeaturedModsController {
+
+  private final FeaturedModService featuredModService;
+
+  public FeaturedModsController(FeaturedModService featuredModService) {
+    this.featuredModService = featuredModService;
+  }
+
+  @Async
+  @RequestMapping(path = "/{modId}/files/{version}")
+  @ApiOperation(value = "Lists the required files for a specific featured mod version")
+  public CompletableFuture<JsonApiDocument> getFiles(@PathVariable("modId") int modId,
+                                                     @PathVariable("version") String version) {
+    ImmutableMap<Integer, FeaturedMod> mods = Maps.uniqueIndex(featuredModService.getFeaturedMods(), FeaturedMod::getId);
+    FeaturedMod featuredMod = mods.get(modId);
+
+    Integer innerVersion = "latest".equals(version) ? null : Integer.valueOf(version);
+
+    return getFiles(() -> featuredModService.getFiles(featuredMod.getTechnicalName(), innerVersion));
+  }
+
+  private CompletableFuture<JsonApiDocument> getFiles(Supplier<Collection<FeaturedModFile>> supplier) {
+    List<Resource> values = supplier.get().stream()
+        .map(modFileMapper())
+        .collect(Collectors.toList());
+
+    return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(values)));
+  }
+
+  private Function<FeaturedModFile, Resource> modFileMapper() {
+    return file -> new Resource("featuredModFile", String.valueOf(file.getId()),
+        ImmutableMap.<String, Object>of(
+            "group", file.getGroup(),
+            "md5", file.getMd5(),
+            "name", file.getName(),
+            "url", file.getUrl(),
+            "version", file.getVersion()
+        ), null, null, null);
+  }
+}

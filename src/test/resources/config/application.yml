@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:faf
+    username: root
+    password: banana
+    driverClassName: org.h2.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
+  h2:
+    console:
+      enabled: true

@@ -1,52 +1,50 @@
 package com.faforever.api.data.domain;
 
+import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
+import lombok.Setter;
 
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.sql.Timestamp;
-import java.util.Objects;
+import javax.persistence.Transient;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "mod_version")
-@Include(rootLevel = true, type = "mod_version")
+@Include(rootLevel = true, type = "modVersion")
+@Setter
 public class ModVersion {
 
-  private Integer id;
+  private int id;
   private String uid;
   private ModType type;
   private String description;
   private short version;
   private String filename;
   private String icon;
-  private byte ranked;
-  private byte hidden;
-  private Timestamp createTime;
-  private Timestamp updateTime;
+  private boolean ranked;
+  private boolean hidden;
+  private OffsetDateTime createTime;
+  private OffsetDateTime updateTime;
+  private Mod mod;
+  private String thumbnailUrl;
+  private String downloadUrl;
 
   @Id
   @Column(name = "id")
-  public Integer getId() {
+  public int getId() {
     return id;
   }
 
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  @Basic
   @Column(name = "uid")
   public String getUid() {
     return uid;
-  }
-
-  public void setUid(String uid) {
-    this.uid = uid;
   }
 
   @Column(name = "type")
@@ -55,114 +53,61 @@ public class ModVersion {
     return type;
   }
 
-  public void setType(ModType type) {
-    this.type = type;
-  }
-
-  @Basic
   @Column(name = "description")
   public String getDescription() {
     return description;
   }
 
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  @Basic
   @Column(name = "version")
   public short getVersion() {
     return version;
   }
 
-  public void setVersion(short version) {
-    this.version = version;
-  }
-
-  @Basic
   @Column(name = "filename")
   public String getFilename() {
     return filename;
   }
 
-  public void setFilename(String filename) {
-    this.filename = filename;
-  }
-
-  @Basic
   @Column(name = "icon")
   public String getIcon() {
     return icon;
   }
 
-  public void setIcon(String icon) {
-    this.icon = icon;
-  }
-
-  @Basic
   @Column(name = "ranked")
-  public byte getRanked() {
+  public boolean isRanked() {
     return ranked;
   }
 
-  public void setRanked(byte ranked) {
-    this.ranked = ranked;
-  }
-
-  @Basic
   @Column(name = "hidden")
-  public byte getHidden() {
+  public boolean isHidden() {
     return hidden;
   }
 
-  public void setHidden(byte hidden) {
-    this.hidden = hidden;
-  }
-
-  @Basic
   @Column(name = "create_time")
-  public Timestamp getCreateTime() {
+  public OffsetDateTime getCreateTime() {
     return createTime;
   }
 
-  public void setCreateTime(Timestamp createTime) {
-    this.createTime = createTime;
-  }
-
-  @Basic
   @Column(name = "update_time")
-  public Timestamp getUpdateTime() {
+  public OffsetDateTime getUpdateTime() {
     return updateTime;
   }
 
-  public void setUpdateTime(Timestamp updateTime) {
-    this.updateTime = updateTime;
+  @ManyToOne
+  @JoinColumn(name = "mod_id")
+  public Mod getMod() {
+    return mod;
   }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, uid, type, description, version, filename, icon, ranked, hidden, createTime, updateTime);
+  @Transient
+  @ComputedAttribute
+  public String getThumbnailUrl() {
+    return thumbnailUrl;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    ModVersion that = (ModVersion) o;
-    return version == that.version &&
-        ranked == that.ranked &&
-        hidden == that.hidden &&
-        Objects.equals(id, that.id) &&
-        Objects.equals(uid, that.uid) &&
-        Objects.equals(type, that.type) &&
-        Objects.equals(description, that.description) &&
-        Objects.equals(filename, that.filename) &&
-        Objects.equals(icon, that.icon) &&
-        Objects.equals(createTime, that.createTime) &&
-        Objects.equals(updateTime, that.updateTime);
+  @Transient
+  @ComputedAttribute
+  public String getDownloadUrl() {
+    return downloadUrl;
   }
 }
