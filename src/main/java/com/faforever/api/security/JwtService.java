@@ -1,4 +1,4 @@
-package com.faforever.api.authentication;
+package com.faforever.api.security;
 
 import com.faforever.api.config.FafApiProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
