@@ -30,7 +30,7 @@ public class Game {
   private Player host;
   private MapVersion mapVersion;
   private String name;
-  private Rankiness rankiness;
+  private Validity validity;
   private List<GamePlayerStats> playerStats;
 
   @Id
@@ -74,8 +74,8 @@ public class Game {
 
   @Column(name = "validity")
   @Enumerated(EnumType.ORDINAL)
-  public Rankiness getRankiness() {
-    return rankiness;
+  public Validity getValidity() {
+    return validity;
   }
 
   @OneToMany(mappedBy = "game")
