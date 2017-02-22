@@ -2,6 +2,7 @@ package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Column;
@@ -25,6 +26,7 @@ public class Game {
 
   private int id;
   private OffsetDateTime startTime;
+  private OffsetDateTime endTime;
   private VictoryCondition victoryCondition;
   private FeaturedMod featuredMod;
   private Player host;
@@ -81,5 +83,10 @@ public class Game {
   @OneToMany(mappedBy = "game")
   public List<GamePlayerStats> getPlayerStats() {
     return playerStats;
+  }
+
+  @Formula(value = "(SELECT game_player_stats.scoreTime FROM game_player_stats WHERE game_player_stats.gameId = id ORDER BY game_player_stats.scoreTime DESC LIMIT 1)")
+  public OffsetDateTime getEndTime() {
+    return endTime;
   }
 }
