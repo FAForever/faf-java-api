@@ -1,6 +1,5 @@
 package com.faforever.api.clan;
 
-import com.faforever.api.authentication.JwtService;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.ClanMembership;
@@ -11,6 +10,7 @@ import com.faforever.api.error.ErrorCode;
 import com.faforever.api.error.ProgrammingError;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.player.PlayerService;
+import com.faforever.api.security.JwtService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;

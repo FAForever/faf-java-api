@@ -1,6 +1,5 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.data.listeners.MapEnricher;
 import com.yahoo.elide.annotation.Include;
 import lombok.Setter;
 import org.hibernate.annotations.Formula;
@@ -14,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -32,7 +30,6 @@ import java.util.List;
 
 @Entity
 @Setter
-@EntityListeners(MapEnricher.class)
 @Table(name = "map")
 @Include(rootLevel = true, type = "map")
 @Immutable

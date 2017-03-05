@@ -59,6 +59,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // Additional APIs
         .antMatchers("/leaderboards/**").permitAll()
         .antMatchers("/featuredMods/**").permitAll()
+        .antMatchers("/oauth/**").permitAll()
         // Redirects to Swagger UI
         .antMatchers("/").permitAll()
         // Swagger UI

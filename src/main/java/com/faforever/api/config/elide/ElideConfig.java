@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yahoo.elide.Elide;
 import com.yahoo.elide.audit.Slf4jLogger;
 import com.yahoo.elide.core.EntityDictionary;
+import com.yahoo.elide.core.filter.dialect.RSQLFilterDialect;
 import com.yahoo.elide.datastores.hibernate5.HibernateStore;
 import com.yahoo.elide.jsonapi.JsonApiMapper;
 import com.yahoo.elide.security.checks.Check;
@@ -39,16 +40,14 @@ public class ElideConfig {
     checks.put(IsClanMembershipDeletable.EXPRESSION, IsClanMembershipDeletable.Inline.class);
 
     EntityDictionary entityDictionary = new EntityDictionary(checks);
-
-    // TODO can't use RSQL yet: https://github.com/yahoo/elide/issues/384
-//    RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary);
+    RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary);
 
     return new Elide.Builder(new HibernateStore(entityManagerFactory.unwrap(SessionFactory.class)))
         .withJsonApiMapper(new JsonApiMapper(entityDictionary, objectMapper))
         .withAuditLogger(new Slf4jLogger())
         .withEntityDictionary(entityDictionary)
-//        .withJoinFilterDialect(rsqlFilterDialect)
-//        .withSubqueryFilterDialect(rsqlFilterDialect)
+        .withJoinFilterDialect(rsqlFilterDialect)
+        .withSubqueryFilterDialect(rsqlFilterDialect)
         .build();
   }
 

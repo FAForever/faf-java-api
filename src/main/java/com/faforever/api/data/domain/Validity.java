@@ -1,6 +1,6 @@
 package com.faforever.api.data.domain;
 
-public enum Rankiness {
+public enum Validity {
   // Order is crucial
   VALID,
   TOO_MANY_DESYNCS,
