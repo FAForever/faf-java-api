@@ -194,6 +194,26 @@ public class JsonApiClanTest {
         .header("Authorization", accessToken))
         .andExpect(status().is(204));
     assertEquals(1, clanMembershipRepository.count());
+    assertEquals(myMembership.getId(), clanMembershipRepository.findAll().get(0).getId());
+  }
+
+  @Test
+  public void canLeaveClan() throws Exception {
+    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+
+    Player bob = createPlayer("Bob");
+    Clan clan = new Clan().setLeader(bob).setTag("123").setName("abcClanName");
+    ClanMembership myMembership = new ClanMembership().setPlayer(me).setClan(clan);
+    ClanMembership bobsMembership = new ClanMembership().setPlayer(bob).setClan(clan);
+    clan.setMemberships(Arrays.asList(myMembership, bobsMembership));
+    clanRepository.save(clan);
+
+    assertEquals(2, clanMembershipRepository.count());
+    this.mvc.perform(delete("/data/clanMembership/" + myMembership.getId())
+        .header("Authorization", accessToken))
+        .andExpect(status().is(204));
+    assertEquals(1, clanMembershipRepository.count());
+    assertEquals(bobsMembership.getId(), clanMembershipRepository.findAll().get(0).getId());
   }
 
   @Test

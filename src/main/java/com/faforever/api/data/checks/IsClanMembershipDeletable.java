@@ -9,16 +9,18 @@ import com.yahoo.elide.security.checks.InlineCheck;
 import java.util.Optional;
 
 public class IsClanMembershipDeletable {
-  public static final String EXPRESSION = "clan membership only editable by leader";
-
+  public static final String EXPRESSION = "IsClanMembershipDeletable";
+  
   public static class Inline extends InlineCheck<ClanMembership> {
 
     @Override
     public boolean ok(ClanMembership membership, RequestScope requestScope, Optional<ChangeSpec> changeSpec) {
       Object opaqueUser = requestScope.getUser().getOpaqueUser();
+      int requesterId = ((FafUserDetails) opaqueUser).getId();
       return opaqueUser instanceof FafUserDetails
-          && membership.getClan().getLeader().getId() == ((FafUserDetails) opaqueUser).getId()
-          && membership.getPlayer().getId() != membership.getClan().getLeader().getId();
+          && membership.getPlayer().getId() != membership.getClan().getLeader().getId()
+          && (membership.getClan().getLeader().getId() == requesterId ||
+          membership.getPlayer().getId() == requesterId);
     }
 
     @Override
