@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class ClanControllerTest {
+public class ClanControllerIntegrationTest {
   private static final String OAUTH_CLIENT_ID = "1234";
   private static final String OAUTH_SECRET = "secret";
   private MockMvc mvc;
@@ -51,7 +51,7 @@ public class ClanControllerTest {
   private final ShaPasswordEncoder shaPasswordEncoder;
   private Player me;
 
-  public ClanControllerTest() {
+  public ClanControllerIntegrationTest() {
     shaPasswordEncoder = new ShaPasswordEncoder(256);
     objectMapper = new ObjectMapper();
   }

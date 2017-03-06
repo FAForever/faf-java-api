@@ -43,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class JsonApiClanTest {
+public class JsonApiClanIntegrationTest {
   private static final String OAUTH_CLIENT_ID = "1234";
   private static final String OAUTH_SECRET = "secret";
   private MockMvc mvc;
@@ -58,7 +58,7 @@ public class JsonApiClanTest {
   private ShaPasswordEncoder shaPasswordEncoder;
   private Player me;
 
-  public JsonApiClanTest() {
+  public JsonApiClanIntegrationTest() {
     objectMapper = new ObjectMapper();
     shaPasswordEncoder = new ShaPasswordEncoder(256);
   }
