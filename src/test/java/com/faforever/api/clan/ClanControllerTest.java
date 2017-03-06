@@ -178,20 +178,106 @@ public class ClanControllerTest {
   @Test
   public void createClan() throws Exception {
     String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
-    String clanName = "MyCoolClanName";
+    String clanName = "My Cool ClanName";
     String tag = "123";
-    String description = "spacesMustBeEncoded";
+    String description = "spaces Must Be Encoded";
 
     assertEquals(1, playerRepository.count());
     assertEquals(0, clanRepository.count());
     assertEquals(0, clanMembershipRepository.count());
-    this.mvc.perform(post(
-        String.format("/clans/create?tag=%s?name=%s&description=%s",
+    ResultActions action = this.mvc.perform(post(
+        String.format("/clans/create?tag=%s&name=%s&description=%s",
             tag, clanName, description))
-        .header("Authorization", accessToken))
-        .andExpect(content().string(""))
+        .header("Authorization", accessToken));
+
+    int id = clanRepository.findAll().get(0).getId();
+
+    action.andExpect(content().string(String.format("{\"id\":%s,\"type\":\"clan\"}", id)))
         .andExpect(status().isOk());
     assertEquals(1, playerRepository.count());
+    assertEquals(1, clanRepository.count());
+    assertEquals(1, clanMembershipRepository.count());
+  }
+
+  @Test
+  public void createSecondClan() throws Exception {
+    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+    String clanName = "My Cool ClanName";
+    String tag = "123";
+    String description = "spaces Must Be Encoded";
+
+    Clan clan = new Clan().setLeader(me).setTag("tag").setName("abcClan");
+    ClanMembership membership = new ClanMembership().setPlayer(me).setClan(clan);
+    clan.setMemberships(Collections.singletonList(membership));
+    clanRepository.save(clan);
+
+    assertEquals(1, playerRepository.count());
+    assertEquals(1, clanRepository.count());
+    assertEquals(1, clanMembershipRepository.count());
+    ResultActions action = this.mvc.perform(post(
+        String.format("/clans/create?tag=%s&name=%s&description=%s",
+            tag, clanName, description))
+        .header("Authorization", accessToken));
+
+    action.andExpect(content().string("{\"errors\":[{\"title\":\"You are already in a clan\",\"detail\":\"Clan creator is already member of a clan\"}]}"))
+        .andExpect(status().is(422));
+    assertEquals(1, playerRepository.count());
+    assertEquals(1, clanRepository.count());
+    assertEquals(1, clanMembershipRepository.count());
+  }
+
+  @Test
+  public void createClanWithSameName() throws Exception {
+    Player otherLeader = createPlayer("Downloard");
+    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+    String clanName = "My Cool ClanName";
+    String tag = "123";
+    String description = "spaces Must Be Encoded";
+
+    Clan clan = new Clan().setLeader(otherLeader).setTag("123").setName(clanName);
+    ClanMembership membership = new ClanMembership().setPlayer(otherLeader).setClan(clan);
+    clan.setMemberships(Collections.singletonList(membership));
+    clanRepository.save(clan);
+
+    assertEquals(2, playerRepository.count());
+    assertEquals(1, clanRepository.count());
+    assertEquals(1, clanMembershipRepository.count());
+    ResultActions action = this.mvc.perform(post(
+        String.format("/clans/create?tag=%s&name=%s&description=%s",
+            tag, clanName, description))
+        .header("Authorization", accessToken));
+
+    action.andExpect(content().string("{\"errors\":[{\"title\":\"Clan Name allready in use\",\"detail\":\"The clan name 'My Cool ClanName' is allready in use. Please choose a different clan name.\"}]}"))
+        .andExpect(status().is(422));
+    assertEquals(2, playerRepository.count());
+    assertEquals(1, clanRepository.count());
+    assertEquals(1, clanMembershipRepository.count());
+  }
+
+  @Test
+  public void createClanWithSameTag() throws Exception {
+    Player otherLeader = createPlayer("Downloard");
+    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+    String clanName = "My Cool ClanName";
+    String tag = "123";
+    String description = "spaces Must Be Encoded";
+
+    Clan clan = new Clan().setLeader(otherLeader).setTag(tag).setName("abcClan");
+    ClanMembership membership = new ClanMembership().setPlayer(otherLeader).setClan(clan);
+    clan.setMemberships(Collections.singletonList(membership));
+    clanRepository.save(clan);
+
+    assertEquals(2, playerRepository.count());
+    assertEquals(1, clanRepository.count());
+    assertEquals(1, clanMembershipRepository.count());
+    ResultActions action = this.mvc.perform(post(
+        String.format("/clans/create?tag=%s&name=%s&description=%s",
+            tag, clanName, description))
+        .header("Authorization", accessToken));
+
+    action.andExpect(content().string("{\"errors\":[{\"title\":\"Clan Tag allready in use\",\"detail\":\"The clan tag 'My Cool ClanName' is allready in use. Please choose a different clan tag.\"}]}"))
+        .andExpect(status().is(422));
+    assertEquals(2, playerRepository.count());
     assertEquals(1, clanRepository.count());
     assertEquals(1, clanMembershipRepository.count());
   }
