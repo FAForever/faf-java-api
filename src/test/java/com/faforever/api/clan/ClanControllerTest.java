@@ -139,7 +139,7 @@ public class ClanControllerTest {
   @Test
   public void meDataWithoutClan() throws Exception {
     String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
-    String expected = String.format("{\"player\":{\"id\":%s,\"login\":\"%s\"},\"clan\":\"\"}",
+    String expected = String.format("{\"player\":{\"id\":%s,\"login\":\"%s\"},\"clan\":null}",
         me.getId(),
         me.getLogin());
 
