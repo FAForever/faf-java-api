@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.validation.ValidationException;
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -33,10 +34,8 @@ class GlobalControllerExceptionHandler {
   }
 
   private String replaceArgs(String message, Object[] args) {
-    for (int i = 0; i < args.length; i++) {
-      message = message.replace("{" + i + "}", args[i].toString());
-    }
-    return message;
+    // http://stackoverflow.com/a/10995800
+    return MessageFormat.format(message.replace("'", "''"), args);
   }
 
   @ExceptionHandler(ApiException.class)
