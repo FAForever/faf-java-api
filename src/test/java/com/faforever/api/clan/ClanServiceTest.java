@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.faforever.api.error.ApiExceptionWithCode.apiExceptionWithCode;
 import static org.hamcrest.Matchers.greaterThan;
@@ -79,6 +80,52 @@ public class ClanServiceTest {
   }
 
   @Test
+  public void createClanWithSameName() {
+    String clanName = "My cool Clan";
+    String tag = "123";
+    String description = "A cool clan for testing";
+
+    Player creator = new Player();
+    creator.setId(1);
+    creator.setClanMemberships(new ArrayList<>());
+
+    when(clanRepository.findOneByName(clanName)).thenReturn(Optional.of(new Clan()));
+    try {
+      instance.create(clanName, tag, description, creator);
+      fail();
+    } catch (ApiException e) {
+      assertThat(e, apiExceptionWithCode(ErrorCode.CLAN_NAME_EXISTS));
+    }
+
+    ArgumentCaptor<Clan> clanCaptor = ArgumentCaptor.forClass(Clan.class);
+    verify(clanRepository, Mockito.times(0)).save(clanCaptor.capture());
+  }
+
+  @Test
+  public void createClanWithSameTag() {
+    String clanName = "My cool Clan";
+    String tag = "123";
+    String description = "A cool clan for testing";
+
+    Player creator = new Player();
+    creator.setId(1);
+    creator.setClanMemberships(new ArrayList<>());
+
+    when(clanRepository.findOneByName(clanName)).thenReturn(Optional.empty());
+    when(clanRepository.findOneByTag(tag)).thenReturn(Optional.of(new Clan()));
+
+    try {
+      instance.create(clanName, tag, description, creator);
+      fail();
+    } catch (ApiException e) {
+      assertThat(e, apiExceptionWithCode(ErrorCode.CLAN_TAG_EXISTS));
+    }
+
+    ArgumentCaptor<Clan> clanCaptor = ArgumentCaptor.forClass(Clan.class);
+    verify(clanRepository, Mockito.times(0)).save(clanCaptor.capture());
+  }
+
+  @Test
   public void createClanSuccessful() {
     String clanName = "My cool Clan";
     String tag = "123";
@@ -87,6 +134,9 @@ public class ClanServiceTest {
     Player creator = new Player();
     creator.setId(1);
     creator.setClanMemberships(new ArrayList<>());
+
+    when(clanRepository.findOneByName(clanName)).thenReturn(Optional.empty());
+    when(clanRepository.findOneByTag(tag)).thenReturn(Optional.empty());
 
 
     instance.create(clanName, tag, description, creator);

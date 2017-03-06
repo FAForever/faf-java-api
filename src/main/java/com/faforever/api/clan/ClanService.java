@@ -57,6 +57,12 @@ public class ClanService {
     if (!creator.getClanMemberships().isEmpty()) {
       throw new ApiException(new Error(ErrorCode.CLAN_CREATE_CREATOR_IS_IN_A_CLAN));
     }
+    if (clanRepository.findOneByName(name).isPresent()) {
+      throw new ApiException(new Error(ErrorCode.CLAN_NAME_EXISTS, name));
+    }
+    if (clanRepository.findOneByTag(tag).isPresent()) {
+      throw new ApiException(new Error(ErrorCode.CLAN_TAG_EXISTS, name));
+    }
 
     Clan clan = new Clan();
     clan.setName(name);
