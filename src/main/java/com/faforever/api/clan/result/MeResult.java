@@ -4,9 +4,7 @@ import lombok.Data;
 
 @Data
 public class MeResult {
-  private PlayerResult player;
-  private ClanResult clan;
-
-
+  private final PlayerResult player;
+  private final ClanResult clan;
 }
 

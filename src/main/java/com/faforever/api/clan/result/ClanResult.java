@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class ClanResult {
-  int id;
-  String name;
-  String tag;
+  private final int id;
+  private final String tag;
+  private final String name;
 }

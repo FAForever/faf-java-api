@@ -48,12 +48,12 @@ public class ClanControllerTest {
   private PlayerRepository playerRepository;
   private OAuthClientRepository oAuthClientRepository;
   private ObjectMapper objectMapper;
-  private ShaPasswordEncoder shaPasswordEncoder;
+  private final ShaPasswordEncoder shaPasswordEncoder;
   private Player me;
 
   public ClanControllerTest() {
-    objectMapper = new ObjectMapper();
     shaPasswordEncoder = new ShaPasswordEncoder(256);
+    objectMapper = new ObjectMapper();
   }
 
   @Inject
@@ -79,7 +79,6 @@ public class ClanControllerTest {
         .webAppContextSetup(context)
         .addFilter(springSecurityFilterChain)
         .build();
-    me = null;
   }
 
   @After
@@ -159,12 +158,12 @@ public class ClanControllerTest {
     clan.setMemberships(Collections.singletonList(myMembership));
     clanRepository.save(clan);
 
-    String expected = String.format("{\"player\":{\"id\":%s,\"login\":\"%s\"},\"clan\":{\"id\":%s,\"name\":\"%s\",\"tag\":\"%s\"}}",
+    String expected = String.format("{\"player\":{\"id\":%s,\"login\":\"%s\"},\"clan\":{\"id\":%s,\"tag\":\"%s\",\"name\":\"%s\"}}",
         me.getId(),
         me.getLogin(),
         clan.getId(),
-        clan.getName(),
-        clan.getTag());
+        clan.getTag(),
+        clan.getName());
 
     assertEquals(1, playerRepository.count());
     assertEquals(1, clanRepository.count());

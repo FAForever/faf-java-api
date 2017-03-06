@@ -46,9 +46,7 @@ class GlobalControllerExceptionHandler {
     ErrorResponse response = new ErrorResponse();
     Arrays.stream(ex.getErrors()).forEach(error -> {
       ErrorCode code = error.getErrorCode();
-      response.addError(new ErrorResult()
-          .setTitle(code.getTitle())
-          .setDetail(replaceArgs(code.getDetail(), error.getArgs())));
+      response.addError(new ErrorResult(code.getTitle(), replaceArgs(code.getDetail(), error.getArgs())));
     });
     return response;
   }

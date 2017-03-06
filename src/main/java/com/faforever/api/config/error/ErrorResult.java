@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class ErrorResult {
-  private String title;
-  private String detail;
+  private final String title;
+  private final String detail;
 }

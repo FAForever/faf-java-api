@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class PlayerResult {
-  int id;
-  String login;
+  private final int id;
+  private final String login;
 }

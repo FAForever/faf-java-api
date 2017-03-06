@@ -46,22 +46,14 @@ public class ClansController {
   public MeResult me(Authentication authentication) {
     Player player = playerService.getPlayer(authentication);
 
-    MeResult result = new MeResult();
-
-    result.setPlayer(new PlayerResult()
-        .setId(player.getId())
-        .setLogin(player.getLogin()));
-
     Clan clan = (!player.getClanMemberships().isEmpty())
         ? player.getClanMemberships().get(0).getClan()
         : null;
+    ClanResult clanResult = null;
     if (clan != null) {
-      result.setClan(new ClanResult()
-          .setId(clan.getId())
-          .setName(clan.getName())
-          .setTag(clan.getTag()));
+      clanResult = new ClanResult(clan.getId(), clan.getTag(), clan.getName());
     }
-    return result;
+    return new MeResult(new PlayerResult(player.getId(), player.getLogin()), clanResult);
   }
 
   // This request cannot be handled by JSON API because we must simultaneously create two resources (a,b)
