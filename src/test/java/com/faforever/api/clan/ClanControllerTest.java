@@ -174,4 +174,25 @@ public class ClanControllerTest {
         .andExpect(content().string(expected))
         .andExpect(status().isOk());
   }
+
+  @Test
+  public void createClan() throws Exception {
+    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+    String clanName = "MyCoolClanName";
+    String tag = "123";
+    String description = "spacesMustBeEncoded";
+
+    assertEquals(1, playerRepository.count());
+    assertEquals(0, clanRepository.count());
+    assertEquals(0, clanMembershipRepository.count());
+    this.mvc.perform(post(
+        String.format("/clans/create?tag=%s?name=%s&description=%s",
+            tag, clanName, description))
+        .header("Authorization", accessToken))
+        .andExpect(content().string(""))
+        .andExpect(status().isOk());
+    assertEquals(1, playerRepository.count());
+    assertEquals(1, clanRepository.count());
+    assertEquals(1, clanMembershipRepository.count());
+  }
 }
