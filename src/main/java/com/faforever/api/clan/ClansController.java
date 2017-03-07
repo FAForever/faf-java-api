@@ -1,5 +1,8 @@
 package com.faforever.api.clan;
 
+import com.faforever.api.clan.result.ClanResult;
+import com.faforever.api.clan.result.MeResult;
+import com.faforever.api.clan.result.PlayerResult;
 import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.player.PlayerService;
@@ -40,24 +43,17 @@ public class ClansController {
       @ApiResponse(code = 200, message = "Success with JSON { player: {id: ?, login: ?}, clan: { id: ?, name: ?, tag: ?}}"),
       @ApiResponse(code = 400, message = "Bad Request")})
   @RequestMapping(path = "/me", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-  public Map<String, Serializable> me(Authentication authentication) {
+  public MeResult me(Authentication authentication) {
     Player player = playerService.getPlayer(authentication);
-
-    ImmutableMap<String, Serializable> playerMap = ImmutableMap.of(
-        "id", player.getId(),
-        "login", player.getLogin());
 
     Clan clan = (!player.getClanMemberships().isEmpty())
         ? player.getClanMemberships().get(0).getClan()
         : null;
-    Serializable clanData = "";
+    ClanResult clanResult = null;
     if (clan != null) {
-      clanData = ImmutableMap.of(
-          "id", clan.getId(),
-          "name", clan.getName(),
-          "tag", clan.getTag());
+      clanResult = new ClanResult(clan.getId(), clan.getTag(), clan.getName());
     }
-    return ImmutableMap.of("player", playerMap, "clan", clanData);
+    return new MeResult(new PlayerResult(player.getId(), player.getLogin()), clanResult);
   }
 
   // This request cannot be handled by JSON API because we must simultaneously create two resources (a,b)

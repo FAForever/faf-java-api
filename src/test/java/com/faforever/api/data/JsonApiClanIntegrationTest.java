@@ -43,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class JsonApiClanTest {
+public class JsonApiClanIntegrationTest {
   private static final String OAUTH_CLIENT_ID = "1234";
   private static final String OAUTH_SECRET = "secret";
   private MockMvc mvc;
@@ -58,7 +58,7 @@ public class JsonApiClanTest {
   private ShaPasswordEncoder shaPasswordEncoder;
   private Player me;
 
-  public JsonApiClanTest() {
+  public JsonApiClanIntegrationTest() {
     objectMapper = new ObjectMapper();
     shaPasswordEncoder = new ShaPasswordEncoder(256);
   }
@@ -194,6 +194,26 @@ public class JsonApiClanTest {
         .header("Authorization", accessToken))
         .andExpect(status().is(204));
     assertEquals(1, clanMembershipRepository.count());
+    assertEquals(myMembership.getId(), clanMembershipRepository.findAll().get(0).getId());
+  }
+
+  @Test
+  public void canLeaveClan() throws Exception {
+    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+
+    Player bob = createPlayer("Bob");
+    Clan clan = new Clan().setLeader(bob).setTag("123").setName("abcClanName");
+    ClanMembership myMembership = new ClanMembership().setPlayer(me).setClan(clan);
+    ClanMembership bobsMembership = new ClanMembership().setPlayer(bob).setClan(clan);
+    clan.setMemberships(Arrays.asList(myMembership, bobsMembership));
+    clanRepository.save(clan);
+
+    assertEquals(2, clanMembershipRepository.count());
+    this.mvc.perform(delete("/data/clanMembership/" + myMembership.getId())
+        .header("Authorization", accessToken))
+        .andExpect(status().is(204));
+    assertEquals(1, clanMembershipRepository.count());
+    assertEquals(bobsMembership.getId(), clanMembershipRepository.findAll().get(0).getId());
   }
 
   @Test
@@ -201,7 +221,8 @@ public class JsonApiClanTest {
     String[] players = new String[]{"Dragonfire", "DRAGON", "Fire of Dragon", "d r a g o n", "firedragon"};
     Arrays.stream(players).forEach(name -> noCatch(() -> createPlayer(name)));
     assertEquals(players.length, playerRepository.count());
-    ResultActions action = this.mvc.perform(get("/data/player?filter[player.lowerCaseLogin][prefix]=dragon&sort=lowerCaseLogin"));
+    ResultActions action = this.mvc.perform(get("/data/player?filter=lowerCaseLogin==dragon*&sort=lowerCaseLogin"));
+
     JsonNode node = objectMapper.readTree(action.andReturn().getResponse().getContentAsString());
 
     assertEquals(2, node.get("data").size());
