@@ -59,7 +59,9 @@ public enum ErrorCode {
   CLAN_ACCEPT_PLAYER_IN_A_CLAN(205, "Player is in a clan", "You are allready in a clan"),
   CLAN_NOT_LEADER(206, "You Permission", "You are not the leader of the clan"),
   CLAN_NOT_EXISTS(207, "Cannot find Clan", "Clan with id '{0}' is not available"),
-  CLAN_GENERATE_LINK_PLAYER_NOT_FOUND(208, "Player not found", "Cannot find player with id {0} who should be invited to the clan"),
+  CLAN_GENERATE_LINK_PLAYER_NOT_FOUND(208, "Player not found", "Cannot find player with id '{0}' who should be invited to the clan"),
+  CLAN_NAME_EXISTS(209, "Clan Name allready in use", "The clan name '{0}' is allready in use. Please choose a different clan name."),
+  CLAN_TAG_EXISTS(210, "Clan Tag allready in use", "The clan tag '{0}' is allready in use. Please choose a different clan tag."),
   VALIDATION_FAILED(900, "Validation failed", "{0}");
 
   private final int code;

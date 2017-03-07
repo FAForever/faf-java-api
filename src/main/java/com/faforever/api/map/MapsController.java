@@ -14,7 +14,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,13 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
-import javax.validation.ValidationException;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Map;
-
-import static com.faforever.api.data.JsonApiController.errorResponse;
 
 @RestController
 @RequestMapping(path = "/maps")
@@ -74,10 +68,5 @@ public class MapsController {
     }
 
     mapService.uploadMap(file.getBytes(), file.getOriginalFilename(), player, ranked);
-  }
-
-  @ExceptionHandler(ValidationException.class)
-  public Map<String, Serializable> handleValidationException(ValidationException exception) {
-    return errorResponse(ErrorCode.VALIDATION_FAILED.getTitle(), exception.getMessage());
   }
 }
