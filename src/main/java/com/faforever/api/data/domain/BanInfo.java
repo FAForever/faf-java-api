@@ -1,7 +1,9 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.checks.permission.HasBanInfoRead;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
+import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import com.yahoo.elide.security.checks.prefab.Role;
 import lombok.Setter;
@@ -28,6 +30,7 @@ import java.util.List;
 @Include(rootLevel = true, type = "banInfo")
 // Bans can be never deleted, only disabled over BanDisableData
 @DeletePermission(any = {Role.NONE.class})
+@ReadPermission(expression = HasBanInfoRead.EXPRESSION)
 @Setter
 public class BanInfo {
 

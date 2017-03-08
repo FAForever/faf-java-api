@@ -5,6 +5,7 @@ import com.faforever.api.data.checks.IsAuthenticated;
 import com.faforever.api.data.checks.IsClanLeader;
 import com.faforever.api.data.checks.IsClanMembershipDeletable;
 import com.faforever.api.data.checks.IsOwner;
+import com.faforever.api.data.checks.permission.HasBanInfoRead;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yahoo.elide.Elide;
 import com.yahoo.elide.audit.Slf4jLogger;
@@ -38,6 +39,7 @@ public class ElideConfig {
     checks.put(IsOwner.EXPRESSION, IsOwner.Inline.class);
     checks.put(IsClanLeader.EXPRESSION, IsClanLeader.Inline.class);
     checks.put(IsClanMembershipDeletable.EXPRESSION, IsClanMembershipDeletable.Inline.class);
+    checks.put(HasBanInfoRead.EXPRESSION, HasBanInfoRead.Inline.class);
 
     EntityDictionary entityDictionary = new EntityDictionary(checks);
     RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary);
