@@ -15,7 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Entity
@@ -26,8 +26,8 @@ import java.util.List;
 public class Game {
 
   private int id;
-  private OffsetDateTime startTime;
-  private OffsetDateTime endTime;
+  private Instant startTime;
+  private Instant endTime;
   private VictoryCondition victoryCondition;
   private FeaturedMod featuredMod;
   private Player host;
@@ -43,7 +43,7 @@ public class Game {
   }
 
   @Column(name = "startTime")
-  public OffsetDateTime getStartTime() {
+  public Instant getStartTime() {
     return startTime;
   }
 
@@ -88,7 +88,7 @@ public class Game {
 
   @Formula(value = "(SELECT game_player_stats.scoreTime FROM game_player_stats WHERE game_player_stats.gameId = id ORDER BY game_player_stats.scoreTime DESC LIMIT 1)")
   @Nullable
-  public OffsetDateTime getEndTime() {
+  public Instant getEndTime() {
     return endTime;
   }
 }
