@@ -1,5 +1,6 @@
 package com.faforever.api.security;
 
+import com.faforever.api.user.UserRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -7,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.provider.token.DefaultUserAuthenticationConverter;
 import org.springframework.util.StringUtils;
 
+import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -20,6 +22,13 @@ public class FafUserAuthenticationConverter extends DefaultUserAuthenticationCon
 
   private static final String ID = "user_id";
   private static final String NON_LOCKED = "nonLocked";
+
+  private final UserRepository userRepository;
+
+  @Inject
+  public FafUserAuthenticationConverter(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
 
   @Override
   public Map<String, ?> convertUserAuthentication(Authentication authentication) {
@@ -39,7 +48,7 @@ public class FafUserAuthenticationConverter extends DefaultUserAuthenticationCon
     String username = (String) map.get(USERNAME);
     boolean accountNonLocked = (Boolean) map.get(NON_LOCKED);
     Collection<? extends GrantedAuthority> authorities = getAuthorities(map);
-    UserDetails user = new FafUserDetails(id, username, "N/A", accountNonLocked, authorities);
+    UserDetails user = new FafUserDetails(id, username, "N/A", accountNonLocked, authorities, userRepository);
 
     return new UsernamePasswordAuthenticationToken(user, "N/A", authorities);
   }

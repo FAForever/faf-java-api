@@ -12,9 +12,13 @@ import javax.persistence.Table;
 public class User extends Login {
 
   private String password;
-  
+
   @Column(name = "password")
   public String getPassword() {
     return password;
+  }
+
+  public boolean hasPermission(String permission) {
+    return false;
   }
 }
