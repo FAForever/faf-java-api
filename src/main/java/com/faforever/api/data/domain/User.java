@@ -23,14 +23,11 @@ public class User extends Login {
   }
 
   public boolean hasPermission(String permission) {
-    for (RoleUserAssignment roleUserAssignment : roleAssignments) {
-      for (RolePermissionAssignment rolePermissionAssignment : roleUserAssignment.getRole().getPermissionAssignments()) {
-        if (rolePermissionAssignment.getPermission().getName().equals(permission)) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return roleAssignments.stream()
+        .anyMatch(roleUserAssignment ->
+            roleUserAssignment.getRole().getPermissionAssignments().stream()
+                .anyMatch(rolePermissionAssignment ->
+                    rolePermissionAssignment.getPermission().getName().equals(permission)));
   }
 
   @OneToMany(mappedBy = "role")
