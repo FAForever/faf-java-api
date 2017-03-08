@@ -1,13 +1,16 @@
 package com.faforever.api.security;
 
+import com.faforever.api.client.OAuthClient;
 import com.faforever.api.client.OAuthClientRepository;
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.config.FafApiProperties.Jwt;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.ClientRegistrationException;
 
 import javax.inject.Inject;
+import java.util.Optional;
 
 public class OAuthClientDetailsService implements ClientDetailsService {
 
@@ -24,9 +27,15 @@ public class OAuthClientDetailsService implements ClientDetailsService {
   @Override
   @Cacheable(CLIENTS_CACHE_NAME)
   public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {
-    OAuthClientDetails clientDetails = new OAuthClientDetails(oAuthClientRepository.findOne(clientId));
-    clientDetails.setAccessTokenValiditySeconds(fafApiProperties.getJwt().getAccessTokenValiditySeconds());
-    clientDetails.setRefreshTokenValiditySeconds(fafApiProperties.getJwt().getRefreshTokenValiditySeconds());
+    OAuthClient oAuthClient = Optional.ofNullable(oAuthClientRepository.findOne(clientId))
+        .orElseThrow(() -> new ClientRegistrationException("Unknown client: " + clientId));
+
+    OAuthClientDetails clientDetails = new OAuthClientDetails(oAuthClient);
+
+    Jwt jwt = fafApiProperties.getJwt();
+    clientDetails.setAccessTokenValiditySeconds(jwt.getAccessTokenValiditySeconds());
+    clientDetails.setRefreshTokenValiditySeconds(jwt.getRefreshTokenValiditySeconds());
+
     return clientDetails;
   }
 }
