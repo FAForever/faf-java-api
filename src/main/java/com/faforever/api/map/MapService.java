@@ -10,9 +10,10 @@ import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.error.ProgrammingError;
 import com.faforever.api.utils.JavaFxUtil;
-import com.faforever.api.utils.PreviewGenerator;
-import com.faforever.api.utils.Unzipper;
-import com.faforever.api.utils.Zipper;
+import com.faforever.commons.lua.LuaLoader;
+import com.faforever.commons.map.PreviewGenerator;
+import com.faforever.commons.zip.Unzipper;
+import com.faforever.commons.zip.Zipper;
 import javafx.scene.image.Image;
 import lombok.Data;
 import lombok.SneakyThrows;
@@ -38,7 +39,6 @@ import java.util.stream.Stream;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import static com.faforever.api.utils.LuaUtil.loadFile;
 import static com.github.nocatch.NoCatch.noCatch;
 
 @Service
@@ -149,7 +149,7 @@ public class MapService {
           .filter(myFile -> myFile.toString().endsWith("_scenario.lua"))
           .findFirst()
           .orElseThrow(() -> new ApiException(new Error(ErrorCode.MAP_SCENARIO_LUA_MISSING)));
-      LuaValue root = noCatch(() -> loadFile(scenarioLuaPath), IllegalStateException.class);
+      LuaValue root = noCatch(() -> LuaLoader.loadFile(scenarioLuaPath), IllegalStateException.class);
       progressData.setLuaRoot(root);
     }
   }
@@ -202,11 +202,8 @@ public class MapService {
       return true;
     }
     LuaValue armies = firstTeam.get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS_ARMIES);
-    if (armies == LuaValue.NIL) {
-      return true;
-    }
+    return armies == LuaValue.NIL || !teamName.tojstring().equals("FFA");
 
-    return !teamName.tojstring().equals("FFA");
   }
 
   private void postProcessLuaFile(MapUploadData progressData) {
