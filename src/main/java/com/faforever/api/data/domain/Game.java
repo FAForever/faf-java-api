@@ -4,6 +4,7 @@ import com.yahoo.elide.annotation.Include;
 import lombok.Setter;
 import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Immutable;
+import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -86,6 +87,7 @@ public class Game {
   }
 
   @Formula(value = "(SELECT game_player_stats.scoreTime FROM game_player_stats WHERE game_player_stats.gameId = id ORDER BY game_player_stats.scoreTime DESC LIMIT 1)")
+  @Nullable
   public OffsetDateTime getEndTime() {
     return endTime;
   }
