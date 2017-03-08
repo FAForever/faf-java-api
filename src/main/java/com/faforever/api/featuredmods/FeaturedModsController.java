@@ -31,7 +31,7 @@ public class FeaturedModsController {
 
   @Async
   @RequestMapping(path = "/{modId}/files/{version}")
-  @ApiOperation(value = "Lists the required files for a specific featured mod version")
+  @ApiOperation("Lists the required files for a specific featured mod version")
   public CompletableFuture<JsonApiDocument> getFiles(@PathVariable("modId") int modId,
                                                      @PathVariable("version") String version) {
     ImmutableMap<Integer, FeaturedMod> mods = Maps.uniqueIndex(featuredModService.getFeaturedMods(), FeaturedMod::getId);
