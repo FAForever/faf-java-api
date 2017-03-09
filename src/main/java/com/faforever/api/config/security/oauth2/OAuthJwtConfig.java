@@ -1,6 +1,7 @@
 package com.faforever.api.config.security.oauth2;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.permission.PermissionService;
 import com.faforever.api.security.FafUserAuthenticationConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,9 +16,11 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 public class OAuthJwtConfig {
 
   private final FafApiProperties fafApiProperties;
+  private final PermissionService permissionService;
 
-  public OAuthJwtConfig(FafApiProperties fafApiProperties) {
+  public OAuthJwtConfig(FafApiProperties fafApiProperties, PermissionService permissionService) {
     this.fafApiProperties = fafApiProperties;
+    this.permissionService = permissionService;
   }
 
   @Bean
@@ -38,7 +41,8 @@ public class OAuthJwtConfig {
   protected JwtAccessTokenConverter jwtAccessTokenConverter() {
     JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
     jwtAccessTokenConverter.setSigningKey(fafApiProperties.getJwtSecret());
-    ((DefaultAccessTokenConverter) jwtAccessTokenConverter.getAccessTokenConverter()).setUserTokenConverter(new FafUserAuthenticationConverter());
+    ((DefaultAccessTokenConverter) jwtAccessTokenConverter.getAccessTokenConverter())
+        .setUserTokenConverter(new FafUserAuthenticationConverter(permissionService));
     return jwtAccessTokenConverter;
   }
 }

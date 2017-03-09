@@ -2,6 +2,7 @@ package com.faforever.api.achievements;
 
 import com.faforever.api.achievements.AchievementUpdateRequest.Operation;
 import com.faforever.api.data.domain.AchievementState;
+import com.faforever.api.permission.PermissionService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +27,8 @@ public class PlayerAchievementsControllerTest {
 
   @Mock
   private AchievementsService achievementService;
+  @Mock
+  private PermissionService permissionService;
 
   @Before
   public void setUp() throws Exception {
@@ -45,7 +48,7 @@ public class PlayerAchievementsControllerTest {
     when(achievementService.increment(any(), anyInt(), anyInt())).thenAnswer(invocation ->
         new AchievementUpdateResponse(true, AchievementState.UNLOCKED, invocation.getArgumentAt(1, int.class)));
 
-    List<AchievementUpdateResponse> result = instance.update(updateRequests, testUser());
+    List<AchievementUpdateResponse> result = instance.update(updateRequests, testUser(permissionService));
 
     verify(achievementService).increment("111", 7, 1);
     verify(achievementService).increment("222", 19, 1);
@@ -61,6 +64,6 @@ public class PlayerAchievementsControllerTest {
   public void updateReveledUnsupported() throws Exception {
     AchievementUpdateRequest[] updateRequests = {new AchievementUpdateRequest("111", Operation.REVEAL, 1)};
 
-    instance.update(updateRequests, testUser());
+    instance.update(updateRequests, testUser(permissionService));
   }
 }

@@ -15,7 +15,7 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "login_role_permission")
-@Include(rootLevel = true, type = "RolePermissionAssignment")
+@Include(rootLevel = true, type = "rolePermissionAssignment")
 @Setter
 public class RolePermissionAssignment {
 

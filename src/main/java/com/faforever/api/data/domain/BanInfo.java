@@ -81,10 +81,6 @@ public class BanInfo {
     return type;
   }
 
-  public BanDurationType getDuration() {
-    return (expiresAt == null) ? BanDurationType.PERMANENT : BanDurationType.EXPIRE;
-  }
-
   @Column(name = "create_time")
   public OffsetDateTime getCreateTime() {
     return createTime;
@@ -94,12 +90,17 @@ public class BanInfo {
   public OffsetDateTime getUpdateTime() {
     return updateTime;
   }
-  
+
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   // Cascading is needed for Create & Delete
-  @JoinColumn(name = "ban_id")
+  @JoinColumn(name = "id")
   public BanRevokeData getBanRevokeData() {
     return banRevokeData;
+  }
+
+  @Transient
+  public BanDurationType getDuration() {
+    return (expiresAt == null) ? BanDurationType.PERMANENT : BanDurationType.EXPIRE;
   }
 
   @Transient

@@ -30,7 +30,7 @@ public class User extends Login {
                     rolePermissionAssignment.getPermission().getName().equals(permission)));
   }
 
-  @OneToMany(mappedBy = "role")
+  @OneToMany(mappedBy = "user")
   @UpdatePermission(any = {com.yahoo.elide.security.checks.prefab.Role.ALL.class})
   // Permission is managed by RoleUserAssignment class
   public List<RoleUserAssignment> getRoleAssignments() {

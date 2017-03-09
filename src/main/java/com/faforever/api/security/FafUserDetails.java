@@ -2,7 +2,7 @@ package com.faforever.api.security;
 
 import com.faforever.api.data.domain.BanInfo;
 import com.faforever.api.data.domain.User;
-import com.faforever.api.user.UserRepository;
+import com.faforever.api.permission.PermissionService;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,7 +16,7 @@ import static java.util.Collections.singletonList;
 public class FafUserDetails extends org.springframework.security.core.userdetails.User {
 
   private final int id;
-  private final UserRepository userRepository;
+  private final PermissionService permissionService;
   private User user;
 
   public FafUserDetails(User user) {
@@ -32,10 +32,10 @@ public class FafUserDetails extends org.springframework.security.core.userdetail
 
   public FafUserDetails(int id, String username, String password,
                         boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities,
-                        UserRepository userRepository) {
+                        PermissionService permissionService) {
     super(username, password, true, true, true, accountNonLocked, authorities);
     this.id = id;
-    this.userRepository = userRepository;
+    this.permissionService = permissionService;
   }
 
   private static boolean isNonLocked(BanInfo banInfo) {
@@ -44,12 +44,12 @@ public class FafUserDetails extends org.springframework.security.core.userdetail
   }
 
   public boolean hasPermission(String permission) {
-    if (this.user == null) {
-      user = userRepository.findOneByLoginIgnoreCase(getUsername());
+    if (user != null) {
+      return user.hasPermission(permission);
     }
-    if (user == null) {
-      return false;
+    if (permissionService != null) {
+      return permissionService.hasPermission(getUsername(), permission);
     }
-    return user.hasPermission(permission);
+    throw new IllegalStateException("permissionService and user cannot be both null");
   }
 }

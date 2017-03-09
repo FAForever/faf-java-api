@@ -16,8 +16,8 @@ import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "ban_disable_data")
-@Include(rootLevel = true, type = "banDisableData")
+@Table(name = "ban_revoke_data")
+@Include(rootLevel = true, type = "banRevokeData")
 @Setter
 public class BanRevokeData {
   private int id;
