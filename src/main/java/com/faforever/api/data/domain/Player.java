@@ -17,13 +17,14 @@ import java.util.List;
 @Table(name = "login")
 @Include(rootLevel = true, type = "player")
 @SharePermission(any = Role.ALL.class) // Needed e.g. to change leader of a clan
-@UpdatePermission(any = Role.ALL.class)
 @Setter
 public class Player extends Login {
 
   private Ladder1v1Rating ladder1v1Rating;
   private GlobalRating globalRating;
   private List<ClanMembership> clanMemberships;
+  private List<BanInfo> bans;
+  private List<BanInfo> createdBans;
 
   @OneToOne(mappedBy = "player")
   public Ladder1v1Rating getLadder1v1Rating() {
@@ -47,5 +48,17 @@ public class Player extends Login {
       return getClanMemberships().get(0).getClan();
     }
     return null;
+  }
+
+  @OneToMany(mappedBy = "player")
+  @UpdatePermission(any = {Role.ALL.class}) // Permission is managed by BanInfo class
+  public List<BanInfo> getBans() {
+    return this.bans;
+  }
+
+  @OneToMany(mappedBy = "author")
+  @UpdatePermission(any = {Role.ALL.class}) // Permission is managed by BanInfo class
+  public List<BanInfo> getCreatedBans() {
+    return this.createdBans;
   }
 }

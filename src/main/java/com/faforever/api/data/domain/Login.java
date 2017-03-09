@@ -11,7 +11,6 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.OneToOne;
 
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -58,10 +57,5 @@ public abstract class Login {
   @Column(name = "user_agent")
   public String getUserAgent() {
     return userAgent;
-  }
-
-  @OneToOne(mappedBy = "player")
-  public BanInfo getBanInfo() {
-    return banInfo;
   }
 }

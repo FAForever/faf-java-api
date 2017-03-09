@@ -1,6 +1,12 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.checks.permission.HasBanRead;
+import com.faforever.api.data.checks.permission.HasBanUpdate;
+import com.yahoo.elide.annotation.CreatePermission;
+import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
+import com.yahoo.elide.annotation.ReadPermission;
+import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -19,6 +25,10 @@ import java.time.OffsetDateTime;
 @Table(name = "ban_revoke_data")
 @Include(rootLevel = true, type = "banRevokeData")
 @Setter
+@DeletePermission(any = {com.yahoo.elide.security.checks.prefab.Role.NONE.class})
+@ReadPermission(expression = HasBanRead.EXPRESSION)
+@CreatePermission(expression = HasBanUpdate.EXPRESSION)
+@UpdatePermission(expression = HasBanUpdate.EXPRESSION)
 public class BanRevokeData {
   private int id;
   private OffsetDateTime createTime;

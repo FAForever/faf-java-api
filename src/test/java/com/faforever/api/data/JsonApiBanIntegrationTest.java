@@ -4,8 +4,8 @@ import com.faforever.api.ban.BanRepository;
 import com.faforever.api.client.ClientType;
 import com.faforever.api.client.OAuthClient;
 import com.faforever.api.client.OAuthClientRepository;
-import com.faforever.api.data.checks.permission.HasBanInfoCreate;
-import com.faforever.api.data.checks.permission.HasBanInfoRead;
+import com.faforever.api.data.checks.permission.HasBanRead;
+import com.faforever.api.data.checks.permission.HasBanUpdate;
 import com.faforever.api.data.domain.BanInfo;
 import com.faforever.api.data.domain.BanType;
 import com.faforever.api.data.domain.Permission;
@@ -176,7 +176,7 @@ public class JsonApiBanIntegrationTest {
   @SneakyThrows
   public void getBansWithPermission() {
     String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
-    Permission permission = permissionService.createPermission(HasBanInfoRead.EXPRESSION);
+    Permission permission = permissionService.createPermission(HasBanRead.EXPRESSION);
     Role role = permissionService.createRole("TestRole", permission);
     permissionService.assignUserToRole(userRepository.findOneByLoginIgnoreCase(me.getLogin()), role);
 
@@ -215,7 +215,7 @@ public class JsonApiBanIntegrationTest {
   @SneakyThrows
   public void createBanWithPermission() {
     String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
-    Permission permission = permissionService.createPermission(HasBanInfoCreate.EXPRESSION);
+    Permission permission = permissionService.createPermission(HasBanUpdate.EXPRESSION);
     Role role = permissionService.createRole("TestRole", permission);
     permissionService.assignUserToRole(userRepository.findOneByLoginIgnoreCase(me.getLogin()), role);
 

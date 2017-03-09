@@ -1,7 +1,7 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.data.checks.permission.HasBanInfoCreate;
-import com.faforever.api.data.checks.permission.HasBanInfoRead;
+import com.faforever.api.data.checks.permission.HasBanRead;
+import com.faforever.api.data.checks.permission.HasBanUpdate;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
@@ -31,9 +31,9 @@ import java.time.OffsetDateTime;
 @Include(rootLevel = true, type = "banInfo")
 // Bans can be never deleted, only disabled over BanDisableData
 @DeletePermission(any = {Role.NONE.class})
-@ReadPermission(expression = HasBanInfoRead.EXPRESSION)
-@CreatePermission(expression = HasBanInfoCreate.EXPRESSION)
-@UpdatePermission(expression = HasBanInfoCreate.EXPRESSION)
+@ReadPermission(expression = HasBanRead.EXPRESSION)
+@CreatePermission(expression = HasBanUpdate.EXPRESSION)
+@UpdatePermission(expression = HasBanUpdate.EXPRESSION)
 @Setter
 public class BanInfo {
 
