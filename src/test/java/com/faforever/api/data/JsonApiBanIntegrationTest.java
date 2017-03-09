@@ -187,8 +187,28 @@ public class JsonApiBanIntegrationTest {
     ResultActions action = this.mvc.perform(get("/data/banInfo")
         .header("Authorization", accessToken));
     action
-        .andExpect(content().string("{\"data\":[{\"type\":\"banInfo\",\"id\":\"1\",\"attributes\":{\"createTime\":null,\"expiresAt\":null,\"reason\":\"I want to ban me\",\"type\":\"GLOBAL\",\"updateTime\":null},\"relationships\":{\"author\":{\"data\":{\"type\":\"player\",\"id\":\"1\"}},\"banRevokeData\":{\"data\":null},\"player\":{\"data\":{\"type\":\"player\",\"id\":\"1\"}}}}]}"))
+        .andExpect(content().string(String.format("{\"data\":[{\"type\":\"banInfo\",\"id\":\"%s\",\"attributes\":{\"createTime\":null,\"expiresAt\":null,\"reason\":\"I want to ban me\",\"type\":\"GLOBAL\",\"updateTime\":null},\"relationships\":{\"author\":{\"data\":{\"type\":\"player\",\"id\":\"%s\"}},\"banRevokeData\":{\"data\":null},\"player\":{\"data\":{\"type\":\"player\",\"id\":\"%s\"}}}}]}", ban.getId(), me.getId(), me.getId())))
         .andExpect(status().is(200));
+  }
+
+  @Test
+  @SneakyThrows
+  public void createBanWithoutPermission() {
+    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+
+    String reason = "I want to ban him";
+    String content = String.format("{\"data\":[{\"type\":\"banInfo\",\"attributes\":{\"reason\":\"%s\"},\"relationships\":{\"author\":{\"data\":{\"type\":\"player\",\"id\":\"%s\"}},\"player\":{\"data\":{\"type\":\"player\",\"id\":\"%s\"}}}}]}",
+        reason,
+        me.getId(),
+        me.getId());
+    assertEquals(0, banRepository.count());
+    ResultActions action = this.mvc.perform(post("/data/banInfo")
+        .content(content)
+        .header("Authorization", accessToken));
+    action
+        .andExpect(content().string("{\"errors\":[\"ForbiddenAccessException\"]}"))
+        .andExpect(status().is(403));
+    assertEquals(0, banRepository.count());
   }
 
   @Test
@@ -212,5 +232,6 @@ public class JsonApiBanIntegrationTest {
         .andExpect(content().string("{\"data\":{\"type\":\"banInfo\",\"id\":\"1\"}}"))
         .andExpect(status().is(201));
     assertEquals(1, banRepository.count());
+    assertEquals(reason, banRepository.findAll().get(0).getReason());
   }
 }
