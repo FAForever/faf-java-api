@@ -4,6 +4,7 @@ import com.faforever.api.ban.BanRepository;
 import com.faforever.api.client.ClientType;
 import com.faforever.api.client.OAuthClient;
 import com.faforever.api.client.OAuthClientRepository;
+import com.faforever.api.data.checks.permission.HasBanInfoCreate;
 import com.faforever.api.data.checks.permission.HasBanInfoRead;
 import com.faforever.api.data.domain.BanInfo;
 import com.faforever.api.data.domain.BanType;
@@ -11,10 +12,14 @@ import com.faforever.api.data.domain.Permission;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.data.domain.Role;
 import com.faforever.api.data.domain.User;
+import com.faforever.api.permission.PermissionRepository;
 import com.faforever.api.permission.PermissionService;
+import com.faforever.api.permission.RolePermissionsAssingmentRepository;
+import com.faforever.api.permission.RoleRepository;
 import com.faforever.api.permission.RoleUserAssignmentRepository;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.user.UserRepository;
+import lombok.SneakyThrows;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.After;
@@ -51,7 +56,11 @@ public class JsonApiBanIntegrationTest {
   private BanRepository banRepository;
   private PermissionService permissionService;
   private UserRepository userRepository;
+
   private RoleUserAssignmentRepository roleUserAssignmentRepository;
+  private PermissionRepository permissionRepository;
+  private RolePermissionsAssingmentRepository rolePermissionsAssingmentRepository;
+  private RoleRepository roleRepository;
 
   private PlayerRepository playerRepository;
   private OAuthClientRepository oAuthClientRepository;
@@ -72,7 +81,10 @@ public class JsonApiBanIntegrationTest {
                    Filter springSecurityFilterChain,
                    BanRepository banRepository,
                    PermissionService permissionService,
-                   RoleUserAssignmentRepository roleUserAssignmentRepository) {
+                   RoleUserAssignmentRepository roleUserAssignmentRepository,
+                   PermissionRepository permissionRepository,
+                   RolePermissionsAssingmentRepository rolePermissionsAssingmentRepository,
+                   RoleRepository roleRepository) {
     this.context = context;
     this.userRepository = userRepository;
     this.playerRepository = playerRepository;
@@ -81,6 +93,9 @@ public class JsonApiBanIntegrationTest {
     this.banRepository = banRepository;
     this.permissionService = permissionService;
     this.roleUserAssignmentRepository = roleUserAssignmentRepository;
+    this.roleRepository = roleRepository;
+    this.permissionRepository = permissionRepository;
+    this.rolePermissionsAssingmentRepository = rolePermissionsAssingmentRepository;
   }
 
   @Before
@@ -95,12 +110,18 @@ public class JsonApiBanIntegrationTest {
   public void tearDown() {
     banRepository.deleteAll();
     roleUserAssignmentRepository.deleteAll();
+    rolePermissionsAssingmentRepository.deleteAll();
+    permissionRepository.deleteAll();
+    roleRepository.deleteAll();
     userRepository.deleteAll();
     oAuthClientRepository.deleteAll();
     assertEquals(0, banRepository.count());
+    assertEquals(0, roleUserAssignmentRepository.count());
+    assertEquals(0, rolePermissionsAssingmentRepository.count());
+    assertEquals(0, permissionRepository.count());
+    assertEquals(0, roleRepository.count());
     assertEquals(0, userRepository.count());
     assertEquals(0, oAuthClientRepository.count());
-    assertEquals(0, roleUserAssignmentRepository.count());
   }
 
   public String createUserAndGetAccessToken(String login, String password) throws Exception {
@@ -135,17 +156,9 @@ public class JsonApiBanIntegrationTest {
     return "Bearer " + node.get("access_token").asText();
   }
 
-  private Player createPlayer(String login) throws Exception {
-    User user = (User) new User()
-        .setPassword("foo")
-        .setLogin(login)
-        .setEMail(login + "@faforever.com");
-    userRepository.save(user);
-    return playerRepository.findOne(user.getId());
-  }
-
   @Test
-  public void getBansWithoutPermission() throws Exception {
+  @SneakyThrows
+  public void getBansWithoutPermission() {
     String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
 
     BanInfo ban = new BanInfo().setAuthor(me).setReason("I want to ban me").setPlayer(me).setType(BanType.GLOBAL);
@@ -160,7 +173,8 @@ public class JsonApiBanIntegrationTest {
   }
 
   @Test
-  public void getBansWithPermission() throws Exception {
+  @SneakyThrows
+  public void getBansWithPermission() {
     String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
     Permission permission = permissionService.createPermission(HasBanInfoRead.EXPRESSION);
     Role role = permissionService.createRole("TestRole", permission);
@@ -175,5 +189,28 @@ public class JsonApiBanIntegrationTest {
     action
         .andExpect(content().string("{\"data\":[{\"type\":\"banInfo\",\"id\":\"1\",\"attributes\":{\"createTime\":null,\"expiresAt\":null,\"reason\":\"I want to ban me\",\"type\":\"GLOBAL\",\"updateTime\":null},\"relationships\":{\"author\":{\"data\":{\"type\":\"player\",\"id\":\"1\"}},\"banRevokeData\":{\"data\":null},\"player\":{\"data\":{\"type\":\"player\",\"id\":\"1\"}}}}]}"))
         .andExpect(status().is(200));
+  }
+
+  @Test
+  @SneakyThrows
+  public void createBanWithPermission() {
+    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+    Permission permission = permissionService.createPermission(HasBanInfoCreate.EXPRESSION);
+    Role role = permissionService.createRole("TestRole", permission);
+    permissionService.assignUserToRole(userRepository.findOneByLoginIgnoreCase(me.getLogin()), role);
+
+    String reason = "I want to ban him";
+    String content = String.format("{\"data\":[{\"type\":\"banInfo\",\"attributes\":{\"reason\":\"%s\"},\"relationships\":{\"author\":{\"data\":{\"type\":\"player\",\"id\":\"%s\"}},\"player\":{\"data\":{\"type\":\"player\",\"id\":\"%s\"}}}}]}",
+        reason,
+        me.getId(),
+        me.getId());
+    assertEquals(0, banRepository.count());
+    ResultActions action = this.mvc.perform(post("/data/banInfo")
+        .content(content)
+        .header("Authorization", accessToken));
+    action
+        .andExpect(content().string("{\"data\":{\"type\":\"banInfo\",\"id\":\"1\"}}"))
+        .andExpect(status().is(201));
+    assertEquals(1, banRepository.count());
   }
 }

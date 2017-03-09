@@ -16,7 +16,8 @@ import java.util.List;
 @Entity
 @Table(name = "login")
 @Include(rootLevel = true, type = "player")
-@SharePermission(any = Role.ALL.class) // Needed to change leader of a clan
+@SharePermission(any = Role.ALL.class) // Needed e.g. to change leader of a clan
+@UpdatePermission(any = Role.ALL.class)
 @Setter
 public class Player extends Login {
 

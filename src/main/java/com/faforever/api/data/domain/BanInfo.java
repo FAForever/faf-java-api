@@ -1,9 +1,12 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.checks.permission.HasBanInfoCreate;
 import com.faforever.api.data.checks.permission.HasBanInfoRead;
+import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
+import com.yahoo.elide.annotation.UpdatePermission;
 import com.yahoo.elide.security.checks.prefab.Role;
 import lombok.Setter;
 
@@ -29,6 +32,8 @@ import java.time.OffsetDateTime;
 // Bans can be never deleted, only disabled over BanDisableData
 @DeletePermission(any = {Role.NONE.class})
 @ReadPermission(expression = HasBanInfoRead.EXPRESSION)
+@CreatePermission(expression = HasBanInfoCreate.EXPRESSION)
+@UpdatePermission(expression = HasBanInfoCreate.EXPRESSION)
 @Setter
 public class BanInfo {
 
@@ -76,7 +81,6 @@ public class BanInfo {
 
   @Column(name = "type")
   @Enumerated(EnumType.STRING)
-  @NotNull
   public BanType getType() {
     return type;
   }
