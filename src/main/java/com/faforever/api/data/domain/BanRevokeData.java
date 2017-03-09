@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
@@ -18,7 +19,7 @@ import java.time.OffsetDateTime;
 @Table(name = "ban_disable_data")
 @Include(rootLevel = true, type = "banDisableData")
 @Setter
-public class BanDisableData {
+public class BanRevokeData {
   private int id;
   private OffsetDateTime createTime;
   private OffsetDateTime updateTime;
@@ -28,7 +29,7 @@ public class BanDisableData {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
+  @Column(name = "ban_id")
   public int getId() {
     return id;
   }
@@ -43,8 +44,7 @@ public class BanDisableData {
     return updateTime;
   }
 
-  @ManyToOne
-  @JoinColumn(name = "ban_id")
+  @OneToOne(mappedBy = "banRevokeData")
   @NotNull
   public BanInfo getBan() {
     return ban;
