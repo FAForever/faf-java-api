@@ -40,6 +40,7 @@ import javax.servlet.Filter;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -231,6 +232,125 @@ public class JsonApiBanIntegrationTest {
     action
         .andExpect(content().string("{\"data\":{\"type\":\"banInfo\",\"id\":\"1\"}}"))
         .andExpect(status().is(201));
+    assertEquals(1, banRepository.count());
+    assertEquals(reason, banRepository.findAll().get(0).getReason());
+  }
+
+  @Test
+  @SneakyThrows
+  public void updateBanWithPermission() {
+    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+    Role role = permissionService.createRole("TestRole",
+        permissionService.createPermission(HasBanRead.EXPRESSION),
+        permissionService.createPermission(HasBanUpdate.EXPRESSION));
+    permissionService.assignUserToRole(userRepository.findOneByLoginIgnoreCase(me.getLogin()), role);
+
+    String reason = "I want to ban him";
+    BanInfo ban = new BanInfo().setAuthor(me).setReason(reason).setPlayer(me).setType(BanType.GLOBAL);
+    banRepository.save(ban);
+
+
+    assertEquals(1, banRepository.count());
+    assertEquals(reason, banRepository.findAll().get(0).getReason());
+
+    String newReason = "This is a better";
+    String content = String.format("{\"data\":{\"type\":\"banInfo\",\"id\":\"%s\",\"attributes\":{\"reason\":\"%s\"}}}",
+        ban.getId(),
+        newReason);
+
+    ResultActions action = this.mvc.perform(patch("/data/banInfo/" + ban.getId())
+        .content(content)
+        .header("Authorization", accessToken));
+    action
+        .andExpect(content().string(""))
+        .andExpect(status().is(204));
+    assertEquals(1, banRepository.count());
+    assertEquals(newReason, banRepository.findAll().get(0).getReason());
+  }
+
+  @Test
+  @SneakyThrows
+  public void updateBanWithoutUpdatePermission() {
+    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+    Role role = permissionService.createRole("TestRole",
+        permissionService.createPermission(HasBanRead.EXPRESSION));
+    permissionService.assignUserToRole(userRepository.findOneByLoginIgnoreCase(me.getLogin()), role);
+
+    String reason = "I want to ban him";
+    BanInfo ban = new BanInfo().setAuthor(me).setReason(reason).setPlayer(me).setType(BanType.GLOBAL);
+    banRepository.save(ban);
+    
+    assertEquals(1, banRepository.count());
+    assertEquals(reason, banRepository.findAll().get(0).getReason());
+
+    String newReason = "This is a better";
+    String content = String.format("{\"data\":{\"type\":\"banInfo\",\"id\":\"%s\",\"attributes\":{\"reason\":\"%s\"}}}",
+        ban.getId(),
+        newReason);
+
+    ResultActions action = this.mvc.perform(patch("/data/banInfo/" + ban.getId())
+        .content(content)
+        .header("Authorization", accessToken));
+    action
+        .andExpect(content().string("{\"errors\":[\"ForbiddenAccessException\"]}"))
+        .andExpect(status().is(403));
+    assertEquals(1, banRepository.count());
+    assertEquals(reason, banRepository.findAll().get(0).getReason());
+  }
+
+  @Test
+  @SneakyThrows
+  public void updateBanWithoutReadPermission() {
+    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+    Role role = permissionService.createRole("TestRole",
+        permissionService.createPermission(HasBanUpdate.EXPRESSION));
+    permissionService.assignUserToRole(userRepository.findOneByLoginIgnoreCase(me.getLogin()), role);
+
+    String reason = "I want to ban him";
+    BanInfo ban = new BanInfo().setAuthor(me).setReason(reason).setPlayer(me).setType(BanType.GLOBAL);
+    banRepository.save(ban);
+
+    assertEquals(1, banRepository.count());
+    assertEquals(reason, banRepository.findAll().get(0).getReason());
+
+    String newReason = "This is a better";
+    String content = String.format("{\"data\":{\"type\":\"banInfo\",\"id\":\"%s\",\"attributes\":{\"reason\":\"%s\"}}}",
+        ban.getId(),
+        newReason);
+
+    ResultActions action = this.mvc.perform(patch("/data/banInfo/" + ban.getId())
+        .content(content)
+        .header("Authorization", accessToken));
+    action
+        .andExpect(content().string("{\"errors\":[\"ForbiddenAccessException\"]}"))
+        .andExpect(status().is(403));
+    assertEquals(1, banRepository.count());
+    assertEquals(reason, banRepository.findAll().get(0).getReason());
+  }
+
+  @Test
+  @SneakyThrows
+  public void updateBanWithoutPermission() {
+    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+
+    String reason = "I want to ban him";
+    BanInfo ban = new BanInfo().setAuthor(me).setReason(reason).setPlayer(me).setType(BanType.GLOBAL);
+    banRepository.save(ban);
+
+    assertEquals(1, banRepository.count());
+    assertEquals(reason, banRepository.findAll().get(0).getReason());
+
+    String newReason = "This is a better";
+    String content = String.format("{\"data\":{\"type\":\"banInfo\",\"id\":\"%s\",\"attributes\":{\"reason\":\"%s\"}}}",
+        ban.getId(),
+        newReason);
+
+    ResultActions action = this.mvc.perform(patch("/data/banInfo/" + ban.getId())
+        .content(content)
+        .header("Authorization", accessToken));
+    action
+        .andExpect(content().string("{\"errors\":[\"ForbiddenAccessException\"]}"))
+        .andExpect(status().is(403));
     assertEquals(1, banRepository.count());
     assertEquals(reason, banRepository.findAll().get(0).getReason());
   }

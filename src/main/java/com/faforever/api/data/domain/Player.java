@@ -12,6 +12,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "login")
@@ -54,6 +55,16 @@ public class Player extends Login {
   @UpdatePermission(any = {Role.ALL.class}) // Permission is managed by BanInfo class
   public List<BanInfo> getBans() {
     return this.bans;
+  }
+
+  @Transient
+  public List<BanInfo> getActiveBans() {
+    return getBans().stream().filter(ban -> ban.getBanStatus() == BanStatusType.BANNED).collect(Collectors.toList());
+  }
+
+  @Transient
+  public boolean isGlobalBanned() {
+    return getActiveBans().stream().anyMatch(ban -> ban.getType() == BanType.GLOBAL);
   }
 
   @OneToMany(mappedBy = "author")
