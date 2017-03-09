@@ -162,7 +162,7 @@ public class JsonApiBanIntegrationTest {
   public void getBansWithoutPermission() {
     String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
 
-    BanInfo ban = new BanInfo().setAuthor(me).setReason("I want to ban me").setPlayer(me).setType(BanType.GLOBAL);
+    BanInfo ban = new BanInfo().setAuthor(me).setReason("I want to ban me").setPlayer(me).setType(BanType.CHAT);
     banRepository.save(ban);
 
     assertEquals(1, banRepository.count());
@@ -181,14 +181,14 @@ public class JsonApiBanIntegrationTest {
     Role role = permissionService.createRole("TestRole", permission);
     permissionService.assignUserToRole(userRepository.findOneByLoginIgnoreCase(me.getLogin()), role);
 
-    BanInfo ban = new BanInfo().setAuthor(me).setReason("I want to ban me").setPlayer(me).setType(BanType.GLOBAL);
+    BanInfo ban = new BanInfo().setAuthor(me).setReason("I want to ban me").setPlayer(me).setType(BanType.CHAT);
     banRepository.save(ban);
 
     assertEquals(1, banRepository.count());
     ResultActions action = this.mvc.perform(get("/data/banInfo")
         .header("Authorization", accessToken));
     action
-        .andExpect(content().string(String.format("{\"data\":[{\"type\":\"banInfo\",\"id\":\"%s\",\"attributes\":{\"createTime\":null,\"expiresAt\":null,\"reason\":\"I want to ban me\",\"type\":\"GLOBAL\",\"updateTime\":null},\"relationships\":{\"author\":{\"data\":{\"type\":\"player\",\"id\":\"%s\"}},\"banRevokeData\":{\"data\":null},\"player\":{\"data\":{\"type\":\"player\",\"id\":\"%s\"}}}}]}", ban.getId(), me.getId(), me.getId())))
+        .andExpect(content().string(String.format("{\"data\":[{\"type\":\"banInfo\",\"id\":\"%s\",\"attributes\":{\"createTime\":null,\"expiresAt\":null,\"reason\":\"I want to ban me\",\"type\":\"CHAT\",\"updateTime\":null},\"relationships\":{\"author\":{\"data\":{\"type\":\"player\",\"id\":\"%s\"}},\"banRevokeData\":{\"data\":null},\"player\":{\"data\":{\"type\":\"player\",\"id\":\"%s\"}}}}]}", ban.getId(), me.getId(), me.getId())))
         .andExpect(status().is(200));
   }
 
@@ -246,7 +246,7 @@ public class JsonApiBanIntegrationTest {
     permissionService.assignUserToRole(userRepository.findOneByLoginIgnoreCase(me.getLogin()), role);
 
     String reason = "I want to ban him";
-    BanInfo ban = new BanInfo().setAuthor(me).setReason(reason).setPlayer(me).setType(BanType.GLOBAL);
+    BanInfo ban = new BanInfo().setAuthor(me).setReason(reason).setPlayer(me).setType(BanType.CHAT);
     banRepository.save(ban);
 
 
@@ -277,9 +277,9 @@ public class JsonApiBanIntegrationTest {
     permissionService.assignUserToRole(userRepository.findOneByLoginIgnoreCase(me.getLogin()), role);
 
     String reason = "I want to ban him";
-    BanInfo ban = new BanInfo().setAuthor(me).setReason(reason).setPlayer(me).setType(BanType.GLOBAL);
+    BanInfo ban = new BanInfo().setAuthor(me).setReason(reason).setPlayer(me).setType(BanType.CHAT);
     banRepository.save(ban);
-    
+
     assertEquals(1, banRepository.count());
     assertEquals(reason, banRepository.findAll().get(0).getReason());
 
@@ -307,7 +307,7 @@ public class JsonApiBanIntegrationTest {
     permissionService.assignUserToRole(userRepository.findOneByLoginIgnoreCase(me.getLogin()), role);
 
     String reason = "I want to ban him";
-    BanInfo ban = new BanInfo().setAuthor(me).setReason(reason).setPlayer(me).setType(BanType.GLOBAL);
+    BanInfo ban = new BanInfo().setAuthor(me).setReason(reason).setPlayer(me).setType(BanType.CHAT);
     banRepository.save(ban);
 
     assertEquals(1, banRepository.count());
@@ -334,7 +334,7 @@ public class JsonApiBanIntegrationTest {
     String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
 
     String reason = "I want to ban him";
-    BanInfo ban = new BanInfo().setAuthor(me).setReason(reason).setPlayer(me).setType(BanType.GLOBAL);
+    BanInfo ban = new BanInfo().setAuthor(me).setReason(reason).setPlayer(me).setType(BanType.CHAT);
     banRepository.save(ban);
 
     assertEquals(1, banRepository.count());

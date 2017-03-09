@@ -7,6 +7,7 @@ import com.yahoo.elide.security.checks.prefab.Role;
 import lombok.Setter;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -51,7 +52,7 @@ public class Player extends Login {
     return null;
   }
 
-  @OneToMany(mappedBy = "player")
+  @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
   @UpdatePermission(any = {Role.ALL.class}) // Permission is managed by BanInfo class
   public List<BanInfo> getBans() {
     return this.bans;

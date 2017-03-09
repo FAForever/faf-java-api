@@ -17,12 +17,12 @@ public class FafUserDetails extends org.springframework.security.core.userdetail
   private final PermissionService permissionService;
   private User user;
 
-  public FafUserDetails(User user) {
+  public FafUserDetails(User user, boolean accountNonLocked) {
     // TODO implement lobby_admin
     this(user.getId(),
         user.getLogin(),
         user.getPassword(),
-        true, // TODO use new ban system
+        accountNonLocked,
         singletonList(new SimpleGrantedAuthority("ROLE_USER")),
         null);
     this.user = user;
