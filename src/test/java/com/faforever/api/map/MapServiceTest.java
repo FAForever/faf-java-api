@@ -8,7 +8,7 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ApiExceptionWithMultipleCodes;
 import com.faforever.api.error.ErrorCode;
-import com.faforever.api.utils.Unzipper;
+import com.faforever.commons.zip.Unzipper;
 import com.google.common.io.ByteStreams;
 import com.googlecode.zohhak.api.TestWith;
 import com.googlecode.zohhak.api.runners.ZohhakRunner;
@@ -49,28 +49,26 @@ import static org.mockito.Mockito.when;
 
 @RunWith(ZohhakRunner.class)
 public class MapServiceTest {
-  private MapService instance;
-  private Map mapProperties;
-
   @Rule
   public final TemporaryFolder temporaryDirectory = new TemporaryFolder();
   @Rule
   public final TemporaryFolder finalDirectory = new TemporaryFolder();
   @Rule
   public final ExpectedException expectedException = ExpectedException.none();
-
   private final MapRepository mapRepository = mock(MapRepository.class);
   private final FafApiProperties fafApiProperties = mock(FafApiProperties.class);
   private final ContentService contentService = mock(ContentService.class);
   private final Player author = mock(Player.class);
+  private MapService instance;
+  private Map mapProperties;
 
   @Before
   public void setUp() {
     instance = new MapService(fafApiProperties, mapRepository, contentService);
     mapProperties = new Map()
-        .setFolderZipFiles(finalDirectory.getRoot().toPath())
-        .setFolderPreviewPathLarge(finalDirectory.getRoot().toPath().resolve("large"))
-        .setFolderPreviewPathSmall(finalDirectory.getRoot().toPath().resolve("small"));
+        .setTargetDirectory(finalDirectory.getRoot().toPath())
+        .setDirectoryPreviewPathLarge(finalDirectory.getRoot().toPath().resolve("large"))
+        .setDirectoryPreviewPathSmall(finalDirectory.getRoot().toPath().resolve("small"));
     when(fafApiProperties.getMap()).thenReturn(mapProperties);
     when(contentService.createTempDir()).thenReturn(temporaryDirectory.getRoot().toPath());
   }
@@ -276,15 +274,13 @@ public class MapServiceTest {
             FileAssert.assertEquals("Difference in " + expectedFile.getFileName().toString(),
                 expectedFile.toFile(),
                 finalGeneratedFile.resolve(expectedFile.getFileName().toString()).toFile())
-
         );
 
-        assertTrue(Files.exists(mapProperties.getFolderPreviewPathLarge().resolve("sludge_test.v0001.png")));
-        assertTrue(Files.exists(mapProperties.getFolderPreviewPathSmall().resolve("sludge_test.v0001.png")));
+        assertTrue(Files.exists(mapProperties.getDirectoryPreviewPathLarge().resolve("sludge_test.v0001.png")));
+        assertTrue(Files.exists(mapProperties.getDirectoryPreviewPathSmall().resolve("sludge_test.v0001.png")));
       }
     }
   }
-
 
   private InputStream loadMapResourceAsStream(String filename) {
     return MapServiceTest.class.getResourceAsStream("/maps/" + filename);

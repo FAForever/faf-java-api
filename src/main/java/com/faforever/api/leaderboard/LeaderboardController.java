@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.yahoo.elide.jsonapi.models.Data;
 import com.yahoo.elide.jsonapi.models.JsonApiDocument;
 import com.yahoo.elide.jsonapi.models.Resource;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +29,7 @@ public class LeaderboardController {
 
   @Async
   @RequestMapping(path = "/ladder1v1")
+  @ApiOperation("Lists the ladder1v1 leaderboard")
   public CompletableFuture<JsonApiDocument> getLadder1v1() {
     List<Resource> values = leaderboardService.getLadder1v1Leaderboard().stream()
         .map(entry -> new Resource(LADDER_1V1_LEADERBOARD_ENTRY, String.valueOf(entry.getId()),
@@ -48,6 +50,7 @@ public class LeaderboardController {
 
   @Async
   @RequestMapping(path = "/global")
+  @ApiOperation("Lists the global leaderboard")
   public CompletableFuture<JsonApiDocument> getGlobal() {
     List<Resource> values = leaderboardService.getGlobalLeaderboard().stream()
         .map(entry -> new Resource(GLOBAL_LEADERBOARD_ENTRY, String.valueOf(entry.getId()),
@@ -67,6 +70,7 @@ public class LeaderboardController {
 
   @Async
   @RequestMapping(path = "/ladder1v1/{playerId}")
+  @ApiOperation("Lists the ladder1v1 leaderboard for the specified player")
   public CompletableFuture<JsonApiDocument> getSingleLadder1v1(@PathVariable("playerId") String playerId) {
     Ladder1v1LeaderboardEntry entry = leaderboardService.getLadder1v1Entry(Integer.valueOf(playerId));
     if (entry == null) {
@@ -89,6 +93,7 @@ public class LeaderboardController {
 
   @Async
   @RequestMapping(path = "/global/{playerId}")
+  @ApiOperation("Lists the global leaderboard for the specified player")
   public CompletableFuture<JsonApiDocument> getSingleGlobal(@PathVariable("playerId") String playerId) {
     GlobalLeaderboardEntry entry = leaderboardService.getGlobalEntry(Integer.valueOf(playerId));
     if (entry == null) {

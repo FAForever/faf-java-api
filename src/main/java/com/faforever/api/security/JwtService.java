@@ -19,7 +19,7 @@ public class JwtService {
 
   @Inject
   public JwtService(FafApiProperties fafApiProperties, ObjectMapper objectMapper) {
-    this.macSigner = new MacSigner(fafApiProperties.getJwtSecret());
+    this.macSigner = new MacSigner(fafApiProperties.getJwt().getSecret());
     this.objectMapper = objectMapper;
   }
 

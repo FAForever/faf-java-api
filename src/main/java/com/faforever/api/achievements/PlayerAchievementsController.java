@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +30,10 @@ public class PlayerAchievementsController {
   @ApiOperation(value = "Updates the state and progress of one or multiple achievements.")
   public List<AchievementUpdateResponse> update(@RequestBody AchievementUpdateRequest[] updateRequests,
                                                 @AuthenticationPrincipal FafUserDetails userDetails) {
+    // FIXME protect using OAuth scope, so that only the server is allowed to send requests
+    if (Instant.now().toEpochMilli() > 0) {
+      throw new UnsupportedOperationException("Not yet supported");
+    }
     int playerId = userDetails.getId();
     return Arrays.stream(updateRequests).map(achievementUpdateRequest -> {
       switch (achievementUpdateRequest.getOperation()) {

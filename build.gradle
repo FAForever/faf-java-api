@@ -17,13 +17,14 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'propdeps'
 
 group = 'micheljung'
-version = '0.3.3'
+version = '0.3.4'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
   mavenCentral()
+  maven { url "http://repo.jenkins-ci.org/public/" }
   maven { url "https://jitpack.io" }
 }
 
@@ -105,7 +106,7 @@ task createDockerfile(type: Dockerfile, dependsOn: dockerCopyDistResources) {
 
   runCommand 'chmod +x default-cmd.sh'
 
-  exposePort 8080
+  exposePort 8010
 
   defaultCommand './default-cmd.sh', "/${project.name}-${project.version}/bin/${project.name}"
 }
@@ -121,6 +122,11 @@ task pushDockerImage(type: DockerPushImage, dependsOn: buildDockerImage) {
 
   imageName "${project.group}/${rootProject.name}"
   tag project.version
+}
+
+configurations.all {
+  // Cache -SNAPSHOT for 60 seconds only
+  resolutionStrategy.cacheChangingModulesFor 60, 'seconds'
 }
 
 dependencyManagement {
@@ -140,11 +146,13 @@ dependencies {
   compile("org.springframework.boot:spring-boot-starter-security")
   compile("de.codecentric:spring-boot-admin-starter-client:${springBootAdminClientVersion}")
 
+  compile("com.github.FAForever:faf-java-commons:${fafCommonsVersion}")
+  compile("org.kohsuke:github-api:1.84")
   compile("org.jolokia:jolokia-core:${jolokiaVersion}")
   compile("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
   compile("org.springframework.security.oauth:spring-security-oauth2:${springSecurityOauth2Version}")
   compile("org.springframework:spring-context-support:${springContextSupportVersion}")
-
+  compile("org.eclipse.jgit:org.eclipse.jgit:${jgitVersionn}")
   compile("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
   compile("com.google.guava:guava:${guavaVersion}")
   compile("io.springfox:springfox-swagger-ui:${swaggerVersion}")

@@ -12,11 +12,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @RestController
@@ -31,7 +29,7 @@ public class FeaturedModsController {
 
   @Async
   @RequestMapping(path = "/{modId}/files/{version}")
-  @ApiOperation(value = "Lists the required files for a specific featured mod version")
+  @ApiOperation("Lists the required files for a specific featured mod version")
   public CompletableFuture<JsonApiDocument> getFiles(@PathVariable("modId") int modId,
                                                      @PathVariable("version") String version) {
     ImmutableMap<Integer, FeaturedMod> mods = Maps.uniqueIndex(featuredModService.getFeaturedMods(), FeaturedMod::getId);
@@ -39,11 +37,7 @@ public class FeaturedModsController {
 
     Integer innerVersion = "latest".equals(version) ? null : Integer.valueOf(version);
 
-    return getFiles(() -> featuredModService.getFiles(featuredMod.getTechnicalName(), innerVersion));
-  }
-
-  private CompletableFuture<JsonApiDocument> getFiles(Supplier<Collection<FeaturedModFile>> supplier) {
-    List<Resource> values = supplier.get().stream()
+    List<Resource> values = featuredModService.getFiles(featuredMod.getTechnicalName(), innerVersion).stream()
         .map(modFileMapper())
         .collect(Collectors.toList());
 
