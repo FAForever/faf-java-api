@@ -1,18 +1,28 @@
 faf-api:
-  jwt-secret: ${JWT_SECRET}
+  jwt:
+    secret: ${JWT_SECRET}
   map:
-    folder-zip-files: ${MAP_UPLOAD_PATH}
-    folder-preview-path-small: ${MAP_PREVIEW_PATH_SMALL}
-    folder-preview-path-large: ${MAP_PREVIEW_PATH_LARGE}
+    target-directory: ${MAP_UPLOAD_PATH}
+    directory-preview-path-small: ${MAP_PREVIEW_PATH_SMALL}
+    directory-preview-path-large: ${MAP_PREVIEW_PATH_LARGE}
+    small-previews-url-format: ${MAP_SMALL_PREVIEWS_URL_FORMAT}
+    large-previews-url-format: ${MAP_LARGE_PREVIEWS_URL_FORMAT}
+    download-url-format: ${MAP_DOWNLOAD_URL_FORMAT}
+  mod:
+    download-url-format: ${MOD_DOWNLOAD_URL_FORMAT}
+    preview-url-format: ${MOD_PREVIEW_URL_FORMAT}
+  replay:
+    download-url-format: ${REPLAY_DOWNLOAD_URL_FORMAT}
+  featured-mods:
+    file-url-format: ${FEATURED_MOD_URL_FORMAT}
   git-hub:
     access-token: ${GITHUB_ACCESS_TOKEN}
     deployment-environment: ${GITHUB_DEPLOYMENT_ENVIRONMENT:production}
-    repositories-directory: ${REPOSITORY_DIRECTORY}
     webhook-secret: ${GITHUB_WEBHOOK_SECRET}
   deployment:
     forged-alliance-exe-path: ${FORGED_ALLIANCE_EXE_PATH}
-    repositories-folder: ${REPOSITORIES_FOLDER}
-    target-folder: ${DEPLOYMENT_TARGET_FOLDER}
+    repositories-directory: ${REPOSITORIES_DIRECTORY}
+    featured-mods-target-directory: ${FEATURED_MODS_TARGET_DIRECTORY}
     configurations:
       - repositoryUrl: https://github.com/FAForever/fa.git
         branch: deploy/faf

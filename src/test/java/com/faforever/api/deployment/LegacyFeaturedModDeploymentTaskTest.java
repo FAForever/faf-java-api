@@ -50,8 +50,8 @@ public class LegacyFeaturedModDeploymentTaskTest {
   public void setUp() throws Exception {
     properties = new FafApiProperties();
     Deployment deployment = properties.getDeployment();
-    deployment.setRepositoriesFolder(repositoriesFolder.getRoot().getAbsolutePath());
-    deployment.setTargetFolder(targetFolder.getRoot().getAbsolutePath());
+    deployment.setRepositoriesDirectory(repositoriesFolder.getRoot().getAbsolutePath());
+    deployment.setFeaturedModsTargetDirectory(targetFolder.getRoot().getAbsolutePath());
 
     instance = new LegacyFeaturedModDeploymentTask(gitWrapper, featuredModService, properties);
   }

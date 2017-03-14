@@ -86,7 +86,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     short version = readModVersion(repositoryDirectory);
     verifyVersion(version, replaceExisting, modName);
 
-    Path targetFolder = Paths.get(deployment.getTargetFolder(), String.format(deployment.getFilesFolderFormat(), modName));
+    Path targetFolder = Paths.get(deployment.getFeaturedModsTargetDirectory(), String.format(deployment.getFilesDirectoryFormat(), modName));
     List<StagedFile> files = packageDirectories(repositoryDirectory, version, fileIds, targetFolder);
     createPatchedExe(version, fileIds, targetFolder).ifPresent(files::add);
 
@@ -210,7 +210,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
 
   private Path buildRepositoryDirectoryPath(String repoUrl) {
     String repoDirName = repoUrl.replaceAll(NON_WORD_CHARACTER_PATTERN, "");
-    return Paths.get(apiProperties.getDeployment().getRepositoriesFolder(), repoDirName);
+    return Paths.get(apiProperties.getDeployment().getRepositoriesDirectory(), repoDirName);
   }
 
   private Path toTmpFile(Path targetFile) {

@@ -106,7 +106,7 @@ task createDockerfile(type: Dockerfile, dependsOn: dockerCopyDistResources) {
 
   runCommand 'chmod +x default-cmd.sh'
 
-  exposePort 8080
+  exposePort 8010
 
   defaultCommand './default-cmd.sh', "/${project.name}-${project.version}/bin/${project.name}"
 }

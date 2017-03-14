@@ -1,5 +1,7 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.listeners.GameEnricher;
+import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
 import lombok.Setter;
 import org.hibernate.annotations.Formula;
@@ -8,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
@@ -15,6 +18,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.time.Instant;
 import java.util.List;
 
@@ -23,6 +27,7 @@ import java.util.List;
 @Include(rootLevel = true, type = "game")
 @Immutable
 @Setter
+@EntityListeners(GameEnricher.class)
 public class Game {
 
   private int id;
@@ -35,6 +40,7 @@ public class Game {
   private String name;
   private Validity validity;
   private List<GamePlayerStats> playerStats;
+  private String replayUrl;
 
   @Id
   @Column(name = "id")
@@ -90,5 +96,11 @@ public class Game {
   @Nullable
   public Instant getEndTime() {
     return endTime;
+  }
+
+  @Transient
+  @ComputedAttribute
+  public String getReplayUrl() {
+    return replayUrl;
   }
 }

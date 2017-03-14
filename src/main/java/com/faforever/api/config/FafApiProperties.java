@@ -13,15 +13,15 @@ import java.util.List;
 @ConfigurationProperties(prefix = "faf-api", ignoreUnknownFields = false)
 public class FafApiProperties {
   /**
-   * The secret used for JWT token generation.
+   * The API version.
    */
-  private String jwtSecret = "banana";
-  private String version = "dev";
+  private String version;
   private Jwt jwt = new Jwt();
   private OAuth2 oAuth2 = new OAuth2();
   private Async async = new Async();
   private Map map = new Map();
   private Mod mod = new Mod();
+  private Replay replay = new Replay();
   private Clan clan = new Clan();
   private FeaturedMods featuredMods = new FeaturedMods();
   private GitHub gitHub = new GitHub();
@@ -34,6 +34,10 @@ public class FafApiProperties {
 
   @Data
   public static class Jwt {
+    /**
+     * The secret used for JWT token generation.
+     */
+    private String secret = "secret";
     private int accessTokenValiditySeconds = 3600;
     private int refreshTokenValiditySeconds = 3600;
   }
@@ -47,26 +51,58 @@ public class FafApiProperties {
 
   @Data
   public static class Map {
-    private String smallPreviewsUrlFormat = "http://content.faforever.com/faf/vault/map_previews/small/%s";
-    private String largePreviewsUrlFormat = "http://content.faforever.com/faf/vault/map_previews/large/%s";
-    private String downloadUrlFormat = "http://content.faforever.com/faf/vault/maps/%s";
-    private Path folderZipFiles = Paths.get("/content/faf/vault/maps");
-    private Path folderPreviewPathSmall = Paths.get("static/map_previews/small");
-    private Path folderPreviewPathLarge = Paths.get("static/map_previews/large");
+    /**
+     * For instance {@code http://content.faforever.com/faf/vault/map_previews/small/%s}
+     */
+    private String smallPreviewsUrlFormat;
+    /**
+     * For instance {@code http://content.faforever.com/faf/vault/map_previews/large/%s}
+     */
+    private String largePreviewsUrlFormat;
+    /**
+     * For instance {@code http://content.faforever.com/faf/vault/maps/%s}
+     */
+    private String downloadUrlFormat;
+    /**
+     * The directory in which map files are stored.
+     */
+    private Path targetDirectory = Paths.get("static/maps");
+    /**
+     * The directory in which small map previews are stored.
+     */
+    private Path directoryPreviewPathSmall = Paths.get("static/map_previews/small");
+    /**
+     * The directory in which large map previews are stored.
+     */
+    private Path directoryPreviewPathLarge = Paths.get("static/map_previews/large");
+    /**
+     * The size (in pixels) of small map previews.
+     */
     private int previewSizeSmall = 128;
+    /**
+     * The size (in pixels) of large map previews.
+     */
     private int previewSizeLarge = 512;
+    /**
+     * Allowed file extensions of uploaded maps.
+     */
     private String[] allowedExtensions = {"zip"};
   }
 
   @Data
   public static class Mod {
-    private String previewUrlFormat = "http://content.faforever.com/faf/vault/mods_thumbs/%s";
-    private String downloadUrlFormat = "http://content.faforever.com/faf/vault/mods/%s";
+    private String previewUrlFormat;
+    private String downloadUrlFormat;
+  }
+
+  @Data
+  public static class Replay {
+    private String downloadUrlFormat;
   }
 
   @Data
   public static class FeaturedMods {
-    private String fileUrlFormat = "http://content.faforever.com/faf/updaterNew/%s/%s";
+    private String fileUrlFormat;
   }
 
   @Data
@@ -77,16 +113,15 @@ public class FafApiProperties {
   @Data
   public static class GitHub {
     private String webhookSecret;
-    private String repositoriesDirectory;
     private String accessToken;
     private String deploymentEnvironment;
   }
 
   @Data
   public static class Deployment {
-    private String targetFolder;
-    private String repositoriesFolder;
-    private String filesFolderFormat = "updates_%s_files";
+    private String featuredModsTargetDirectory;
+    private String repositoriesDirectory;
+    private String filesDirectoryFormat = "updates_%s_files";
     private String forgedAllianceExePath;
     private List<DeploymentConfiguration> configurations = new ArrayList<>();
 
