@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 public enum Faction {
   // Order is crucial
-  AEON("aeon"), CYBRAN("cybran"), UEF("uef"), SERAPHIM("seraphim"), NOMAD("nomad");
+  AEON("aeon"), CYBRAN("cybran"), UEF("uef"), SERAPHIM("seraphim"), NOMAD("nomad"), UNKNOWN(null);
 
   private static final java.util.Map<String, Faction> fromString;
 
@@ -28,6 +28,9 @@ public enum Faction {
 
   @JsonCreator
   public static Faction fromFaValue(int value) {
+    if (value > 5) {
+      return UNKNOWN;
+    }
     return Faction.values()[value - 1];
   }
 
