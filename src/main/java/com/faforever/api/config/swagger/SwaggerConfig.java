@@ -53,6 +53,8 @@ public class SwaggerConfig {
         regex("/data/.*"),
         regex("/health.*"),
         regex("/clans/.*"),
+        regex("/achievements/.*"),
+        regex("/events/.*"),
         regex("/maps/.*"));
   }
 }

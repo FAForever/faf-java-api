@@ -134,6 +134,7 @@ dependencyManagement {
     dependency("org.hibernate:hibernate-core:${hibernateVersion}")
     dependency("org.hibernate:hibernate-entitymanager:${hibernateVersion}")
     dependency("org.hibernate:hibernate-validator:${hibernateVersion}")
+    dependency "org.mockito:mockito-core:${mockitoVersion}"
   }
 }
 

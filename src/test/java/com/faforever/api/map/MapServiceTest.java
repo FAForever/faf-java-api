@@ -84,7 +84,7 @@ public class MapServiceTest {
   }
 
   @Test
-  public void zipFilenameAllreadyExists() throws IOException {
+  public void zipFilenamealreadyExists() throws IOException {
     Path clashedMap = finalDirectory.getRoot().toPath().resolve("sludge_test.v0001.zip");
     clashedMap.toFile().createNewFile();
     String zipFilename = "scmp_037.zip";

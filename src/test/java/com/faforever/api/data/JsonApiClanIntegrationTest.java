@@ -16,6 +16,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,6 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@Ignore("This needs to be cleaned up big time.")
 public class JsonApiClanIntegrationTest {
   private static final String OAUTH_CLIENT_ID = "1234";
   private static final String OAUTH_SECRET = "secret";
@@ -89,6 +91,7 @@ public class JsonApiClanIntegrationTest {
     me = null;
   }
 
+  // TODO @Dragonfire clean up the duplicated code
   @After
   public void tearDown() {
     clanMembershipRepository.deleteAll();
@@ -101,6 +104,7 @@ public class JsonApiClanIntegrationTest {
     assertEquals(0, oAuthClientRepository.count());
   }
 
+  // TODO @Dragonfire clean up the duplicated code
   public String createUserAndGetAccessToken(String login, String password) throws Exception {
     OAuthClient client = new OAuthClient()
         .setId(OAUTH_CLIENT_ID)
@@ -178,6 +182,7 @@ public class JsonApiClanIntegrationTest {
     assertEquals(2, clanMembershipRepository.count());
   }
 
+  // TODO @Dragonfire clean up the duplicated code
   @Test
   public void canKickMember() throws Exception {
     String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
@@ -197,6 +202,7 @@ public class JsonApiClanIntegrationTest {
     assertEquals(myMembership.getId(), clanMembershipRepository.findAll().get(0).getId());
   }
 
+  // TODO @Dragonfire clean up the duplicated code
   @Test
   public void canLeaveClan() throws Exception {
     String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");

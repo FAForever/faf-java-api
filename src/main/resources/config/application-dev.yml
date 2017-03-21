@@ -1,5 +1,7 @@
 faf-api:
   version: dev
+  jwt:
+    secret: ${JWT_SECRET:banana}
   map:
     target-directory: ${MAP_UPLOAD_PATH:build/cache/map/maps}
     directory-preview-path-small: ${MAP_PREVIEW_PATH_SMALL:build/cache/map_previews/small}

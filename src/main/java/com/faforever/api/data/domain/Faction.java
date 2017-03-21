@@ -28,7 +28,7 @@ public enum Faction {
 
   @JsonCreator
   public static Faction fromFaValue(int value) {
-    if (value > 5) {
+    if (value > 5 || value < 1) {
       return UNKNOWN;
     }
     return Faction.values()[value - 1];

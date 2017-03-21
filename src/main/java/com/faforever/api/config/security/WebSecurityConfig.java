@@ -50,25 +50,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
       http
       .csrf().disable() // http://stackoverflow.com/a/29917946
       .headers()
-      .cacheControl().disable()
+        .cacheControl().disable()
       .and().formLogin().permitAll()
       .and().authorizeRequests()
         .antMatchers(HttpMethod.OPTIONS).permitAll()
-        // Elide JSON-API
-        .antMatchers("/data/**").permitAll()
-        // Additional APIs
-        .antMatchers("/leaderboards/**").permitAll()
-        .antMatchers("/featuredMods/**").permitAll()
         .antMatchers("/oauth/**").permitAll()
-        .antMatchers("/gitHub/webhook").permitAll()
-        // Redirects to Swagger UI
-        .antMatchers("/").permitAll()
         // Swagger UI
         .antMatchers("/swagger-ui.html").permitAll()
         .antMatchers("/swagger-resources/**").permitAll()
         .antMatchers("/v2/api-docs/**").permitAll()
-        // Require authentication for everything else
-        .antMatchers("/**").authenticated();
+        .antMatchers("/").permitAll();
     // @formatter:on
   }
 

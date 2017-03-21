@@ -14,3 +14,7 @@ spring:
   h2:
     console:
       enabled: true
+
+faf-api:
+  jwt:
+    secret: banana

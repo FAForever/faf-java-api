@@ -24,8 +24,7 @@ public class JwtService {
   }
 
   public String sign(Map<String, Serializable> data) throws IOException {
-    Jwt token = JwtHelper.encode(objectMapper.writeValueAsString(data), this.macSigner);
-    return token.getEncoded();
+    return JwtHelper.encode(objectMapper.writeValueAsString(data), this.macSigner).getEncoded();
   }
 
   public Jwt decodeAndVerify(String stringToken) {

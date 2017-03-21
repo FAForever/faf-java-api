@@ -12,6 +12,10 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Locale;
+
+import static org.springframework.security.oauth2.common.OAuth2AccessToken.ACCESS_TOKEN;
+import static org.springframework.security.oauth2.common.OAuth2AccessToken.BEARER_TYPE;
 
 /**
  * OAuth2 resource server configuration.
@@ -20,19 +24,8 @@ import javax.servlet.http.HttpServletRequest;
 @EnableResourceServer
 public class OAuthResourceServerConfig extends ResourceServerConfigurerAdapter {
 
-  private static class OAuthRequestedMatcher implements RequestMatcher {
-
-    public boolean matches(HttpServletRequest request) {
-      String auth = request.getHeader("Authorization");
-      boolean hasOauth2Token = (auth != null) && auth.startsWith("Bearer");
-      boolean hasAccessToken = request.getParameter("access_token") != null;
-      return hasOauth2Token || hasAccessToken;
-    }
-  }
-
   private final String resourceId;
   private final ResourceServerTokenServices tokenServices;
-
   @Inject
   public OAuthResourceServerConfig(FafApiProperties fafApiProperties, ResourceServerTokenServices tokenServices) {
     this.resourceId = fafApiProperties.getOAuth2().getResourceId();
@@ -51,5 +44,15 @@ public class OAuthResourceServerConfig extends ResourceServerConfigurerAdapter {
         .authorizeRequests()
         .antMatchers(HttpMethod.OPTIONS).permitAll()
         .anyRequest().authenticated();
+  }
+
+  private static class OAuthRequestedMatcher implements RequestMatcher {
+
+    public boolean matches(HttpServletRequest request) {
+      String auth = request.getHeader("Authorization");
+      boolean hasOauth2Token = (auth != null) && auth.toLowerCase(Locale.US).startsWith(BEARER_TYPE.toLowerCase());
+      boolean hasAccessToken = request.getParameter(ACCESS_TOKEN) != null;
+      return hasOauth2Token || hasAccessToken;
+    }
   }
 }

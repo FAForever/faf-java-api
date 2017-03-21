@@ -4,6 +4,7 @@ import com.yahoo.elide.Elide;
 import com.yahoo.elide.ElideResponse;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -42,6 +43,7 @@ public class JsonApiController {
       value = {"/{entity}", "/{entity}/{id}/relationships/{entity2}", "/{entity}/{id}/{child}", "/{entity}/{id}"})
   @Transactional(readOnly = true)
   @Cacheable(cacheResolver = "elideCacheResolver")
+  @PreAuthorize("permitAll()")
   public ResponseEntity<String> jsonApiGet(@RequestParam final Map<String, String> allRequestParams,
                                            final HttpServletRequest request,
                                            final Authentication authentication) {
@@ -59,6 +61,7 @@ public class JsonApiController {
       value = {"/{entity}", "/{entity}/{id}/relationships/{entity2}", "/{entity}/{id}/{child}", "/{entity}/{id}"})
   @Transactional
   @Cacheable(cacheResolver = "elideCacheResolver")
+  @PreAuthorize("hasRole('USER')")
   public ResponseEntity<String> jsonApiPost(@RequestBody final String body,
                                             final HttpServletRequest request,
                                             final Authentication authentication) {
@@ -75,6 +78,7 @@ public class JsonApiController {
       produces = JSON_API_MEDIA_TYPE,
       value = {"/{entity}/{id}", "/{entity}/{id}/relationships/{entity2}"})
   @Transactional
+  @PreAuthorize("hasRole('USER')")
   public ResponseEntity<String> jsonApiPatch(@RequestBody final String body,
                                              final HttpServletRequest request,
                                              final Authentication authentication) {
@@ -92,6 +96,7 @@ public class JsonApiController {
       produces = JSON_API_MEDIA_TYPE,
       value = {"/{entity}/{id}", "/{entity}/{id}/relationships/{entity2}"})
   @Transactional
+  @PreAuthorize("hasRole('USER')")
   public ResponseEntity<String> jsonApiDelete(final HttpServletRequest request,
                                               final Authentication authentication) {
     ElideResponse response = elide.delete(

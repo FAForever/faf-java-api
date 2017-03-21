@@ -48,7 +48,7 @@ public class AchievementDefinition {
     return id;
   }
 
-  @Column(name = "order")
+  @Column(name = "\"order\"")
   public int getOrder() {
     return order;
   }

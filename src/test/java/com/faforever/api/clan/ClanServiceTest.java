@@ -343,7 +343,7 @@ public class ClanServiceTest {
   }
 
   @Test
-  public void acceptPlayerInvitationTokenPlayerIsAllreadyInAClan() throws IOException {
+  public void acceptPlayerInvitationTokenPlayerIAlreadyInAClan() throws IOException {
     String stringToken = "1234";
 
     Clan clan = new Clan().setId(1);

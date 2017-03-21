@@ -72,7 +72,7 @@ public class LegacyFeaturedModDeploymentTaskTest {
         .setRepositoryUrl("git@example.com/FAForever/faf"));
 
     Mockito.doAnswer(invocation -> {
-      Path repoFolder = invocation.getArgumentAt(0, Path.class);
+      Path repoFolder = invocation.getArgument(0);
       Files.createDirectories(repoFolder.resolve("someDir"));
       Files.copy(
           LegacyFeaturedModDeploymentTaskTest.class.getResourceAsStream("/featured_mod/mod_info.lua"),
