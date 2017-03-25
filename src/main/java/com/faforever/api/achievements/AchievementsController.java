@@ -19,22 +19,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(path = PlayerAchievementsController.PLAYER_ACHIEVEMENTS_ROUTE)
-public class PlayerAchievementsController {
+@RequestMapping(path = "/achievements")
+public class AchievementsController {
 
-  public static final String PLAYER_ACHIEVEMENTS_ROUTE = "/playerAchievements";
+  private static final String JSON_API_MEDIA_TYPE = "application/vnd.api+json";
   private final AchievementsService achievementsService;
   private AtomicInteger nextUpdateId;
 
   @Inject
-  public PlayerAchievementsController(AchievementsService achievementsService) {
+  public AchievementsController(AchievementsService achievementsService) {
     this.achievementsService = achievementsService;
     nextUpdateId = new AtomicInteger();
   }
 
-  @RequestMapping(method = RequestMethod.PATCH)
   @ApiOperation(value = "Updates the state and progress of one or multiple achievements.")
   @PreAuthorize("#oauth2.hasScope('write_achievements')")
+  @RequestMapping(value = "/update", method = RequestMethod.PATCH, produces = JSON_API_MEDIA_TYPE)
   public JsonApiDocument update(@RequestBody AchievementUpdateRequest[] updateRequests) {
     return new JsonApiDocument(new Data<>(Arrays.stream(updateRequests)
         .map(request -> {

@@ -33,7 +33,8 @@ public class SwaggerConfig {
   public Docket newsApi() {
     return new Docket(DocumentationType.SWAGGER_2)
         .apiInfo(apiInfo())
-        .select().paths(paths()).build();
+        .select().paths(paths())
+        .build();
   }
 
   private ApiInfo apiInfo() {
