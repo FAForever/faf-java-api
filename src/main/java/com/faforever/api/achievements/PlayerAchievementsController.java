@@ -58,11 +58,11 @@ public class PlayerAchievementsController {
   private Resource toResource(UpdatedAchievementResponse updatedAchievementResponse) {
     Builder<String, Object> attributesBuilder = ImmutableMap.<String, Object>builder()
         .put("achievementId", updatedAchievementResponse.getAchievementId())
-        .put("state", updatedAchievementResponse.getAchievementId())
-        .put("newlyUnlocked", updatedAchievementResponse.getAchievementId());
+        .put("state", updatedAchievementResponse.getState())
+        .put("newlyUnlocked", updatedAchievementResponse.isNewlyUnlocked());
 
     if (updatedAchievementResponse.getCurrentSteps() != null) {
-      attributesBuilder.put("currentSteps", updatedAchievementResponse.getAchievementId());
+      attributesBuilder.put("currentSteps", updatedAchievementResponse.getCurrentSteps());
     }
 
     return new Resource("updatedAchievement", String.valueOf(nextUpdateId.getAndIncrement()),
