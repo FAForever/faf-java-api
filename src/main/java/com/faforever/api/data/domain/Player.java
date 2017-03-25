@@ -3,7 +3,6 @@ package com.faforever.api.data.domain;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
-import com.yahoo.elide.security.checks.prefab.Role;
 import lombok.Setter;
 
 import javax.persistence.Entity;
@@ -16,7 +15,8 @@ import java.util.List;
 @Entity
 @Table(name = "login")
 @Include(rootLevel = true, type = "player")
-@SharePermission(any = Role.ALL.class) // Needed to change leader of a clan
+// Needed to change leader of a clan
+@SharePermission(expression = "Prefab.Role.All")
 @Setter
 public class Player extends Login {
 
@@ -34,8 +34,9 @@ public class Player extends Login {
     return globalRating;
   }
 
+  // Permission is managed by ClanMembership class
+  @UpdatePermission(expression = "Prefab.Role.All")
   @OneToMany(mappedBy = "player")
-  @UpdatePermission(any = {Role.ALL.class}) // Permission is managed by ClanMembership class
   public List<ClanMembership> getClanMemberships() {
     return this.clanMemberships;
   }

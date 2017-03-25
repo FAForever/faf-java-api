@@ -134,7 +134,7 @@ dependencyManagement {
     dependency("org.hibernate:hibernate-core:${hibernateVersion}")
     dependency("org.hibernate:hibernate-entitymanager:${hibernateVersion}")
     dependency("org.hibernate:hibernate-validator:${hibernateVersion}")
-    dependency "org.mockito:mockito-core:${mockitoVersion}"
+    dependency("org.mockito:mockito-core:${mockitoVersion}")
   }
 }
 
@@ -159,7 +159,8 @@ dependencies {
   compile("io.springfox:springfox-swagger-ui:${swaggerVersion}")
   compile("io.springfox:springfox-swagger2:${swaggerVersion}")
   compile("javax.inject:javax.inject:${javaxInjectVersion}")
-  compile("com.yahoo.elide:elide-datastore-hibernate5:${elideHibernateVersion}")
+  compile("com.yahoo.elide:elide-core:${elideVersion}")
+  compile("com.yahoo.elide:elide-datastore-hibernate5:${elideVersion}")
   compile("org.hibernate:hibernate-java8:${hibernateVersion}")
   compile("com.zaxxer:HikariCP:${hikariCpVersion}") {
     exclude(module: 'tools')

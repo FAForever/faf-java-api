@@ -7,7 +7,6 @@ import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
-import com.yahoo.elide.security.checks.prefab.Role;
 import lombok.Setter;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -31,7 +30,7 @@ import java.util.List;
 @Include(rootLevel = true, type = "clan")
 @SharePermission(expression = IsClanLeader.EXPRESSION)
 @DeletePermission(expression = IsClanLeader.EXPRESSION)
-@CreatePermission(any = Role.ALL.class)
+@CreatePermission(expression = "Prefab.Role.All")
 @Setter
 @IsLeaderInClan
 public class Clan {
@@ -103,9 +102,10 @@ public class Clan {
     return tagColor;
   }
 
-  @OneToMany(mappedBy = "clan", cascade = CascadeType.ALL, orphanRemoval = true)
   // Cascading is needed for Create & Delete
-  @UpdatePermission(any = {Role.ALL.class}) // Permission is managed by ClanMembership class
+  @OneToMany(mappedBy = "clan", cascade = CascadeType.ALL, orphanRemoval = true)
+  // Permission is managed by ClanMembership class
+  @UpdatePermission(expression = "Prefab.Role.All")
   @NotEmpty(message = "At least the leader should be in the clan")
   public List<ClanMembership> getMemberships() {
     return this.memberships;
