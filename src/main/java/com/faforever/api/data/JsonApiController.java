@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,7 +20,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(path = JsonApiController.PATH_PREFIX)
-@CrossOrigin(origins = "*")
 public class JsonApiController {
 
   public static final String PATH_PREFIX = "/data";
