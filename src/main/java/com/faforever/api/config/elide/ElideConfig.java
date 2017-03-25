@@ -1,6 +1,6 @@
 package com.faforever.api.config.elide;
 
-import com.faforever.api.data.JsonApiController;
+import com.faforever.api.data.DataController;
 import com.faforever.api.data.checks.IsAuthenticated;
 import com.faforever.api.data.checks.IsClanLeader;
 import com.faforever.api.data.checks.IsClanMembershipDeletable;
@@ -60,7 +60,7 @@ public class ElideConfig {
     return new AbstractCacheResolver(cacheManager) {
       @Override
       protected Collection<String> getCacheNames(CacheOperationInvocationContext<?> context) {
-        String jsonApiPath = getJsonApiPath((HttpServletRequest) context.getArgs()[1]);
+        String jsonApiPath = getDataApiPath((HttpServletRequest) context.getArgs()[1]);
         String type = jsonApiPath.split("/")[0];
 
         if (!cacheManager.getCacheNames().contains(type)) {
@@ -72,8 +72,8 @@ public class ElideConfig {
     };
   }
 
-  private String getJsonApiPath(HttpServletRequest request) {
+  private String getDataApiPath(HttpServletRequest request) {
     return ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE))
-        .replace(JsonApiController.PATH_PREFIX, "");
+        .replace(DataController.PATH_PREFIX, "");
   }
 }
