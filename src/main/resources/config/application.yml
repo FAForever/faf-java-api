@@ -33,6 +33,9 @@ server:
 
 security:
   enable-csrf: true
+  oauth2:
+    resource:
+      filter-order: 3
 
 management:
   context-path: /management
