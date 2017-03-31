@@ -4,9 +4,9 @@ import com.yahoo.elide.Elide;
 import com.yahoo.elide.ElideResponse;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -18,17 +18,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MultivaluedHashMap;
 import java.util.Map;
 
+/**
+ * JSON-API compliant data API.
+ */
 @RestController
-@RequestMapping(path = JsonApiController.PATH_PREFIX)
-@CrossOrigin(origins = "*")
-public class JsonApiController {
+@RequestMapping(path = DataController.PATH_PREFIX)
+public class DataController {
 
   public static final String PATH_PREFIX = "/data";
   private static final String JSON_API_MEDIA_TYPE = "application/vnd.api+json";
 
   private final Elide elide;
 
-  public JsonApiController(Elide elide) {
+  public DataController(Elide elide) {
     this.elide = elide;
   }
 
@@ -42,9 +44,10 @@ public class JsonApiController {
       value = {"/{entity}", "/{entity}/{id}/relationships/{entity2}", "/{entity}/{id}/{child}", "/{entity}/{id}"})
   @Transactional(readOnly = true)
   @Cacheable(cacheResolver = "elideCacheResolver")
-  public ResponseEntity<String> jsonApiGet(@RequestParam final Map<String, String> allRequestParams,
-                                           final HttpServletRequest request,
-                                           final Authentication authentication) {
+  @PreAuthorize("permitAll()")
+  public ResponseEntity<String> get(@RequestParam final Map<String, String> allRequestParams,
+                                    final HttpServletRequest request,
+                                    final Authentication authentication) {
     ElideResponse response = elide.get(
         getJsonApiPath(request),
         new MultivaluedHashMap<>(allRequestParams),
@@ -59,9 +62,10 @@ public class JsonApiController {
       value = {"/{entity}", "/{entity}/{id}/relationships/{entity2}", "/{entity}/{id}/{child}", "/{entity}/{id}"})
   @Transactional
   @Cacheable(cacheResolver = "elideCacheResolver")
-  public ResponseEntity<String> jsonApiPost(@RequestBody final String body,
-                                            final HttpServletRequest request,
-                                            final Authentication authentication) {
+  @PreAuthorize("hasRole('USER')")
+  public ResponseEntity<String> post(@RequestBody final String body,
+                                     final HttpServletRequest request,
+                                     final Authentication authentication) {
     ElideResponse response = elide.post(
         getJsonApiPath(request),
         body,
@@ -75,9 +79,10 @@ public class JsonApiController {
       produces = JSON_API_MEDIA_TYPE,
       value = {"/{entity}/{id}", "/{entity}/{id}/relationships/{entity2}"})
   @Transactional
-  public ResponseEntity<String> jsonApiPatch(@RequestBody final String body,
-                                             final HttpServletRequest request,
-                                             final Authentication authentication) {
+  @PreAuthorize("hasRole('USER')")
+  public ResponseEntity<String> patch(@RequestBody final String body,
+                                      final HttpServletRequest request,
+                                      final Authentication authentication) {
     ElideResponse response = elide.patch(JSON_API_MEDIA_TYPE,
         JSON_API_MEDIA_TYPE,
         getJsonApiPath(request),
@@ -92,8 +97,9 @@ public class JsonApiController {
       produces = JSON_API_MEDIA_TYPE,
       value = {"/{entity}/{id}", "/{entity}/{id}/relationships/{entity2}"})
   @Transactional
-  public ResponseEntity<String> jsonApiDelete(final HttpServletRequest request,
-                                              final Authentication authentication) {
+  @PreAuthorize("hasRole('USER')")
+  public ResponseEntity<String> delete(final HttpServletRequest request,
+                                       final Authentication authentication) {
     ElideResponse response = elide.delete(
         getJsonApiPath(request),
         null,

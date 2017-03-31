@@ -9,7 +9,6 @@ import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.ClientRegistrationException;
 
-import javax.inject.Inject;
 import java.util.Optional;
 
 public class OAuthClientDetailsService implements ClientDetailsService {
@@ -18,7 +17,6 @@ public class OAuthClientDetailsService implements ClientDetailsService {
   private final OAuthClientRepository oAuthClientRepository;
   private final FafApiProperties fafApiProperties;
 
-  @Inject
   public OAuthClientDetailsService(OAuthClientRepository oAuthClientRepository, FafApiProperties fafApiProperties) {
     this.oAuthClientRepository = oAuthClientRepository;
     this.fafApiProperties = fafApiProperties;

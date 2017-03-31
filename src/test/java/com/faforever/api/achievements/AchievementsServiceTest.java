@@ -22,6 +22,7 @@ import static com.faforever.api.data.domain.AchievementState.UNLOCKED;
 import static com.faforever.api.error.ApiExceptionWithCode.apiExceptionWithCode;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -39,6 +40,13 @@ public class AchievementsServiceTest {
   @Mock
   private PlayerAchievementRepository playerAchievementRepository;
 
+  private static PlayerAchievement createPlayerAchievement(Integer currentSteps, AchievementState state) {
+    PlayerAchievement playerAchievement = new PlayerAchievement();
+    playerAchievement.setState(state);
+    playerAchievement.setCurrentSteps(currentSteps);
+    return playerAchievement;
+  }
+
   @Before
   public void setUp() throws Exception {
     instance = new AchievementsService(achievementDefinitionRepository, playerAchievementRepository);
@@ -53,7 +61,7 @@ public class AchievementsServiceTest {
     when(playerAchievementRepository.findOneByAchievementIdAndPlayerId("111", PLAYER_ID))
         .thenReturn(Optional.empty());
 
-    instance.increment("111", 3, PLAYER_ID);
+    instance.increment(PLAYER_ID, "111", 3);
 
     PlayerAchievement playerAchievement = catpureSaveEvent();
 
@@ -85,19 +93,12 @@ public class AchievementsServiceTest {
     when(playerAchievementRepository.findOneByAchievementIdAndPlayerId("111", PLAYER_ID))
         .thenReturn(Optional.of(createPlayerAchievement(4, REVEALED)));
 
-    instance.increment("111", 3, PLAYER_ID);
+    instance.increment(PLAYER_ID, "111", 3);
 
     PlayerAchievement playerAchievement = catpureSaveEvent();
 
     assertThat(playerAchievement.getCurrentSteps(), is(7));
     assertThat(playerAchievement.getState(), is(REVEALED));
-  }
-
-  private static PlayerAchievement createPlayerAchievement(Integer currentSteps, AchievementState state) {
-    PlayerAchievement playerAchievement = new PlayerAchievement();
-    playerAchievement.setState(state);
-    playerAchievement.setCurrentSteps(currentSteps);
-    return playerAchievement;
   }
 
   /**
@@ -106,12 +107,12 @@ public class AchievementsServiceTest {
   @Test
   public void incrementNonIncremental() throws Exception {
     mockAchievement("111", AchievementType.STANDARD, null);
-    when(playerAchievementRepository.findOneByAchievementIdAndPlayerId("111", PLAYER_ID))
-        .thenReturn(Optional.of(createPlayerAchievement(null, REVEALED)));
 
     expectedException.expect(apiExceptionWithCode(ErrorCode.ACHIEVEMENT_NOT_INCREMENTAL));
 
-    instance.increment("111", 3, PLAYER_ID);
+    instance.increment(PLAYER_ID, "111", 3);
+
+    verify(playerAchievementRepository, never()).findOneByAchievementIdAndPlayerId(any(), anyInt());
   }
 
   /**
@@ -123,7 +124,7 @@ public class AchievementsServiceTest {
     when(playerAchievementRepository.findOneByAchievementIdAndPlayerId("111", PLAYER_ID))
         .thenReturn(Optional.empty());
 
-    instance.setStepsAtLeast("111", 4, PLAYER_ID);
+    instance.setStepsAtLeast(PLAYER_ID, "111", 4);
 
     PlayerAchievement playerAchievement = catpureSaveEvent();
 
@@ -140,7 +141,7 @@ public class AchievementsServiceTest {
     when(playerAchievementRepository.findOneByAchievementIdAndPlayerId("111", PLAYER_ID))
         .thenReturn(Optional.of(createPlayerAchievement(5, REVEALED)));
 
-    instance.setStepsAtLeast("111", 4, PLAYER_ID);
+    instance.setStepsAtLeast(PLAYER_ID, "111", 4);
 
     PlayerAchievement playerAchievement = catpureSaveEvent();
 
@@ -157,7 +158,7 @@ public class AchievementsServiceTest {
     when(playerAchievementRepository.findOneByAchievementIdAndPlayerId("111", PLAYER_ID))
         .thenReturn(Optional.of(createPlayerAchievement(5, REVEALED)));
 
-    instance.setStepsAtLeast("111", 6, PLAYER_ID);
+    instance.setStepsAtLeast(PLAYER_ID, "111", 6);
 
     PlayerAchievement playerAchievement = catpureSaveEvent();
 
@@ -174,7 +175,7 @@ public class AchievementsServiceTest {
     when(playerAchievementRepository.findOneByAchievementIdAndPlayerId("111", PLAYER_ID))
         .thenReturn(Optional.empty());
 
-    instance.unlock("111", PLAYER_ID);
+    instance.unlock(PLAYER_ID, "111");
 
     PlayerAchievement playerAchievement = catpureSaveEvent();
 
@@ -191,7 +192,7 @@ public class AchievementsServiceTest {
     when(playerAchievementRepository.findOneByAchievementIdAndPlayerId("111", PLAYER_ID))
         .thenReturn(Optional.of(createPlayerAchievement(null, UNLOCKED)));
 
-    instance.unlock("111", PLAYER_ID);
+    instance.unlock(PLAYER_ID, "111");
 
     verify(playerAchievementRepository, never()).save(any(PlayerAchievement.class));
   }
@@ -202,11 +203,11 @@ public class AchievementsServiceTest {
   @Test
   public void unlockIncremental() throws Exception {
     mockAchievement("111", AchievementType.INCREMENTAL, 1);
-    when(playerAchievementRepository.findOneByAchievementIdAndPlayerId("111", PLAYER_ID))
-        .thenReturn(Optional.empty());
 
     expectedException.expect(apiExceptionWithCode(ErrorCode.ACHIEVEMENT_NOT_STANDARD));
 
-    instance.unlock("111", PLAYER_ID);
+    instance.unlock(PLAYER_ID, "111");
+
+    verify(playerAchievementRepository, never()).findOneByAchievementIdAndPlayerId(any(), anyInt());
   }
 }

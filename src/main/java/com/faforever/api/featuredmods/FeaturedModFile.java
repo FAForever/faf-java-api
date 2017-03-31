@@ -32,7 +32,7 @@ public class FeaturedModFile {
     return id;
   }
 
-  @Column(name = "group")
+  @Column(name = "\"group\"")
   public String getGroup() {
     return group;
   }

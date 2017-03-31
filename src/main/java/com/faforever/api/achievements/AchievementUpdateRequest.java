@@ -9,11 +9,13 @@ import lombok.Setter;
 @NoArgsConstructor
 class AchievementUpdateRequest {
 
+  private int playerId;
   private String achievementId;
   private Operation operation;
   private int steps;
 
-  AchievementUpdateRequest(String achievementId, Operation operation, int steps) {
+  AchievementUpdateRequest(int playerId, String achievementId, Operation operation, int steps) {
+    this.playerId = playerId;
     this.achievementId = achievementId;
     this.operation = operation;
     this.steps = steps;

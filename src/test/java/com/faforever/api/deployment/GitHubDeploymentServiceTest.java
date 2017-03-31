@@ -104,6 +104,8 @@ public class GitHubDeploymentServiceTest {
     when(deploymentBuilder.payload(anyString())).thenReturn(deploymentBuilder);
     when(repository.createDeployment("refs/heads/master")).thenReturn(deploymentBuilder);
 
+    when(objectMapper.writeValueAsString(any(DeploymentConfiguration.class))).thenReturn("");
+
     when(push.getRepository()).thenReturn(repository);
 
     apiProperties.getGitHub().setDeploymentEnvironment(ENVIRONMENT);

@@ -27,11 +27,11 @@ public class AchievementsService {
     this.playerAchievementRepository = playerAchievementRepository;
   }
 
-  AchievementUpdateResponse increment(String achievementId, int steps, int playerId) {
-    return updateSteps(achievementId, steps, playerId, (currentSteps, newSteps) -> currentSteps + newSteps);
+  UpdatedAchievementResponse increment(int playerId, String achievementId, int steps) {
+    return updateSteps(playerId, achievementId, steps, (currentSteps, newSteps) -> currentSteps + newSteps);
   }
 
-  private AchievementUpdateResponse updateSteps(String achievementId, int steps, int playerId, BiFunction<Integer, Integer, Integer> stepsFunction) {
+  private UpdatedAchievementResponse updateSteps(int playerId, String achievementId, int steps, BiFunction<Integer, Integer, Integer> stepsFunction) {
     AchievementDefinition achievementDefinition = achievementDefinitionRepository.getOne(achievementId);
     if (achievementDefinition.getType() != AchievementType.INCREMENTAL) {
       throw new ApiException(new Error(ACHIEVEMENT_NOT_INCREMENTAL, achievementId));
@@ -54,24 +54,22 @@ public class AchievementsService {
 
     playerAchievementRepository.save(playerAchievement);
 
-    return new AchievementUpdateResponse(newlyUnlocked, playerAchievement.getState(), playerAchievement.getCurrentSteps());
+    return new UpdatedAchievementResponse(achievementId, newlyUnlocked, playerAchievement.getState(), playerAchievement.getCurrentSteps());
   }
 
   private PlayerAchievement getOrCreatePlayerAchievement(int playerId, AchievementDefinition achievementDefinition, AchievementState initialState) {
     return playerAchievementRepository.findOneByAchievementIdAndPlayerId(achievementDefinition.getId(), playerId)
-        .orElseGet(() -> {
-          PlayerAchievement newPlayerAchievement = new PlayerAchievement();
-          newPlayerAchievement.setAchievement(achievementDefinition);
-          newPlayerAchievement.setState(initialState);
-          return newPlayerAchievement;
-        });
+        .orElseGet(() -> new PlayerAchievement()
+            .setPlayerId(playerId)
+            .setAchievement(achievementDefinition)
+            .setState(initialState));
   }
 
-  AchievementUpdateResponse setStepsAtLeast(String achievementId, int steps, int playerId) {
-    return updateSteps(achievementId, steps, playerId, Math::max);
+  UpdatedAchievementResponse setStepsAtLeast(int playerId, String achievementId, int steps) {
+    return updateSteps(playerId, achievementId, steps, Math::max);
   }
 
-  AchievementUpdateResponse unlock(String achievementId, int playerId) {
+  UpdatedAchievementResponse unlock(int playerId, String achievementId) {
     AchievementDefinition achievementDefinition = achievementDefinitionRepository.getOne(achievementId);
     if (achievementDefinition.getType() != AchievementType.STANDARD) {
       throw new ApiException(new Error(ACHIEVEMENT_NOT_STANDARD, achievementId));
@@ -86,6 +84,6 @@ public class AchievementsService {
       playerAchievementRepository.save(playerAchievement);
     }
 
-    return new AchievementUpdateResponse(newlyUnlocked, playerAchievement.getState());
+    return new UpdatedAchievementResponse(achievementId, newlyUnlocked, playerAchievement.getState());
   }
 }

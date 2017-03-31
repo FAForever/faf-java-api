@@ -22,8 +22,8 @@ public class ErrorTest {
     ApiException ex = new ApiException(new Error(ErrorCode.CLAN_NAME_EXISTS, "My Clan"));
     ErrorResponse response = instance.processApiException(ex);
     assertEquals(1, response.getErrors().size());
-    assertEquals("Clan Name allready in use", response.getErrors().get(0).getTitle());
-    assertEquals("The clan name 'My Clan' is allready in use. Please choose a different clan name.", response.getErrors().get(0).getDetail());
+    assertEquals("Clan Name already in use", response.getErrors().get(0).getTitle());
+    assertEquals("The clan name 'My Clan' is already in use. Please choose a different clan name.", response.getErrors().get(0).getDetail());
   }
 
   @Test
@@ -31,7 +31,7 @@ public class ErrorTest {
     ApiException ex = new ApiException(new Error(ErrorCode.CLAN_NAME_EXISTS, null));
     ErrorResponse response = instance.processApiException(ex);
     assertEquals(1, response.getErrors().size());
-    assertEquals("Clan Name allready in use", response.getErrors().get(0).getTitle());
-    assertEquals("The clan name '{0}' is allready in use. Please choose a different clan name.", response.getErrors().get(0).getDetail());
+    assertEquals("Clan Name already in use", response.getErrors().get(0).getTitle());
+    assertEquals("The clan name '{0}' is already in use. Please choose a different clan name.", response.getErrors().get(0).getDetail());
   }
 }

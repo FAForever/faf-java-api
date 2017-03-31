@@ -48,7 +48,7 @@ public class FeaturedMod {
     return visible;
   }
 
-  @Column(name = "order")
+  @Column(name = "\"order\"")
   public int getOrder() {
     return order;
   }

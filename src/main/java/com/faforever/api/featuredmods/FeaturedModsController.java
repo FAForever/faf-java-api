@@ -8,6 +8,7 @@ import com.yahoo.elide.jsonapi.models.JsonApiDocument;
 import com.yahoo.elide.jsonapi.models.Resource;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,6 +31,7 @@ public class FeaturedModsController {
   @Async
   @RequestMapping(path = "/{modId}/files/{version}")
   @ApiOperation("Lists the required files for a specific featured mod version")
+  @PreAuthorize("permitAll()")
   public CompletableFuture<JsonApiDocument> getFiles(@PathVariable("modId") int modId,
                                                      @PathVariable("version") String version) {
     ImmutableMap<Integer, FeaturedMod> mods = Maps.uniqueIndex(featuredModService.getFeaturedMods(), FeaturedMod::getId);

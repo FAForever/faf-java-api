@@ -1,13 +1,13 @@
 /**
  * Contains classes to access data according to the <a href="http://jsonapi.org/">JSON-API specification</a>.
  */
+@SharePermission(expression = "Prefab.Role.All")
 // Everybody can read from the api
-@ReadPermission(any = {Role.ALL.class})
+@ReadPermission(expression = "Prefab.Role.All")
 // By default restrict all data manipulation operation
-@UpdatePermission(any = {Role.NONE.class})
-@CreatePermission(any = {Role.NONE.class})
-@DeletePermission(any = {Role.NONE.class})
-@SharePermission(any = {Role.NONE.class})
+@UpdatePermission(expression = "Prefab.Role.All")
+@CreatePermission(expression = "Prefab.Role.All")
+@DeletePermission(expression = "Prefab.Role.All")
 package com.faforever.api.data;
 
 import com.yahoo.elide.annotation.CreatePermission;
@@ -15,4 +15,3 @@ import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
-import com.yahoo.elide.security.checks.prefab.Role;

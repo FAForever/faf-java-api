@@ -1,5 +1,6 @@
 package com.faforever.api.data.domain;
 
+import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
 import lombok.Setter;
 
@@ -27,6 +28,7 @@ public class PlayerAchievement {
   private OffsetDateTime createTime;
   private OffsetDateTime updateTime;
   private Player player;
+  private int playerId;
   private AchievementDefinition achievement;
 
   @Id
@@ -57,8 +59,14 @@ public class PlayerAchievement {
     return updateTime;
   }
 
+  @Exclude
+  @Column(name = "player_id")
+  public int getPlayerId() {
+    return playerId;
+  }
+
   @ManyToOne
-  @JoinColumn(name = "player_id")
+  @JoinColumn(name = "player_id", insertable = false, updatable = false)
   public Player getPlayer() {
     return player;
   }

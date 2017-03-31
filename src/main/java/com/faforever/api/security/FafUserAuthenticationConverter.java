@@ -35,6 +35,10 @@ public class FafUserAuthenticationConverter extends DefaultUserAuthenticationCon
 
   @Override
   public Authentication extractAuthentication(Map<String, ?> map) {
+    if (!map.containsKey(ID)) {
+      return null;
+    }
+
     int id = (Integer) map.get(ID);
     String username = (String) map.get(USERNAME);
     boolean accountNonLocked = (Boolean) map.get(NON_LOCKED);
