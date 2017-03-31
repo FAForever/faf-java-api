@@ -53,16 +53,16 @@ public enum ErrorCode {
   MAP_NO_VALID_JSON_METADATA(146, "No valid json", "Metadata json is not valid"),
   MAP_RENAME_FAILED(147, "Cannot rename to correct name failed ", "Cannot rename file '{0}'"),
   MAP_INVALID_ZIP(148, "Invalid zip file", "The zip file should only contain one folder at the root level"),
-  CLAN_CREATE_CREATOR_IS_IN_A_CLAN(201, "You are already in a clan", "Clan creator is already member of a clan"),
-  CLAN_ACCEPT_TOKEN_EXPIRE(203, "Token Expire", "The Invitation Link expire"),
-  CLAN_ACCEPT_WRONG_PLAYER(204, "Wrong Player", "Your are not the invited player"),
-  CLAN_ACCEPT_PLAYER_IN_A_CLAN(205, "Player is in a clan", "You are already in a clan"),
-  CLAN_NOT_LEADER(206, "You Permission", "You are not the leader of the clan"),
-  CLAN_NOT_EXISTS(207, "Cannot find Clan", "Clan with id '{0}' is not available"),
-  CLAN_GENERATE_LINK_PLAYER_NOT_FOUND(208, "Player not found", "Cannot find player with id '{0}' who should be invited to the clan"),
-  CLAN_NAME_EXISTS(209, "Clan Name already in use", "The clan name '{0}' is already in use. Please choose a different clan name."),
-  CLAN_TAG_EXISTS(210, "Clan Tag already in use", "The clan tag '{0}' is already in use. Please choose a different clan tag."),
-  VALIDATION_FAILED(900, "Validation failed", "{0}");
+  CLAN_CREATE_CREATOR_IS_IN_A_CLAN(149, "You are already in a clan", "Clan creator is already member of a clan"),
+  CLAN_ACCEPT_TOKEN_EXPIRE(150, "Token Expire", "The Invitation Link expire"),
+  CLAN_ACCEPT_WRONG_PLAYER(151, "Wrong Player", "Your are not the invited player"),
+  CLAN_ACCEPT_PLAYER_IN_A_CLAN(152, "Player is in a clan", "You are already in a clan"),
+  CLAN_NOT_LEADER(153, "You Permission", "You are not the leader of the clan"),
+  CLAN_NOT_EXISTS(154, "Cannot find Clan", "Clan with id '{0}' is not available"),
+  CLAN_GENERATE_LINK_PLAYER_NOT_FOUND(155, "Player not found", "Cannot find player with id '{0}' who should be invited to the clan"),
+  CLAN_NAME_EXISTS(156, "Clan Name already in use", "The clan name '{0}' is already in use. Please choose a different clan name."),
+  CLAN_TAG_EXISTS(157, "Clan Tag already in use", "The clan tag '{0}' is already in use. Please choose a different clan tag."),
+  VALIDATION_FAILED(158, "Validation failed", "{0}");
 
   private final int code;
   private final String title;
