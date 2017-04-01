@@ -26,6 +26,7 @@ repositories {
   mavenCentral()
   maven { url "http://repo.jenkins-ci.org/public/" }
   maven { url "https://jitpack.io" }
+  maven { url "http://dl.bintray.com/typesafe/maven-releases" }
 }
 
 compileJava.dependsOn(processResources)
@@ -55,6 +56,18 @@ jacocoTestReport {
   reports {
     xml.enabled = true
   }
+}
+
+// CODACY
+
+configurations {
+  codacy
+}
+
+task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
+  main = "com.codacy.CodacyCoverageReporter"
+  classpath = configurations.codacy
+  args = ["-l", "Java", "-r", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"]
 }
 
 // DOCKER
@@ -180,4 +193,6 @@ dependencies {
   testCompile("org.springframework.restdocs:spring-restdocs-mockmvc")
   testCompile("org.springframework.security:spring-security-test")
   testCompile("com.h2database:h2:${h2Version}")
+
+  codacy("com.github.codacy:codacy-coverage-reporter:-SNAPSHOT")
 }
