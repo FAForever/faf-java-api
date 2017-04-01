@@ -20,6 +20,7 @@ import lombok.SneakyThrows;
 import org.luaj.vm2.LuaValue;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.FileSystemUtils;
 
 import javax.inject.Inject;
@@ -63,12 +64,9 @@ public class MapService {
   @Transactional
   @SneakyThrows
   void uploadMap(byte[] mapData, String mapFilename, Player author, boolean isRanked) {
-    if (author == null) {
-      throw new ProgrammingError("'author' cannot be null");
-    }
-    if (mapData.length <= 0) {
-      throw new IllegalArgumentException("'mapData' is empty");
-    }
+    Assert.notNull(author, "'author' must not be null");
+    Assert.isTrue(mapData.length > 0, "'mapData' must not be empty");
+
     MapUploadData progressData = new MapUploadData()
         .setBaseDir(contentService.createTempDir())
         .setUploadFileName(mapFilename)
@@ -91,7 +89,7 @@ public class MapService {
     generatePreview(progressData);
 
     zipMapData(progressData);
-    cleanup(progressData);
+    assert cleanup(progressData);
   }
 
   @SneakyThrows
@@ -328,7 +326,6 @@ public class MapService {
     Image image = PreviewGenerator.generatePreview(baseDir, size, size);
     JavaFxUtil.writeImage(image, target, "png");
   }
-
 
   private boolean cleanup(MapUploadData mapData) {
     return FileSystemUtils.deleteRecursively(mapData.getBaseDir().toFile());
