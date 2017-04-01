@@ -8,6 +8,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -21,7 +23,7 @@ import java.time.OffsetDateTime;
 @Setter
 public class ModVersion {
 
-  private int id;
+  private Integer id;
   private String uid;
   private ModType type;
   private String description;
@@ -38,7 +40,8 @@ public class ModVersion {
 
   @Id
   @Column(name = "id")
-  public int getId() {
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  public Integer getId() {
     return id;
   }
 

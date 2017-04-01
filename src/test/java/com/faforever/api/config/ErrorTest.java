@@ -28,7 +28,7 @@ public class ErrorTest {
 
   @Test
   public void testErrorFormattingNull() {
-    ApiException ex = new ApiException(new Error(ErrorCode.CLAN_NAME_EXISTS, null));
+    ApiException ex = new ApiException(new Error(ErrorCode.CLAN_NAME_EXISTS));
     ErrorResponse response = instance.processApiException(ex);
     assertEquals(1, response.getErrors().size());
     assertEquals("Clan Name already in use", response.getErrors().get(0).getTitle());

@@ -119,7 +119,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   }
 
   private short readModVersion(Path modPath) {
-    return (short) Integer.parseInt(new ModReader().extractModInfo(modPath).getVersion().toString());
+    return (short) Integer.parseInt(new ModReader().readDirectory(modPath).getVersion().toString());
   }
 
   private void verifyVersion(int version, boolean replaceExisting, String modName) {

@@ -64,7 +64,7 @@ public class FafApiProperties {
      */
     private String downloadUrlFormat;
     /**
-     * The directory in which map files are stored.
+     * The directory in which uploaded map files are stored.
      */
     private Path targetDirectory = Paths.get("static/maps");
     /**
@@ -93,6 +93,14 @@ public class FafApiProperties {
   public static class Mod {
     private String previewUrlFormat;
     private String downloadUrlFormat;
+    /** Allowed file extensions of uploaded mods. */
+    private String[] allowedExtensions = {"zip"};
+    /** The directory in which uploaded mod files are stored. */
+    private Path targetDirectory = Paths.get("static/mods");
+    /** The directory in which thumbnails of uploaded mod files are stored. */
+    private Path thumbnailTargetDirectory = Paths.get("static/mod_thumbnails");
+    /** The maximum allowed length of a mod's name. */
+    private int maxNameLength = 100;
   }
 
   @Data
