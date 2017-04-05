@@ -34,7 +34,7 @@ public class Mod {
   private OffsetDateTime updateTime;
   private List<ModVersion> versions;
   private ModVersion latestVersion;
-  private User uploader;
+  private Player uploader;
 
   @Id
   @Column(name = "id")
@@ -55,7 +55,7 @@ public class Mod {
 
   @ManyToOne
   @JoinColumn(name = "uploader")
-  public User getUploader() {
+  public Player getUploader() {
     return uploader;
   }
 

@@ -4,7 +4,7 @@ import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Mod;
 import com.faforever.api.data.domain.ModType;
 import com.faforever.api.data.domain.ModVersion;
-import com.faforever.api.data.domain.User;
+import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
@@ -50,7 +50,7 @@ public class ModService {
 
   @SneakyThrows
   @Transactional
-  public void processUploadedMod(Path uploadedFile, User uploader) {
+  public void processUploadedMod(Path uploadedFile, Player uploader) {
     log.info("User '{}' uploaded a mod");
     ModReader modReader = new ModReader();
     com.faforever.commons.mod.Mod modInfo = modReader.readZip(uploadedFile);
@@ -102,7 +102,7 @@ public class ModService {
     return modVersionRepository.exists(Example.of(probe, ExampleMatcher.matching().withIgnoreCase()));
   }
 
-  private boolean canUploadMod(String displayName, User uploader) {
+  private boolean canUploadMod(String displayName, Player uploader) {
     return !modRepository.existsByDisplayNameIgnoreCaseAndUploaderIsNot(displayName, uploader);
   }
 
@@ -177,7 +177,7 @@ public class ModService {
         Form.NFKC);
   }
 
-  private void store(com.faforever.commons.mod.Mod modInfo, Optional<Path> thumbnailPath, User uploader, String zipFileName) {
+  private void store(com.faforever.commons.mod.Mod modInfo, Optional<Path> thumbnailPath, Player uploader, String zipFileName) {
     Mod mod = modRepository.save(new Mod()
         .setAuthor(modInfo.getAuthor())
         .setDisplayName(modInfo.getName())

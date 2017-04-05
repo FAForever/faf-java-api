@@ -1,7 +1,7 @@
 package com.faforever.api.mod;
 
 import com.faforever.api.data.domain.Mod;
-import com.faforever.api.data.domain.User;
+import com.faforever.api.data.domain.Player;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,7 +18,7 @@ public interface ModRepository extends JpaRepository<Mod, Integer> {
 //      "from Mod m where lower(m.displayName) = lower(:displayName) and m.uploader <> :uploader")
 //  boolean modExistsByDifferentUser(@Param("displayName") String displayName, @Param("uploader") User user);
 
-  boolean existsByDisplayNameIgnoreCaseAndUploaderIsNot(String displayName, User uploader);
+  boolean existsByDisplayNameIgnoreCaseAndUploaderIsNot(String displayName, Player uploader);
 
   /**
    * @deprecated get rid of this as soon as proper review mechanisms are in place.
