@@ -6,12 +6,12 @@ faf-api:
     target-directory: ${MAP_UPLOAD_PATH:build/cache/map/maps}
     directory-preview-path-small: ${MAP_PREVIEW_PATH_SMALL:build/cache/map_previews/small}
     directory-preview-path-large: ${MAP_PREVIEW_PATH_LARGE:build/cache/map_previews/large}
-    small-previews-url-format: ${MAP_SMALL_PREVIEWS_URL_FORMAT:http://test.content.faforever.com/faf/vault/map_previews/small/%s.png}
-    large-previews-url-format: ${MAP_LARGE_PREVIEWS_URL_FORMAT:http://test.content.faforever.com/faf/vault/map_previews/large/%s.png}
-    download-url-format: ${MAP_DOWNLOAD_URL_FORMAT:http://test.content.faforever.com/faf/vault/maps/%s.zip}
+    small-previews-url-format: ${MAP_SMALL_PREVIEWS_URL_FORMAT:http://test.content.faforever.com/faf/vault/map_previews/small/%s}
+    large-previews-url-format: ${MAP_LARGE_PREVIEWS_URL_FORMAT:http://test.content.faforever.com/faf/vault/map_previews/large/%s}
+    download-url-format: ${MAP_DOWNLOAD_URL_FORMAT:http://test.content.faforever.com/faf/vault/maps/%s}
   mod:
-    download-url-format: ${MOD_DOWNLOAD_URL_FORMAT:http://test.content.faforever.com/faf/vault/maps/%s.zip}
-    preview-url-format: ${MOD_PREVIEW_URL_FORMAT:http://test.content.faforever.com/faf/vault/mods/%s.zip}
+    download-url-format: ${MOD_DOWNLOAD_URL_FORMAT:http://test.content.faforever.com/faf/vault/mods/%s}
+    preview-url-format: ${MOD_PREVIEW_URL_FORMAT:http://test.content.faforever.com/faf/vault/mods/%s}
   replay:
     download-url-format: ${REPLAY_DOWNLOAD_URL_FORMAT:http://content.test.faforever.com/faf/vault/replay_vault/replay.php?id=%s}
   featured-mods:

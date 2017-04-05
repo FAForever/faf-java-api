@@ -48,4 +48,9 @@ public class Player extends Login {
     }
     return null;
   }
+
+  @Override
+  public String toString() {
+    return "Player(" + getId() + ", " + getLogin() + ")";
+  }
 }

@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 @ControllerAdvice
+// TODO implement a proper JSON-API error response
 class GlobalControllerExceptionHandler {
   private Map<String, Serializable> errorResponse(String title, String message) {
     ImmutableMap<String, Serializable> error = ImmutableMap.of(

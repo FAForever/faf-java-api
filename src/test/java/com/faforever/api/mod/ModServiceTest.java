@@ -3,7 +3,7 @@ package com.faforever.api.mod;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Mod;
 import com.faforever.api.data.domain.ModVersion;
-import com.faforever.api.data.domain.User;
+import com.faforever.api.data.domain.Player;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -57,7 +57,7 @@ public class ModServiceTest {
       Files.copy(inputStream, uploadedFile);
     }
 
-    User uploader = new User();
+    Player uploader = new Player();
 
     instance.processUploadedMod(uploadedFile, uploader);
 

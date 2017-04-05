@@ -51,7 +51,7 @@ public class ModService {
   @SneakyThrows
   @Transactional
   public void processUploadedMod(Path uploadedFile, Player uploader) {
-    log.info("User '{}' uploaded a mod");
+    log.debug("Player '{}' uploaded a mod", uploader);
     ModReader modReader = new ModReader();
     com.faforever.commons.mod.Mod modInfo = modReader.readZip(uploadedFile);
     validateModInfo(modInfo);
