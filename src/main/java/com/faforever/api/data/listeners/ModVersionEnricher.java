@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 import javax.persistence.PostLoad;
 
+import static com.faforever.api.mod.ModService.MOD_PATH_PREFIX;
+
 @Component
 public class ModVersionEnricher {
 
@@ -20,7 +22,13 @@ public class ModVersionEnricher {
   @PostLoad
   public void enhance(ModVersion modVersion) {
     String filename = modVersion.getFilename();
-    modVersion.setThumbnailUrl(String.format(apiProperties.getMod().getPreviewUrlFormat(), filename.replace("mods/", "").replace(".zip", ".png")));
-    modVersion.setDownloadUrl(String.format(apiProperties.getMod().getDownloadUrlFormat(), filename.replace("mods/", "")));
+    modVersion.setThumbnailUrl(String.format(
+        apiProperties.getMod().getPreviewUrlFormat(),
+        filename.replace(MOD_PATH_PREFIX, "").replace(".zip", ".png")
+    ));
+    modVersion.setDownloadUrl(String.format(
+        apiProperties.getMod().getDownloadUrlFormat(),
+        filename.replace(MOD_PATH_PREFIX, "")
+    ));
   }
 }

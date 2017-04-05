@@ -49,7 +49,6 @@ public class MapsController {
   public void uploadMap(@RequestParam("file") MultipartFile file,
                         @RequestParam("metadata") String jsonString,
                         Authentication authentication) throws IOException {
-    Player player = playerService.getPlayer(authentication);
     if (file == null) {
       throw new ApiException(new Error(ErrorCode.UPLOAD_FILE_MISSING));
     }
@@ -67,6 +66,7 @@ public class MapsController {
       throw new ApiException(new Error(ErrorCode.MAP_NO_VALID_JSON_METADATA));
     }
 
+    Player player = playerService.getPlayer(authentication);
     mapService.uploadMap(file.getBytes(), file.getOriginalFilename(), player, ranked);
   }
 }

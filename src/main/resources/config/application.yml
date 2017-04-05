@@ -26,6 +26,11 @@ spring:
       WRITE_DATES_AS_TIMESTAMPS: false
   profiles:
     active: ${API_PROFILE:dev}
+  http:
+    multipart:
+      max-file-size: 300MB
+      max-request-size: 300MB
+      file-size-threshold: 5MB
 
 server:
   # Mind that this is configured in the docker compose file as well (that is, in the gradle script that generates it)

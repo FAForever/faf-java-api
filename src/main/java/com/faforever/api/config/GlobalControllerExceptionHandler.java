@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 @ControllerAdvice
+// TODO implement a proper JSON-API error response
 class GlobalControllerExceptionHandler {
   private Map<String, Serializable> errorResponse(String title, String message) {
     ImmutableMap<String, Serializable> error = ImmutableMap.of(
@@ -33,11 +34,6 @@ class GlobalControllerExceptionHandler {
     return errorResponse(ErrorCode.VALIDATION_FAILED.getTitle(), ex.getMessage());
   }
 
-  private String replaceArgs(String message, Object[] args) {
-    // http://stackoverflow.com/a/10995800
-    return MessageFormat.format(message.replace("'", "''"), args);
-  }
-
   @ExceptionHandler(ApiException.class)
   @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
   @ResponseBody
@@ -45,7 +41,7 @@ class GlobalControllerExceptionHandler {
     ErrorResponse response = new ErrorResponse();
     Arrays.stream(ex.getErrors()).forEach(error -> {
       ErrorCode code = error.getErrorCode();
-      response.addError(new ErrorResult(code.getTitle(), replaceArgs(code.getDetail(), error.getArgs())));
+      response.addError(new ErrorResult(code.getTitle(), MessageFormat.format(code.getDetail(), error.getArgs())));
     });
     return response;
   }

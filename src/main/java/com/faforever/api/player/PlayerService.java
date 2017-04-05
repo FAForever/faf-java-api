@@ -17,7 +17,6 @@ public class PlayerService {
     this.playerRepository = playerRepository;
   }
 
-
   public Player getPlayer(Authentication authentication) {
     if (authentication != null
         && authentication.getPrincipal() != null

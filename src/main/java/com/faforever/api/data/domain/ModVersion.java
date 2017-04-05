@@ -1,13 +1,18 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.listeners.ModVersionEnricher;
 import com.yahoo.elide.annotation.ComputedAttribute;
+import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
 import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -19,9 +24,10 @@ import java.time.OffsetDateTime;
 @Table(name = "mod_version")
 @Include(rootLevel = true, type = "modVersion")
 @Setter
+@EntityListeners(ModVersionEnricher.class)
 public class ModVersion {
 
-  private int id;
+  private Integer id;
   private String uid;
   private ModType type;
   private String description;
@@ -38,7 +44,8 @@ public class ModVersion {
 
   @Id
   @Column(name = "id")
-  public int getId() {
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  public Integer getId() {
     return id;
   }
 
@@ -69,6 +76,8 @@ public class ModVersion {
   }
 
   @Column(name = "icon")
+  // Excluded since I see no reason why this is even stored in the database.
+  @Exclude
   public String getIcon() {
     return icon;
   }

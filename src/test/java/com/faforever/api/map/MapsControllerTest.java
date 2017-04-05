@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @WebMvcTest(MapsController.class)
 @Import(TestWebSecurityConfig.class)
-public class MapControllerTest {
+public class MapsControllerTest {
 
   private MockMvc mvc;
   @MockBean
@@ -85,6 +85,6 @@ public class MapControllerTest {
   }
 
   private InputStream loadMapResourceAsStream(String filename) {
-    return MapControllerTest.class.getResourceAsStream("/maps/" + filename);
+    return MapsControllerTest.class.getResourceAsStream("/maps/" + filename);
   }
 }
