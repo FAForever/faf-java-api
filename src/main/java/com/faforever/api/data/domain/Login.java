@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.hibernate.annotations.Formula;
 
 import javax.persistence.Column;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
@@ -37,6 +38,7 @@ public abstract class Login {
     return login;
   }
 
+  // TODO review this, I think it's not needed since elide should (with a never version?) filter case insensitive
   // Needed for filter, e.g. at the clan app
   @Formula("LOWER(login)")
   public String getLowerCaseLogin() {
@@ -60,7 +62,7 @@ public abstract class Login {
     return userAgent;
   }
 
-  @OneToOne(mappedBy = "player")
+  @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
   public BanInfo getBanInfo() {
     return banInfo;
   }

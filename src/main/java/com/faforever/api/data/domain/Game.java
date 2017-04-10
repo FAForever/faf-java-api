@@ -13,6 +13,7 @@ import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -41,6 +42,7 @@ public class Game {
   private Validity validity;
   private List<GamePlayerStats> playerStats;
   private String replayUrl;
+  private List<GameReview> reviews;
 
   @Id
   @Column(name = "id")
@@ -58,19 +60,19 @@ public class Game {
     return victoryCondition;
   }
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "gameMod")
   public FeaturedMod getFeaturedMod() {
     return featuredMod;
   }
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "host")
   public Player getHost() {
     return host;
   }
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "mapId")
   public MapVersion getMapVersion() {
     return mapVersion;
@@ -102,5 +104,10 @@ public class Game {
   @ComputedAttribute
   public String getReplayUrl() {
     return replayUrl;
+  }
+
+  @OneToMany(mappedBy = "game")
+  public List<GameReview> getReviews() {
+    return reviews;
   }
 }
