@@ -20,7 +20,7 @@ public abstract class Login {
 
   private int id;
   private String login;
-  private String eMail;
+  private String email;
   private String steamId;
   private String userAgent;
   private BanInfo banInfo;
@@ -45,8 +45,8 @@ public abstract class Login {
 
   @Column(name = "email")
   @ReadPermission(expression = IsOwner.EXPRESSION)
-  public String getEMail() {
-    return eMail;
+  public String getEmail() {
+    return email;
   }
 
   @Column(name = "steamid")
