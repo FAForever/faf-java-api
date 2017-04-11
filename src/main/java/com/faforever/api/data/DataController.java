@@ -44,7 +44,6 @@ public class DataController {
       value = {"/{entity}", "/{entity}/{id}/relationships/{entity2}", "/{entity}/{id}/{child}", "/{entity}/{id}"})
   @Transactional(readOnly = true)
   @Cacheable(cacheResolver = "elideCacheResolver")
-  @PreAuthorize("permitAll()")
   public ResponseEntity<String> get(@RequestParam final Map<String, String> allRequestParams,
                                     final HttpServletRequest request,
                                     final Authentication authentication) {

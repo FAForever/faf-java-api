@@ -8,7 +8,6 @@ import org.kohsuke.github.GHEventPayload.Deployment;
 import org.kohsuke.github.GHEventPayload.Push;
 import org.kohsuke.github.GitHub;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.jwt.crypto.sign.MacSigner;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -24,7 +23,6 @@ import java.nio.charset.StandardCharsets;
 @RestController
 @RequestMapping(path = "/gitHub")
 @Slf4j
-@PreAuthorize("permitAll()")
 public class GitHubController {
 
   private static final String HMAC_SHA1 = "HmacSHA1";
