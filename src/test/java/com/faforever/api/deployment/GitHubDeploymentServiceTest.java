@@ -2,7 +2,6 @@ package com.faforever.api.deployment;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.Deployment.DeploymentConfiguration;
-import com.faforever.api.error.ProgrammingError;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +44,7 @@ public class GitHubDeploymentServiceTest {
     instance = new GitHubDeploymentService(applicationContext, apiProperties, objectMapper);
   }
 
-  @Test(expected = ProgrammingError.class)
+  @Test(expected = IllegalArgumentException.class)
   public void createDeploymentIfEligibleHeadCommitNotEqualToFirstCommit() throws Exception {
     PushCommit pushCommit = mock(PushCommit.class);
     when(pushCommit.getSha()).thenReturn("111");

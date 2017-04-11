@@ -2,7 +2,6 @@ package com.faforever.api.deployment;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.Deployment.DeploymentConfiguration;
-import com.faforever.api.error.ProgrammingError;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +12,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -34,12 +32,10 @@ public class GitHubDeploymentService {
 
   @SneakyThrows
   public void createDeploymentIfEligible(Push push) {
-    List<PushCommit> commits = push.getCommits();
-    PushCommit headCommit = commits.get(0);
-
-    if (!Objects.equals(headCommit.getSha(), push.getHead())) {
-      throw new ProgrammingError("Expected first commit to be the head commit, apparently that is not the case");
-    }
+    PushCommit headCommit = push.getCommits().stream()
+        .filter(commit -> Objects.equals(commit.getSha(), push.getHead()))
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("Head commit '" + push.getHead() + "' is not in the list of commits"));
 
     String ref = push.getRef();
     if (!headCommit.isDistinct()) {
