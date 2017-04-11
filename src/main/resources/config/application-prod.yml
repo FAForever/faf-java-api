@@ -42,6 +42,8 @@ faf-api:
         replaceExisting: true
   registration:
     activation-url-format: ${ACTIVATION_URL_FORMAT}
+  mail:
+    mandrill-api-key: ${MANDRILL_API_KEY}
 
 spring:
   datasource:
