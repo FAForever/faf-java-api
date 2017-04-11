@@ -64,7 +64,7 @@ public abstract class AbstractIntegrationTest {
     User user = (User) new User()
         .setPassword(shaPasswordEncoder.encodePassword(password, null))
         .setLogin(username)
-        .setEMail(username + "@faforever.com");
+        .setEmail(username + "@faforever.com");
     userRepository.save(user);
 
     String baseUri = "http://localhost:" + port;

@@ -26,6 +26,8 @@ public class FafApiProperties {
   private FeaturedMods featuredMods = new FeaturedMods();
   private GitHub gitHub = new GitHub();
   private Deployment deployment = new Deployment();
+  private Registration registration = new Registration();
+  private Mail mail = new Mail();
 
   @Data
   public static class OAuth2 {
@@ -141,5 +143,20 @@ public class FafApiProperties {
       private String modFilesExtension;
       private boolean replaceExisting;
     }
+  }
+
+  @Data
+  public static class Mail {
+    private String mandrillApiKey;
+  }
+
+  @Data
+  public static class Registration {
+    private int linkExpirationSeconds = 3600 * 24;
+    private String activationUrlFormat;
+    private String subject;
+    private String htmlFormat;
+    private String fromEmail;
+    private String fromName;
   }
 }

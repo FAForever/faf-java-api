@@ -109,7 +109,7 @@ public class ClanControllerIntegrationTest {
     User user = (User) new User()
         .setPassword(shaPasswordEncoder.encodePassword(password, null))
         .setLogin(login)
-        .setEMail(login + "@faforever.com");
+        .setEmail(login + "@faforever.com");
     userRepository.save(user);
     me = playerRepository.findOne(user.getId());
 
@@ -131,7 +131,7 @@ public class ClanControllerIntegrationTest {
     User user = (User) new User()
         .setPassword("foo")
         .setLogin(login)
-        .setEMail(login + "@faforever.com");
+        .setEmail(login + "@faforever.com");
     userRepository.save(user);
     return playerRepository.findOne(user.getId());
   }
