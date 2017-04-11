@@ -7,7 +7,6 @@ import com.yahoo.elide.jsonapi.models.JsonApiDocument;
 import com.yahoo.elide.jsonapi.models.Resource;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,7 +17,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/leaderboards")
-@PreAuthorize("permitAll()")
 public class LeaderboardController {
   private static final String GLOBAL_LEADERBOARD_ENTRY = "globalLeaderboardEntry";
   private static final String LADDER_1V1_LEADERBOARD_ENTRY = "ladder1v1LeaderboardEntry";
