@@ -8,29 +8,35 @@ import com.faforever.api.featuredmods.FeaturedModFile;
 import com.faforever.api.featuredmods.FeaturedModService;
 import com.faforever.commons.fa.ForgedAllianceExePatcher;
 import com.faforever.commons.mod.ModReader;
-import com.faforever.commons.zip.Zipper;
 import com.google.common.collect.Sets;
+import com.google.common.io.ByteStreams;
 import lombok.Data;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import javax.validation.ValidationException;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.zip.ZipOutputStream;
 
 import static com.github.nocatch.NoCatch.noCatch;
 import static com.google.common.hash.Hashing.md5;
@@ -157,7 +163,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     try (Stream<Path> stream = Files.list(repositoryDirectory)) {
       return stream
           .filter((path) -> Files.isDirectory(path) && !path.getFileName().toString().startsWith("."))
-          .map(path -> packFile(path, version, targetFolder, fileIds))
+          .map(path -> packDirectory(path, version, targetFolder, fileIds))
           .filter(Optional::isPresent)
           .map(Optional::get)
           .collect(Collectors.toList());
@@ -181,24 +187,24 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
    * content of the directory. If no file ID is available, an empty optional is returned.
    */
   @SneakyThrows
-  private Optional<StagedFile> packFile(Path folderToBeZipped, Short version, Path targetFolder, Map<String, Short> fileIds) {
-    String folderName = folderToBeZipped.getFileName().toString();
-    Path targetNxtFile = targetFolder.resolve(String.format("%s.%d.nxt", folderName, version));
+  private Optional<StagedFile> packDirectory(Path directory, Short version, Path targetFolder, Map<String, Short> fileIds) {
+    String directoryName = directory.getFileName().toString();
+    Path targetNxtFile = targetFolder.resolve(String.format("%s.%d.nxt", directoryName, version));
     Path tmpNxtFile = toTmpFile(targetNxtFile);
 
     // E.g. "effects.nx2"
-    String clientFileName = String.format("%s.%s", folderName, configuration.getModFilesExtension());
+    String clientFileName = String.format("%s.%s", directoryName, configuration.getModFilesExtension());
     Short fileId = fileIds.get(clientFileName);
     if (fileId == null) {
-      log.debug("Skipping folder '{}' because there's no file ID available", folderName);
+      log.debug("Skipping folder '{}' because there's no file ID available", directoryName);
       return Optional.empty();
     }
 
-    log.trace("Packaging '{}' to '{}'", folderToBeZipped, targetFolder);
+    log.trace("Packaging '{}' to '{}'", directory, targetFolder);
 
     createDirectories(targetFolder);
-    try (ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(tmpNxtFile))) {
-      Zipper.contentOf(folderToBeZipped).to(outputStream).zip();
+    try (ZipArchiveOutputStream outputStream = new ZipArchiveOutputStream(tmpNxtFile.toFile())) {
+      zipContents(directory, outputStream);
     }
     return Optional.of(new StagedFile(fileId, tmpNxtFile, targetNxtFile, clientFileName));
   }
@@ -220,6 +226,38 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
 
   private Path toTmpFile(Path targetFile) {
     return targetFile.getParent().resolve(targetFile.getFileName().toString() + ".tmp");
+  }
+
+  /**
+   * Since Java's ZIP implementation uses data descriptors, which FA doesn't implement and therefore cant' read,
+   * this implementation uses Apache's commons compress which doesn't use data descriptors as long as the target is a
+   * file or a seekable byte channel.
+   */
+  private void zipContents(Path directoryToZip, ZipArchiveOutputStream outputStream) throws IOException {
+    Files.walkFileTree(directoryToZip, new SimpleFileVisitor<Path>() {
+      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        Path relativized = directoryToZip.relativize(dir);
+        if (relativized.getNameCount() != 0) {
+          outputStream.putArchiveEntry(new ZipArchiveEntry(relativized.toString() + "/"));
+          outputStream.closeArchiveEntry();
+        }
+        return FileVisitResult.CONTINUE;
+      }
+
+      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        log.trace("Zipping file {}", file.toAbsolutePath());
+        outputStream.putArchiveEntry(new ZipArchiveEntry(
+            file.toFile(),
+            directoryToZip.relativize(file).toString().replace(File.separatorChar, '/'))
+        );
+
+        try (InputStream inputStream = Files.newInputStream(file)) {
+          ByteStreams.copy(inputStream, outputStream);
+        }
+        outputStream.closeArchiveEntry();
+        return FileVisitResult.CONTINUE;
+      }
+    });
   }
 
   /**

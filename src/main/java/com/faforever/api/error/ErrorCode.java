@@ -52,7 +52,7 @@ public enum ErrorCode {
   MAP_SCENARIO_LUA_MISSING(143, "Invalid Map File", "Zip file does not contain a *_scenario.lua"),
   MAP_MISSING_MAP_FOLDER_INSIDE_ZIP(144, "No folder inside Zip", "Zip file must contain a folder with all map data"),
   MAP_FILE_INSIDE_ZIP_MISSING(145, "File is missing", "Cannot find needed file with pattern ''{0}'' inside zip file"),
-  MAP_NO_VALID_JSON_METADATA(146, "No valid json", "Metadata json is not valid"),
+  MAP_UPLOAD_INVALID_METADATA(146, "Invalid metadata", "Metadata is not valid: {}"),
   MAP_RENAME_FAILED(147, "Cannot rename to correct name failed ", "Cannot rename file ''{0}''"),
   MAP_INVALID_ZIP(148, "Invalid zip file", "The zip file should only contain one folder at the root level"),
   CLAN_CREATE_CREATOR_IS_IN_A_CLAN(149, "You are already in a clan", "Clan creator is already member of a clan"),
