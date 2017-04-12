@@ -236,9 +236,9 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   private void zipContents(Path directoryToZip, ZipArchiveOutputStream outputStream) throws IOException {
     Files.walkFileTree(directoryToZip, new SimpleFileVisitor<Path>() {
       public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-        Path relativized = directoryToZip.relativize(dir);
-        if (relativized.getNameCount() != 0) {
-          outputStream.putArchiveEntry(new ZipArchiveEntry(relativized.toString() + "/"));
+        String relativized = directoryToZip.relativize(dir).toString();
+        if (!relativized.isEmpty()) {
+          outputStream.putArchiveEntry(new ZipArchiveEntry(relativized + "/"));
           outputStream.closeArchiveEntry();
         }
         return FileVisitResult.CONTINUE;
