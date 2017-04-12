@@ -110,6 +110,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     String clientFileName = "ForgedAlliance.exe";
     Short fileId = fileIds.get(clientFileName);
     if (fileId == null) {
+      log.debug("Skipping '{}' because there's no file ID available", clientFileName);
       return Optional.empty();
     }
 
