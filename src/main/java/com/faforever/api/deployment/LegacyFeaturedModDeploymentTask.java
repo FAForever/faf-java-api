@@ -79,11 +79,6 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     log.info("Starting deployment of '{}' from '{}', branch '{}', replaceExisting '{}', modFilesExtension '{}'",
         modName, repositoryUrl, branch, replaceExisting, modFilesExtension);
 
-    if (fileIds.isEmpty()) {
-      log.warn("Could not find any files to deploy. Is the configuration correct?");
-      return;
-    }
-
     Path repositoryDirectory = buildRepositoryDirectoryPath(repositoryUrl);
     checkoutCode(repositoryDirectory, repositoryUrl, branch);
 
@@ -95,6 +90,10 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     List<StagedFile> files = packageDirectories(repositoryDirectory, version, fileIds, targetFolder);
     createPatchedExe(version, fileIds, targetFolder).ifPresent(files::add);
 
+    if (files.isEmpty()) {
+      log.warn("Could not find any files to deploy. Is the configuration correct?");
+      return;
+    }
     files.forEach(this::renameToFinalFile);
 
     updateDatabase(files, version, modName);

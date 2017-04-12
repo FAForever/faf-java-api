@@ -21,14 +21,18 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.anyShort;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,6 +63,36 @@ public class LegacyFeaturedModDeploymentTaskTest {
   @Test(expected = IllegalStateException.class)
   public void testRunWithoutConfigurationThrowsException() throws Exception {
     instance.run();
+  }
+
+  @Test
+  public void testRunNoFileIds() throws Exception {
+    instance.setConfiguration(new DeploymentConfiguration()
+        .setBranch("branch")
+        .setModFilesExtension("nx3")
+        .setModName("faf")
+        .setReplaceExisting(true)
+        .setRepositoryUrl("git@example.com/FAForever/faf"));
+
+    Mockito.doAnswer(invocation -> {
+      Path repoFolder = invocation.getArgument(0);
+      Files.createDirectories(repoFolder.resolve("someDir"));
+      Files.copy(
+          LegacyFeaturedModDeploymentTaskTest.class.getResourceAsStream("/featured_mod/mod_info.lua"),
+          repoFolder.resolve("mod_info.lua")
+      );
+      return null;
+    }).when(gitWrapper).checkoutRef(any(), any());
+
+    when(featuredModService.getFileIds("faf")).thenReturn(Collections.emptyMap());
+
+    Path dummyExe = repositoriesFolder.getRoot().toPath().resolve("TemplateForgedAlliance.exe");
+    createDummyExe(dummyExe);
+    properties.getDeployment().setForgedAllianceExePath(dummyExe.toAbsolutePath().toString());
+
+    instance.run();
+
+    verify(featuredModService, never()).save(anyString(), anyShort(), any());
   }
 
   @Test
@@ -95,7 +129,7 @@ public class LegacyFeaturedModDeploymentTaskTest {
 
     instance.run();
 
-    ArgumentCaptor<List<FeaturedModFile>> filesCaptor = ArgumentCaptor.forClass((Class) List.class);
+    ArgumentCaptor<List<FeaturedModFile>> filesCaptor = ArgumentCaptor.forClass(List.class);
     verify(featuredModService).save(eq("faf"), eq((short) 1337), filesCaptor.capture());
 
     List<FeaturedModFile> files = filesCaptor.getValue();
