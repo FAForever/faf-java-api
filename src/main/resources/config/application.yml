@@ -54,3 +54,7 @@ management:
   port: 8081
   security:
     enabled: false
+
+logging:
+  level:
+    com.faforever: ${LOG_LEVEL:info}

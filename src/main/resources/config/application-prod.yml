@@ -28,17 +28,17 @@ faf-api:
       - repositoryUrl: https://github.com/FAForever/fa.git
         branch: deploy/faf
         modName: faf
-        modFilesExtension: .nx2
+        modFilesExtension: nx2
         replaceExisting: false
       - repositoryUrl: https://github.com/FAForever/fa.git
         branch: deploy/fafbeta
         modName: fafbeta
-        modFilesExtension: .nx4
+        modFilesExtension: nx4
         replaceExisting: true
       - repositoryUrl: https://github.com/FAForever/fa.git
         branch: deploy/fafdevelop
         modName: fafdevelop
-        modFilesExtension: .nx5
+        modFilesExtension: nx5
         replaceExisting: true
   registration:
     activation-url-format: ${ACTIVATION_URL_FORMAT}
