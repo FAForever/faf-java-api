@@ -75,10 +75,14 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     boolean replaceExisting = configuration.isReplaceExisting();
     String modFilesExtension = configuration.getModFilesExtension();
     Map<String, Short> fileIds = featuredModService.getFileIds(modName);
-    Deployment deployment = apiProperties.getDeployment();
 
     log.info("Starting deployment of '{}' from '{}', branch '{}', replaceExisting '{}', modFilesExtension '{}'",
         modName, repositoryUrl, branch, replaceExisting, modFilesExtension);
+
+    if (fileIds.isEmpty()) {
+      log.warn("Could not find any files to deploy. Is the configuration correct?");
+      return;
+    }
 
     Path repositoryDirectory = buildRepositoryDirectoryPath(repositoryUrl);
     checkoutCode(repositoryDirectory, repositoryUrl, branch);
@@ -86,6 +90,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     short version = readModVersion(repositoryDirectory);
     verifyVersion(version, replaceExisting, modName);
 
+    Deployment deployment = apiProperties.getDeployment();
     Path targetFolder = Paths.get(deployment.getFeaturedModsTargetDirectory(), String.format(deployment.getFilesDirectoryFormat(), modName));
     List<StagedFile> files = packageDirectories(repositoryDirectory, version, fileIds, targetFolder);
     createPatchedExe(version, fileIds, targetFolder).ifPresent(files::add);
