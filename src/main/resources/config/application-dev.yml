@@ -24,6 +24,23 @@ faf-api:
     forged-alliance-exe-path: ${FORGED_ALLIANCE_EXE_PATH}
     repositories-directory: ${REPOSITORIES_DIRECTORY:build/cache/repos}
     featured-mods-target-directory: ${FEATURED_MODS_TARGET_DIRECTORY:build/cache/deployment}
+    # TODO make this runtime configuration
+    configurations:
+      - repositoryUrl: https://github.com/FAForever/fa.git
+        branch: deploy/faf
+        modName: faf
+        modFilesExtension: nx2
+        replaceExisting: false
+      - repositoryUrl: https://github.com/FAForever/fa.git
+        branch: deploy/fafbeta
+        modName: fafbeta
+        modFilesExtension: nx4
+        replaceExisting: true
+      - repositoryUrl: https://github.com/FAForever/fa.git
+        branch: deploy/fafdevelop
+        modName: fafdevelop
+        modFilesExtension: nx5
+        replaceExisting: true
 
 spring:
   datasource:

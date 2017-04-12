@@ -8,7 +8,7 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ApiExceptionWithMultipleCodes;
 import com.faforever.api.error.ErrorCode;
-import com.faforever.commons.zip.Unzipper;
+import com.faforever.commons.io.Unzipper;
 import com.google.common.io.ByteStreams;
 import com.googlecode.zohhak.api.TestWith;
 import com.googlecode.zohhak.api.runners.ZohhakRunner;

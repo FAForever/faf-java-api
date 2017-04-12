@@ -12,6 +12,7 @@ import com.google.common.io.Files;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,7 @@ import java.util.Arrays;
 
 @RestController
 @RequestMapping(path = "/maps")
+@Slf4j
 public class MapsController {
   private final MapService mapService;
   private final FafApiProperties fafApiProperties;
@@ -63,7 +65,8 @@ public class MapsController {
       JsonNode node = objectMapper.readTree(jsonString);
       ranked = node.path("is_ranked").asBoolean(false);
     } catch (IOException e) {
-      throw new ApiException(new Error(ErrorCode.MAP_NO_VALID_JSON_METADATA));
+      log.debug("Could not parse metadata", e);
+      throw new ApiException(new Error(ErrorCode.MAP_UPLOAD_INVALID_METADATA, e.getMessage()));
     }
 
     Player player = playerService.getPlayer(authentication);

@@ -10,13 +10,14 @@ import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.error.ProgrammingError;
 import com.faforever.api.utils.JavaFxUtil;
+import com.faforever.commons.io.Unzipper;
+import com.faforever.commons.io.Zipper;
 import com.faforever.commons.lua.LuaLoader;
 import com.faforever.commons.map.PreviewGenerator;
-import com.faforever.commons.zip.Unzipper;
-import com.faforever.commons.zip.Zipper;
 import javafx.scene.image.Image;
 import lombok.Data;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.luaj.vm2.LuaValue;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +44,7 @@ import java.util.zip.ZipOutputStream;
 import static com.github.nocatch.NoCatch.noCatch;
 
 @Service
+@Slf4j
 public class MapService {
   private static final String[] REQUIRED_FILES = new String[]{
       ".scmap",
