@@ -204,7 +204,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
 
     createDirectories(targetFolder);
     try (ZipArchiveOutputStream outputStream = new ZipArchiveOutputStream(tmpNxtFile.toFile())) {
-      zipContents(directory, outputStream);
+      zipDirectory(directory, outputStream);
     }
     return Optional.of(new StagedFile(fileId, tmpNxtFile, targetNxtFile, clientFileName));
   }
@@ -233,10 +233,10 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
    * this implementation uses Apache's commons compress which doesn't use data descriptors as long as the target is a
    * file or a seekable byte channel.
    */
-  private void zipContents(Path directoryToZip, ZipArchiveOutputStream outputStream) throws IOException {
+  private void zipDirectory(Path directoryToZip, ZipArchiveOutputStream outputStream) throws IOException {
     Files.walkFileTree(directoryToZip, new SimpleFileVisitor<Path>() {
       public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-        String relativized = directoryToZip.relativize(dir).toString();
+        String relativized = directoryToZip.getParent().relativize(dir).toString();
         if (!relativized.isEmpty()) {
           outputStream.putArchiveEntry(new ZipArchiveEntry(relativized + "/"));
           outputStream.closeArchiveEntry();
@@ -248,7 +248,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
         log.trace("Zipping file {}", file.toAbsolutePath());
         outputStream.putArchiveEntry(new ZipArchiveEntry(
             file.toFile(),
-            directoryToZip.relativize(file).toString().replace(File.separatorChar, '/'))
+            directoryToZip.getParent().relativize(file).toString().replace(File.separatorChar, '/'))
         );
 
         try (InputStream inputStream = Files.newInputStream(file)) {
