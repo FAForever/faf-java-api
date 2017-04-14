@@ -39,7 +39,7 @@ public class UserServiceTest {
   private ObjectMapper objectMapper;
 
   @Mock
-  private EmailService mandrillEmailService;
+  private EmailService emailService;
   @Mock
   private UserRepository userRepository;
   private FafApiProperties properties;
@@ -51,7 +51,7 @@ public class UserServiceTest {
 
     properties = new FafApiProperties();
     properties.getJwt().setSecret("banana");
-    instance = new UserService(mandrillEmailService, userRepository, objectMapper, properties);
+    instance = new UserService(emailService, userRepository, objectMapper, properties);
   }
 
   @Test
@@ -64,7 +64,7 @@ public class UserServiceTest {
     verify(userRepository).existsByEmailIgnoreCase("junit@example.com");
 
     ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
-    verify(mandrillEmailService).sendActivationMail(eq("JUnit"), eq("junit@example.com"), urlCaptor.capture());
+    verify(emailService).sendActivationMail(eq("JUnit"), eq("junit@example.com"), urlCaptor.capture());
 
     String activationUrl = urlCaptor.getValue();
     assertThat(activationUrl, startsWith("http://www.example.com/"));

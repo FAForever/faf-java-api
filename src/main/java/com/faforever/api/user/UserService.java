@@ -7,10 +7,12 @@ import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.security.FafPasswordEncoder;
+import com.faforever.api.security.FafUserDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.MacSigner;
 import org.springframework.stereotype.Service;
@@ -25,23 +27,23 @@ import java.util.regex.Pattern;
 @Slf4j
 public class UserService {
 
-  private static final Pattern USERNAME_PATTERN = Pattern.compile("[A-Za-z][A-Za-z0-9_-]{2,15}$");
   static final String KEY_ACTION = "action";
   static final String KEY_EXPIRY = "expiry";
   static final String KEY_USERNAME = "username";
   static final String KEY_EMAIL = "email";
   static final String KEY_PASSWORD = "password";
+  private static final Pattern USERNAME_PATTERN = Pattern.compile("[A-Za-z][A-Za-z0-9_-]{2,15}$");
   private static final String ACTION_ACTIVATE = "activate";
-  private final EmailService mandrillEmailService;
+  private final EmailService emailService;
   private final UserRepository userRepository;
   private final ObjectMapper objectMapper;
   private final MacSigner macSigner;
   private final FafApiProperties properties;
   private final FafPasswordEncoder passwordEncoder;
 
-  public UserService(EmailService mandrillEmailService, UserRepository userRepository,
+  public UserService(EmailService emailService, UserRepository userRepository,
                      ObjectMapper objectMapper, FafApiProperties properties) {
-    this.mandrillEmailService = mandrillEmailService;
+    this.emailService = emailService;
     this.userRepository = userRepository;
     this.objectMapper = objectMapper;
     this.macSigner = new MacSigner(properties.getJwt().getSecret());
@@ -52,7 +54,7 @@ public class UserService {
   void register(String username, String email, String password) {
     log.debug("Registration requested for user: {}", username);
     validateUsername(username);
-    mandrillEmailService.validateEmailAddress(email);
+    emailService.validateEmailAddress(email);
 
     if (userRepository.existsByEmailIgnoreCase(email)) {
       throw new ApiException(new Error(ErrorCode.EMAIL_REGISTERED, email));
@@ -61,7 +63,7 @@ public class UserService {
     String token = createRegistrationToken(username, email, passwordEncoder.encode(password));
     String activationUrl = String.format(properties.getRegistration().getActivationUrlFormat(), token);
 
-    mandrillEmailService.sendActivationMail(username, email, activationUrl);
+    emailService.sendActivationMail(username, email, activationUrl);
   }
 
   private void validateUsername(String username) {
@@ -90,6 +92,7 @@ public class UserService {
 
   /**
    * Creates a new user based on the information in the activation token.
+   *
    * @param token the JWT in the format: <pre>
    *   {
    *     "action": "activate",
@@ -123,5 +126,20 @@ public class UserService {
 
     log.debug("User has been activated: {}", user);
     userRepository.save(user);
+  }
+
+  void changePassword(String newPassword, User user) {
+    user.setPassword(passwordEncoder.encode(newPassword));
+    userRepository.save(user);
+  }
+
+  public User getUser(Authentication authentication) {
+    if (authentication != null
+        && authentication.getPrincipal() != null
+        && authentication.getPrincipal() instanceof FafUserDetails) {
+      return userRepository.findOne(((FafUserDetails) authentication.getPrincipal()).getId());
+    }
+
+    throw new IllegalStateException("Authentication missing");
   }
 }
