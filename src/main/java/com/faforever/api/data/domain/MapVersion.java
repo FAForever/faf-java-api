@@ -8,16 +8,19 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Entity
 @Setter
@@ -43,6 +46,7 @@ public class MapVersion {
   private String thumbnailUrlSmall;
   private String thumbnailUrlLarge;
   private String downloadUrl;
+  private List<MapReview> reviews;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -106,7 +110,7 @@ public class MapVersion {
     return updateTime;
   }
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "map_id")
   @NotNull
   public Map getMap() {
@@ -140,5 +144,10 @@ public class MapVersion {
   @ComputedAttribute
   public String getFolderName() {
     return folderName;
+  }
+
+  @OneToMany(mappedBy = "mapVersion")
+  public List<MapReview> getReviews() {
+    return reviews;
   }
 }

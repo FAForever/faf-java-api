@@ -11,14 +11,17 @@ import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "mod_version")
@@ -41,6 +44,7 @@ public class ModVersion {
   private Mod mod;
   private String thumbnailUrl;
   private String downloadUrl;
+  private List<ModReview> reviews;
 
   @Id
   @Column(name = "id")
@@ -102,7 +106,7 @@ public class ModVersion {
     return updateTime;
   }
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "mod_id")
   public Mod getMod() {
     return mod;
@@ -118,5 +122,10 @@ public class ModVersion {
   @ComputedAttribute
   public String getDownloadUrl() {
     return downloadUrl;
+  }
+
+  @OneToMany(mappedBy = "modVersion")
+  public List<ModReview> getReviews() {
+    return reviews;
   }
 }

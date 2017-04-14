@@ -63,7 +63,7 @@ public class Mod {
     return author;
   }
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "uploader")
   public Player getUploader() {
     return uploader;

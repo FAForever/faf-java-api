@@ -6,6 +6,7 @@ import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -40,7 +41,7 @@ public class GamePlayerStats {
     return id;
   }
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "playerId")
   public Player getPlayer() {
     return player;
@@ -101,7 +102,7 @@ public class GamePlayerStats {
     return scoreTime;
   }
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "gameId")
   public Game getGame() {
     return game;

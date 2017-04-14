@@ -6,6 +6,7 @@ import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -24,12 +25,12 @@ public class Player extends Login {
   private GlobalRating globalRating;
   private List<ClanMembership> clanMemberships;
 
-  @OneToOne(mappedBy = "player")
+  @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
   public Ladder1v1Rating getLadder1v1Rating() {
     return ladder1v1Rating;
   }
 
-  @OneToOne(mappedBy = "player")
+  @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
   public GlobalRating getGlobalRating() {
     return globalRating;
   }

@@ -99,6 +99,7 @@ public class GitHubDeploymentServiceTest {
     when(repository.gitHttpTransportUrl()).thenReturn(EXAMPLE_REPO_URL);
 
     GHDeploymentBuilder deploymentBuilder = mock(GHDeploymentBuilder.class);
+    when(deploymentBuilder.autoMerge(false)).thenReturn(deploymentBuilder);
     when(deploymentBuilder.environment(ENVIRONMENT)).thenReturn(deploymentBuilder);
     when(deploymentBuilder.payload(anyString())).thenReturn(deploymentBuilder);
     when(repository.createDeployment("refs/heads/master")).thenReturn(deploymentBuilder);
@@ -119,6 +120,7 @@ public class GitHubDeploymentServiceTest {
     instance.createDeploymentIfEligible(push);
 
     verify(repository).createDeployment(any());
+    verify(deploymentBuilder).autoMerge(false);
     verify(deploymentBuilder).environment(ENVIRONMENT);
     verify(deploymentBuilder).create();
   }
