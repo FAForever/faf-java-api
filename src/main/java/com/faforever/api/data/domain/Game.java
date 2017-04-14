@@ -94,7 +94,7 @@ public class Game {
     return playerStats;
   }
 
-  @Formula(value = "(SELECT game_player_stats.scoreTime FROM game_player_stats WHERE game_player_stats.gameId = id ORDER BY game_player_stats.scoreTime DESC LIMIT 1)")
+  @Formula(value = "(SELECT MAX(game_player_stats.scoreTime) FROM game_player_stats WHERE game_player_stats.gameId = id)")
   @Nullable
   public Instant getEndTime() {
     return endTime;
