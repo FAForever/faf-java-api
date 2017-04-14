@@ -54,6 +54,7 @@ public class GitHubDeploymentService {
     }
 
     GHDeployment ghDeployment = push.getRepository().createDeployment(ref)
+        .autoMerge(false)
         .environment(fafApiProperties.getGitHub().getDeploymentEnvironment())
         .payload(objectMapper.writeValueAsString(optional.get()))
         .create();
