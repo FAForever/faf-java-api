@@ -32,8 +32,10 @@ public class UserService {
   static final String KEY_USERNAME = "username";
   static final String KEY_EMAIL = "email";
   static final String KEY_PASSWORD = "password";
+  static final String KEY_USER_ID = "id";
   private static final Pattern USERNAME_PATTERN = Pattern.compile("[A-Za-z][A-Za-z0-9_-]{2,15}$");
   private static final String ACTION_ACTIVATE = "activate";
+  private static final String ACTION_RESET_PASSWORD = "reset_password";
   private final EmailService emailService;
   private final UserRepository userRepository;
   private final ObjectMapper objectMapper;
@@ -130,6 +132,62 @@ public class UserService {
 
   void changePassword(String newPassword, User user) {
     user.setPassword(passwordEncoder.encode(newPassword));
+    userRepository.save(user);
+  }
+
+  void changeLogin(String newLogin, User user) {
+    user.setLogin(newLogin);
+    userRepository.save(user);
+  }
+
+  void resetPassword(String login) {
+    log.debug("Registration requested for user: {}", login);
+
+    User user = userRepository.findOneByLoginIgnoreCase(login);
+
+    if (user == null) {
+      throw new ApiException(new Error(ErrorCode.USERNAME_INVALID));
+    }
+
+    String token = createPasswordResetToken(user.getId());
+    String passwordResetUrl = String.format(properties.getPasswordReset().getPasswordResetUrlFormat(), token);
+
+    emailService.sendActivationMail(user.getLogin(), user.getEmail(), passwordResetUrl);
+  }
+
+  @SneakyThrows
+  private String createPasswordResetToken(int userId) {
+    int expirationSeconds = properties.getRegistration().getLinkExpirationSeconds();
+
+    String claim = objectMapper.writeValueAsString(ImmutableMap.of(
+        KEY_ACTION, ACTION_ACTIVATE,
+        KEY_EXPIRY, Instant.now().plusSeconds(expirationSeconds).toString(),
+        KEY_USER_ID, userId
+    ));
+
+    return JwtHelper.encode(claim, macSigner).getEncoded();
+  }
+
+  @SneakyThrows
+  void claimPasswordResetToken(String token, String newPassword) {
+    HashMap<String, String> claims = objectMapper.readValue(JwtHelper.decodeAndVerify(token, macSigner).getClaims(), HashMap.class);
+
+    String action = claims.get(KEY_ACTION);
+    if (!Objects.equals(action, ACTION_ACTIVATE)) {
+      throw new ApiException(new Error(ErrorCode.TOKEN_INVALID));
+    }
+    if (Instant.parse(claims.get(KEY_EXPIRY)).isBefore(Instant.now())) {
+      throw new ApiException(new Error(ErrorCode.TOKEN_EXPIRED));
+    }
+
+    int userId = Integer.parseInt(claims.get(KEY_USER_ID));
+    User user = userRepository.findOne(userId);
+
+    if (user == null) {
+      throw new ApiException(new Error(ErrorCode.TOKEN_INVALID));
+    }
+
+    user.setPassword(newPassword);
     userRepository.save(user);
   }
 

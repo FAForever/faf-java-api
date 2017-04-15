@@ -25,6 +25,7 @@ public class FafApiProperties {
   private GitHub gitHub = new GitHub();
   private Deployment deployment = new Deployment();
   private Registration registration = new Registration();
+  private PasswordReset passwordReset = new PasswordReset();
   private Mail mail = new Mail();
   private Challonge challonge = new Challonge();
 
@@ -145,6 +146,16 @@ public class FafApiProperties {
   public static class Registration {
     private int linkExpirationSeconds = 3600 * 24;
     private String activationUrlFormat;
+    private String subject;
+    private String htmlFormat;
+    private String fromEmail;
+    private String fromName;
+  }
+
+  @Data
+  public static class PasswordReset {
+    private int linkExpirationSeconds = 3600 * 24;
+    private String passwordResetUrlFormat;
     private String subject;
     private String htmlFormat;
     private String fromEmail;
