@@ -7,6 +7,7 @@ import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -44,6 +45,7 @@ public class MapVersion extends AbstractEntity {
   private String thumbnailUrlLarge;
   private String downloadUrl;
   private List<MapVersionReview> reviews;
+  private Ladder1v1Map ladder1v1Map;
   private int numberOfReviews;
   private float averageReviewScore;
 
@@ -143,5 +145,10 @@ public class MapVersion extends AbstractEntity {
   @UpdatePermission(expression = "Prefab.Role.All")
   public List<MapVersionReview> getReviews() {
     return reviews;
+  }
+
+  @OneToOne(mappedBy = "mapVersion", cascade = CascadeType.ALL, orphanRemoval = true)
+  public Ladder1v1Map getLadder1v1Map() {
+    return ladder1v1Map;
   }
 }
