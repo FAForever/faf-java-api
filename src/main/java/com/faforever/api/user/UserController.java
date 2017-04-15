@@ -35,8 +35,27 @@ public class UserController {
 
   @PreAuthorize("#oauth2.hasScope('change_password') and hasRole('ROLE_USER')")
   @ApiOperation("Changes the password of a previously registered account.")
-  @RequestMapping(path = "/changePassword")
+  @RequestMapping(path = "/changePassword", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
   public void changePassword(@RequestParam("newPassword") String newPassword, Authentication authentication) {
     userService.changePassword(newPassword, userService.getUser(authentication));
+  }
+
+  @PreAuthorize("#oauth2.hasScope('change_login') and hasRole('ROLE_USER')")
+  @ApiOperation("Changes the login of a previously registered account.")
+  @RequestMapping(path = "/changeUsername", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+  public void changeLogin(@RequestParam("newUsername") String newUsername, Authentication authentication) {
+    userService.changeLogin(newUsername, userService.getUser(authentication));
+  }
+
+  @ApiOperation("Sends a password reset to the email linked by this account.")
+  @RequestMapping(path = "/resetPassword", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+  public void resetPassword(@RequestParam("login") String login) {
+    userService.resetPassword(login);
+  }
+
+  @ApiOperation("Sets a new password for an account.")
+  @RequestMapping(path = "/claimPasswordResetToken", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+  public void claimPasswordResetToken(@RequestParam("token") String token, @RequestParam("newPassword") String newPassword) {
+    userService.claimPasswordResetToken(token, newPassword);
   }
 }
