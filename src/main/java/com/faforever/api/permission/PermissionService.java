@@ -38,8 +38,8 @@ public class PermissionService {
   }
 
   public void assignPermissionToRole(Permission permission, Role role) {
-    Assert.isNull(role, "'role' cannot be null");
-    Assert.isNull(permission, "'permission' cannot be null");
+    Assert.notNull(role, "'role' cannot be null");
+    Assert.notNull(permission, "'permission' cannot be null");
     if (role.getPermissionAssignments() == null) {
       role.setPermissionAssignments(new ArrayList<>());
     }
