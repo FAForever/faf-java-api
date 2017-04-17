@@ -59,7 +59,7 @@ public class Player extends Login {
 
   @Transient
   public List<BanInfo> getActiveBans() {
-    return getBans().stream().filter(ban -> ban.getBanStatus() == BanStatusType.BANNED).collect(Collectors.toList());
+    return getBans().stream().filter(ban -> ban.getBanStatus() == BanStatus.BANNED).collect(Collectors.toList());
   }
 
   @Transient

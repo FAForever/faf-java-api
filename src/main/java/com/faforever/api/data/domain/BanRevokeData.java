@@ -30,7 +30,7 @@ import java.time.OffsetDateTime;
 @CreatePermission(expression = HasBanUpdate.EXPRESSION)
 @UpdatePermission(expression = HasBanUpdate.EXPRESSION)
 public class BanRevokeData {
-  private int id;
+  private Integer id;
   private OffsetDateTime createTime;
   private OffsetDateTime updateTime;
   private BanInfo ban;
@@ -40,7 +40,7 @@ public class BanRevokeData {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "ban_id")
-  public int getId() {
+  public Integer getId() {
     return id;
   }
 

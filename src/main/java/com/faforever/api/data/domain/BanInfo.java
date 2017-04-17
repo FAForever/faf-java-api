@@ -37,7 +37,7 @@ import java.time.OffsetDateTime;
 @Setter
 public class BanInfo {
 
-  private int id;
+  private Integer id;
   private Player player;
   private Player author;
   private String reason;
@@ -50,7 +50,7 @@ public class BanInfo {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  public int getId() {
+  public Integer getId() {
     return id;
   }
 
@@ -108,15 +108,15 @@ public class BanInfo {
   }
 
   @Transient
-  public BanStatusType getBanStatus() {
+  public BanStatus getBanStatus() {
     if (banRevokeData != null) {
-      return BanStatusType.DISABLED;
+      return BanStatus.DISABLED;
     }
     if (getDuration() == BanDurationType.PERMANENT) {
-      return BanStatusType.BANNED;
+      return BanStatus.BANNED;
     }
     return (expiresAt.isBefore(OffsetDateTime.now()))
-        ? BanStatusType.BANNED
-        : BanStatusType.EXPIRED;
+        ? BanStatus.BANNED
+        : BanStatus.EXPIRED;
   }
 }
