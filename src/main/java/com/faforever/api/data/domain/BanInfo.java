@@ -29,7 +29,7 @@ import java.time.OffsetDateTime;
 @Entity
 @Table(name = "ban")
 @Include(rootLevel = true, type = "banInfo")
-// Bans can be never deleted, only disabled over BanDisableData
+// Bans can never be deleted, only disabled over BanDisableData
 @DeletePermission(any = {Role.NONE.class})
 @ReadPermission(expression = HasBanRead.EXPRESSION)
 @CreatePermission(expression = HasBanUpdate.EXPRESSION)
@@ -104,7 +104,7 @@ public class BanInfo {
 
   @Transient
   public BanDurationType getDuration() {
-    return (expiresAt == null) ? BanDurationType.PERMANENT : BanDurationType.EXPIRE;
+    return (expiresAt == null) ? BanDurationType.PERMANENT : BanDurationType.TEMPORARY;
   }
 
   @Transient

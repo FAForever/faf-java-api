@@ -26,7 +26,6 @@ public class Player extends Login {
   private GlobalRating globalRating;
   private List<ClanMembership> clanMemberships;
   private List<BanInfo> bans;
-  private List<BanInfo> createdBans;
 
   @OneToOne(mappedBy = "player")
   public Ladder1v1Rating getLadder1v1Rating() {
@@ -66,11 +65,5 @@ public class Player extends Login {
   @Transient
   public boolean isGlobalBanned() {
     return getActiveBans().stream().anyMatch(ban -> ban.getType() == BanType.GLOBAL);
-  }
-
-  @OneToMany(mappedBy = "author")
-  @UpdatePermission(any = {Role.ALL.class}) // Permission is managed by BanInfo class
-  public List<BanInfo> getCreatedBans() {
-    return this.createdBans;
   }
 }

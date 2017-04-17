@@ -2,6 +2,7 @@ package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
+import com.yahoo.elide.security.checks.prefab.Role.ALL;
 import lombok.Setter;
 
 import javax.persistence.CascadeType;
@@ -49,7 +50,7 @@ public class Role {
   }
 
   @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
-  @UpdatePermission(any = {com.yahoo.elide.security.checks.prefab.Role.ALL.class})
+  @UpdatePermission(any = {ALL.class})
   // Permission is managed by RolePermissionAssignment class
   public List<RolePermissionAssignment> getPermissionAssignments() {
     return permissionAssignments;

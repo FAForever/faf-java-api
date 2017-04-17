@@ -43,6 +43,6 @@ public class FafUserDetails extends org.springframework.security.core.userdetail
     if (permissionService != null) {
       return permissionService.hasPermission(getUsername(), permission);
     }
-    throw new IllegalStateException("permissionService and user cannot be both null");
+    throw new IllegalStateException("'permissionService' and 'user' cannot both be null");
   }
 }

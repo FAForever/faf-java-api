@@ -24,10 +24,8 @@ public class User extends Login {
 
   public boolean hasPermission(String permission) {
     return roleAssignments.stream()
-        .anyMatch(roleUserAssignment ->
-            roleUserAssignment.getRole().getPermissionAssignments().stream()
-                .anyMatch(rolePermissionAssignment ->
-                    rolePermissionAssignment.getPermission().getName().equals(permission)));
+        .flatMap(roleUserAssignment -> roleUserAssignment.getRole().getPermissionAssignments().stream())
+        .anyMatch(rolePermissionAssignment -> permission.equals(rolePermissionAssignment.getPermission().getName()));
   }
 
   @OneToMany(mappedBy = "user")

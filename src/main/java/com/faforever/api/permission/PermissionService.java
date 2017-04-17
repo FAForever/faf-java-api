@@ -7,6 +7,7 @@ import com.faforever.api.data.domain.RoleUserAssignment;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.user.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,24 +28,18 @@ public class PermissionService {
 
   public Permission createPermission(String name) {
     Permission permission = new Permission().setName(name);
-    permissionRepository.save(permission);
-    return permission;
+    return permissionRepository.save(permission);
   }
 
   public Role createRole(String name, Permission... permissions) {
     Role role = new Role().setName(name);
     Arrays.stream(permissions).forEach(permission -> assignPermissionToRole(permission, role));
-    roleRepository.save(role);
-    return role;
+    return roleRepository.save(role);
   }
 
   public void assignPermissionToRole(Permission permission, Role role) {
-    if (role == null) {
-      throw new IllegalArgumentException("role cannot be null");
-    }
-    if (permission == null) {
-      throw new IllegalArgumentException("permission cannot be null");
-    }
+    Assert.isNull(role, "'role' cannot be null");
+    Assert.isNull(permission, "'permission' cannot be null");
     if (role.getPermissionAssignments() == null) {
       role.setPermissionAssignments(new ArrayList<>());
     }
