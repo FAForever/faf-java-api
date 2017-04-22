@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,9 +19,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import javax.inject.Inject;
 import java.io.InputStream;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -46,9 +50,11 @@ public class MapsControllerTest {
   @Test
   public void fileMissing() throws Exception {
     this.mvc.perform(fileUpload("/maps/upload"))
-        .andExpect(status().is(400))
-        .andExpect(status().reason("Required request part 'file' is not present"));
-
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.errors", hasSize(1)))
+      .andExpect(jsonPath("$.errors[0].status", is(String.valueOf(HttpStatus.BAD_REQUEST.value()))))
+      .andExpect(jsonPath("$.errors[0].title", is("org.springframework.web.multipart.support.MissingServletRequestPartException")))
+      .andExpect(jsonPath("$.errors[0].detail", is("Required request part 'file' is not present")));
   }
 
   @Test
@@ -56,9 +62,12 @@ public class MapsControllerTest {
     MockMultipartFile file = new MockMultipartFile("file", "filename.txt", "text/plain", "some xml".getBytes());
 
     this.mvc.perform(fileUpload("/maps/upload")
-        .file(file))
-        .andExpect(status().is(400))
-        .andExpect(status().reason("Required String parameter 'metadata' is not present"));
+      .file(file))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.errors", hasSize(1)))
+      .andExpect(jsonPath("$.errors[0].status", is(String.valueOf(HttpStatus.BAD_REQUEST.value()))))
+      .andExpect(jsonPath("$.errors[0].title", is("org.springframework.web.bind.MissingServletRequestParameterException")))
+      .andExpect(jsonPath("$.errors[0].detail", is("Required String parameter 'metadata' is not present")));
   }
 
   @Test
@@ -73,13 +82,13 @@ public class MapsControllerTest {
     String zipFile = "scmp_037.zip";
     try (InputStream inputStream = loadMapResourceAsStream(zipFile)) {
       MockMultipartFile file = new MockMultipartFile("file",
-          zipFile,
-          "application/zip",
-          ByteStreams.toByteArray(inputStream));
+        zipFile,
+        "application/zip",
+        ByteStreams.toByteArray(inputStream));
 
       this.mvc.perform(fileUpload("/maps/upload")
-          .file(file)
-          .param("metadata", jsonString)
+        .file(file)
+        .param("metadata", jsonString)
       ).andExpect(status().isOk());
     }
   }

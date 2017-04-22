@@ -161,7 +161,7 @@ dependencies {
   compile("de.codecentric:spring-boot-admin-starter-client:${springBootAdminClientVersion}")
 
   compile("com.github.FAForever:faf-java-commons:${fafCommonsVersion}")
-  compile("org.kohsuke:github-api:1.84")
+  compile("org.kohsuke:github-api:${githubApiVersion}")
   compile("org.jolokia:jolokia-core:${jolokiaVersion}")
   compile("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
   compile("org.springframework.security.oauth:spring-security-oauth2:${springSecurityOauth2Version}")
@@ -195,6 +195,8 @@ dependencies {
   testCompile("org.springframework.restdocs:spring-restdocs-mockmvc")
   testCompile("org.springframework.security:spring-security-test")
   testCompile("com.h2database:h2:${h2Version}")
+  testCompile("com.jayway.jsonpath:json-path:${jsonPath}")
+  testCompile("com.jayway.jsonpath:json-path-assert:${jsonPathAssert}")
 
   codacy("com.github.codacy:codacy-coverage-reporter:-SNAPSHOT")
 }

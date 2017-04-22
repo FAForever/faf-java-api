@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -26,6 +27,7 @@ public class OAuthResourceServerConfig extends ResourceServerConfigurerAdapter {
 
   private final String resourceId;
   private final ResourceServerTokenServices tokenServices;
+
   @Inject
   public OAuthResourceServerConfig(FafApiProperties fafApiProperties, ResourceServerTokenServices tokenServices) {
     this.resourceId = fafApiProperties.getOAuth2().getResourceId();
@@ -34,16 +36,19 @@ public class OAuthResourceServerConfig extends ResourceServerConfigurerAdapter {
 
   @Override
   public void configure(ResourceServerSecurityConfigurer resources) {
+    final OAuth2AuthenticationEntryPoint oAuth2AuthenticationEntryPoint = new OAuth2AuthenticationEntryPoint();
+    oAuth2AuthenticationEntryPoint.setExceptionRenderer(new JsonApiOauthExceptionRenderer());
     resources.resourceId(resourceId)
-        .tokenServices(tokenServices);
+      .tokenServices(tokenServices)
+      .authenticationEntryPoint(oAuth2AuthenticationEntryPoint);
   }
 
   @Override
   public void configure(HttpSecurity http) throws Exception {
     http.requestMatcher(new OAuthRequestedMatcher())
-        .authorizeRequests()
-        .antMatchers(HttpMethod.OPTIONS).permitAll()
-        .anyRequest().authenticated();
+      .authorizeRequests()
+      .antMatchers(HttpMethod.OPTIONS).permitAll()
+      .anyRequest().authenticated();
   }
 
   private static class OAuthRequestedMatcher implements RequestMatcher {
