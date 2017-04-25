@@ -5,9 +5,9 @@
 // Everybody can read from the api
 @ReadPermission(expression = "Prefab.Role.All")
 // By default restrict all data manipulation operation
-@UpdatePermission(expression = "Prefab.Role.All")
-@CreatePermission(expression = "Prefab.Role.All")
-@DeletePermission(expression = "Prefab.Role.All")
+@UpdatePermission(expression = "Prefab.Role.None")
+@CreatePermission(expression = "Prefab.Role.None")
+@DeletePermission(expression = "Prefab.Role.None")
 package com.faforever.api.data;
 
 import com.yahoo.elide.annotation.CreatePermission;
