@@ -189,7 +189,8 @@ dependencies {
 
   runtime("mysql:mysql-connector-java:${mysqlConnectorVersion}")
 
-  optional("org.springframework.boot:spring-boot-configuration-processor")
+  compile("org.thymeleaf:thymeleaf:${thymeleafVersion}")
+  compile("org.thymeleaf:thymeleaf-spring4:${thymeleafVersion}")
 
   testCompile("org.springframework.boot:spring-boot-starter-test")
   testCompile("org.springframework.restdocs:spring-restdocs-mockmvc")
