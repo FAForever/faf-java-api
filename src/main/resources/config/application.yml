@@ -42,6 +42,8 @@ server:
   # Mind that this is configured in the docker compose file as well (that is, in the gradle script that generates it)
   port: ${API_PORT:8010}
   context-path: ${CONTEXT_PATH:/}
+  jetty:
+    max-http-post-size: 314572800
 
 security:
   enable-csrf: true
