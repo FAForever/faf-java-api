@@ -30,6 +30,7 @@ public class LegacyFeaturedModFileRepository implements Repository<FeaturedModFi
             "  file.version AS `version`," +
             "  b.path       AS `group`," +
             "  file.md5     AS `md5`," +
+            "  file.fileId  AS `fileId`," +
             "  file.id      AS `id`," +
             "  file.name    AS `url`," +
             "  'updates_%1$s_files'    AS `folderName`" +
