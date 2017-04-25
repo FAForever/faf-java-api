@@ -3,8 +3,8 @@ package com.faforever.api.data.domain;
 import com.faforever.api.data.listeners.GameEnricher;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
+import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
-import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Immutable;
 import org.jetbrains.annotations.Nullable;
 
@@ -94,7 +94,7 @@ public class Game {
     return playerStats;
   }
 
-  @Formula(value = "(SELECT MAX(game_player_stats.scoreTime) FROM game_player_stats WHERE game_player_stats.gameId = id)")
+  @Column(name = "endTime")
   @Nullable
   public OffsetDateTime getEndTime() {
     return endTime;
@@ -107,6 +107,7 @@ public class Game {
   }
 
   @OneToMany(mappedBy = "game")
+  @UpdatePermission(expression = "Prefab.Role.All")
   public List<GameReview> getReviews() {
     return reviews;
   }

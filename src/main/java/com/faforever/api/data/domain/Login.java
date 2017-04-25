@@ -1,6 +1,6 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.data.checks.IsOwner;
+import com.faforever.api.data.checks.IsLoginOwner;
 import com.yahoo.elide.annotation.ReadPermission;
 import lombok.Setter;
 import org.hibernate.annotations.Formula;
@@ -46,13 +46,13 @@ public abstract class Login {
   }
 
   @Column(name = "email")
-  @ReadPermission(expression = IsOwner.EXPRESSION)
+  @ReadPermission(expression = IsLoginOwner.EXPRESSION)
   public String getEmail() {
     return email;
   }
 
   @Column(name = "steamid")
-  @ReadPermission(expression = IsOwner.EXPRESSION)
+  @ReadPermission(expression = IsLoginOwner.EXPRESSION)
   public String getSteamId() {
     return steamId;
   }
