@@ -32,7 +32,7 @@ import java.sql.Timestamp;
 public class Review {
   private Integer id;
   private String text;
-  private Byte rating;
+  private Byte score;
   private Timestamp createTime;
   private Timestamp updateTime;
   private Player player;
@@ -50,12 +50,12 @@ public class Review {
     return text;
   }
 
-  @Column(name = "rating")
+  @Column(name = "score")
   @DecimalMin("1")
   @DecimalMax("5")
   @UpdatePermission(expression = IsReviewOwner.EXPRESSION)
-  public Byte getRating() {
-    return rating;
+  public Byte getScore() {
+    return score;
   }
 
   @Column(name = "create_time")
