@@ -10,9 +10,12 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -31,7 +34,13 @@ public class FeaturedModsController {
   @RequestMapping(path = "/{modId}/files/{version}")
   @ApiOperation("Lists the required files for a specific featured mod version")
   public CompletableFuture<JsonApiDocument> getFiles(@PathVariable("modId") int modId,
-                                                     @PathVariable("version") String version) {
+                                                     @PathVariable("version") String version,
+                                                     @RequestParam("page[number]") Integer page) {
+    Integer innerPage = Optional.ofNullable(page).orElse(0);
+    if(innerPage > 1) {
+      return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(Collections.emptyList())));
+    }
+
     ImmutableMap<Integer, FeaturedMod> mods = Maps.uniqueIndex(featuredModService.getFeaturedMods(), FeaturedMod::getId);
     FeaturedMod featuredMod = mods.get(modId);
 
