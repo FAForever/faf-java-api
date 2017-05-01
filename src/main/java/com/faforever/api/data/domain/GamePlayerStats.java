@@ -31,7 +31,7 @@ public class GamePlayerStats {
   private Double beforeDeviation;
   private Double afterMean;
   private Double afterDeviation;
-  private byte score;
+  private Byte score;
   private OffsetDateTime scoreTime;
   private Game game;
 
@@ -93,7 +93,7 @@ public class GamePlayerStats {
   }
 
   @Column(name = "score")
-  public byte getScore() {
+  public Byte getScore() {
     return score;
   }
 
