@@ -6,6 +6,8 @@ faf-api:
     from-name: Forged Alliance Forever
     link-expiration-seconds: 86400
     html-format: <p>Dear %1$s,</p><p>welcome to the Forged Alliance Forever community. Please visit the following link to activate your account:</p><p><a href="%2$s">%2$s</a></p><p>-- The Forged Alliance Forever team.</p>
+  clan:
+    invite-link-expire-duration-minutes: ${CLAN_INVITE_LINK_EXPIRE_DURATION_MINUTES:3}
 
 spring:
   application:
@@ -42,6 +44,8 @@ server:
   # Mind that this is configured in the docker compose file as well (that is, in the gradle script that generates it)
   port: ${API_PORT:8010}
   context-path: ${CONTEXT_PATH:/}
+  jetty:
+    max-http-post-size: 314572800
 
 security:
   enable-csrf: true

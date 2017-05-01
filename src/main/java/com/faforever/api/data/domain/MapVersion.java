@@ -3,6 +3,7 @@ package com.faforever.api.data.domain;
 import com.faforever.api.data.listeners.MapVersionEnricher;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
+import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -46,7 +47,7 @@ public class MapVersion {
   private String thumbnailUrlSmall;
   private String thumbnailUrlLarge;
   private String downloadUrl;
-  private List<MapReview> reviews;
+  private List<MapVersionReview> reviews;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -147,7 +148,8 @@ public class MapVersion {
   }
 
   @OneToMany(mappedBy = "mapVersion")
-  public List<MapReview> getReviews() {
+  @UpdatePermission(expression = "Prefab.Role.All")
+  public List<MapVersionReview> getReviews() {
     return reviews;
   }
 }

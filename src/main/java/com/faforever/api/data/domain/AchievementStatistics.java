@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 public class AchievementStatistics {
 
   private String id;
-  private AchievementDefinition achievement;
+  private Achievement achievement;
   private long unlockersCount;
   private BigDecimal unlockersPercent;
   private Long unlockersMinDuration;
@@ -35,7 +35,7 @@ public class AchievementStatistics {
 
   @OneToOne
   @JoinColumn(name = "achievement_id")
-  public AchievementDefinition getAchievement() {
+  public Achievement getAchievement() {
     return achievement;
   }
 

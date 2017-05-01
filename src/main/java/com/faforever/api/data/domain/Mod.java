@@ -74,7 +74,7 @@ public class Mod {
     return createTime;
   }
 
-  @Formula(value = "(SELECT mod_version.update_time FROM mod_version WHERE mod_version.mod_id = id ORDER BY mod_version.version DESC LIMIT 1)")
+  @Formula(value = "(SELECT MAX(mod_version.update_time) FROM mod_version WHERE mod_version.mod_id = id)")
   public OffsetDateTime getUpdateTime() {
     return updateTime;
   }

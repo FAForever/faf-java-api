@@ -21,7 +21,7 @@ public class PlayerEvent {
 
   private int id;
   private Player player;
-  private EventDefinition eventDefinition;
+  private Event event;
   private int count;
   private OffsetDateTime createTime;
   private OffsetDateTime updateTime;
@@ -40,8 +40,8 @@ public class PlayerEvent {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "event_id", updatable = false, insertable = false)
-  public EventDefinition getEventDefinition() {
-    return eventDefinition;
+  public Event getEvent() {
+    return event;
   }
 
   @Column(name = "count")

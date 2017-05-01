@@ -3,8 +3,8 @@ package com.faforever.api.data.domain;
 import com.faforever.api.data.listeners.GameEnricher;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
+import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
-import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Immutable;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,7 +20,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Entity
@@ -32,8 +32,8 @@ import java.util.List;
 public class Game {
 
   private int id;
-  private Instant startTime;
-  private Instant endTime;
+  private OffsetDateTime startTime;
+  private OffsetDateTime endTime;
   private VictoryCondition victoryCondition;
   private FeaturedMod featuredMod;
   private Player host;
@@ -51,7 +51,7 @@ public class Game {
   }
 
   @Column(name = "startTime")
-  public Instant getStartTime() {
+  public OffsetDateTime getStartTime() {
     return startTime;
   }
 
@@ -94,9 +94,9 @@ public class Game {
     return playerStats;
   }
 
-  @Formula(value = "(SELECT MAX(game_player_stats.scoreTime) FROM game_player_stats WHERE game_player_stats.gameId = id)")
+  @Column(name = "endTime")
   @Nullable
-  public Instant getEndTime() {
+  public OffsetDateTime getEndTime() {
     return endTime;
   }
 
@@ -107,6 +107,7 @@ public class Game {
   }
 
   @OneToMany(mappedBy = "game")
+  @UpdatePermission(expression = "Prefab.Role.All")
   public List<GameReview> getReviews() {
     return reviews;
   }

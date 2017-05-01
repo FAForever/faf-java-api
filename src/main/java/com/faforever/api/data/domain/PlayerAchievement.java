@@ -30,7 +30,7 @@ public class PlayerAchievement {
   private OffsetDateTime updateTime;
   private Player player;
   private int playerId;
-  private AchievementDefinition achievement;
+  private Achievement achievement;
 
   @Id
   @Column(name = "id")
@@ -74,7 +74,7 @@ public class PlayerAchievement {
 
   @OneToOne
   @JoinColumn(name = "achievement_id")
-  public AchievementDefinition getAchievement() {
+  public Achievement getAchievement() {
     return achievement;
   }
 }

@@ -41,6 +41,8 @@ faf-api:
         modName: fafdevelop
         modFilesExtension: nx5
         replaceExisting: true
+  clan:
+    website-url-format: ${CLAN_WEBSITE_URL_FORMAT:http://clans.test.faforever.com/clan/%s}
 
 spring:
   datasource:

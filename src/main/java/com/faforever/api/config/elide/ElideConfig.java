@@ -4,7 +4,8 @@ import com.faforever.api.data.DataController;
 import com.faforever.api.data.checks.IsAuthenticated;
 import com.faforever.api.data.checks.IsClanLeader;
 import com.faforever.api.data.checks.IsClanMembershipDeletable;
-import com.faforever.api.data.checks.IsOwner;
+import com.faforever.api.data.checks.IsLoginOwner;
+import com.faforever.api.data.checks.IsReviewOwner;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yahoo.elide.Elide;
 import com.yahoo.elide.ElideSettingsBuilder;
@@ -37,7 +38,8 @@ public class ElideConfig {
   public Elide elide(EntityManagerFactory entityManagerFactory, ObjectMapper objectMapper) {
     ConcurrentHashMap<String, Class<? extends Check>> checks = new ConcurrentHashMap<>();
     checks.put(IsAuthenticated.EXPRESSION, IsAuthenticated.Inline.class);
-    checks.put(IsOwner.EXPRESSION, IsOwner.Inline.class);
+    checks.put(IsLoginOwner.EXPRESSION, IsLoginOwner.Inline.class);
+    checks.put(IsReviewOwner.EXPRESSION, IsReviewOwner.Inline.class);
     checks.put(IsClanLeader.EXPRESSION, IsClanLeader.Inline.class);
     checks.put(IsClanMembershipDeletable.EXPRESSION, IsClanMembershipDeletable.Inline.class);
 

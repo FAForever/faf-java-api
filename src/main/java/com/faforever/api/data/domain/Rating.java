@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.hibernate.annotations.Formula;
 
 import javax.persistence.Column;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -39,7 +40,7 @@ public abstract class Rating {
     return deviation;
   }
 
-  @OneToOne
+  @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "id", updatable = false, insertable = false)
   public Player getPlayer() {
     return player;

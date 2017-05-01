@@ -44,6 +44,8 @@ faf-api:
     activation-url-format: ${ACTIVATION_URL_FORMAT}
   mail:
     mandrill-api-key: ${MANDRILL_API_KEY}
+  clan:
+    website-url-format: ${CLAN_WEBSITE_URL_FORMAT}
 
 spring:
   datasource:

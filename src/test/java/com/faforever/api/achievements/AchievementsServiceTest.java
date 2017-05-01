@@ -1,6 +1,6 @@
 package com.faforever.api.achievements;
 
-import com.faforever.api.data.domain.AchievementDefinition;
+import com.faforever.api.data.domain.Achievement;
 import com.faforever.api.data.domain.AchievementState;
 import com.faforever.api.data.domain.AchievementType;
 import com.faforever.api.data.domain.PlayerAchievement;
@@ -36,7 +36,7 @@ public class AchievementsServiceTest {
   public ExpectedException expectedException = ExpectedException.none();
   private AchievementsService instance;
   @Mock
-  private AchievementDefinitionRepository achievementDefinitionRepository;
+  private AchievementRepository achievementRepository;
   @Mock
   private PlayerAchievementRepository playerAchievementRepository;
 
@@ -49,7 +49,7 @@ public class AchievementsServiceTest {
 
   @Before
   public void setUp() throws Exception {
-    instance = new AchievementsService(achievementDefinitionRepository, playerAchievementRepository);
+    instance = new AchievementsService(achievementRepository, playerAchievementRepository);
   }
 
   /**
@@ -70,12 +70,12 @@ public class AchievementsServiceTest {
   }
 
   private void mockAchievement(String achievementId, AchievementType type, Integer totalSteps) {
-    AchievementDefinition achievementDefinition = new AchievementDefinition();
-    achievementDefinition.setId(achievementId);
-    achievementDefinition.setType(type);
-    achievementDefinition.setTotalSteps(totalSteps);
+    Achievement achievement = new Achievement();
+    achievement.setId(achievementId);
+    achievement.setType(type);
+    achievement.setTotalSteps(totalSteps);
 
-    when(achievementDefinitionRepository.getOne(achievementId)).thenReturn(achievementDefinition);
+    when(achievementRepository.getOne(achievementId)).thenReturn(achievement);
   }
 
   private PlayerAchievement catpureSaveEvent() {

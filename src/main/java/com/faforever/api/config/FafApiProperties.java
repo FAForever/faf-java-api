@@ -117,7 +117,8 @@ public class FafApiProperties {
 
   @Data
   public static class Clan {
-    private long inviteLinkExpireDurationInMinutes = Duration.ofDays(3).toMinutes();
+    private long inviteLinkExpireDurationMinutes = Duration.ofDays(3).toMinutes();
+    private String websiteUrlFormat;
   }
 
   @Data

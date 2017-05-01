@@ -10,10 +10,7 @@
     <option name="VM_PARAMETERS" value="-Xmx128m" />
     <option name="ALTERNATIVE_JRE_PATH" />
     <module name="faf-api_main" />
-    <envs>
-      <env name="GITHUB_WEBHOOK_SECRET" value="BrslzHzBHY" />
-      <env name="GITHUB_DEPLOYMENT_ENVIRONMENT" value="production" />
-    </envs>
+    <envs />
     <method />
   </configuration>
 </component>

@@ -109,7 +109,7 @@ public class Map {
     return latestVersion;
   }
 
-  @Formula(value = "(SELECT map_version.update_time FROM map_version WHERE map_version.map_id = id ORDER BY map_version.version DESC LIMIT 1)")
+  @Formula(value = "(SELECT MAX(map_version.update_time) FROM map_version WHERE map_version.map_id = id)")
   public OffsetDateTime getUpdateTime() {
     return updateTime;
   }

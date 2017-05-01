@@ -23,7 +23,7 @@ script:
 
 after_success:
   - ./gradlew jacocoTestReport coveralls
-  - if [ "${TRAVIS_BRANCH}" == "master" ]; then
+  - if [ -n "${TRAVIS_TAG}" ]; then
       ./gradlew pushDockerImage;
     fi
   - if [ "${TRAVIS_BRANCH}" == "develop" ]; then

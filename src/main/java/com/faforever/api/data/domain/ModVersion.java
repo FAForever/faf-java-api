@@ -4,6 +4,7 @@ import com.faforever.api.data.listeners.ModVersionEnricher;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
+import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -44,7 +45,7 @@ public class ModVersion {
   private Mod mod;
   private String thumbnailUrl;
   private String downloadUrl;
-  private List<ModReview> reviews;
+  private List<ModVersionReview> reviews;
 
   @Id
   @Column(name = "id")
@@ -125,7 +126,8 @@ public class ModVersion {
   }
 
   @OneToMany(mappedBy = "modVersion")
-  public List<ModReview> getReviews() {
+  @UpdatePermission(expression = "Prefab.Role.All")
+  public List<ModVersionReview> getReviews() {
     return reviews;
   }
 }
