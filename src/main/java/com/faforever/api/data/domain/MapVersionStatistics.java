@@ -6,6 +6,7 @@ import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -44,7 +45,7 @@ public class MapVersionStatistics {
     return draws;
   }
 
-  @OneToOne
+  @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "map_version_id", insertable = false, updatable = false)
   public MapVersion getMapVersion() {
     return mapVersion;

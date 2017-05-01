@@ -92,7 +92,7 @@ public class Map {
     return author;
   }
 
-  @OneToOne(mappedBy = "map")
+  @OneToOne(mappedBy = "map", fetch = FetchType.LAZY)
   public MapStatistics getStatistics() {
     return statistics;
   }
