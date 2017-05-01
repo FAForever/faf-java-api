@@ -1,10 +1,9 @@
 package com.faforever.api.data.listeners;
 
-import com.faforever.api.data.domain.AchievementDefinition;
+import com.faforever.api.data.domain.Achievement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import javax.inject.Inject;
 import javax.persistence.PostLoad;
@@ -21,10 +20,8 @@ public class AchievementLocalizationListener {
   }
 
   @PostLoad
-  public void translate(AchievementDefinition achievementDefinition) {
-    SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-
-    achievementDefinition.setName(messageSourceAccessor.getMessage(achievementDefinition.getNameKey()));
-    achievementDefinition.setDescription(messageSourceAccessor.getMessage(achievementDefinition.getDescriptionKey()));
+  public void translate(Achievement achievement) {
+    achievement.setName(messageSourceAccessor.getMessage(achievement.getNameKey()));
+    achievement.setDescription(messageSourceAccessor.getMessage(achievement.getDescriptionKey()));
   }
 }

@@ -1,6 +1,6 @@
 package com.faforever.api.achievements;
 
-import com.faforever.api.data.domain.AchievementDefinition;
+import com.faforever.api.data.domain.Achievement;
 import com.faforever.api.data.domain.AchievementState;
 import com.faforever.api.data.domain.AchievementType;
 import com.faforever.api.data.domain.PlayerAchievement;
@@ -18,12 +18,12 @@ import static com.faforever.api.error.ErrorCode.ACHIEVEMENT_NOT_STANDARD;
 @Service
 public class AchievementsService {
 
-  private final AchievementDefinitionRepository achievementDefinitionRepository;
+  private final AchievementRepository achievementRepository;
   private final PlayerAchievementRepository playerAchievementRepository;
 
   @Inject
-  public AchievementsService(AchievementDefinitionRepository achievementDefinitionRepository, PlayerAchievementRepository playerAchievementRepository) {
-    this.achievementDefinitionRepository = achievementDefinitionRepository;
+  public AchievementsService(AchievementRepository achievementRepository, PlayerAchievementRepository playerAchievementRepository) {
+    this.achievementRepository = achievementRepository;
     this.playerAchievementRepository = playerAchievementRepository;
   }
 
@@ -32,21 +32,21 @@ public class AchievementsService {
   }
 
   private UpdatedAchievementResponse updateSteps(int playerId, String achievementId, int steps, BiFunction<Integer, Integer, Integer> stepsFunction) {
-    AchievementDefinition achievementDefinition = achievementDefinitionRepository.getOne(achievementId);
-    if (achievementDefinition.getType() != AchievementType.INCREMENTAL) {
+    Achievement achievement = achievementRepository.getOne(achievementId);
+    if (achievement.getType() != AchievementType.INCREMENTAL) {
       throw new ApiException(new Error(ACHIEVEMENT_NOT_INCREMENTAL, achievementId));
     }
 
-    PlayerAchievement playerAchievement = getOrCreatePlayerAchievement(playerId, achievementDefinition, AchievementState.REVEALED);
+    PlayerAchievement playerAchievement = getOrCreatePlayerAchievement(playerId, achievement, AchievementState.REVEALED);
 
     int currentSteps = MoreObjects.firstNonNull(playerAchievement.getCurrentSteps(), 0);
     int newCurrentSteps = stepsFunction.apply(currentSteps, steps);
 
     boolean newlyUnlocked = false;
 
-    if (newCurrentSteps >= achievementDefinition.getTotalSteps()) {
+    if (newCurrentSteps >= achievement.getTotalSteps()) {
       playerAchievement.setState(AchievementState.UNLOCKED);
-      playerAchievement.setCurrentSteps(achievementDefinition.getTotalSteps());
+      playerAchievement.setCurrentSteps(achievement.getTotalSteps());
       newlyUnlocked = playerAchievement.getState() != AchievementState.UNLOCKED;
     } else {
       playerAchievement.setCurrentSteps(newCurrentSteps);
@@ -57,11 +57,11 @@ public class AchievementsService {
     return new UpdatedAchievementResponse(achievementId, newlyUnlocked, playerAchievement.getState(), playerAchievement.getCurrentSteps());
   }
 
-  private PlayerAchievement getOrCreatePlayerAchievement(int playerId, AchievementDefinition achievementDefinition, AchievementState initialState) {
-    return playerAchievementRepository.findOneByAchievementIdAndPlayerId(achievementDefinition.getId(), playerId)
+  private PlayerAchievement getOrCreatePlayerAchievement(int playerId, Achievement achievement, AchievementState initialState) {
+    return playerAchievementRepository.findOneByAchievementIdAndPlayerId(achievement.getId(), playerId)
         .orElseGet(() -> new PlayerAchievement()
             .setPlayerId(playerId)
-            .setAchievement(achievementDefinition)
+            .setAchievement(achievement)
             .setState(initialState));
   }
 
@@ -70,12 +70,12 @@ public class AchievementsService {
   }
 
   UpdatedAchievementResponse unlock(int playerId, String achievementId) {
-    AchievementDefinition achievementDefinition = achievementDefinitionRepository.getOne(achievementId);
-    if (achievementDefinition.getType() != AchievementType.STANDARD) {
+    Achievement achievement = achievementRepository.getOne(achievementId);
+    if (achievement.getType() != AchievementType.STANDARD) {
       throw new ApiException(new Error(ACHIEVEMENT_NOT_STANDARD, achievementId));
     }
 
-    PlayerAchievement playerAchievement = getOrCreatePlayerAchievement(playerId, achievementDefinition, AchievementState.REVEALED);
+    PlayerAchievement playerAchievement = getOrCreatePlayerAchievement(playerId, achievement, AchievementState.REVEALED);
 
     boolean newlyUnlocked = playerAchievement.getState() != AchievementState.UNLOCKED;
 

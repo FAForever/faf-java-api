@@ -22,7 +22,7 @@ import java.time.OffsetDateTime;
 @Include(rootLevel = true, type = "achievement")
 @EntityListeners(AchievementLocalizationListener.class)
 @Setter
-public class AchievementDefinition {
+public class Achievement {
 
   private String id;
   private int order;
