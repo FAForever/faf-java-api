@@ -1,25 +1,34 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.listeners.EventLocalizationListener;
+import com.yahoo.elide.annotation.ComputedAttribute;
+import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
 import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "event_definitions")
 @Include(rootLevel = true, type = "event")
 @Setter
-public class EventDefinition {
+@EntityListeners(EventLocalizationListener.class)
+public class Event {
 
   private String id;
   private String nameKey;
   private String imageUrl;
   private Type type;
+
+  // Set by AchievementLocalizationListener
+  private String name;
 
   @Id
   @Column(name = "id")
@@ -28,8 +37,15 @@ public class EventDefinition {
   }
 
   @Column(name = "name_key")
+  @Exclude
   public String getNameKey() {
     return nameKey;
+  }
+
+  @Transient
+  @ComputedAttribute
+  public String getName() {
+    return name;
   }
 
   @Column(name = "image_url")
@@ -44,6 +60,6 @@ public class EventDefinition {
   }
 
   public enum Type {
-    NUMERIC, TIME;
+    NUMERIC, TIME
   }
 }
