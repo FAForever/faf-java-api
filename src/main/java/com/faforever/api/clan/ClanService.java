@@ -100,7 +100,7 @@ public class ClanService {
     }
 
     long expire = Instant.now()
-        .plus(fafApiProperties.getClan().getInviteLinkExpireDurationInMinutes(), ChronoUnit.MINUTES)
+        .plus(fafApiProperties.getClan().getInviteLinkExpireDurationMinutes(), ChronoUnit.MINUTES)
         .toEpochMilli();
 
     return jwtService.sign(

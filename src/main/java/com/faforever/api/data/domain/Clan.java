@@ -1,7 +1,9 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsClanLeader;
+import com.faforever.api.data.listeners.ClanEnricherListener;
 import com.faforever.api.data.validation.IsLeaderInClan;
+import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
@@ -13,6 +15,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -34,6 +37,7 @@ import java.util.List;
 @CreatePermission(expression = "Prefab.Role.All")
 @Setter
 @IsLeaderInClan
+@EntityListeners(ClanEnricherListener.class)
 public class Clan {
 
   private int id;
@@ -45,6 +49,7 @@ public class Clan {
   private Player leader;
   private String description;
   private String tagColor;
+  private String websiteUrl;
   private List<ClanMembership> memberships;
 
   @Id
@@ -110,5 +115,10 @@ public class Clan {
   @NotEmpty(message = "At least the leader should be in the clan")
   public List<ClanMembership> getMemberships() {
     return this.memberships;
+  }
+
+  @ComputedAttribute
+  public String getWebsiteUrl() {
+    return websiteUrl;
   }
 }
