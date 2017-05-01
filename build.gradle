@@ -171,8 +171,10 @@ dependencies {
   compile("com.google.guava:guava:${guavaVersion}")
   compile("io.springfox:springfox-swagger-ui:${swaggerVersion}")
   compile("io.springfox:springfox-swagger2:${swaggerVersion}")
+  compile("io.swagger:swagger-core:${swaggerCoreVersion}")
   compile("javax.inject:javax.inject:${javaxInjectVersion}")
   compile("com.yahoo.elide:elide-core:${elideVersion}")
+  compile("com.yahoo.elide:elide-swagger:${elideVersion}")
   compile("com.yahoo.elide:elide-datastore-hibernate5:${elideVersion}")
   compile("org.hibernate:hibernate-java8:${hibernateVersion}")
   compile("com.zaxxer:HikariCP:${hikariCpVersion}") {
