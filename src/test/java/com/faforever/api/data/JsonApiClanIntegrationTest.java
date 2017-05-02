@@ -180,7 +180,7 @@ public class JsonApiClanIntegrationTest {
     String[] players = new String[]{"Dragonfire", "DRAGON", "Fire of Dragon", "d r a g o n", "firedragon"};
     Arrays.stream(players).forEach(name -> noCatch(() -> PlayerFactory.createPlayer(name, userRepository, playerRepository)));
     assertEquals(players.length, playerRepository.count());
-    ResultActions action = this.mvc.perform(get("/data/player?filter=lowerCaseLogin==dragon*&sort=lowerCaseLogin"));
+    ResultActions action = this.mvc.perform(get("/data/player?filter=login==dragon*&sort=login"));
 
     JsonNode node = objectMapper.readTree(action.andReturn().getResponse().getContentAsString());
 
