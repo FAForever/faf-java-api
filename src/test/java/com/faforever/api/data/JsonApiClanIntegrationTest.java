@@ -11,7 +11,6 @@ import com.faforever.integration.factories.SessionFactory;
 import com.faforever.integration.factories.SessionFactory.Session;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,7 +30,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@Ignore("This needs to be cleaned up big time.")
 public class JsonApiClanIntegrationTest {
 
   private MockMvc mvc;
