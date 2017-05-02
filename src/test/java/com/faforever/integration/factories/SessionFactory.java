@@ -55,12 +55,13 @@ public class SessionFactory {
         .setClientType(ClientType.PUBLIC);
     oAuthClientRepository.save(client);
 
+    long userCounter = userRepository.count();
     User user = (User) new User()
         .setPassword(shaPasswordEncoder.encodePassword(password, null))
         .setLogin(login)
         .setEmail(login + "@faforever.com");
     userRepository.save(user);
-    assertEquals(1, userRepository.count());
+    assertEquals((userCounter + 1), userRepository.count());
 
     Player player = playerRepository.findOne(user.getId());
     Assert.assertNotNull(player);

@@ -1,28 +1,23 @@
 package com.faforever.api.clan;
 
-import com.faforever.api.client.ClientType;
-import com.faforever.api.client.OAuthClient;
 import com.faforever.api.client.OAuthClientRepository;
 import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.ClanMembership;
 import com.faforever.api.data.domain.Player;
-import com.faforever.api.data.domain.User;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.user.UserRepository;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.faforever.integration.factories.PlayerFactory;
+import com.faforever.integration.factories.SessionFactory;
+import com.faforever.integration.factories.SessionFactory.Session;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.util.Base64Utils;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.inject.Inject;
@@ -37,11 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@Ignore("This needs to be cleaned up big time.")
 public class ClanControllerIntegrationTest {
-  private static final String OAUTH_CLIENT_ID = "1234";
-  private static final String OAUTH_SECRET = "secret";
-  private final ShaPasswordEncoder shaPasswordEncoder;
   private MockMvc mvc;
   private WebApplicationContext context;
   private Filter springSecurityFilterChain;
@@ -50,13 +41,6 @@ public class ClanControllerIntegrationTest {
   private ClanMembershipRepository clanMembershipRepository;
   private PlayerRepository playerRepository;
   private OAuthClientRepository oAuthClientRepository;
-  private ObjectMapper objectMapper;
-  private Player me;
-
-  public ClanControllerIntegrationTest() {
-    shaPasswordEncoder = new ShaPasswordEncoder(256);
-    objectMapper = new ObjectMapper();
-  }
 
   @Inject
   public void init(WebApplicationContext context,
@@ -83,6 +67,7 @@ public class ClanControllerIntegrationTest {
         .build();
   }
 
+  // Dragonfire: This duplicated code cannot be avoided, each test must cleanup all the used repositories
   @After
   public void tearDown() {
     clanMembershipRepository.deleteAll();
@@ -95,74 +80,36 @@ public class ClanControllerIntegrationTest {
     assertEquals(0, oAuthClientRepository.count());
   }
 
-  public String createUserAndGetAccessToken(String login, String password) throws Exception {
-    OAuthClient client = new OAuthClient()
-        .setId(OAUTH_CLIENT_ID)
-        .setName("test")
-        .setClientSecret(OAUTH_SECRET)
-        .setRedirectUris("test")
-        .setDefaultRedirectUri("test")
-        .setDefaultScope("test")
-        .setClientType(ClientType.PUBLIC);
-    oAuthClientRepository.save(client);
-
-    User user = (User) new User()
-        .setPassword(shaPasswordEncoder.encodePassword(password, null))
-        .setLogin(login)
-        .setEmail(login + "@faforever.com");
-    userRepository.save(user);
-    me = playerRepository.findOne(user.getId());
-
-    String authorization = "Basic "
-        + new String(Base64Utils.encode((OAUTH_CLIENT_ID + ":" + OAUTH_SECRET).getBytes()));
-    ResultActions auth = mvc
-        .perform(
-            post("/oauth/token")
-                .header("Authorization", authorization)
-                .param("username", login)
-                .param("password", password)
-                .param("grant_type", "password"));
-    auth.andExpect(status().isOk());
-    JsonNode node = objectMapper.readTree(auth.andReturn().getResponse().getContentAsString());
-    return "Bearer " + node.get("access_token").asText();
-  }
-
-  private Player createPlayer(String login) throws Exception {
-    User user = (User) new User()
-        .setPassword("foo")
-        .setLogin(login)
-        .setEmail(login + "@faforever.com");
-    userRepository.save(user);
-    return playerRepository.findOne(user.getId());
-  }
-
 
   @Test
   public void meDataWithoutClan() throws Exception {
-    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+    Session session = SessionFactory.createUserAndGetAccessToken(
+        oAuthClientRepository, userRepository, playerRepository, mvc);
+
     String expected = String.format("{\"player\":{\"id\":%s,\"login\":\"%s\"},\"clan\":null}",
-        me.getId(),
-        me.getLogin());
+        session.getPlayer().getId(),
+        session.getPlayer().getLogin());
 
     assertEquals(1, playerRepository.count());
     this.mvc.perform(get("/clans/me/")
-        .header("Authorization", accessToken))
+        .header("Authorization", session.getToken()))
         .andExpect(content().string(expected))
         .andExpect(status().isOk());
   }
 
   @Test
   public void meDataWithClan() throws Exception {
-    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+    Session session = SessionFactory.createUserAndGetAccessToken(
+        oAuthClientRepository, userRepository, playerRepository, mvc);
 
-    Clan clan = new Clan().setLeader(me).setTag("123").setName("abcClanName");
-    ClanMembership myMembership = new ClanMembership().setPlayer(me).setClan(clan);
+    Clan clan = new Clan().setLeader(session.getPlayer()).setTag("123").setName("abcClanName");
+    ClanMembership myMembership = new ClanMembership().setPlayer(session.getPlayer()).setClan(clan);
     clan.setMemberships(Collections.singletonList(myMembership));
     clanRepository.save(clan);
 
     String expected = String.format("{\"player\":{\"id\":%s,\"login\":\"%s\"},\"clan\":{\"id\":%s,\"tag\":\"%s\",\"name\":\"%s\"}}",
-        me.getId(),
-        me.getLogin(),
+        session.getPlayer().getId(),
+        session.getPlayer().getLogin(),
         clan.getId(),
         clan.getTag(),
         clan.getName());
@@ -171,14 +118,15 @@ public class ClanControllerIntegrationTest {
     assertEquals(1, clanRepository.count());
     assertEquals(1, clanMembershipRepository.count());
     this.mvc.perform(get("/clans/me/")
-        .header("Authorization", accessToken))
+        .header("Authorization", session.getToken()))
         .andExpect(content().string(expected))
         .andExpect(status().isOk());
   }
 
   @Test
   public void createClan() throws Exception {
-    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+    Session session = SessionFactory.createUserAndGetAccessToken(
+        oAuthClientRepository, userRepository, playerRepository, mvc);
     String clanName = "My Cool ClanName";
     String tag = "123";
     String description = "spaces Must Be Encoded";
@@ -189,7 +137,7 @@ public class ClanControllerIntegrationTest {
     ResultActions action = this.mvc.perform(post(
         String.format("/clans/create?tag=%s&name=%s&description=%s",
             tag, clanName, description))
-        .header("Authorization", accessToken));
+        .header("Authorization", session.getToken()));
 
     int id = clanRepository.findAll().get(0).getId();
 
@@ -202,13 +150,14 @@ public class ClanControllerIntegrationTest {
 
   @Test
   public void createSecondClan() throws Exception {
-    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+    Session session = SessionFactory.createUserAndGetAccessToken(
+        oAuthClientRepository, userRepository, playerRepository, mvc);
     String clanName = "My Cool ClanName";
     String tag = "123";
     String description = "spaces Must Be Encoded";
 
-    Clan clan = new Clan().setLeader(me).setTag("tag").setName("abcClan");
-    ClanMembership membership = new ClanMembership().setPlayer(me).setClan(clan);
+    Clan clan = new Clan().setLeader(session.getPlayer()).setTag("tag").setName("abcClan");
+    ClanMembership membership = new ClanMembership().setPlayer(session.getPlayer()).setClan(clan);
     clan.setMemberships(Collections.singletonList(membership));
     clanRepository.save(clan);
 
@@ -218,7 +167,7 @@ public class ClanControllerIntegrationTest {
     ResultActions action = this.mvc.perform(post(
         String.format("/clans/create?tag=%s&name=%s&description=%s",
             tag, clanName, description))
-        .header("Authorization", accessToken));
+        .header("Authorization", session.getToken()));
 
     action.andExpect(content().string("{\"errors\":[{\"title\":\"You are already in a clan\",\"detail\":\"Clan creator is already member of a clan\"}]}"))
         .andExpect(status().is(422));
@@ -229,8 +178,9 @@ public class ClanControllerIntegrationTest {
 
   @Test
   public void createClanWithSameName() throws Exception {
-    Player otherLeader = createPlayer("Downloard");
-    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+    Player otherLeader = PlayerFactory.createPlayer("Downloard", userRepository, playerRepository);
+    Session session = SessionFactory.createUserAndGetAccessToken(
+        oAuthClientRepository, userRepository, playerRepository, mvc);
     String clanName = "My Cool ClanName";
     String tag = "123";
     String description = "spaces Must Be Encoded";
@@ -246,7 +196,7 @@ public class ClanControllerIntegrationTest {
     ResultActions action = this.mvc.perform(post(
         String.format("/clans/create?tag=%s&name=%s&description=%s",
             tag, clanName, description))
-        .header("Authorization", accessToken));
+        .header("Authorization", session.getToken()));
 
     action.andExpect(content().string("{\"errors\":[{\"title\":\"Clan Name already in use\",\"detail\":\"The clan name 'My Cool ClanName' is already in use. Please choose a different clan name.\"}]}"))
         .andExpect(status().is(422));
@@ -257,8 +207,9 @@ public class ClanControllerIntegrationTest {
 
   @Test
   public void createClanWithSameTag() throws Exception {
-    Player otherLeader = createPlayer("Downlord");
-    String accessToken = createUserAndGetAccessToken("Dragonfire", "foo");
+    Player otherLeader = PlayerFactory.createPlayer("Downloard", userRepository, playerRepository);
+    Session session = SessionFactory.createUserAndGetAccessToken(
+        oAuthClientRepository, userRepository, playerRepository, mvc);
     String clanName = "My Cool ClanName";
     String tag = "123";
     String description = "spaces Must Be Encoded";
@@ -274,7 +225,7 @@ public class ClanControllerIntegrationTest {
     ResultActions action = this.mvc.perform(post(
         String.format("/clans/create?tag=%s&name=%s&description=%s",
             tag, clanName, description))
-        .header("Authorization", accessToken));
+        .header("Authorization", session.getToken()));
 
     action.andExpect(content().string("{\"errors\":[{\"title\":\"Clan Tag already in use\",\"detail\":\"The clan tag 'My Cool ClanName' is already in use. Please choose a different clan tag.\"}]}"))
         .andExpect(status().is(422));
