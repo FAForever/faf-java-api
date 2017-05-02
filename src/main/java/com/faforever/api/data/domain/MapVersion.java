@@ -118,7 +118,7 @@ public class MapVersion {
     return this.map;
   }
 
-  @OneToOne(mappedBy = "mapVersion")
+  @OneToOne(mappedBy = "mapVersion", fetch = FetchType.LAZY)
   public MapVersionStatistics getStatistics() {
     return statistics;
   }
