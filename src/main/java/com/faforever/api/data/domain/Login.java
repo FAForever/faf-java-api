@@ -3,7 +3,6 @@ package com.faforever.api.data.domain;
 import com.faforever.api.data.checks.IsLoginOwner;
 import com.yahoo.elide.annotation.ReadPermission;
 import lombok.Setter;
-import org.hibernate.annotations.Formula;
 
 import javax.persistence.Column;
 import javax.persistence.FetchType;
@@ -25,7 +24,6 @@ public abstract class Login {
   private String steamId;
   private String userAgent;
   private BanInfo banInfo;
-  private String lowerCaseLogin;
 
   @Id
   @GeneratedValue
@@ -36,13 +34,6 @@ public abstract class Login {
   @Column(name = "login")
   public String getLogin() {
     return login;
-  }
-
-  // TODO review this, I think it's not needed since elide should (with a never version?) filter case insensitive
-  // Needed for filter, e.g. at the clan app
-  @Formula("LOWER(login)")
-  public String getLowerCaseLogin() {
-    return lowerCaseLogin;
   }
 
   @Column(name = "email")
