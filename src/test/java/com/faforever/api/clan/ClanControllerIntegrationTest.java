@@ -7,7 +7,6 @@ import com.faforever.integration.TestDatabase;
 import com.faforever.integration.factories.PlayerFactory;
 import com.faforever.integration.factories.SessionFactory;
 import com.faforever.integration.factories.SessionFactory.Session;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.inject.Inject;
@@ -33,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Import(TestDatabase.class)
+@Transactional
 public class ClanControllerIntegrationTest {
   private MockMvc mvc;
   private WebApplicationContext context;
@@ -55,13 +56,8 @@ public class ClanControllerIntegrationTest {
         .webAppContextSetup(context)
         .addFilter(springSecurityFilterChain)
         .build();
+    database.assertEmptyDatabase();
   }
-
-  @After
-  public void tearDown() {
-    database.tearDown();
-  }
-
 
   @Test
   public void meDataWithoutClan() throws Exception {
