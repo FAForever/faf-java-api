@@ -65,10 +65,12 @@ public class JsonApiClanIntegrationTest {
         .webAppContextSetup(context)
         .addFilter(springSecurityFilterChain)
         .build();
+    database.assertEmptyDatabase();
   }
 
   @After
   public void tearDown() {
+    // TODO: This is needed, because Elide has some problems with @Transactional annotation
     database.tearDown();
   }
 
