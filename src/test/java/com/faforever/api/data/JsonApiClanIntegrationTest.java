@@ -3,7 +3,6 @@ package com.faforever.api.data;
 import com.faforever.api.clan.ClanMembershipRepository;
 import com.faforever.api.clan.ClanRepository;
 import com.faforever.api.client.OAuthClientRepository;
-import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.ClanMembership;
 import com.faforever.api.data.domain.Player;
@@ -51,7 +50,6 @@ public class JsonApiClanIntegrationTest {
   private ClanMembershipRepository clanMembershipRepository;
   private PlayerRepository playerRepository;
   private OAuthClientRepository oAuthClientRepository;
-  private FafApiProperties fafApiProperties;
 
   private ObjectMapper objectMapper;
 
@@ -66,8 +64,7 @@ public class JsonApiClanIntegrationTest {
                    PlayerRepository playerRepository,
                    OAuthClientRepository oAuthClientRepository,
                    Filter springSecurityFilterChain,
-                   ClanMembershipRepository clanMembershipRepository,
-                   FafApiProperties fafApiProperties) {
+                   ClanMembershipRepository clanMembershipRepository) {
     this.context = context;
     this.clanRepository = clanRepository;
     this.userRepository = userRepository;
@@ -75,7 +72,6 @@ public class JsonApiClanIntegrationTest {
     this.oAuthClientRepository = oAuthClientRepository;
     this.springSecurityFilterChain = springSecurityFilterChain;
     this.clanMembershipRepository = clanMembershipRepository;
-    this.fafApiProperties = fafApiProperties;
   }
 
   @Before
@@ -84,8 +80,6 @@ public class JsonApiClanIntegrationTest {
         .webAppContextSetup(context)
         .addFilter(springSecurityFilterChain)
         .build();
-    // TODO: Setup this in a helper class
-    fafApiProperties.getClan().setWebsiteUrlFormat("http://example.com/%s");
   }
 
   // Dragonfire: This duplicated code cannot be avoided, each test must cleanup all the used repositories
