@@ -1,5 +1,8 @@
 package com.faforever.api.clan;
 
+import com.faforever.api.clan.result.ClanResult;
+import com.faforever.api.clan.result.InvitationResult;
+import com.faforever.api.clan.result.PlayerResult;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.ClanMembership;
@@ -11,9 +14,7 @@ import com.faforever.api.error.ProgrammingError;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.player.PlayerService;
 import com.faforever.api.security.JwtService;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import lombok.SneakyThrows;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.jwt.Jwt;
@@ -103,36 +104,31 @@ public class ClanService {
         .plus(fafApiProperties.getClan().getInviteLinkExpireDurationMinutes(), ChronoUnit.MINUTES)
         .toEpochMilli();
 
-    return jwtService.sign(
-        ImmutableMap.of(JwtKeys.NEW_MEMBER_ID, newMemberId,
-            JwtKeys.EXPIRE_IN, expire,
-            JwtKeys.CLAN, ImmutableMap.of(
-                JwtKeys.CLAN_ID, clan.getId(),
-                JwtKeys.CLAN_TAG, clan.getTag(),
-                JwtKeys.CLAN_NAME, clan.getName())
-        ));
+    InvitationResult result = new InvitationResult(expire,
+        ClanResult.of(clan),
+        PlayerResult.of(newMember));
+    return jwtService.sign(result);
   }
 
   @SneakyThrows
-  // TODO @dragonfire don't manually read JSON values, deserialize into a Java object?
   public void acceptPlayerInvitationToken(String stringToken, Authentication authentication) {
     Jwt token = jwtService.decodeAndVerify(stringToken);
-    JsonNode data = objectMapper.readTree(token.getClaims());
+    InvitationResult invitation = objectMapper.readValue(token.getClaims(), InvitationResult.class);
 
-    if (data.get(JwtKeys.EXPIRE_IN).asLong() < System.currentTimeMillis()) {
+    if (invitation.isExpired()) {
       throw new ApiException(new Error(ErrorCode.CLAN_ACCEPT_TOKEN_EXPIRE));
     }
 
     Player player = playerService.getPlayer(authentication);
-    Clan clan = clanRepository.findOne(data.get(JwtKeys.CLAN).get(JwtKeys.CLAN_ID).asInt());
+    Clan clan = clanRepository.findOne(invitation.getClan().getId());
 
     if (clan == null) {
       throw new ApiException(new Error(ErrorCode.CLAN_NOT_EXISTS));
     }
 
-    Player newMember = playerRepository.findOne(data.get(JwtKeys.NEW_MEMBER_ID).asInt());
+    Player newMember = playerRepository.findOne(invitation.getNewMember().getId());
     if (newMember == null) {
-      throw new ProgrammingError("ClanMember does not exist: " + data.get(JwtKeys.NEW_MEMBER_ID).asInt());
+      throw new ProgrammingError("ClanMember does not exist: " + invitation.getNewMember().getId());
     }
 
     if (player.getId() != newMember.getId()) {
