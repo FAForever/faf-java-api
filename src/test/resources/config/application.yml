@@ -23,3 +23,5 @@ security:
 faf-api:
   jwt:
     secret: banana
+  clan:
+    website-url-format: "http://example.com/%s"
