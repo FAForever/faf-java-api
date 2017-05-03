@@ -1,6 +1,7 @@
 package com.faforever.api.clan;
 
 
+import com.faforever.api.clan.result.InvitationResult;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.ClanMembership;
@@ -26,7 +27,6 @@ import org.springframework.security.jwt.Jwt;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 
 import static com.faforever.api.error.ApiExceptionWithCode.apiExceptionWithCode;
@@ -236,15 +236,16 @@ public class ClanServiceTest {
     when(fafApiProperties.getClan()).thenReturn(props.getClan());
 
     instance.generatePlayerInvitationToken(requester, newMember.getId(), clan.getId());
-    ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
+    ArgumentCaptor<InvitationResult> captor = ArgumentCaptor.forClass(InvitationResult.class);
     verify(jwtService, Mockito.times(1)).sign(captor.capture());
     assertThat("expire",
-        Long.parseLong(captor.getValue().get("expire").toString()),
+        captor.getValue().getExpire(),
         greaterThan(System.currentTimeMillis()));
-    assertEquals(newMember.getId(), captor.getValue().get("newMemberId"));
-    assertEquals(clan.getId(), ((Map) captor.getValue().get("clan")).get("id"));
-    assertEquals(clan.getTag(), ((Map) captor.getValue().get("clan")).get("tag"));
-    assertEquals(clan.getName(), ((Map) captor.getValue().get("clan")).get("name"));
+    assertEquals(newMember.getId(), captor.getValue().getNewMember().getId());
+    assertEquals(newMember.getLogin(), captor.getValue().getNewMember().getLogin());
+    assertEquals(clan.getId(), captor.getValue().getClan().getId());
+    assertEquals(clan.getTag(), captor.getValue().getClan().getTag());
+    assertEquals(clan.getName(), captor.getValue().getClan().getName());
   }
 
   @Test
@@ -296,7 +297,7 @@ public class ClanServiceTest {
     Jwt jwtToken = Mockito.mock(Jwt.class);
 
     when(jwtToken.getClaims()).thenReturn(
-        String.format("{\"expire\":%s,\"newMemberId\":2,\"clan\":{\"id\":%s}}",
+        String.format("{\"expire\":%s,\"newMember\":{\"id\":2},\"clan\":{\"id\":%s}}",
             expire, clan.getId()));
     when(jwtService.decodeAndVerify(any())).thenReturn(jwtToken);
     when(clanRepository.findOne(clan.getId())).thenReturn(clan);
@@ -326,7 +327,7 @@ public class ClanServiceTest {
     Jwt jwtToken = Mockito.mock(Jwt.class);
 
     when(jwtToken.getClaims()).thenReturn(
-        String.format("{\"expire\":%s,\"newMemberId\":%s,\"clan\":{\"id\":%s}}",
+        String.format("{\"expire\":%s,\"newMember\":{\"id\":%s},\"clan\":{\"id\":%s}}",
             expire, newMember.getId(), clan.getId()));
     when(jwtService.decodeAndVerify(any())).thenReturn(jwtToken);
     when(clanRepository.findOne(clan.getId())).thenReturn(clan);
@@ -357,7 +358,7 @@ public class ClanServiceTest {
     Jwt jwtToken = Mockito.mock(Jwt.class);
 
     when(jwtToken.getClaims()).thenReturn(
-        String.format("{\"expire\":%s,\"newMemberId\":%s,\"clan\":{\"id\":%s}}",
+        String.format("{\"expire\":%s,\"newMember\":{\"id\":%s},\"clan\":{\"id\":%s}}",
             expire, newMember.getId(), clan.getId()));
     when(jwtService.decodeAndVerify(any())).thenReturn(jwtToken);
     when(clanRepository.findOne(clan.getId())).thenReturn(clan);
@@ -383,7 +384,7 @@ public class ClanServiceTest {
     Jwt jwtToken = Mockito.mock(Jwt.class);
 
     when(jwtToken.getClaims()).thenReturn(
-        String.format("{\"expire\":%s,\"newMemberId\":%s,\"clan\":{\"id\":%s}}",
+        String.format("{\"expire\":%s,\"newMember\":{\"id\":%s},\"clan\":{\"id\":%s}}",
             expire, newMember.getId(), clan.getId()));
     when(jwtService.decodeAndVerify(any())).thenReturn(jwtToken);
     when(clanRepository.findOne(clan.getId())).thenReturn(clan);
