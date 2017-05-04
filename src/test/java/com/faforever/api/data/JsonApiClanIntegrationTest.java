@@ -78,9 +78,10 @@ public class JsonApiClanIntegrationTest {
   @Test
   public void cannotKickLeaderFromClan() throws Exception {
     Session session = SessionFactory.createUserAndGetAccessToken(database, mvc);
+    Player player = session.getPlayer();
 
-    Clan clan = new Clan().setLeader(session.getPlayer()).setTag("123").setName("abcClanName");
-    ClanMembership membership = new ClanMembership().setPlayer(session.getPlayer()).setClan(clan);
+    Clan clan = new Clan().setLeader(player).setTag("123").setName("abcClanName");
+    ClanMembership membership = new ClanMembership().setPlayer(player).setClan(clan);
     clan.setMemberships(Collections.singletonList(membership));
     database.getClanRepository().save(clan);
 
@@ -114,10 +115,11 @@ public class JsonApiClanIntegrationTest {
   @Test
   public void canKickMember() throws Exception {
     Session session = SessionFactory.createUserAndGetAccessToken(database, mvc);
+    Player player = session.getPlayer();
 
     Player bob = PlayerFactory.createPlayer("Bob", database);
-    Clan clan = new Clan().setLeader(session.getPlayer()).setTag("123").setName("abcClanName");
-    ClanMembership myMembership = new ClanMembership().setPlayer(session.getPlayer()).setClan(clan);
+    Clan clan = new Clan().setLeader(player).setTag("123").setName("abcClanName");
+    ClanMembership myMembership = new ClanMembership().setPlayer(player).setClan(clan);
     ClanMembership bobsMembership = new ClanMembership().setPlayer(bob).setClan(clan);
     clan.setMemberships(Arrays.asList(myMembership, bobsMembership));
     database.getClanRepository().save(clan);
@@ -134,10 +136,11 @@ public class JsonApiClanIntegrationTest {
   @Test
   public void canLeaveClan() throws Exception {
     Session session = SessionFactory.createUserAndGetAccessToken(database, mvc);
+    Player player = session.getPlayer();
 
     Player bob = PlayerFactory.createPlayer("Bob", database);
     Clan clan = new Clan().setLeader(bob).setTag("123").setName("abcClanName");
-    ClanMembership myMembership = new ClanMembership().setPlayer(session.getPlayer()).setClan(clan);
+    ClanMembership myMembership = new ClanMembership().setPlayer(player).setClan(clan);
     ClanMembership bobsMembership = new ClanMembership().setPlayer(bob).setClan(clan);
     clan.setMemberships(Arrays.asList(myMembership, bobsMembership));
     database.getClanRepository().save(clan);
@@ -188,10 +191,11 @@ public class JsonApiClanIntegrationTest {
   @Test
   public void transferLeadership() throws Exception {
     Session session = SessionFactory.createUserAndGetAccessToken("Leader", "foo", database, mvc);
+    Player player = session.getPlayer();
 
     Player bob = PlayerFactory.createPlayer("Bob", database);
-    Clan clan = new Clan().setLeader(session.getPlayer()).setTag("123").setName("abcClanName");
-    ClanMembership myMembership = new ClanMembership().setPlayer(session.getPlayer()).setClan(clan);
+    Clan clan = new Clan().setLeader(player).setTag("123").setName("abcClanName");
+    ClanMembership myMembership = new ClanMembership().setPlayer(player).setClan(clan);
     ClanMembership bobsMembership = new ClanMembership().setPlayer(bob).setClan(clan);
     clan.setMemberships(Arrays.asList(myMembership, bobsMembership));
     database.getClanRepository().save(clan);
@@ -199,7 +203,7 @@ public class JsonApiClanIntegrationTest {
     String dataString = generateTransferLeadershipContent(clan.getId(), bob.getId());
 
     clan = database.getClanRepository().findOne(clan.getId());
-    assertEquals(session.getPlayer().getId(), clan.getLeader().getId());
+    assertEquals(player.getId(), clan.getLeader().getId());
 
     ResultActions action = this.mvc.perform(patch("/data/clan/" + clan.getId())
         .content(dataString)
@@ -214,16 +218,17 @@ public class JsonApiClanIntegrationTest {
   @Test
   public void transferLeadershipToOldLeader() throws Exception {
     Session session = SessionFactory.createUserAndGetAccessToken("Leader", "foo", database, mvc);
+    Player player = session.getPlayer();
 
-    Clan clan = new Clan().setLeader(session.getPlayer()).setTag("123").setName("abcClanName");
-    ClanMembership myMembership = new ClanMembership().setPlayer(session.getPlayer()).setClan(clan);
+    Clan clan = new Clan().setLeader(player).setTag("123").setName("abcClanName");
+    ClanMembership myMembership = new ClanMembership().setPlayer(player).setClan(clan);
     clan.setMemberships(Collections.singletonList(myMembership));
     database.getClanRepository().save(clan);
 
-    String dataString = generateTransferLeadershipContent(clan.getId(), session.getPlayer().getId());
+    String dataString = generateTransferLeadershipContent(clan.getId(), player.getId());
 
     clan = database.getClanRepository().findOne(clan.getId());
-    assertEquals(session.getPlayer().getId(), clan.getLeader().getId());
+    assertEquals(player.getId(), clan.getLeader().getId());
 
     ResultActions action = this.mvc.perform(patch("/data/clan/" + clan.getId())
         .content(dataString)
@@ -232,24 +237,25 @@ public class JsonApiClanIntegrationTest {
         .andExpect(status().is(204));
 
     clan = database.getClanRepository().findOne(clan.getId());
-    assertEquals(session.getPlayer().getId(), clan.getLeader().getId());
+    assertEquals(player.getId(), clan.getLeader().getId());
   }
 
   @Test
   public void transferLeadershipToNonClanMember() throws Exception {
     Session session = SessionFactory.createUserAndGetAccessToken("Leader", "foo", database, mvc);
+    Player player = session.getPlayer();
 
     Player bob = PlayerFactory.createPlayer("Bob", database);
 
-    Clan clan = new Clan().setLeader(session.getPlayer()).setTag("123").setName("abcClanName");
-    ClanMembership myMembership = new ClanMembership().setPlayer(session.getPlayer()).setClan(clan);
+    Clan clan = new Clan().setLeader(player).setTag("123").setName("abcClanName");
+    ClanMembership myMembership = new ClanMembership().setPlayer(player).setClan(clan);
     clan.setMemberships(Collections.singletonList(myMembership));
     database.getClanRepository().save(clan);
 
     String dataString = generateTransferLeadershipContent(clan.getId(), bob.getId());
 
     clan = database.getClanRepository().findOne(clan.getId());
-    assertEquals(session.getPlayer().getId(), clan.getLeader().getId());
+    assertEquals(player.getId(), clan.getLeader().getId());
 
     ResultActions action = this.mvc.perform(patch("/data/clan/" + clan.getId())
         .content(dataString)
@@ -261,18 +267,19 @@ public class JsonApiClanIntegrationTest {
     assertEquals("Validation failed", resultNode.get("errors").get(0).get("title").asText());
 
     clan = database.getClanRepository().findOne(clan.getId());
-    assertEquals(session.getPlayer().getId(), clan.getLeader().getId());
+    assertEquals(player.getId(), clan.getLeader().getId());
   }
 
   @Test
   public void transferLeadershipAsNonLeader() throws Exception {
     Session session = SessionFactory.createUserAndGetAccessToken("Leader", "foo", database, mvc);
+    Player player = session.getPlayer();
 
     Player bob = PlayerFactory.createPlayer("Bob", database);
     Player charlie = PlayerFactory.createPlayer("Charlie", database);
 
     Clan clan = new Clan().setLeader(bob).setTag("123").setName("abcClanName");
-    ClanMembership myMembership = new ClanMembership().setPlayer(session.getPlayer()).setClan(clan);
+    ClanMembership myMembership = new ClanMembership().setPlayer(player).setClan(clan);
     ClanMembership bobsMembership = new ClanMembership().setPlayer(bob).setClan(clan);
     ClanMembership charlieMembership = new ClanMembership().setPlayer(charlie).setClan(clan);
     clan.setMemberships(Arrays.asList(myMembership, bobsMembership, charlieMembership));
@@ -296,14 +303,15 @@ public class JsonApiClanIntegrationTest {
   @Test
   public void deleteClan() throws Exception {
     Session session = SessionFactory.createUserAndGetAccessToken("Leader", "foo", database, mvc);
+    Player player = session.getPlayer();
 
-    Clan clan = new Clan().setLeader(session.getPlayer()).setTag("123").setName("abcClanName");
-    ClanMembership myMembership = new ClanMembership().setPlayer(session.getPlayer()).setClan(clan);
+    Clan clan = new Clan().setLeader(player).setTag("123").setName("abcClanName");
+    ClanMembership myMembership = new ClanMembership().setPlayer(player).setClan(clan);
     clan.setMemberships(Collections.singletonList(myMembership));
     database.getClanRepository().save(clan);
 
     clan = database.getClanRepository().findOne(clan.getId());
-    assertEquals(session.getPlayer().getId(), clan.getLeader().getId());
+    assertEquals(player.getId(), clan.getLeader().getId());
 
     ResultActions action = this.mvc.perform(delete("/data/clan/" + clan.getId())
         .header("Authorization", session.getToken()));
