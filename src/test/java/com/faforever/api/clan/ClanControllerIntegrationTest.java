@@ -63,10 +63,11 @@ public class ClanControllerIntegrationTest {
   public void meDataWithoutClan() throws Exception {
     Session session = SessionFactory.createUserAndGetAccessToken(
         database, mvc);
+    Player player = session.getPlayer();
 
     String expected = String.format("{\"player\":{\"id\":%s,\"login\":\"%s\"},\"clan\":null}",
-        session.getPlayer().getId(),
-        session.getPlayer().getLogin());
+        player.getId(),
+        player.getLogin());
 
     assertEquals(1, database.getPlayerRepository().count());
     this.mvc.perform(get("/clans/me/")
@@ -79,15 +80,16 @@ public class ClanControllerIntegrationTest {
   public void meDataWithClan() throws Exception {
     Session session = SessionFactory.createUserAndGetAccessToken(
         database, mvc);
+    Player player = session.getPlayer();
 
-    Clan clan = new Clan().setLeader(session.getPlayer()).setTag("123").setName("abcClanName");
-    ClanMembership myMembership = new ClanMembership().setPlayer(session.getPlayer()).setClan(clan);
+    Clan clan = new Clan().setLeader(player).setTag("123").setName("abcClanName");
+    ClanMembership myMembership = new ClanMembership().setPlayer(player).setClan(clan);
     clan.setMemberships(Collections.singletonList(myMembership));
     database.getClanRepository().save(clan);
 
     String expected = String.format("{\"player\":{\"id\":%s,\"login\":\"%s\"},\"clan\":{\"id\":%s,\"tag\":\"%s\",\"name\":\"%s\"}}",
-        session.getPlayer().getId(),
-        session.getPlayer().getLogin(),
+        player.getId(),
+        player.getLogin(),
         clan.getId(),
         clan.getTag(),
         clan.getName());
@@ -130,12 +132,13 @@ public class ClanControllerIntegrationTest {
   public void createSecondClan() throws Exception {
     Session session = SessionFactory.createUserAndGetAccessToken(
         database, mvc);
+    Player player = session.getPlayer();
     String clanName = "My Cool ClanName";
     String tag = "123";
     String description = "spaces Must Be Encoded";
 
-    Clan clan = new Clan().setLeader(session.getPlayer()).setTag("tag").setName("abcClan");
-    ClanMembership membership = new ClanMembership().setPlayer(session.getPlayer()).setClan(clan);
+    Clan clan = new Clan().setLeader(player).setTag("tag").setName("abcClan");
+    ClanMembership membership = new ClanMembership().setPlayer(player).setClan(clan);
     clan.setMemberships(Collections.singletonList(membership));
     database.getClanRepository().save(clan);
 
