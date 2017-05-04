@@ -136,12 +136,13 @@ public class JsonApiClanIntegrationTest {
   @Test
   public void canLeaveClan() throws Exception {
     Session session = SessionFactory.createUserAndGetAccessToken(database, mvc);
-    Player player = session.getPlayer();
 
     Player bob = PlayerFactory.createPlayer("Bob", database);
+    Player player = session.getPlayer();
+
     Clan clan = new Clan().setLeader(bob).setTag("123").setName("abcClanName");
-    ClanMembership myMembership = new ClanMembership().setPlayer(player).setClan(clan);
     ClanMembership bobsMembership = new ClanMembership().setPlayer(bob).setClan(clan);
+    ClanMembership myMembership = new ClanMembership().setPlayer(player).setClan(clan);
     clan.setMemberships(Arrays.asList(myMembership, bobsMembership));
     database.getClanRepository().save(clan);
 
