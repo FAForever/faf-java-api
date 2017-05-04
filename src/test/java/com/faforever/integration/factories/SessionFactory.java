@@ -30,7 +30,7 @@ public class SessionFactory {
   @SneakyThrows
   public static Session createUserAndGetAccessToken(TestDatabase database,
                                                     MockMvc mvc) {
-    return createUserAndGetAccessToken("Dragonfire", "foo",
+    return createUserAndGetAccessToken("JUnitOnDragonFire", "myCoolPassword",
         database, mvc);
   }
 
@@ -53,7 +53,7 @@ public class SessionFactory {
     User user = (User) new User()
         .setPassword(shaPasswordEncoder.encodePassword(password, null))
         .setLogin(login)
-        .setEmail(login + "@faforever.com");
+        .setEmail(login + "@example.com");
     database.getUserRepository().save(user);
     assertEquals((userCounter + 1), database.getUserRepository().count());
 
