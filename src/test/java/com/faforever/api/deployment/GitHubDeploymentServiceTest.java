@@ -9,10 +9,9 @@ import org.junit.runner.RunWith;
 import org.kohsuke.github.GHDeployment;
 import org.kohsuke.github.GHDeploymentBuilder;
 import org.kohsuke.github.GHEventPayload.Push;
-import org.kohsuke.github.GHEventPayload.Push.PushCommit;
 import org.kohsuke.github.GHRepository;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
 
 import java.util.Collections;
@@ -46,11 +45,7 @@ public class GitHubDeploymentServiceTest {
 
   @Test
   public void createDeploymentIfEligibleNoConfigurationAvailable() throws Exception {
-    PushCommit pushCommit = mock(PushCommit.class);
-    when(pushCommit.isDistinct()).thenReturn(true);
-
     Push push = mock(Push.class);
-    when(push.getCommits()).thenReturn(Collections.singletonList(pushCommit));
 
     GHRepository repository = mock(GHRepository.class);
     when(repository.gitHttpTransportUrl()).thenReturn(EXAMPLE_REPO_URL);
@@ -63,12 +58,8 @@ public class GitHubDeploymentServiceTest {
 
   @Test
   public void createDeploymentIfEligible() throws Exception {
-    PushCommit pushCommit = mock(PushCommit.class);
-    when(pushCommit.isDistinct()).thenReturn(true);
-
     Push push = mock(Push.class);
     when(push.getRef()).thenReturn("refs/heads/master");
-    when(push.getCommits()).thenReturn(Collections.singletonList(pushCommit));
 
     GHRepository repository = mock(GHRepository.class);
     when(repository.gitHttpTransportUrl()).thenReturn(EXAMPLE_REPO_URL);
