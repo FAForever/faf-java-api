@@ -6,6 +6,8 @@ import com.faforever.api.data.checks.IsClanLeader;
 import com.faforever.api.data.checks.IsClanMembershipDeletable;
 import com.faforever.api.data.checks.IsLoginOwner;
 import com.faforever.api.data.checks.IsReviewOwner;
+import com.faforever.api.data.checks.permission.HasBanRead;
+import com.faforever.api.data.checks.permission.HasBanUpdate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yahoo.elide.Elide;
 import com.yahoo.elide.ElideSettingsBuilder;
@@ -57,6 +59,8 @@ public class ElideConfig {
     checks.put(IsReviewOwner.EXPRESSION, IsReviewOwner.Inline.class);
     checks.put(IsClanLeader.EXPRESSION, IsClanLeader.Inline.class);
     checks.put(IsClanMembershipDeletable.EXPRESSION, IsClanMembershipDeletable.Inline.class);
+    checks.put(HasBanRead.EXPRESSION, HasBanRead.Inline.class);
+    checks.put(HasBanUpdate.EXPRESSION, HasBanUpdate.Inline.class);
 
     return new EntityDictionary(checks);
   }

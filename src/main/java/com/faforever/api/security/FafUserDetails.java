@@ -1,12 +1,10 @@
 package com.faforever.api.security;
 
-import com.faforever.api.data.domain.BanInfo;
 import com.faforever.api.data.domain.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.time.OffsetDateTime;
 import java.util.Collection;
 
 import static java.util.Collections.singletonList;
@@ -18,7 +16,7 @@ public class FafUserDetails extends org.springframework.security.core.userdetail
 
   public FafUserDetails(User user) {
     // TODO implement lobby_admin
-    this(user.getId(), user.getLogin(), user.getPassword(), isNonLocked(user.getBanInfo()), singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+    this(user.getId(), user.getLogin(), user.getPassword(), !user.isGlobalBanned(), singletonList(new SimpleGrantedAuthority("ROLE_USER")));
   }
 
   public FafUserDetails(int id, String username, String password, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
@@ -26,8 +24,9 @@ public class FafUserDetails extends org.springframework.security.core.userdetail
     this.id = id;
   }
 
-  private static boolean isNonLocked(BanInfo banInfo) {
-    return banInfo == null
-        || banInfo.getExpiresAt().isBefore(OffsetDateTime.now());
+
+  public boolean hasPermission(String permission) {
+    // TODO: implement permission system
+    return true;
   }
 }
