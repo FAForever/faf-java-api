@@ -2,6 +2,7 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsLoginOwner;
 import com.yahoo.elide.annotation.ReadPermission;
+import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -11,7 +12,11 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Transient;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -23,7 +28,7 @@ public abstract class Login {
   private String email;
   private String steamId;
   private String userAgent;
-  private BanInfo banInfo;
+  private List<BanInfo> bans;
 
   @Id
   @GeneratedValue
@@ -53,8 +58,23 @@ public abstract class Login {
     return userAgent;
   }
 
-  @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
-  public BanInfo getBanInfo() {
-    return banInfo;
+  @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
+  // Permission is managed by BanInfo class
+  @UpdatePermission(expression = "Prefab.Role.All")
+  public List<BanInfo> getBans() {
+    if (this.bans == null) {
+      this.bans = Collections.emptyList();
+    }
+    return this.bans;
+  }
+
+  @Transient
+  public List<BanInfo> getActiveBans() {
+    return getBans().stream().filter(ban -> ban.getBanStatus() == BanStatus.BANNED).collect(Collectors.toList());
+  }
+
+  @Transient
+  public boolean isGlobalBanned() {
+    return getActiveBans().stream().anyMatch(ban -> ban.getLevel() == BanLevel.GLOBAL);
   }
 }
