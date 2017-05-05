@@ -44,31 +44,6 @@ public class GitHubDeploymentServiceTest {
     instance = new GitHubDeploymentService(applicationContext, apiProperties, objectMapper);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void createDeploymentIfEligibleHeadCommitNotEqualToFirstCommit() throws Exception {
-    PushCommit pushCommit = mock(PushCommit.class);
-    when(pushCommit.getSha()).thenReturn("111");
-
-    Push push = mock(Push.class);
-    when(push.getHead()).thenReturn("222");
-    when(push.getCommits()).thenReturn(Collections.singletonList(pushCommit));
-
-    instance.createDeploymentIfEligible(push);
-  }
-
-  @Test
-  public void createDeploymentIfEligibleDistinctIgnored() throws Exception {
-    PushCommit pushCommit = mock(PushCommit.class);
-    when(pushCommit.isDistinct()).thenReturn(false);
-
-    Push push = mock(Push.class);
-    when(push.getCommits()).thenReturn(Collections.singletonList(pushCommit));
-
-    instance.createDeploymentIfEligible(push);
-
-    verify(push, never()).getRepository();
-  }
-
   @Test
   public void createDeploymentIfEligibleNoConfigurationAvailable() throws Exception {
     PushCommit pushCommit = mock(PushCommit.class);

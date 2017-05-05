@@ -7,12 +7,10 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.kohsuke.github.GHDeployment;
 import org.kohsuke.github.GHEventPayload.Push;
-import org.kohsuke.github.GHEventPayload.Push.PushCommit;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
 import java.util.Optional;
 
 
@@ -32,16 +30,7 @@ public class GitHubDeploymentService {
 
   @SneakyThrows
   public void createDeploymentIfEligible(Push push) {
-    PushCommit headCommit = push.getCommits().stream()
-        .filter(commit -> Objects.equals(commit.getSha(), push.getHead()))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Head commit '" + push.getHead() + "' is not in the list of commits"));
-
     String ref = push.getRef();
-    if (!headCommit.isDistinct()) {
-      log.debug("Ignoring non-distinct commit to ref: {}", ref);
-      return;
-    }
     Optional<DeploymentConfiguration> optional = fafApiProperties.getDeployment().getConfigurations().stream()
         .filter(configuration ->
             push.getRepository().gitHttpTransportUrl().equals(configuration.getRepositoryUrl())
