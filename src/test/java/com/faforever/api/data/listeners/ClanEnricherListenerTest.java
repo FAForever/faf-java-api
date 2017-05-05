@@ -24,7 +24,7 @@ public class ClanEnricherListenerTest {
 
   @Test
   public void enrich() throws Exception {
-    Clan clan = new Clan().setId(54);
+    Clan clan = (Clan) new Clan().setId(54);
 
     instance.enrich(clan);
 

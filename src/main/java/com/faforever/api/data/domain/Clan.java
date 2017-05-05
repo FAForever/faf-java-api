@@ -17,9 +17,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -27,7 +24,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.OffsetDateTime;
 import java.util.List;
 
 @Entity
@@ -39,11 +35,8 @@ import java.util.List;
 @Setter
 @IsLeaderInClan
 @EntityListeners(ClanEnricherListener.class)
-public class Clan {
+public class Clan extends AbstractEntity {
 
-  private int id;
-  private OffsetDateTime createTime;
-  private OffsetDateTime updateTime;
   private String name;
   private String tag;
   private Player founder;
@@ -52,23 +45,6 @@ public class Clan {
   private String tagColor;
   private String websiteUrl;
   private List<ClanMembership> memberships;
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
-  public int getId() {
-    return id;
-  }
-
-  @Column(name = "create_time")
-  public OffsetDateTime getCreateTime() {
-    return createTime;
-  }
-
-  @Column(name = "update_time")
-  public OffsetDateTime getUpdateTime() {
-    return updateTime;
-  }
 
   @Column(name = "name")
   @NotNull
