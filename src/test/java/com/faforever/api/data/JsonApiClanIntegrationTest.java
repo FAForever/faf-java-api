@@ -7,6 +7,7 @@ import com.faforever.integration.TestDatabase;
 import com.faforever.integration.factories.PlayerFactory;
 import com.faforever.integration.factories.SessionFactory;
 import com.faforever.integration.factories.SessionFactory.Session;
+import com.faforever.integration.utils.MockMvcHelper;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
@@ -86,8 +87,8 @@ public class JsonApiClanIntegrationTest {
     database.getClanRepository().save(clan);
 
     assertEquals(1, database.getClanMembershipRepository().count());
-    this.mvc.perform(delete("/data/clanMembership/" + membership.getId())
-        .header("Authorization", session.getToken()))
+    MockMvcHelper.of(this.mvc).setSession(session).perform(
+        delete("/data/clanMembership/" + membership.getId()))
         .andExpect(content().string("{\"errors\":[\"ForbiddenAccessException\"]}"))
         .andExpect(status().is(403));
     assertEquals(1, database.getClanMembershipRepository().count());
@@ -105,8 +106,8 @@ public class JsonApiClanIntegrationTest {
     database.getClanRepository().save(clan);
 
     assertEquals(2, database.getClanMembershipRepository().count());
-    this.mvc.perform(delete("/data/clanMembership/" + bobsMembership.getId())
-        .header("Authorization", session.getToken()))
+    MockMvcHelper.of(this.mvc).setSession(session).perform(
+        delete("/data/clanMembership/" + bobsMembership.getId()))
         .andExpect(content().string("{\"errors\":[\"ForbiddenAccessException\"]}"))
         .andExpect(status().is(403));
     assertEquals(2, database.getClanMembershipRepository().count());
@@ -125,8 +126,8 @@ public class JsonApiClanIntegrationTest {
     database.getClanRepository().save(clan);
 
     assertEquals(2, database.getClanMembershipRepository().count());
-    this.mvc.perform(delete("/data/clanMembership/" + bobsMembership.getId())
-        .header("Authorization", session.getToken()))
+    MockMvcHelper.of(this.mvc).setSession(session).perform(
+        delete("/data/clanMembership/" + bobsMembership.getId()))
         .andExpect(status().is(204));
     assertEquals(1, database.getClanMembershipRepository().count());
     assertEquals(myMembership.getId(), database.getClanMembershipRepository().findAll().get(0).getId());
@@ -147,8 +148,8 @@ public class JsonApiClanIntegrationTest {
     database.getClanRepository().save(clan);
 
     assertEquals(2, database.getClanMembershipRepository().count());
-    this.mvc.perform(delete("/data/clanMembership/" + myMembership.getId())
-        .header("Authorization", session.getToken()))
+    MockMvcHelper.of(this.mvc).setSession(session).perform(
+        delete("/data/clanMembership/" + myMembership.getId()))
         .andExpect(status().is(204));
     assertEquals(1, database.getClanMembershipRepository().count());
     assertEquals(bobsMembership.getId(), database.getClanMembershipRepository().findAll().get(0).getId());
@@ -159,7 +160,7 @@ public class JsonApiClanIntegrationTest {
     String[] players = new String[]{"Dragonfire", "DRAGON", "Fire of Dragon", "d r a g o n", "firedragon"};
     Arrays.stream(players).forEach(name -> noCatch(() -> PlayerFactory.createPlayer(name, database)));
     assertEquals(players.length, database.getPlayerRepository().count());
-    ResultActions action = this.mvc.perform(get("/data/player?filter=login==dragon*&sort=login"));
+    ResultActions action = MockMvcHelper.of(this.mvc).perform(get("/data/player?filter=login==dragon*&sort=login"));
 
     JsonNode node = objectMapper.readTree(action.andReturn().getResponse().getContentAsString());
 
@@ -206,10 +207,10 @@ public class JsonApiClanIntegrationTest {
     clan = database.getClanRepository().findOne(clan.getId());
     assertEquals(player.getId(), clan.getLeader().getId());
 
-    ResultActions action = this.mvc.perform(patch("/data/clan/" + clan.getId())
-        .content(dataString)
-        .header("Authorization", session.getToken()));
-    action.andExpect(content().string(""))
+    MockMvcHelper.of(this.mvc).setSession(session).perform(
+        patch("/data/clan/" + clan.getId())
+            .content(dataString))
+        .andExpect(content().string(""))
         .andExpect(status().is(204));
 
     clan = database.getClanRepository().findOne(clan.getId());
@@ -231,9 +232,9 @@ public class JsonApiClanIntegrationTest {
     clan = database.getClanRepository().findOne(clan.getId());
     assertEquals(player.getId(), clan.getLeader().getId());
 
-    ResultActions action = this.mvc.perform(patch("/data/clan/" + clan.getId())
-        .content(dataString)
-        .header("Authorization", session.getToken()));
+    ResultActions action = MockMvcHelper.of(this.mvc).setSession(session).perform(
+        patch("/data/clan/" + clan.getId())
+            .content(dataString));
     action.andExpect(content().string(""))
         .andExpect(status().is(204));
 
@@ -258,9 +259,9 @@ public class JsonApiClanIntegrationTest {
     clan = database.getClanRepository().findOne(clan.getId());
     assertEquals(player.getId(), clan.getLeader().getId());
 
-    ResultActions action = this.mvc.perform(patch("/data/clan/" + clan.getId())
-        .content(dataString)
-        .header("Authorization", session.getToken()));
+    ResultActions action = MockMvcHelper.of(this.mvc).setSession(session).perform(
+        patch("/data/clan/" + clan.getId())
+            .content(dataString));
     action.andExpect(status().is(422));
 
     JsonNode resultNode = objectMapper.readTree(action.andReturn().getResponse().getContentAsString());
@@ -291,9 +292,9 @@ public class JsonApiClanIntegrationTest {
     clan = database.getClanRepository().findOne(clan.getId());
     assertEquals(bob.getId(), clan.getLeader().getId());
 
-    ResultActions action = this.mvc.perform(patch("/data/clan/" + clan.getId())
-        .content(dataString)
-        .header("Authorization", session.getToken()));
+    ResultActions action = MockMvcHelper.of(this.mvc).setSession(session).perform(
+        patch("/data/clan/" + clan.getId())
+            .content(dataString));
     action.andExpect(content().string("{\"errors\":[\"ForbiddenAccessException\"]}"))
         .andExpect(status().is(403));
 
@@ -314,8 +315,8 @@ public class JsonApiClanIntegrationTest {
     clan = database.getClanRepository().findOne(clan.getId());
     assertEquals(player.getId(), clan.getLeader().getId());
 
-    ResultActions action = this.mvc.perform(delete("/data/clan/" + clan.getId())
-        .header("Authorization", session.getToken()));
+    ResultActions action = MockMvcHelper.of(this.mvc).setSession(session).perform(
+        delete("/data/clan/" + clan.getId()));
     action.andExpect(content().string(""))
         .andExpect(status().is(204));
 

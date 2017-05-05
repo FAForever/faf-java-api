@@ -7,6 +7,7 @@ import com.faforever.integration.TestDatabase;
 import com.faforever.integration.factories.PlayerFactory;
 import com.faforever.integration.factories.SessionFactory;
 import com.faforever.integration.factories.SessionFactory.Session;
+import com.faforever.integration.utils.MockMvcHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,8 +71,7 @@ public class ClanControllerIntegrationTest {
         player.getLogin());
 
     assertEquals(1, database.getPlayerRepository().count());
-    this.mvc.perform(get("/clans/me/")
-        .header("Authorization", session.getToken()))
+    MockMvcHelper.of(this.mvc).setSession(session).perform(get("/clans/me/"))
         .andExpect(content().string(expected))
         .andExpect(status().isOk());
   }
@@ -97,8 +97,7 @@ public class ClanControllerIntegrationTest {
     assertEquals(1, database.getPlayerRepository().count());
     assertEquals(1, database.getClanRepository().count());
     assertEquals(1, database.getClanMembershipRepository().count());
-    this.mvc.perform(get("/clans/me/")
-        .header("Authorization", session.getToken()))
+    MockMvcHelper.of(this.mvc).setSession(session).perform(get("/clans/me/"))
         .andExpect(content().string(expected))
         .andExpect(status().isOk());
   }
@@ -114,10 +113,9 @@ public class ClanControllerIntegrationTest {
     assertEquals(1, database.getPlayerRepository().count());
     assertEquals(0, database.getClanRepository().count());
     assertEquals(0, database.getClanMembershipRepository().count());
-    ResultActions action = this.mvc.perform(post(
-        String.format("/clans/create?tag=%s&name=%s&description=%s",
-            tag, clanName, description))
-        .header("Authorization", session.getToken()));
+    ResultActions action = MockMvcHelper.of(this.mvc).setSession(session).perform(
+        post(String.format("/clans/create?tag=%s&name=%s&description=%s",
+            tag, clanName, description)));
 
     int id = database.getClanRepository().findAll().get(0).getId();
 
@@ -145,10 +143,9 @@ public class ClanControllerIntegrationTest {
     assertEquals(1, database.getPlayerRepository().count());
     assertEquals(1, database.getClanRepository().count());
     assertEquals(1, database.getClanMembershipRepository().count());
-    ResultActions action = this.mvc.perform(post(
-        String.format("/clans/create?tag=%s&name=%s&description=%s",
-            tag, clanName, description))
-        .header("Authorization", session.getToken()));
+    ResultActions action = MockMvcHelper.of(this.mvc).setSession(session).perform(
+        post(String.format("/clans/create?tag=%s&name=%s&description=%s",
+            tag, clanName, description)));
 
     action.andExpect(content().string("{\"errors\":[{\"title\":\"You are already in a clan\",\"detail\":\"Clan creator is already member of a clan\"}]}"))
         .andExpect(status().is(422));
@@ -174,10 +171,9 @@ public class ClanControllerIntegrationTest {
     assertEquals(2, database.getPlayerRepository().count());
     assertEquals(1, database.getClanRepository().count());
     assertEquals(1, database.getClanMembershipRepository().count());
-    ResultActions action = this.mvc.perform(post(
-        String.format("/clans/create?tag=%s&name=%s&description=%s",
-            tag, clanName, description))
-        .header("Authorization", session.getToken()));
+    ResultActions action = MockMvcHelper.of(this.mvc).setSession(session).perform(
+        post(String.format("/clans/create?tag=%s&name=%s&description=%s",
+            tag, clanName, description)));
 
     action.andExpect(content().string("{\"errors\":[{\"title\":\"Clan Name already in use\",\"detail\":\"The clan name 'My Cool ClanName' is already in use. Please choose a different clan name.\"}]}"))
         .andExpect(status().is(422));
@@ -203,10 +199,9 @@ public class ClanControllerIntegrationTest {
     assertEquals(2, database.getPlayerRepository().count());
     assertEquals(1, database.getClanRepository().count());
     assertEquals(1, database.getClanMembershipRepository().count());
-    ResultActions action = this.mvc.perform(post(
-        String.format("/clans/create?tag=%s&name=%s&description=%s",
-            tag, clanName, description))
-        .header("Authorization", session.getToken()));
+    ResultActions action = MockMvcHelper.of(this.mvc).setSession(session).perform(
+        post(String.format("/clans/create?tag=%s&name=%s&description=%s",
+            tag, clanName, description)));
 
     action.andExpect(content().string("{\"errors\":[{\"title\":\"Clan Tag already in use\",\"detail\":\"The clan tag 'My Cool ClanName' is already in use. Please choose a different clan tag.\"}]}"))
         .andExpect(status().is(422));
