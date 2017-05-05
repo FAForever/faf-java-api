@@ -34,6 +34,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -134,8 +135,17 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   }
 
   private void verifyVersion(int version, boolean replaceExisting, String modName) {
-    if (!replaceExisting && !featuredModService.getFiles(modName, version).isEmpty()) {
-      throw new ValidationException(String.format("Version '%s' of mod '%s' already exists", version, modName));
+    if (!replaceExisting) {
+      // Normally I'd create a proper query, but this is a hotfix and a protest against the DB-driven patcher
+      // Luckily, BiREUS is coming soon.
+      OptionalInt existingVersion = featuredModService.getFiles(modName, version).stream()
+          .mapToInt(FeaturedModFile::getVersion)
+          .filter(value -> value == version)
+          .findFirst();
+
+      if (existingVersion.isPresent()) {
+        throw new ValidationException(String.format("Version '%s' of mod '%s' already exists", version, modName));
+      }
     }
   }
 
