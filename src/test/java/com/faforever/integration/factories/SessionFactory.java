@@ -5,6 +5,7 @@ import com.faforever.api.client.OAuthClient;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.data.domain.User;
 import com.faforever.integration.TestDatabase;
+import com.faforever.integration.utils.MockMvcHelper;
 import lombok.Data;
 import lombok.SneakyThrows;
 import org.codehaus.jackson.JsonNode;
@@ -62,13 +63,12 @@ public class SessionFactory {
 
     String authorization = "Basic "
         + new String(Base64Utils.encode((OAUTH_CLIENT_ID + ":" + OAUTH_SECRET).getBytes()));
-    ResultActions auth = mvc
-        .perform(
-            post("/oauth/token")
-                .header("Authorization", authorization)
-                .param("username", login)
-                .param("password", password)
-                .param("grant_type", "password"));
+    ResultActions auth = MockMvcHelper.of(mvc).perform(
+        post("/oauth/token")
+            .header("Authorization", authorization)
+            .param("username", login)
+            .param("password", password)
+            .param("grant_type", "password"));
     auth.andExpect(status().isOk());
     JsonNode node = objectMapper.readTree(auth.andReturn().getResponse().getContentAsString());
     String token = node.get("access_token").asText();
