@@ -5,27 +5,16 @@ import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "avatars_list")
 @Include(rootLevel = true, type = "avatar")
 @Setter
-public class Avatar {
+public class Avatar extends AbstractEntity {
 
-  private int id;
   private String url;
   private String tooltip;
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
-  public int getId() {
-    return id;
-  }
 
   @Column(name = "url")
   public String getUrl() {
