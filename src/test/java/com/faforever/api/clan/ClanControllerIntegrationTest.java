@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -24,10 +25,13 @@ import javax.inject.Inject;
 import javax.servlet.Filter;
 import java.util.Collections;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -54,32 +58,30 @@ public class ClanControllerIntegrationTest {
   @Before
   public void setUp() {
     mvc = MockMvcBuilders
-        .webAppContextSetup(context)
-        .addFilter(springSecurityFilterChain)
-        .build();
+      .webAppContextSetup(context)
+      .addFilter(springSecurityFilterChain)
+      .build();
     database.assertEmptyDatabase();
   }
 
   @Test
   public void meDataWithoutClan() throws Exception {
     Session session = SessionFactory.createUserAndGetAccessToken(
-        database, mvc);
+      database, mvc);
     Player player = session.getPlayer();
-
-    String expected = String.format("{\"player\":{\"id\":%s,\"login\":\"%s\"},\"clan\":null}",
-        player.getId(),
-        player.getLogin());
 
     assertEquals(1, database.getPlayerRepository().count());
     MockMvcHelper.of(this.mvc).setSession(session).perform(get("/clans/me/"))
-        .andExpect(content().string(expected))
-        .andExpect(status().isOk());
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.player.id", is(player.getId())))
+      .andExpect(jsonPath("$.player.login", is(player.getLogin())))
+      .andExpect(jsonPath("$.clan", nullValue()));
   }
 
   @Test
   public void meDataWithClan() throws Exception {
     Session session = SessionFactory.createUserAndGetAccessToken(
-        database, mvc);
+      database, mvc);
     Player player = session.getPlayer();
 
     Clan clan = new Clan().setLeader(player).setTag("123").setName("abcClanName");
@@ -87,25 +89,22 @@ public class ClanControllerIntegrationTest {
     clan.setMemberships(Collections.singletonList(myMembership));
     database.getClanRepository().save(clan);
 
-    String expected = String.format("{\"player\":{\"id\":%s,\"login\":\"%s\"},\"clan\":{\"id\":%s,\"tag\":\"%s\",\"name\":\"%s\"}}",
-        player.getId(),
-        player.getLogin(),
-        clan.getId(),
-        clan.getTag(),
-        clan.getName());
-
     assertEquals(1, database.getPlayerRepository().count());
     assertEquals(1, database.getClanRepository().count());
     assertEquals(1, database.getClanMembershipRepository().count());
     MockMvcHelper.of(this.mvc).setSession(session).perform(get("/clans/me/"))
-        .andExpect(content().string(expected))
-        .andExpect(status().isOk());
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.player.id", is(player.getId())))
+      .andExpect(jsonPath("$.player.login", is(player.getLogin())))
+      .andExpect(jsonPath("$.clan.id", is(clan.getId())))
+      .andExpect(jsonPath("$.clan.tag", is(clan.getTag())))
+      .andExpect(jsonPath("$.clan.name", is(clan.getName())));
   }
 
   @Test
   public void createClan() throws Exception {
     Session session = SessionFactory.createUserAndGetAccessToken(
-        database, mvc);
+      database, mvc);
     String clanName = "My Cool ClanName";
     String tag = "123";
     String description = "spaces Must Be Encoded";
@@ -114,13 +113,14 @@ public class ClanControllerIntegrationTest {
     assertEquals(0, database.getClanRepository().count());
     assertEquals(0, database.getClanMembershipRepository().count());
     ResultActions action = MockMvcHelper.of(this.mvc).setSession(session).perform(
-        post(String.format("/clans/create?tag=%s&name=%s&description=%s",
-            tag, clanName, description)));
+      post(String.format("/clans/create?tag=%s&name=%s&description=%s",
+        tag, clanName, description)));
 
     int id = database.getClanRepository().findAll().get(0).getId();
 
-    action.andExpect(content().string(String.format("{\"id\":%s,\"type\":\"clan\"}", id)))
-        .andExpect(status().isOk());
+    action.andExpect(status().isOk())
+      .andExpect(jsonPath("$.id", is(id)))
+      .andExpect(jsonPath("$.type", is(String.valueOf("clan"))));
     assertEquals(1, database.getPlayerRepository().count());
     assertEquals(1, database.getClanRepository().count());
     assertEquals(1, database.getClanMembershipRepository().count());
@@ -129,7 +129,7 @@ public class ClanControllerIntegrationTest {
   @Test
   public void createSecondClan() throws Exception {
     Session session = SessionFactory.createUserAndGetAccessToken(
-        database, mvc);
+      database, mvc);
     Player player = session.getPlayer();
     String clanName = "My Cool ClanName";
     String tag = "123";
@@ -144,11 +144,15 @@ public class ClanControllerIntegrationTest {
     assertEquals(1, database.getClanRepository().count());
     assertEquals(1, database.getClanMembershipRepository().count());
     ResultActions action = MockMvcHelper.of(this.mvc).setSession(session).perform(
-        post(String.format("/clans/create?tag=%s&name=%s&description=%s",
-            tag, clanName, description)));
+      post(String.format("/clans/create?tag=%s&name=%s&description=%s",
+        tag, clanName, description)));
 
-    action.andExpect(content().string("{\"errors\":[{\"title\":\"You are already in a clan\",\"detail\":\"Clan creator is already member of a clan\"}]}"))
-        .andExpect(status().is(422));
+    action.andExpect(status().isUnprocessableEntity())
+      .andExpect(jsonPath("$.errors", hasSize(1)))
+      .andExpect(jsonPath("$.errors[0].status", is(String.valueOf(HttpStatus.UNPROCESSABLE_ENTITY.value()))))
+      .andExpect(jsonPath("$.errors[0].title", is("You are already in a clan")))
+      .andExpect(jsonPath("$.errors[0].detail", is("Clan creator is already member of a clan")))
+      .andExpect(jsonPath("$.errors[0].code", is("149")));
     assertEquals(1, database.getPlayerRepository().count());
     assertEquals(1, database.getClanRepository().count());
     assertEquals(1, database.getClanMembershipRepository().count());
@@ -158,7 +162,7 @@ public class ClanControllerIntegrationTest {
   public void createClanWithSameName() throws Exception {
     Player otherLeader = PlayerFactory.createPlayer("Downloard", database);
     Session session = SessionFactory.createUserAndGetAccessToken(
-        database, mvc);
+      database, mvc);
     String clanName = "My Cool ClanName";
     String tag = "123";
     String description = "spaces Must Be Encoded";
@@ -172,11 +176,16 @@ public class ClanControllerIntegrationTest {
     assertEquals(1, database.getClanRepository().count());
     assertEquals(1, database.getClanMembershipRepository().count());
     ResultActions action = MockMvcHelper.of(this.mvc).setSession(session).perform(
-        post(String.format("/clans/create?tag=%s&name=%s&description=%s",
-            tag, clanName, description)));
+      post(String.format("/clans/create?tag=%s&name=%s&description=%s",
+        tag, clanName, description)));
 
-    action.andExpect(content().string("{\"errors\":[{\"title\":\"Clan Name already in use\",\"detail\":\"The clan name 'My Cool ClanName' is already in use. Please choose a different clan name.\"}]}"))
-        .andExpect(status().is(422));
+    action.andExpect(status().isUnprocessableEntity())
+      .andExpect(jsonPath("$.errors", hasSize(1)))
+      .andExpect(jsonPath("$.errors[0].status", is(HttpStatus.UNPROCESSABLE_ENTITY.toString())))
+      .andExpect(jsonPath("$.errors[0].title", is("Clan Name already in use")))
+      .andExpect(jsonPath("$.errors[0].detail", is("The clan name 'My Cool ClanName' is already in use. Please choose a different clan name.")))
+      .andExpect(jsonPath("$.errors[0].code", is("156")))
+      .andExpect(jsonPath("$.errors[0].meta.args[0]", is("My Cool ClanName")));
     assertEquals(2, database.getPlayerRepository().count());
     assertEquals(1, database.getClanRepository().count());
     assertEquals(1, database.getClanMembershipRepository().count());
@@ -186,7 +195,7 @@ public class ClanControllerIntegrationTest {
   public void createClanWithSameTag() throws Exception {
     Player otherLeader = PlayerFactory.createPlayer("Downloard", database);
     Session session = SessionFactory.createUserAndGetAccessToken(
-        database, mvc);
+      database, mvc);
     String clanName = "My Cool ClanName";
     String tag = "123";
     String description = "spaces Must Be Encoded";
@@ -200,11 +209,16 @@ public class ClanControllerIntegrationTest {
     assertEquals(1, database.getClanRepository().count());
     assertEquals(1, database.getClanMembershipRepository().count());
     ResultActions action = MockMvcHelper.of(this.mvc).setSession(session).perform(
-        post(String.format("/clans/create?tag=%s&name=%s&description=%s",
-            tag, clanName, description)));
+      post(String.format("/clans/create?tag=%s&name=%s&description=%s",
+        tag, clanName, description)));
 
-    action.andExpect(content().string("{\"errors\":[{\"title\":\"Clan Tag already in use\",\"detail\":\"The clan tag 'My Cool ClanName' is already in use. Please choose a different clan tag.\"}]}"))
-        .andExpect(status().is(422));
+    action.andExpect(status().isUnprocessableEntity())
+      .andExpect(jsonPath("$.errors", hasSize(1)))
+      .andExpect(jsonPath("$.errors[0].status", is(HttpStatus.UNPROCESSABLE_ENTITY.toString())))
+      .andExpect(jsonPath("$.errors[0].title", is("Clan Tag already in use")))
+      .andExpect(jsonPath("$.errors[0].detail", is("The clan tag 'My Cool ClanName' is already in use. Please choose a different clan tag.")))
+      .andExpect(jsonPath("$.errors[0].code", is("157")))
+      .andExpect(jsonPath("$.errors[0].meta.args[0]", is("My Cool ClanName")));
     assertEquals(2, database.getPlayerRepository().count());
     assertEquals(1, database.getClanRepository().count());
     assertEquals(1, database.getClanMembershipRepository().count());
