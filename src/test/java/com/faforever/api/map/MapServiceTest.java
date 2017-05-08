@@ -66,9 +66,9 @@ public class MapServiceTest {
   public void setUp() {
     instance = new MapService(fafApiProperties, mapRepository, contentService);
     mapProperties = new Map()
-        .setTargetDirectory(finalDirectory.getRoot().toPath())
-        .setDirectoryPreviewPathLarge(finalDirectory.getRoot().toPath().resolve("large"))
-        .setDirectoryPreviewPathSmall(finalDirectory.getRoot().toPath().resolve("small"));
+      .setTargetDirectory(finalDirectory.getRoot().toPath())
+      .setDirectoryPreviewPathLarge(finalDirectory.getRoot().toPath().resolve("large"))
+      .setDirectoryPreviewPathSmall(finalDirectory.getRoot().toPath().resolve("small"));
     when(fafApiProperties.getMap()).thenReturn(mapProperties);
     when(contentService.createTempDir()).thenReturn(temporaryDirectory.getRoot().toPath());
   }
@@ -86,7 +86,7 @@ public class MapServiceTest {
   @Test
   public void zipFilenamealreadyExists() throws IOException {
     Path clashedMap = finalDirectory.getRoot().toPath().resolve("sludge_test.v0001.zip");
-    clashedMap.toFile().createNewFile();
+    assertTrue(clashedMap.toFile().createNewFile());
     String zipFilename = "scmp_037.zip";
     when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
@@ -147,8 +147,8 @@ public class MapServiceTest {
     me.setId(1);
 
     com.faforever.api.data.domain.Map map = new com.faforever.api.data.domain.Map()
-        .setAuthor(me)
-        .setVersions(Collections.singletonList(new MapVersion().setVersion(1)));
+      .setAuthor(me)
+      .setVersions(Collections.singletonList(new MapVersion().setVersion(1)));
 
     when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.of(map));
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
@@ -196,12 +196,12 @@ public class MapServiceTest {
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
       expectedException.expect(ApiExceptionWithMultipleCodes.apiExceptionWithCode(
-          ErrorCode.MAP_NAME_MISSING,
-          ErrorCode.MAP_DESCRIPTION_MISSING,
-          ErrorCode.MAP_FIRST_TEAM_FFA,
-          ErrorCode.MAP_TYPE_MISSING,
-          ErrorCode.MAP_SIZE_MISSING,
-          ErrorCode.MAP_VERSION_MISSING));
+        ErrorCode.MAP_NAME_MISSING,
+        ErrorCode.MAP_DESCRIPTION_MISSING,
+        ErrorCode.MAP_FIRST_TEAM_FFA,
+        ErrorCode.MAP_TYPE_MISSING,
+        ErrorCode.MAP_SIZE_MISSING,
+        ErrorCode.MAP_VERSION_MISSING));
       instance.uploadMap(mapData, zipFilename, author, true);
     }
     verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
@@ -253,13 +253,13 @@ public class MapServiceTest {
 
       Path generatedFiles = finalDirectory.getRoot().toPath().resolve("generated_files");
       try (ZipInputStream inputStreamOfExpectedFile = new ZipInputStream(
-          new BufferedInputStream(new FileInputStream(generatedFile.toFile())))) {
+        new BufferedInputStream(new FileInputStream(generatedFile.toFile())))) {
         Unzipper.from(inputStreamOfExpectedFile).to(generatedFiles).unzip();
       }
 
       Path expectedFiles = finalDirectory.getRoot().toPath().resolve("expected_files");
       try (ZipInputStream inputStreamOfExpectedFile = new ZipInputStream(new BufferedInputStream(
-          loadMapResourceAsStream("sludge_test.v0001.zip")))) {
+        loadMapResourceAsStream("sludge_test.v0001.zip")))) {
         Unzipper.from(inputStreamOfExpectedFile).to(expectedFiles).unzip();
       }
 
@@ -271,9 +271,9 @@ public class MapServiceTest {
       try (Stream<Path> fileStream = Files.list(expectedFiles)) {
         Path finalGeneratedFile = generatedFiles.resolve("sludge_test.v0001");
         fileStream.forEach(expectedFile ->
-            FileAssert.assertEquals("Difference in " + expectedFile.getFileName().toString(),
-                expectedFile.toFile(),
-                finalGeneratedFile.resolve(expectedFile.getFileName().toString()).toFile())
+          FileAssert.assertEquals("Difference in " + expectedFile.getFileName().toString(),
+            expectedFile.toFile(),
+            finalGeneratedFile.resolve(expectedFile.getFileName().toString()).toFile())
         );
 
         assertTrue(Files.exists(mapProperties.getDirectoryPreviewPathLarge().resolve("sludge_test.v0001.png")));
