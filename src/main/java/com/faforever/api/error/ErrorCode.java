@@ -75,4 +75,8 @@ public enum ErrorCode {
     this.title = title;
     this.detail = detail;
   }
+
+  public String codeAsString() {
+    return String.valueOf(code);
+  }
 }

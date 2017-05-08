@@ -5,6 +5,7 @@ import com.faforever.api.clan.ClanRepository;
 import com.faforever.api.client.OAuthClientRepository;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.user.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,7 @@ public class TestDatabase {
   private ClanMembershipRepository clanMembershipRepository;
   private PlayerRepository playerRepository;
   private OAuthClientRepository oAuthClientRepository;
+  private ObjectMapper objectMapper;
 
 
   @Inject
@@ -27,12 +29,14 @@ public class TestDatabase {
                    UserRepository userRepository,
                    PlayerRepository playerRepository,
                    OAuthClientRepository oAuthClientRepository,
-                   ClanMembershipRepository clanMembershipRepository) {
+                   ClanMembershipRepository clanMembershipRepository,
+                   ObjectMapper objectMapper) {
     this.clanRepository = clanRepository;
     this.userRepository = userRepository;
     this.playerRepository = playerRepository;
     this.oAuthClientRepository = oAuthClientRepository;
     this.clanMembershipRepository = clanMembershipRepository;
+    this.objectMapper = objectMapper;
   }
 
   public void assertEmptyDatabase() {

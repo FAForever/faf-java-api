@@ -13,7 +13,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Optional;
 
@@ -59,11 +59,11 @@ public class AchievementsServiceTest {
   public void incrementFirstTime() throws Exception {
     mockAchievement("111", AchievementType.INCREMENTAL, 10);
     when(playerAchievementRepository.findOneByAchievementIdAndPlayerId("111", PLAYER_ID))
-        .thenReturn(Optional.empty());
+      .thenReturn(Optional.empty());
 
     instance.increment(PLAYER_ID, "111", 3);
 
-    PlayerAchievement playerAchievement = catpureSaveEvent();
+    PlayerAchievement playerAchievement = captureSaveEvent();
 
     assertThat(playerAchievement.getCurrentSteps(), is(3));
     assertThat(playerAchievement.getState(), is(REVEALED));
@@ -78,7 +78,7 @@ public class AchievementsServiceTest {
     when(achievementRepository.getOne(achievementId)).thenReturn(achievement);
   }
 
-  private PlayerAchievement catpureSaveEvent() {
+  private PlayerAchievement captureSaveEvent() {
     ArgumentCaptor<PlayerAchievement> captor = ArgumentCaptor.forClass(PlayerAchievement.class);
     verify(playerAchievementRepository).save(captor.capture());
     return captor.getValue();
@@ -91,11 +91,11 @@ public class AchievementsServiceTest {
   public void incrementExisting() throws Exception {
     mockAchievement("111", AchievementType.INCREMENTAL, 10);
     when(playerAchievementRepository.findOneByAchievementIdAndPlayerId("111", PLAYER_ID))
-        .thenReturn(Optional.of(createPlayerAchievement(4, REVEALED)));
+      .thenReturn(Optional.of(createPlayerAchievement(4, REVEALED)));
 
     instance.increment(PLAYER_ID, "111", 3);
 
-    PlayerAchievement playerAchievement = catpureSaveEvent();
+    PlayerAchievement playerAchievement = captureSaveEvent();
 
     assertThat(playerAchievement.getCurrentSteps(), is(7));
     assertThat(playerAchievement.getState(), is(REVEALED));
@@ -122,11 +122,11 @@ public class AchievementsServiceTest {
   public void setStepsAtLeastFirstTime() throws Exception {
     mockAchievement("111", AchievementType.INCREMENTAL, 10);
     when(playerAchievementRepository.findOneByAchievementIdAndPlayerId("111", PLAYER_ID))
-        .thenReturn(Optional.empty());
+      .thenReturn(Optional.empty());
 
     instance.setStepsAtLeast(PLAYER_ID, "111", 4);
 
-    PlayerAchievement playerAchievement = catpureSaveEvent();
+    PlayerAchievement playerAchievement = captureSaveEvent();
 
     assertThat(playerAchievement.getCurrentSteps(), is(4));
     assertThat(playerAchievement.getState(), is(REVEALED));
@@ -139,11 +139,11 @@ public class AchievementsServiceTest {
   public void setStepsAtLeastExistingLessSteps() throws Exception {
     mockAchievement("111", AchievementType.INCREMENTAL, 10);
     when(playerAchievementRepository.findOneByAchievementIdAndPlayerId("111", PLAYER_ID))
-        .thenReturn(Optional.of(createPlayerAchievement(5, REVEALED)));
+      .thenReturn(Optional.of(createPlayerAchievement(5, REVEALED)));
 
     instance.setStepsAtLeast(PLAYER_ID, "111", 4);
 
-    PlayerAchievement playerAchievement = catpureSaveEvent();
+    PlayerAchievement playerAchievement = captureSaveEvent();
 
     assertThat(playerAchievement.getCurrentSteps(), is(5));
     assertThat(playerAchievement.getState(), is(REVEALED));
@@ -156,11 +156,11 @@ public class AchievementsServiceTest {
   public void setStepsAtLeastExistingMoreSteps() throws Exception {
     mockAchievement("111", AchievementType.INCREMENTAL, 10);
     when(playerAchievementRepository.findOneByAchievementIdAndPlayerId("111", PLAYER_ID))
-        .thenReturn(Optional.of(createPlayerAchievement(5, REVEALED)));
+      .thenReturn(Optional.of(createPlayerAchievement(5, REVEALED)));
 
     instance.setStepsAtLeast(PLAYER_ID, "111", 6);
 
-    PlayerAchievement playerAchievement = catpureSaveEvent();
+    PlayerAchievement playerAchievement = captureSaveEvent();
 
     assertThat(playerAchievement.getCurrentSteps(), is(6));
     assertThat(playerAchievement.getState(), is(REVEALED));
@@ -173,11 +173,11 @@ public class AchievementsServiceTest {
   public void unlockFirstTime() throws Exception {
     mockAchievement("111", AchievementType.STANDARD, null);
     when(playerAchievementRepository.findOneByAchievementIdAndPlayerId("111", PLAYER_ID))
-        .thenReturn(Optional.empty());
+      .thenReturn(Optional.empty());
 
     instance.unlock(PLAYER_ID, "111");
 
-    PlayerAchievement playerAchievement = catpureSaveEvent();
+    PlayerAchievement playerAchievement = captureSaveEvent();
 
     assertThat(playerAchievement.getCurrentSteps(), is(CoreMatchers.nullValue()));
     assertThat(playerAchievement.getState(), is(UNLOCKED));
@@ -190,7 +190,7 @@ public class AchievementsServiceTest {
   public void unlockSecondTime() throws Exception {
     mockAchievement("111", AchievementType.STANDARD, null);
     when(playerAchievementRepository.findOneByAchievementIdAndPlayerId("111", PLAYER_ID))
-        .thenReturn(Optional.of(createPlayerAchievement(null, UNLOCKED)));
+      .thenReturn(Optional.of(createPlayerAchievement(null, UNLOCKED)));
 
     instance.unlock(PLAYER_ID, "111");
 

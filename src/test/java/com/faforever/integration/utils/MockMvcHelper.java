@@ -15,7 +15,7 @@ public class MockMvcHelper {
 
 
   public static class MockMvcHelperObject {
-    private MockMvc mvc;
+    private final MockMvc mvc;
     @Setter
     private Session session;
 

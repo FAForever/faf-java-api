@@ -3,6 +3,7 @@ package com.faforever.api.clan;
 import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.ClanMembership;
 import com.faforever.api.data.domain.Player;
+import com.faforever.api.error.ErrorCode;
 import com.faforever.integration.TestDatabase;
 import com.faforever.integration.factories.PlayerFactory;
 import com.faforever.integration.factories.SessionFactory;
@@ -75,7 +76,7 @@ public class ClanControllerIntegrationTest {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.player.id", is(player.getId())))
       .andExpect(jsonPath("$.player.login", is(player.getLogin())))
-      .andExpect(jsonPath("$.clan", nullValue()));
+      .andExpect(jsonPath("$.clan", is(nullValue())));
   }
 
   @Test
@@ -120,7 +121,7 @@ public class ClanControllerIntegrationTest {
 
     action.andExpect(status().isOk())
       .andExpect(jsonPath("$.id", is(id)))
-      .andExpect(jsonPath("$.type", is(String.valueOf("clan"))));
+      .andExpect(jsonPath("$.type", is("clan")));
     assertEquals(1, database.getPlayerRepository().count());
     assertEquals(1, database.getClanRepository().count());
     assertEquals(1, database.getClanMembershipRepository().count());
@@ -149,10 +150,10 @@ public class ClanControllerIntegrationTest {
 
     action.andExpect(status().isUnprocessableEntity())
       .andExpect(jsonPath("$.errors", hasSize(1)))
-      .andExpect(jsonPath("$.errors[0].status", is(String.valueOf(HttpStatus.UNPROCESSABLE_ENTITY.value()))))
+      .andExpect(jsonPath("$.errors[0].status", is(HttpStatus.UNPROCESSABLE_ENTITY.toString())))
       .andExpect(jsonPath("$.errors[0].title", is("You are already in a clan")))
       .andExpect(jsonPath("$.errors[0].detail", is("Clan creator is already member of a clan")))
-      .andExpect(jsonPath("$.errors[0].code", is("149")));
+      .andExpect(jsonPath("$.errors[0].code", is(ErrorCode.CLAN_CREATE_CREATOR_IS_IN_A_CLAN.codeAsString())));
     assertEquals(1, database.getPlayerRepository().count());
     assertEquals(1, database.getClanRepository().count());
     assertEquals(1, database.getClanMembershipRepository().count());
@@ -160,7 +161,7 @@ public class ClanControllerIntegrationTest {
 
   @Test
   public void createClanWithSameName() throws Exception {
-    Player otherLeader = PlayerFactory.createPlayer("Downloard", database);
+    Player otherLeader = PlayerFactory.createPlayer("AnotherJunitUser", database);
     Session session = SessionFactory.createUserAndGetAccessToken(
       database, mvc);
     String clanName = "My Cool ClanName";
@@ -184,7 +185,7 @@ public class ClanControllerIntegrationTest {
       .andExpect(jsonPath("$.errors[0].status", is(HttpStatus.UNPROCESSABLE_ENTITY.toString())))
       .andExpect(jsonPath("$.errors[0].title", is("Clan Name already in use")))
       .andExpect(jsonPath("$.errors[0].detail", is("The clan name 'My Cool ClanName' is already in use. Please choose a different clan name.")))
-      .andExpect(jsonPath("$.errors[0].code", is("156")))
+      .andExpect(jsonPath("$.errors[0].code", is(ErrorCode.CLAN_NAME_EXISTS.codeAsString())))
       .andExpect(jsonPath("$.errors[0].meta.args[0]", is("My Cool ClanName")));
     assertEquals(2, database.getPlayerRepository().count());
     assertEquals(1, database.getClanRepository().count());
@@ -193,7 +194,7 @@ public class ClanControllerIntegrationTest {
 
   @Test
   public void createClanWithSameTag() throws Exception {
-    Player otherLeader = PlayerFactory.createPlayer("Downloard", database);
+    Player otherLeader = PlayerFactory.createPlayer("AnotherJunitUser", database);
     Session session = SessionFactory.createUserAndGetAccessToken(
       database, mvc);
     String clanName = "My Cool ClanName";
@@ -217,7 +218,7 @@ public class ClanControllerIntegrationTest {
       .andExpect(jsonPath("$.errors[0].status", is(HttpStatus.UNPROCESSABLE_ENTITY.toString())))
       .andExpect(jsonPath("$.errors[0].title", is("Clan Tag already in use")))
       .andExpect(jsonPath("$.errors[0].detail", is("The clan tag 'My Cool ClanName' is already in use. Please choose a different clan tag.")))
-      .andExpect(jsonPath("$.errors[0].code", is("157")))
+      .andExpect(jsonPath("$.errors[0].code", is(ErrorCode.CLAN_TAG_EXISTS.codeAsString())))
       .andExpect(jsonPath("$.errors[0].meta.args[0]", is("My Cool ClanName")));
     assertEquals(2, database.getPlayerRepository().count());
     assertEquals(1, database.getClanRepository().count());
