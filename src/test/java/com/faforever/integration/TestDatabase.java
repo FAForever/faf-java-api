@@ -6,6 +6,7 @@ import com.faforever.api.ban.BanRepository;
 import com.faforever.api.clan.ClanMembershipRepository;
 import com.faforever.api.clan.ClanRepository;
 import com.faforever.api.client.OAuthClientRepository;
+import com.faforever.api.name.NameRepository;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,6 +27,7 @@ public class TestDatabase {
   private OAuthClientRepository oAuthClientRepository;
   private ObjectMapper objectMapper;
   private BanRepository banRepository;
+  private NameRepository nameRepository;
   private AvatarRepository avatarRepository;
   private AvatarAssignmentRepository avatarAssignmentRepository;
 
@@ -36,6 +38,7 @@ public class TestDatabase {
                    OAuthClientRepository oAuthClientRepository,
                    ClanMembershipRepository clanMembershipRepository,
                    BanRepository banRepository,
+                   NameRepository nameRepository,
                    AvatarRepository avatarRepository,
                    AvatarAssignmentRepository avatarAssignmentRepository,
                    ObjectMapper objectMapper) {
@@ -47,11 +50,13 @@ public class TestDatabase {
     this.banRepository = banRepository;
     this.avatarRepository = avatarRepository;
     this.avatarAssignmentRepository = avatarAssignmentRepository;
+    this.nameRepository = nameRepository;
     this.objectMapper = objectMapper;
   }
 
   public void assertEmptyDatabase() {
     assertEquals(0, banRepository.count());
+    assertEquals(0, nameRepository.count());
     assertEquals(0, avatarAssignmentRepository.count());
     assertEquals(0, avatarRepository.count());
     assertEquals(0, clanRepository.count());
@@ -63,6 +68,7 @@ public class TestDatabase {
 
   public void tearDown() {
     banRepository.deleteAll();
+    nameRepository.deleteAll();
     avatarAssignmentRepository.deleteAll();
     avatarRepository.deleteAll();
     clanMembershipRepository.deleteAll();
