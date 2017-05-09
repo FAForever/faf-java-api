@@ -9,6 +9,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
@@ -22,6 +23,7 @@ public class Avatar extends AbstractEntity {
   private List<AvatarAssignment> assignments;
 
   @Column(name = "url")
+  @NotNull
   public String getUrl() {
     return url;
   }

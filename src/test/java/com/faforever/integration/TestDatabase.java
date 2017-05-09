@@ -1,5 +1,7 @@
 package com.faforever.integration;
 
+import com.faforever.api.avatar.AvatarAssignmentRepository;
+import com.faforever.api.avatar.AvatarRepository;
 import com.faforever.api.ban.BanRepository;
 import com.faforever.api.clan.ClanMembershipRepository;
 import com.faforever.api.clan.ClanRepository;
@@ -24,6 +26,8 @@ public class TestDatabase {
   private OAuthClientRepository oAuthClientRepository;
   private ObjectMapper objectMapper;
   private BanRepository banRepository;
+  private AvatarRepository avatarRepository;
+  private AvatarAssignmentRepository avatarAssignmentRepository;
 
   @Inject
   public void init(ClanRepository clanRepository,
@@ -32,6 +36,8 @@ public class TestDatabase {
                    OAuthClientRepository oAuthClientRepository,
                    ClanMembershipRepository clanMembershipRepository,
                    BanRepository banRepository,
+                   AvatarRepository avatarRepository,
+                   AvatarAssignmentRepository avatarAssignmentRepository,
                    ObjectMapper objectMapper) {
     this.clanRepository = clanRepository;
     this.userRepository = userRepository;
@@ -39,11 +45,15 @@ public class TestDatabase {
     this.oAuthClientRepository = oAuthClientRepository;
     this.clanMembershipRepository = clanMembershipRepository;
     this.banRepository = banRepository;
+    this.avatarRepository = avatarRepository;
+    this.avatarAssignmentRepository = avatarAssignmentRepository;
     this.objectMapper = objectMapper;
   }
 
   public void assertEmptyDatabase() {
     assertEquals(0, banRepository.count());
+    assertEquals(0, avatarAssignmentRepository.count());
+    assertEquals(0, avatarRepository.count());
     assertEquals(0, clanRepository.count());
     assertEquals(0, userRepository.count());
     assertEquals(0, playerRepository.count());
@@ -53,6 +63,8 @@ public class TestDatabase {
 
   public void tearDown() {
     banRepository.deleteAll();
+    avatarAssignmentRepository.deleteAll();
+    avatarRepository.deleteAll();
     clanMembershipRepository.deleteAll();
     clanRepository.deleteAll();
     userRepository.deleteAll();

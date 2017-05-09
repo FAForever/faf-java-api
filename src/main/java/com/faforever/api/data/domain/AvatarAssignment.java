@@ -9,6 +9,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 
 @Entity
@@ -33,12 +34,14 @@ public class AvatarAssignment extends AbstractEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "idAvatar")
+  @NotNull
   public Avatar getAvatar() {
     return avatar;
   }
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "idUser")
+  @NotNull
   public Player getPlayer() {
     return player;
   }

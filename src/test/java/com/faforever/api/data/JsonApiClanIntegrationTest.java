@@ -101,7 +101,7 @@ public class JsonApiClanIntegrationTest {
   public void cannotKickAsMember() throws Exception {
     Session session = SessionFactory.createUserAndGetAccessToken(database, mvc);
 
-    Player bob = PlayerFactory.createPlayer("Bob", database);
+    Player bob = PlayerFactory.builder().login("Bob").database(database).build();
     Clan clan = new Clan().setLeader(bob).setTag("123").setName("abcClanName");
     ClanMembership myMembership = new ClanMembership().setPlayer(session.getPlayer()).setClan(clan);
     ClanMembership bobsMembership = new ClanMembership().setPlayer(bob).setClan(clan);
@@ -121,7 +121,7 @@ public class JsonApiClanIntegrationTest {
     Session session = SessionFactory.createUserAndGetAccessToken(database, mvc);
     Player player = session.getPlayer();
 
-    Player bob = PlayerFactory.createPlayer("Bob", database);
+    Player bob = PlayerFactory.builder().login("Bob").database(database).build();
     Clan clan = new Clan().setLeader(player).setTag("123").setName("abcClanName");
     ClanMembership myMembership = new ClanMembership().setPlayer(player).setClan(clan);
     ClanMembership bobsMembership = new ClanMembership().setPlayer(bob).setClan(clan);
@@ -141,7 +141,7 @@ public class JsonApiClanIntegrationTest {
   public void canLeaveClan() throws Exception {
     Session session = SessionFactory.createUserAndGetAccessToken(database, mvc);
 
-    Player bob = PlayerFactory.createPlayer("Bob", database);
+    Player bob = PlayerFactory.builder().login("Bob").database(database).build();
     Player player = session.getPlayer();
 
     Clan clan = new Clan().setLeader(bob).setTag("123").setName("abcClanName");
@@ -161,7 +161,7 @@ public class JsonApiClanIntegrationTest {
   @Test
   public void getFilteredPlayerForClanInvite() throws Exception {
     String[] players = new String[]{"Dragonfire", "DRAGON", "Fire of Dragon", "d r a g o n", "firedragon"};
-    Arrays.stream(players).forEach(name -> noCatch(() -> PlayerFactory.createPlayer(name, database)));
+    Arrays.stream(players).forEach(name -> noCatch(() -> PlayerFactory.builder().login(name).database(database).build()));
     assertEquals(players.length, database.getPlayerRepository().count());
     ResultActions action = MockMvcHelper.of(this.mvc).perform(get("/data/player?filter=login==dragon*&sort=login"));
     action.andExpect(status().isOk())
@@ -195,7 +195,7 @@ public class JsonApiClanIntegrationTest {
     Session session = SessionFactory.createUserAndGetAccessToken("Leader", "foo", database, mvc);
     Player player = session.getPlayer();
 
-    Player bob = PlayerFactory.createPlayer("Bob", database);
+    Player bob = PlayerFactory.builder().login("Bob").database(database).build();
     Clan clan = new Clan().setLeader(player).setTag("123").setName("abcClanName");
     ClanMembership myMembership = new ClanMembership().setPlayer(player).setClan(clan);
     ClanMembership bobsMembership = new ClanMembership().setPlayer(bob).setClan(clan);
@@ -246,7 +246,7 @@ public class JsonApiClanIntegrationTest {
     Session session = SessionFactory.createUserAndGetAccessToken("Leader", "foo", database, mvc);
     Player player = session.getPlayer();
 
-    Player bob = PlayerFactory.createPlayer("Bob", database);
+    Player bob = PlayerFactory.builder().login("Bob").database(database).build();
 
     Clan clan = new Clan().setLeader(player).setTag("123").setName("abcClanName");
     ClanMembership myMembership = new ClanMembership().setPlayer(player).setClan(clan);
@@ -273,8 +273,8 @@ public class JsonApiClanIntegrationTest {
     Session session = SessionFactory.createUserAndGetAccessToken("Leader", "foo", database, mvc);
     Player player = session.getPlayer();
 
-    Player bob = PlayerFactory.createPlayer("Bob", database);
-    Player charlie = PlayerFactory.createPlayer("Charlie", database);
+    Player bob = PlayerFactory.builder().login("Bob").database(database).build();
+    Player charlie = PlayerFactory.builder().login("Charlie").database(database).build();
 
     Clan clan = new Clan().setLeader(bob).setTag("123").setName("abcClanName");
     ClanMembership myMembership = new ClanMembership().setPlayer(player).setClan(clan);
