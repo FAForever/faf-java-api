@@ -15,14 +15,14 @@ import java.time.OffsetDateTime;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Setter
 public abstract class AbstractEntity {
-  private int id;
+  private Integer id;
   private OffsetDateTime createTime;
   private OffsetDateTime updateTime;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  public int getId() {
+  public Integer getId() {
     return id;
   }
 
