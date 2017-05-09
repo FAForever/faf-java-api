@@ -30,7 +30,7 @@ import java.time.OffsetDateTime;
 @CreatePermission(expression = HasBanUpdate.EXPRESSION)
 @UpdatePermission(expression = HasBanUpdate.EXPRESSION)
 public class BanRevokeData {
-  // TODO: Use AbstractEntity class
+  // TODO: Use AbstractEntity class #73
   private int id;
   private OffsetDateTime createTime;
   private OffsetDateTime updateTime;

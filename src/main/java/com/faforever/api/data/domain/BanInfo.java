@@ -35,7 +35,7 @@ import java.time.OffsetDateTime;
 @UpdatePermission(expression = HasBanUpdate.EXPRESSION)
 @Setter
 public class BanInfo {
-  // TODO: Use AbstractEntity class
+  // TODO: Use AbstractEntity class #73
   private int id;
   private Player player;
   private Player author;
@@ -94,8 +94,8 @@ public class BanInfo {
     return updateTime;
   }
 
-  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   // Cascading is needed for Create & Delete
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name = "id")
   public BanRevokeData getBanRevokeData() {
     return banRevokeData;
@@ -103,7 +103,7 @@ public class BanInfo {
 
   @Transient
   public BanDurationType getDuration() {
-    return (expiresAt == null) ? BanDurationType.PERMANENT : BanDurationType.TEMPORARY;
+    return expiresAt == null ? BanDurationType.PERMANENT : BanDurationType.TEMPORARY;
   }
 
   @Transient
@@ -114,8 +114,8 @@ public class BanInfo {
     if (getDuration() == BanDurationType.PERMANENT) {
       return BanStatus.BANNED;
     }
-    return (expiresAt.isBefore(OffsetDateTime.now()))
-        ? BanStatus.BANNED
-        : BanStatus.EXPIRED;
+    return expiresAt.isBefore(OffsetDateTime.now())
+      ? BanStatus.BANNED
+      : BanStatus.EXPIRED;
   }
 }

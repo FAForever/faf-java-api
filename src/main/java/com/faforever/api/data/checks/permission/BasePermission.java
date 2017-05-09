@@ -13,7 +13,7 @@ public class BasePermission extends UserCheck {
 
   @Override
   public boolean ok(User user) {
-    return user.getOpaqueUser() instanceof FafUserDetails &&
-        ((FafUserDetails) user.getOpaqueUser()).hasPermission(permission);
+    return user.getOpaqueUser() instanceof FafUserDetails
+      && ((FafUserDetails) user.getOpaqueUser()).hasPermission(permission);
   }
 }

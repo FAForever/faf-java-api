@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsLoginOwner;
+import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
@@ -14,7 +15,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,10 @@ public abstract class Login {
   private String steamId;
   private String userAgent;
   private List<BanInfo> bans;
+
+  public Login() {
+    this.bans = new ArrayList<>(0);
+  }
 
   @Id
   @GeneratedValue
@@ -62,13 +67,11 @@ public abstract class Login {
   // Permission is managed by BanInfo class
   @UpdatePermission(expression = "Prefab.Role.All")
   public List<BanInfo> getBans() {
-    if (this.bans == null) {
-      this.bans = Collections.emptyList();
-    }
     return this.bans;
   }
 
   @Transient
+  @ComputedAttribute
   public List<BanInfo> getActiveBans() {
     return getBans().stream().filter(ban -> ban.getBanStatus() == BanStatus.BANNED).collect(Collectors.toList());
   }
