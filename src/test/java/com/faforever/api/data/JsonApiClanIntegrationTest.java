@@ -74,7 +74,7 @@ public class JsonApiClanIntegrationTest {
 
   @After
   public void tearDown() {
-    // TODO: This is needed, because Elide has some problems with @Transactional annotation
+    // TODO: This is needed, because Elide has some problems with @Transactional annotation #71
     database.tearDown();
   }
 

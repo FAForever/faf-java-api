@@ -15,7 +15,7 @@ public class FafUserDetails extends org.springframework.security.core.userdetail
   private final int id;
 
   public FafUserDetails(User user) {
-    // TODO implement lobby_admin
+    // TODO implement lobby_admin #81
     this(user.getId(), user.getLogin(), user.getPassword(), !user.isGlobalBanned(), singletonList(new SimpleGrantedAuthority("ROLE_USER")));
   }
 
@@ -26,7 +26,7 @@ public class FafUserDetails extends org.springframework.security.core.userdetail
 
 
   public boolean hasPermission(String permission) {
-    // TODO: implement permission system
+    // TODO: implement permission system #81
     return false;
   }
 }
