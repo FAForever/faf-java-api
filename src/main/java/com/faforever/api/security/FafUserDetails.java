@@ -27,6 +27,6 @@ public class FafUserDetails extends org.springframework.security.core.userdetail
 
   public boolean hasPermission(String permission) {
     // TODO: implement permission system
-    return true;
+    return false;
   }
 }
