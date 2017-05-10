@@ -8,6 +8,7 @@ import com.faforever.api.error.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableMap;
+import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,6 +25,7 @@ import java.util.HashMap;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.startsWith;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -161,5 +163,119 @@ public class UserServiceTest {
     )), new MacSigner("banana")).getEncoded();
 
     instance.activate(token);
+  }
+
+  @Test
+  public void changePassword() {
+    User user = dummyUser();
+
+    instance.changePassword("newPassword", user);
+    ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+    verify(userRepository).save(captor.capture());
+    assertEquals(captor.getValue().getPassword(), "5c29a959abce4eda5f0e7a4e7ea53dce4fa0f0abbe8eaa63717e2fed5f193d31");
+  }
+
+  @Test
+  public void changeLogin() {
+    User user = dummyUser();
+
+    instance.changeLogin("newLogin", user);
+    ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+    verify(userRepository).save(captor.capture());
+    assertEquals(captor.getValue().getLogin(), "newLogin");
+  }
+
+  @Test
+  @SneakyThrows
+  @SuppressWarnings("unchecked")
+  public void resetPassword() {
+    properties.getPasswordReset().setPasswordResetUrlFormat("http://www.example.com/resetPassword/%s");
+
+    User user = dummyUser();
+
+    when(userRepository.findOneByEmailIgnoreCase("junit@example.com")).thenReturn(user);
+    instance.resetPassword("junit@example.com");
+
+    verify(userRepository).findOneByEmailIgnoreCase("junit@example.com");
+
+    ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
+    verify(emailService).sendPasswordResetMail(eq("JUnit"), eq("junit@example.com"), urlCaptor.capture());
+
+    String passwordResetUrl = urlCaptor.getValue();
+    assertThat(passwordResetUrl, startsWith("http://www.example.com/resetPassword/"));
+
+    String token = passwordResetUrl.split("/")[4];
+    HashMap<String, String> claims = objectMapper.readValue(JwtHelper.decode(token).getClaims(), HashMap.class);
+
+    assertThat(claims.get(UserService.KEY_ACTION), is("reset_password"));
+    assertThat(claims.get(UserService.KEY_USER_ID), is(dummyUser().getId()));
+    assertThat(Instant.parse(claims.get(UserService.KEY_EXPIRY)).isAfter(Instant.now()), is(true));
+  }
+
+  @Test
+  @SneakyThrows
+  @SuppressWarnings("unchecked")
+  public void resetPasswordUnknownUser() {
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
+
+    when(userRepository.findOneByEmailIgnoreCase("junit@example.com")).thenReturn(null);
+    instance.resetPassword("junit@example.com");
+  }
+
+  @Test
+  @SneakyThrows
+  public void claimPasswordResetToken() {
+    String token = JwtHelper.encode(objectMapper.writeValueAsString(ImmutableMap.of(
+        UserService.KEY_ACTION, "reset_password",
+        UserService.KEY_EXPIRY, Instant.now().plusSeconds(100).toString(),
+        UserService.KEY_USER_ID, "5"
+    )), new MacSigner("banana")).getEncoded();
+
+    User user = dummyUser();
+
+    when(userRepository.findOne(5)).thenReturn(user);
+
+    instance.claimPasswordResetToken(token, "newPassword");
+
+    ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+    verify(userRepository).save(captor.capture());
+    assertEquals(captor.getValue().getPassword(), "5c29a959abce4eda5f0e7a4e7ea53dce4fa0f0abbe8eaa63717e2fed5f193d31");
+  }
+
+  @Test
+  @SneakyThrows
+  public void claimNonPasswordResetToken() {
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.TOKEN_INVALID));
+
+    String token = JwtHelper.encode(objectMapper.writeValueAsString(ImmutableMap.of(
+        UserService.KEY_ACTION, "foobar",
+        UserService.KEY_EXPIRY, Instant.now().plusSeconds(100).toString(),
+        UserService.KEY_USER_ID, "5"
+    )), new MacSigner("banana")).getEncoded();
+
+    instance.claimPasswordResetToken(token, "newPassword");
+  }
+
+  @Test
+  @SneakyThrows
+  public void claimPasswordResetTokenExpired() {
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.TOKEN_EXPIRED));
+
+    String token = JwtHelper.encode(objectMapper.writeValueAsString(ImmutableMap.of(
+        UserService.KEY_ACTION, "reset_password",
+        UserService.KEY_EXPIRY, Instant.now().plusSeconds(-100).toString(),
+        UserService.KEY_USER_ID, "5"
+    )), new MacSigner("banana")).getEncoded();
+
+    instance.claimPasswordResetToken(token, "newPassword");
+  }
+
+
+  private User dummyUser() {
+    User user = new User();
+    user.setPassword("junitPassword");
+    user.setEmail("junit@example.com");
+    user.setLogin("JUnit");
+    return user;
   }
 }

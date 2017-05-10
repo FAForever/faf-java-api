@@ -1,6 +1,7 @@
 package com.faforever.api.email;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.config.FafApiProperties.PasswordReset;
 import com.faforever.api.config.FafApiProperties.Registration;
 import com.faforever.api.error.ApiExceptionWithCode;
 import com.faforever.api.error.ErrorCode;
@@ -70,6 +71,19 @@ public class EmailServiceTest {
     registration.setHtmlFormat("Hello %s, bla: %s");
 
     instance.sendActivationMail("junit", "junit@example.com", "http://example.com");
+
+    verify(emailSender).sendMail("foo@bar.com", "foobar", "junit@example.com", "Hello", "Hello junit, bla: http://example.com");
+  }
+
+  @Test
+  public void sendPasswordResetMail() {
+    PasswordReset passwordReset = properties.getPasswordReset();
+    passwordReset.setFromEmail("foo@bar.com");
+    passwordReset.setFromName("foobar");
+    passwordReset.setSubject("Hello");
+    passwordReset.setHtmlFormat("Hello %s, bla: %s");
+
+    instance.sendPasswordResetMail("junit", "junit@example.com", "http://example.com");
 
     verify(emailSender).sendMail("foo@bar.com", "foobar", "junit@example.com", "Hello", "Hello junit, bla: http://example.com");
   }
