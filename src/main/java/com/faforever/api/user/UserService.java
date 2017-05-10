@@ -140,10 +140,10 @@ public class UserService {
     userRepository.save(user);
   }
 
-  void resetPassword(String login) {
-    log.debug("Registration requested for user: {}", login);
+  void resetPassword(String email) {
+    log.debug("Registration requested for user: {}", email);
 
-    User user = userRepository.findOneByLoginIgnoreCase(login);
+    User user = userRepository.findOneByEmailIgnoreCase(email);
 
     if (user == null) {
       throw new ApiException(new Error(ErrorCode.USERNAME_INVALID));
@@ -152,7 +152,7 @@ public class UserService {
     String token = createPasswordResetToken(user.getId());
     String passwordResetUrl = String.format(properties.getPasswordReset().getPasswordResetUrlFormat(), token);
 
-    emailService.sendActivationMail(user.getLogin(), user.getEmail(), passwordResetUrl);
+    emailService.sendPasswordResetMail(user.getLogin(), user.getEmail(), passwordResetUrl);
   }
 
   @SneakyThrows
@@ -160,7 +160,7 @@ public class UserService {
     int expirationSeconds = properties.getRegistration().getLinkExpirationSeconds();
 
     String claim = objectMapper.writeValueAsString(ImmutableMap.of(
-        KEY_ACTION, ACTION_ACTIVATE,
+        KEY_ACTION, ACTION_RESET_PASSWORD,
         KEY_EXPIRY, Instant.now().plusSeconds(expirationSeconds).toString(),
         KEY_USER_ID, userId
     ));
@@ -173,7 +173,7 @@ public class UserService {
     HashMap<String, String> claims = objectMapper.readValue(JwtHelper.decodeAndVerify(token, macSigner).getClaims(), HashMap.class);
 
     String action = claims.get(KEY_ACTION);
-    if (!Objects.equals(action, ACTION_ACTIVATE)) {
+    if (!Objects.equals(action, ACTION_RESET_PASSWORD)) {
       throw new ApiException(new Error(ErrorCode.TOKEN_INVALID));
     }
     if (Instant.parse(claims.get(KEY_EXPIRY)).isBefore(Instant.now())) {
@@ -187,7 +187,7 @@ public class UserService {
       throw new ApiException(new Error(ErrorCode.TOKEN_INVALID));
     }
 
-    user.setPassword(newPassword);
+    user.setPassword(passwordEncoder.encode(newPassword));
     userRepository.save(user);
   }
 
