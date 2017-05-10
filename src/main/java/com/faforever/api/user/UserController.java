@@ -49,8 +49,8 @@ public class UserController {
 
   @ApiOperation("Sends a password reset to the email linked by this account.")
   @RequestMapping(path = "/resetPassword", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-  public void resetPassword(@RequestParam("login") String login) {
-    userService.resetPassword(login);
+  public void resetPassword(@RequestParam("email") String email) {
+    userService.resetPassword(email);
   }
 
   @ApiOperation("Sets a new password for an account.")
