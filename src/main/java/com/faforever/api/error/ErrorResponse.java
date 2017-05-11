@@ -1,4 +1,4 @@
-package com.faforever.api.config.error;
+package com.faforever.api.error;
 
 import lombok.Data;
 

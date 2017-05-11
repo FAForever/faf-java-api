@@ -15,6 +15,13 @@ spring:
     console:
       enabled: true
 
+security:
+  oauth2:
+    resource:
+      filter-order: 3
+
 faf-api:
   jwt:
     secret: banana
+  clan:
+    website-url-format: "http://example.com/%s"
