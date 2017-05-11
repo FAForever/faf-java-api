@@ -178,21 +178,26 @@ public class ModService {
   }
 
   private void store(com.faforever.commons.mod.Mod modInfo, Optional<Path> thumbnailPath, Player uploader, String zipFileName) {
-    Mod mod = modRepository.save(new Mod()
-        .setAuthor(modInfo.getAuthor())
-        .setDisplayName(modInfo.getName())
-        .setUploader(uploader));
+    ModVersion modVersion = new ModVersion()
+      .setUid(modInfo.getUid())
+      .setType(modInfo.isUiOnly() ? ModType.UI : ModType.SIM)
+      .setDescription(modInfo.getDescription())
+      .setVersion((short) Integer.parseInt(modInfo.getVersion().toString()))
+      .setFilename(MOD_PATH_PREFIX + zipFileName)
+      .setIcon(thumbnailPath.map(path -> path.getFileName().toString()).orElse(null));
 
-    modVersionRepository.save(new ModVersion()
-        .setUid(modInfo.getUid())
-        .setType(modInfo.isUiOnly() ? ModType.UI : ModType.SIM)
-        .setDescription(modInfo.getDescription())
-        .setVersion((short) Integer.parseInt(modInfo.getVersion().toString()))
-        .setFilename(MOD_PATH_PREFIX + zipFileName)
-        .setIcon(thumbnailPath.map(path -> path.getFileName().toString()).orElse(null))
-        .setMod(mod)
-    );
+    List<ModVersion> modVersions = new ArrayList<>();
+    modVersions.add(modVersion);
 
+    Mod mod = new Mod()
+      .setAuthor(modInfo.getAuthor())
+      .setDisplayName(modInfo.getName())
+      .setVersions(modVersions)
+      .setUploader(uploader);
+
+    modVersion.setMod(mod);
+
+    mod = modRepository.save(mod);
     modRepository.insertModStats(mod.getDisplayName());
   }
 }

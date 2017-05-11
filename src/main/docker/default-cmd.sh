@@ -14,7 +14,7 @@ if [ -z "${DATABASE_ADDRESS}" ] \
   DATABASE_PASSWORD
   JWT_SECRET
 
-Please specify them before starting the container, preferably in a environment file.
+Please specify them before starting the container, preferably in an environment file.
 "
     exit 1
 fi

@@ -73,9 +73,7 @@ public class ModServiceTest {
     assertThat(savedMod.getDisplayName(), is("No Friendly Fire"));
     assertThat(savedMod.getUploader(), is(uploader));
 
-    ArgumentCaptor<ModVersion> versionCaptor = ArgumentCaptor.forClass(ModVersion.class);
-    verify(modVersionRepository).save(versionCaptor.capture());
-    ModVersion savedModVersion = versionCaptor.getValue();
+    ModVersion savedModVersion = savedMod.getVersions().get(0);
 
     assertThat(savedModVersion.getId(), is(nullValue()));
     assertThat(savedModVersion.getIcon(), is("no_friendly_fire.v0003.png"));
