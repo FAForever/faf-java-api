@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
 public interface ModRepository extends JpaRepository<Mod, Integer> {
@@ -30,4 +32,6 @@ public interface ModRepository extends JpaRepository<Mod, Integer> {
       "AND NOT EXISTS (SELECT mod_id FROM mod_stats WHERE mod_id = id)", nativeQuery = true)
   @Modifying
   void insertModStats(@Param("displayName") String displayName);
+
+  Optional<Mod> findOneByDisplayName(String name);
 }

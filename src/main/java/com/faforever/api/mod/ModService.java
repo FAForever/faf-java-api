@@ -95,10 +95,10 @@ public class ModService {
 
   private boolean modExists(String displayName, short version) {
     ModVersion probe = new ModVersion()
-        .setVersion(version)
-        .setMod(new Mod()
-            .setDisplayName(displayName)
-        );
+      .setVersion(version)
+      .setMod(new Mod()
+        .setDisplayName(displayName)
+      );
     return modVersionRepository.exists(Example.of(probe, ExampleMatcher.matching().withIgnoreCase()));
   }
 
@@ -172,9 +172,9 @@ public class ModService {
 
   private String generateFileName(String displayName) {
     return Normalizer.normalize(displayName.toLowerCase(Locale.US)
-            .replace("..", ".")
-            .replaceAll("[/\\\\ ]", "_"),
-        Form.NFKC);
+        .replace("..", ".")
+        .replaceAll("[/\\\\ ]", "_"),
+      Form.NFKC);
   }
 
   private void store(com.faforever.commons.mod.Mod modInfo, Optional<Path> thumbnailPath, Player uploader, String zipFileName) {
@@ -186,14 +186,13 @@ public class ModService {
       .setFilename(MOD_PATH_PREFIX + zipFileName)
       .setIcon(thumbnailPath.map(path -> path.getFileName().toString()).orElse(null));
 
-    List<ModVersion> modVersions = new ArrayList<>();
-    modVersions.add(modVersion);
-
-    Mod mod = new Mod()
-      .setAuthor(modInfo.getAuthor())
-      .setDisplayName(modInfo.getName())
-      .setVersions(modVersions)
-      .setUploader(uploader);
+    Mod mod = modRepository.findOneByDisplayName(modInfo.getName())
+      .orElse(new Mod()
+        .setAuthor(modInfo.getAuthor())
+        .setDisplayName(modInfo.getName())
+        .setVersions(new ArrayList<>())
+        .setUploader(uploader));
+    mod.getVersions().add(modVersion);
 
     modVersion.setMod(mod);
 
