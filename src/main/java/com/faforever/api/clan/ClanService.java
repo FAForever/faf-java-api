@@ -54,7 +54,7 @@ public class ClanService {
   }
 
   @SneakyThrows
-  public Clan create(String name, String tag, String description, Player creator) {
+  Clan create(String name, String tag, String description, Player creator) {
     if (!creator.getClanMemberships().isEmpty()) {
       throw new ApiException(new Error(ErrorCode.CLAN_CREATE_CREATOR_IS_IN_A_CLAN));
     }
@@ -85,7 +85,7 @@ public class ClanService {
   }
 
   @SneakyThrows
-  public String generatePlayerInvitationToken(Player requester, int newMemberId, int clanId) {
+  String generatePlayerInvitationToken(Player requester, int newMemberId, int clanId) {
     Clan clan = clanRepository.findOne(clanId);
 
     if (clan == null) {
@@ -101,17 +101,17 @@ public class ClanService {
     }
 
     long expire = Instant.now()
-        .plus(fafApiProperties.getClan().getInviteLinkExpireDurationMinutes(), ChronoUnit.MINUTES)
-        .toEpochMilli();
+      .plus(fafApiProperties.getClan().getInviteLinkExpireDurationMinutes(), ChronoUnit.MINUTES)
+      .toEpochMilli();
 
     InvitationResult result = new InvitationResult(expire,
-        ClanResult.of(clan),
-        PlayerResult.of(newMember));
+      ClanResult.of(clan),
+      PlayerResult.of(newMember));
     return jwtService.sign(result);
   }
 
   @SneakyThrows
-  public void acceptPlayerInvitationToken(String stringToken, Authentication authentication) {
+  void acceptPlayerInvitationToken(String stringToken, Authentication authentication) {
     Jwt token = jwtService.decodeAndVerify(stringToken);
     InvitationResult invitation = objectMapper.readValue(token.getClaims(), InvitationResult.class);
 
@@ -142,14 +142,5 @@ public class ClanService {
     membership.setClan(clan);
     membership.setPlayer(newMember);
     clanMembershipRepository.save(membership);
-  }
-
-  private class JwtKeys {
-    public static final String NEW_MEMBER_ID = "newMemberId";
-    public static final String EXPIRE_IN = "expire";
-    public static final String CLAN = "clan";
-    public static final String CLAN_ID = "id";
-    public static final String CLAN_TAG = "tag";
-    public static final String CLAN_NAME = "name";
   }
 }
