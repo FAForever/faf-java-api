@@ -9,35 +9,22 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "player_achievements")
 @Include(rootLevel = true, type = "playerAchievement")
 @Setter
-public class PlayerAchievement {
+public class PlayerAchievement extends AbstractEntity {
 
-  private int id;
   private Integer currentSteps;
   private AchievementState state;
-  private OffsetDateTime createTime;
-  private OffsetDateTime updateTime;
   private Player player;
   private int playerId;
   private Achievement achievement;
-
-  @Id
-  @Column(name = "id")
-  @GeneratedValue
-  public int getId() {
-    return id;
-  }
 
   @Column(name = "current_steps")
   public Integer getCurrentSteps() {
@@ -48,16 +35,6 @@ public class PlayerAchievement {
   @Enumerated(EnumType.STRING)
   public AchievementState getState() {
     return state;
-  }
-
-  @Column(name = "create_time")
-  public OffsetDateTime getCreateTime() {
-    return createTime;
-  }
-
-  @Column(name = "update_time")
-  public OffsetDateTime getUpdateTime() {
-    return updateTime;
   }
 
   @Exclude

@@ -2,6 +2,7 @@ package com.faforever.api.data.listeners;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Clan;
+import com.faforever.integration.factories.ClanFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +25,7 @@ public class ClanEnricherListenerTest {
 
   @Test
   public void enrich() throws Exception {
-    Clan clan = new Clan().setId(54);
+    Clan clan = ClanFactory.builder().id(54).build();
 
     instance.enrich(clan);
 

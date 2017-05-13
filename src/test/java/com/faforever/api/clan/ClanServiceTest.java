@@ -12,6 +12,7 @@ import com.faforever.api.error.ProgrammingError;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.player.PlayerService;
 import com.faforever.api.security.JwtService;
+import com.faforever.integration.factories.ClanFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Rule;
@@ -176,11 +177,7 @@ public class ClanServiceTest {
     Player leader = new Player();
     leader.setId(3);
 
-    Clan clan = new Clan()
-        .setId(1)
-        .setTag("123")
-        .setName("abc")
-        .setLeader(leader);
+    Clan clan = ClanFactory.builder().leader(leader).build();
 
     when(clanRepository.findOne(clan.getId())).thenReturn(clan);
 
@@ -198,11 +195,7 @@ public class ClanServiceTest {
     Player requester = new Player();
     requester.setId(1);
 
-    Clan clan = new Clan()
-        .setId(1)
-        .setTag("123")
-        .setName("abc")
-        .setLeader(requester);
+    Clan clan = ClanFactory.builder().leader(requester).build();
 
     when(clanRepository.findOne(clan.getId())).thenReturn(clan);
 
@@ -223,11 +216,7 @@ public class ClanServiceTest {
     Player newMember = new Player();
     newMember.setId(2);
 
-    Clan clan = new Clan()
-        .setId(1)
-        .setTag("123")
-        .setName("abc");
-    clan.setLeader(requester);
+    Clan clan = ClanFactory.builder().leader(requester).build();
 
     FafApiProperties props = new FafApiProperties();
 
@@ -291,7 +280,7 @@ public class ClanServiceTest {
   @Test
   public void acceptPlayerInvitationTokenInvalidPlayer() throws IOException {
     String stringToken = "1234";
-    Clan clan = new Clan().setId(1);
+    Clan clan = ClanFactory.builder().build();
 
     long expire = System.currentTimeMillis() + 1000 * 3;
     Jwt jwtToken = Mockito.mock(Jwt.class);
@@ -318,7 +307,7 @@ public class ClanServiceTest {
     Player newMember = new Player();
     newMember.setId(2);
 
-    Clan clan = new Clan().setId(1);
+    Clan clan = ClanFactory.builder().build();
 
     Player otherPlayer = new Player();
     otherPlayer.setId(3);
@@ -347,7 +336,7 @@ public class ClanServiceTest {
   public void acceptPlayerInvitationTokenPlayerIAlreadyInAClan() throws IOException {
     String stringToken = "1234";
 
-    Clan clan = new Clan().setId(1);
+    Clan clan = ClanFactory.builder().build();
 
     Player newMember = new Player();
     newMember.setId(2);
@@ -377,7 +366,7 @@ public class ClanServiceTest {
   @Test
   public void acceptPlayerInvitationToken() throws IOException {
     String stringToken = "1234";
-    Clan clan = new Clan().setId(1);
+    Clan clan = ClanFactory.builder().build();
     Player newMember = new Player();
     newMember.setId(2);
     long expire = System.currentTimeMillis() + 1000 * 3;
