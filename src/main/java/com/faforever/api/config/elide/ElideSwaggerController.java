@@ -1,5 +1,6 @@
 package com.faforever.api.config.elide;
 
+import com.faforever.api.data.DataController;
 import com.yahoo.elide.contrib.swagger.SwaggerBuilder;
 import com.yahoo.elide.core.EntityDictionary;
 import io.swagger.models.Info;
@@ -20,10 +21,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Controller
 public class ElideSwaggerController {
 
-  @Autowired
   private JsonSerializer jsonSerializer;
-  @Autowired
   private EntityDictionary entityDictionary;
+
+  @Autowired
+  public ElideSwaggerController(JsonSerializer jsonSerializer, EntityDictionary entityDictionary) {
+    this.jsonSerializer = jsonSerializer;
+    this.entityDictionary = entityDictionary;
+  }
 
   @ApiIgnore
   @RequestMapping(value = "/elide/docs",
@@ -33,7 +38,8 @@ public class ElideSwaggerController {
   ResponseEntity<Json> getDocumentation() {
     Info info = new Info().title("Elide JSON API").version("1.0");
     SwaggerBuilder builder = new SwaggerBuilder(entityDictionary, info);
-    Swagger document = builder.build();
+    Swagger document = builder.build()
+      .basePath(DataController.PATH_PREFIX);
 
     return new ResponseEntity<Json>(jsonSerializer.toJson(document), HttpStatus.OK);
   }
