@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8"/>
+  <title>Authorizing</title>
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css"/>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz" rel="stylesheet" type="text/css"/>
+  <style type="text/css">
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+    }
+
+    .allow-card {
+      padding: 20px 20px 20px 40px;
+      width: 500px;
+      background-color: #F7F7F7;
+      margin: 80px auto 10px;
+      border-radius: 2px;
+      box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .allow-card h1 {
+      font-weight: 100;
+      text-align: center;
+      font-size: 2.3em;
+    }
+
+    .allow-card h2 {
+      font-weight: 100;
+      margin: 1em 0 2em 0;
+    }
+
+    .allow-card input[type=submit] {
+      margin-top: 0.5em;
+      position: relative;
+    }
+
+    .button {
+      min-width: 8em;
+      border: 1px solid #ccc;
+      color: #333;
+      text-align: center;
+      font-size: .9em;
+      font-family: 'Arial', sans-serif;
+      font-weight: 700;
+      height: 2.5em;
+      padding: 0 20px;
+    }
+
+    .button:hover {
+      border: 1px solid #999;
+      text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+      background-color: #999;
+    }
+
+    .allow-submit {
+      border: 1px solid #3079ed;
+      color: #fff;
+      text-shadow: 0 1px rgba(0, 0, 0, 0.1);
+      background-color: #4d90fe;
+    }
+
+    .allow-submit:hover {
+      border: 1px solid #2f5bb7;
+      text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+      background-color: #357ae8;
+    }
+
+    .allow-card a {
+      text-decoration: none;
+      color: #666;
+      font-weight: 400;
+      text-align: center;
+      display: inline-block;
+      opacity: 0.6;
+      transition: opacity ease 0.5s;
+    }
+
+    form {
+      display: inline;
+    }
+
+    .button-bar {
+      text-align: right;
+    }
+
+    .button-bar * {
+      margin-left: .2em;
+    }
+
+    li {
+      font-size: 0.9em;
+      border-bottom: 1px solid #ccc;
+      padding: 1.5em 0;
+      list-style-type: none;
+      list-style-type: none;
+      -webkit-padding-start: 1em;
+      -ms-padding-start: 1em;
+      -moz-padding-start: 1em;
+      -o-padding-start: 1em;
+      padding-start: 1em;
+    }
+
+    li:nth-child(1) {
+      border-top: 1px solid #ccc;
+    }
+
+    ul {
+      -webkit-padding-start: 0;
+      -ms-padding-start: 0;
+      -moz-padding-start: 0;
+      -o-padding-start: 0;
+      padding-start: 0;
+    }
+  </style>
+</head>
+
+<body>
+<div class="allow-card">
+  <h2>Grant Access</h2>
+  <p>This app would like to:</p>
+  <ul>
+    <li>Read data</li>
+    <li>Write data</li>
+    <li>Delete data</li>
+  </ul>
+  <input name='user_oauth_approval' value='false' type='hidden'/>
+  <div class="button-bar">
+    <form id='confirmationForm' name='confirmationForm' action='/oauth/authorize' method='post'>
+      <input name='user_oauth_approval' value='true' type='hidden'/>
+      <input name="authorize" value="Authorize" type="submit" class="button"/>
+    </form>
+    <form id='denialForm' name='denialForm' action='/oauth/authorize' method='post'>
+      <input name='user_oauth_approval' value='false' type='hidden'/>
+      <input name="deny" value="Deny" type="submit" class="button allow-submit"/>
+    </form>
+  </div>
+</div>
+</body>
+
+</html>
