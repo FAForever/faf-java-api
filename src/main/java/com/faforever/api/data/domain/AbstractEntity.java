@@ -12,9 +12,9 @@ import java.time.OffsetDateTime;
 @MappedSuperclass
 @Setter
 public abstract class AbstractEntity {
-  private Integer id;
-  private OffsetDateTime createTime;
-  private OffsetDateTime updateTime;
+  protected Integer id;
+  protected OffsetDateTime createTime;
+  protected OffsetDateTime updateTime;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
