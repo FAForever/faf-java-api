@@ -142,7 +142,7 @@ public class LegacyFeaturedModDeploymentTaskTest {
 
     assertThat(files.get(1).getFileId(), is(2));
     assertThat(files.get(1).getMd5(), is(notNullValue()));
-    assertThat(files.get(1).getName(), is("someDir.1337.nxt"));
+    assertThat(files.get(1).getName(), is("someDir.1337.nx3"));
     assertThat(files.get(1).getVersion(), is((short) 1337));
 
     assertThat(Files.exists(targetFolder.getRoot().toPath().resolve("updates_faf_files/someDir.1337.nxt")), is(true));
