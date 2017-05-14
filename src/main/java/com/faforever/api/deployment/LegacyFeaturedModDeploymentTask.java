@@ -199,7 +199,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   @SneakyThrows
   private Optional<StagedFile> packDirectory(Path directory, Short version, Path targetFolder, Map<String, Short> fileIds) {
     String directoryName = directory.getFileName().toString();
-    Path targetNxtFile = targetFolder.resolve(String.format("%s.%d.nxt", directoryName, version));
+    Path targetNxtFile = targetFolder.resolve(String.format("%s.%d.%s", directoryName, version, configuration.getModFilesExtension()));
     Path tmpNxtFile = toTmpFile(targetNxtFile);
 
     // E.g. "effects.nx2"
