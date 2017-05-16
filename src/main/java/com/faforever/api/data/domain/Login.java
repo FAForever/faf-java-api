@@ -10,8 +10,6 @@ import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
@@ -20,7 +18,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @MappedSuperclass
-@Inheritance(strategy = InheritanceType.JOINED)
 @Setter
 public abstract class Login {
 
