@@ -51,9 +51,9 @@ public class ClansController {
         : null;
     ClanResult clanResult = null;
     if (clan != null) {
-      clanResult = new ClanResult(clan.getId(), clan.getTag(), clan.getName());
+      clanResult = ClanResult.of(clan);
     }
-    return new MeResult(new PlayerResult(player.getId(), player.getLogin()), clanResult);
+    return new MeResult(PlayerResult.of(player), clanResult);
   }
 
   // This request cannot be handled by JSON API because we must simultaneously create two resources (a,b)

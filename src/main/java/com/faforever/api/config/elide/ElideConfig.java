@@ -35,15 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ElideConfig {
 
   @Bean
-  public Elide elide(EntityManagerFactory entityManagerFactory, ObjectMapper objectMapper) {
-    ConcurrentHashMap<String, Class<? extends Check>> checks = new ConcurrentHashMap<>();
-    checks.put(IsAuthenticated.EXPRESSION, IsAuthenticated.Inline.class);
-    checks.put(IsLoginOwner.EXPRESSION, IsLoginOwner.Inline.class);
-    checks.put(IsReviewOwner.EXPRESSION, IsReviewOwner.Inline.class);
-    checks.put(IsClanLeader.EXPRESSION, IsClanLeader.Inline.class);
-    checks.put(IsClanMembershipDeletable.EXPRESSION, IsClanMembershipDeletable.Inline.class);
-
-    EntityDictionary entityDictionary = new EntityDictionary(checks);
+  public Elide elide(EntityManagerFactory entityManagerFactory, ObjectMapper objectMapper, EntityDictionary entityDictionary) {
     RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary);
 
     HibernateStore hibernateStore = new Builder(entityManagerFactory.unwrap(SessionFactory.class)).build();
@@ -55,6 +47,18 @@ public class ElideConfig {
         .withJoinFilterDialect(rsqlFilterDialect)
         .withSubqueryFilterDialect(rsqlFilterDialect)
         .build());
+  }
+
+  @Bean
+  public EntityDictionary entityDictionary() {
+    ConcurrentHashMap<String, Class<? extends Check>> checks = new ConcurrentHashMap<>();
+    checks.put(IsAuthenticated.EXPRESSION, IsAuthenticated.Inline.class);
+    checks.put(IsLoginOwner.EXPRESSION, IsLoginOwner.Inline.class);
+    checks.put(IsReviewOwner.EXPRESSION, IsReviewOwner.Inline.class);
+    checks.put(IsClanLeader.EXPRESSION, IsClanLeader.Inline.class);
+    checks.put(IsClanMembershipDeletable.EXPRESSION, IsClanMembershipDeletable.Inline.class);
+
+    return new EntityDictionary(checks);
   }
 
   /**

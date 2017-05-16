@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.io.Serializable;
-import java.util.Map;
 
 @Service
 public class JwtService {
@@ -23,7 +21,7 @@ public class JwtService {
     this.objectMapper = objectMapper;
   }
 
-  public String sign(Map<String, Serializable> data) throws IOException {
+  public String sign(Object data) throws IOException {
     return JwtHelper.encode(objectMapper.writeValueAsString(data), this.macSigner).getEncoded();
   }
 

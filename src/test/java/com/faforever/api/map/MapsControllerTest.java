@@ -52,7 +52,7 @@ public class MapsControllerTest {
     this.mvc.perform(fileUpload("/maps/upload"))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors", hasSize(1)))
-      .andExpect(jsonPath("$.errors[0].status", is(String.valueOf(HttpStatus.BAD_REQUEST.value()))))
+      .andExpect(jsonPath("$.errors[0].status", is(HttpStatus.BAD_REQUEST.toString())))
       .andExpect(jsonPath("$.errors[0].title", is("org.springframework.web.multipart.support.MissingServletRequestPartException")))
       .andExpect(jsonPath("$.errors[0].detail", is("Required request part 'file' is not present")));
   }
@@ -65,7 +65,7 @@ public class MapsControllerTest {
       .file(file))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors", hasSize(1)))
-      .andExpect(jsonPath("$.errors[0].status", is(String.valueOf(HttpStatus.BAD_REQUEST.value()))))
+      .andExpect(jsonPath("$.errors[0].status", is(HttpStatus.BAD_REQUEST.toString())))
       .andExpect(jsonPath("$.errors[0].title", is("org.springframework.web.bind.MissingServletRequestParameterException")))
       .andExpect(jsonPath("$.errors[0].detail", is("Required String parameter 'metadata' is not present")));
   }

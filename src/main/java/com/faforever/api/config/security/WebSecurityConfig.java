@@ -50,8 +50,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
       http
       .csrf().disable() // http://stackoverflow.com/a/29917946
       .headers()
-        .cacheControl().disable()
-      .and().formLogin().permitAll()
+      .cacheControl().disable()
+      .and().formLogin().loginPage("/login").permitAll()
       .and().authorizeRequests()
         .antMatchers(HttpMethod.OPTIONS).permitAll()
         .antMatchers("/oauth/**").permitAll()

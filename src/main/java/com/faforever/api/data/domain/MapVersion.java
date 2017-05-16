@@ -10,9 +10,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -20,7 +17,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
-import java.time.OffsetDateTime;
 import java.util.List;
 
 @Entity
@@ -28,9 +24,8 @@ import java.util.List;
 @EntityListeners(MapVersionEnricher.class)
 @Table(name = "map_version")
 @Include(rootLevel = true, type = "mapVersion")
-public class MapVersion {
+public class MapVersion extends AbstractEntity {
 
-  private int id;
   private String description;
   private int maxPlayers;
   private int width;
@@ -40,21 +35,12 @@ public class MapVersion {
   private String folderName;
   private boolean ranked;
   private boolean hidden;
-  private OffsetDateTime createTime;
-  private OffsetDateTime updateTime;
   private Map map;
   private MapVersionStatistics statistics;
   private String thumbnailUrlSmall;
   private String thumbnailUrlLarge;
   private String downloadUrl;
   private List<MapVersionReview> reviews;
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
-  public int getId() {
-    return id;
-  }
 
   @Column(name = "description")
   public String getDescription() {
@@ -99,16 +85,6 @@ public class MapVersion {
   @Column(name = "hidden")
   public boolean isHidden() {
     return hidden;
-  }
-
-  @Column(name = "create_time")
-  public OffsetDateTime getCreateTime() {
-    return createTime;
-  }
-
-  @Column(name = "update_time")
-  public OffsetDateTime getUpdateTime() {
-    return updateTime;
   }
 
   @ManyToOne(fetch = FetchType.LAZY)
