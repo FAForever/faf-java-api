@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,10 +27,14 @@ public class OAuthController {
     @RequestParam("client_id") String clientId,
     @RequestParam("scope") String scope) {
     OAuthClient client = oAuthClientRepository.findOne(clientId);
-    final Set<OAuthScope> defaultScopes = getScopesFromScopeString(client.getDefaultScope());
+    Set<OAuthScope> scopes;
     final Set<OAuthScope> requestScopes = getScopesFromScopeString(scope);
-    Set<OAuthScope> scopes = new HashSet<>(defaultScopes);
-    scopes.addAll(requestScopes);
+    if (requestScopes.isEmpty()) {
+      final Set<OAuthScope> defaultClientScopes = getScopesFromScopeString(client.getDefaultScope());
+      scopes = defaultClientScopes;
+    } else {
+      scopes = requestScopes;
+    }
 
     return new ModelAndView("oauth_confirm_access")
       .addObject("client", client)
@@ -41,6 +45,8 @@ public class OAuthController {
     return Arrays.stream(scopeString.split(" "))
       .filter(s -> !s.isEmpty())
       .map(OAuthScope::fromKey)
+      .filter(Optional::isPresent)
+      .map(Optional::get)
       .collect(Collectors.toSet());
   }
 }
