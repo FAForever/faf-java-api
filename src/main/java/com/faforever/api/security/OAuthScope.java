@@ -2,6 +2,7 @@ package com.faforever.api.security;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public enum OAuthScope {
 
@@ -13,8 +14,7 @@ public enum OAuthScope {
   UPLOAD_MAP("upload_map", "Upload maps"),
   UPLOAD_MOD("upload_mod", "Upload mods"),
   WRITE_ACCOUNT_DATA("write_account_data", "Edit account data"),
-  EDIT_CLAN_DATA("edit_clan_data", "Edit clan data"),
-  UNKNOWN("unknown", "Unknown");
+  EDIT_CLAN_DATA("edit_clan_data", "Edit clan data");
 
   private static final Map<String, OAuthScope> fromString;
 
@@ -33,8 +33,8 @@ public enum OAuthScope {
     this.title = title;
   }
 
-  public static OAuthScope fromKey(String key) {
-    return fromString.getOrDefault(key, UNKNOWN);
+  public static Optional<OAuthScope> fromKey(String key) {
+    return Optional.ofNullable(fromString.get(key));
   }
 
   public String getKey() {
