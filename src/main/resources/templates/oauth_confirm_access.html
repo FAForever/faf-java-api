@@ -122,10 +122,12 @@
 
 <body>
 <div class="allow-card">
-  <h2>Grant Access</h2>
+  <h2>
+    <td th:text="${client.getName()}"></td>
+  </h2>
   <p>This app would like to:</p>
   <ul>
-    <li th:each="sc : ${#strings.listSplit(scope, ' ')}" th:switch="${sc}">
+    <li th:each="sc : ${#strings.listSplit(client.getDefaultScope(), ' ')}" th:switch="${sc}">
       <th:block th:case="public_profile">Read your public player data</th:block>
       <th:block th:case="read_achievements">Read your achievements</th:block>
       <th:block th:case="write_achievements">Write your achievements</th:block>
@@ -134,6 +136,7 @@
       <th:block th:case="upload_map">Upload maps</th:block>
       <th:block th:case="upload_mod">Upload mods</th:block>
       <th:block th:case="write_account_data">Edit account data</th:block>
+      <th:block th:case="edit_clan_data">Edit clan data</th:block>
       <th:block th:case="*">Unknown</th:block>
     </li>
   </ul>
