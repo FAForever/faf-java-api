@@ -48,7 +48,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   protected void configure(HttpSecurity http) throws Exception {
     // @formatter:off
       http
-      .csrf().disable() // http://stackoverflow.com/a/29917946
       .headers()
       .cacheControl().disable()
       .and().formLogin().loginPage("/login").permitAll()
