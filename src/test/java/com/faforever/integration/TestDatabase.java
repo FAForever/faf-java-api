@@ -1,5 +1,6 @@
 package com.faforever.integration;
 
+import com.faforever.api.ban.BanRepository;
 import com.faforever.api.clan.ClanMembershipRepository;
 import com.faforever.api.clan.ClanRepository;
 import com.faforever.api.client.OAuthClientRepository;
@@ -22,7 +23,7 @@ public class TestDatabase {
   private PlayerRepository playerRepository;
   private OAuthClientRepository oAuthClientRepository;
   private ObjectMapper objectMapper;
-
+  private BanRepository banRepository;
 
   @Inject
   public void init(ClanRepository clanRepository,
@@ -30,16 +31,19 @@ public class TestDatabase {
                    PlayerRepository playerRepository,
                    OAuthClientRepository oAuthClientRepository,
                    ClanMembershipRepository clanMembershipRepository,
+                   BanRepository banRepository,
                    ObjectMapper objectMapper) {
     this.clanRepository = clanRepository;
     this.userRepository = userRepository;
     this.playerRepository = playerRepository;
     this.oAuthClientRepository = oAuthClientRepository;
     this.clanMembershipRepository = clanMembershipRepository;
+    this.banRepository = banRepository;
     this.objectMapper = objectMapper;
   }
 
   public void assertEmptyDatabase() {
+    assertEquals(0, banRepository.count());
     assertEquals(0, clanRepository.count());
     assertEquals(0, userRepository.count());
     assertEquals(0, playerRepository.count());
@@ -48,6 +52,7 @@ public class TestDatabase {
   }
 
   public void tearDown() {
+    banRepository.deleteAll();
     clanMembershipRepository.deleteAll();
     clanRepository.deleteAll();
     userRepository.deleteAll();
