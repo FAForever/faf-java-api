@@ -11,11 +11,13 @@ import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "ban_revoke")
@@ -25,14 +27,28 @@ import javax.validation.constraints.NotNull;
 @ReadPermission(expression = HasBanRead.EXPRESSION)
 @CreatePermission(expression = HasBanUpdate.EXPRESSION)
 @UpdatePermission(expression = HasBanUpdate.EXPRESSION)
-public class BanRevokeData extends AbstractEntity {
+public class BanRevokeData {
+  protected Integer id;
+  protected OffsetDateTime createTime;
+  protected OffsetDateTime updateTime;
   private BanInfo ban;
   private String reason;
   private Player author;
 
+  @Id
   @Column(name = "ban_id")
   public Integer getId() {
-    return super.id;
+    return id;
+  }
+
+  @Column(name = "create_time")
+  public OffsetDateTime getCreateTime() {
+    return createTime;
+  }
+
+  @Column(name = "update_time")
+  public OffsetDateTime getUpdateTime() {
+    return updateTime;
   }
 
   @OneToOne(mappedBy = "banRevokeData")
