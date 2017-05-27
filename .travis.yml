@@ -15,7 +15,11 @@ before_install:
   - sudo mv /tmp/docker-compose /usr/local/bin
 
 install:
-  - git clone https://github.com/FAForever/faf-stack.git
+  - git clone https://github.com/FAForever/faf-stack.git faf-stack
+      && pushd faf-stack
+      && git checkout 0b626dd527a8ea71a19cfa65bf855ae663f78d42
+      && cp -r config.template config
+      && popd
   - docker-compose -f faf-stack/docker-compose.yml up -d faf-db
 
 script:
