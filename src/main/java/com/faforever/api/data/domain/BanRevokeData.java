@@ -9,6 +9,7 @@ import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 
+import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -25,15 +26,11 @@ import javax.validation.constraints.NotNull;
 @ReadPermission(expression = HasBanRead.EXPRESSION)
 @CreatePermission(expression = HasBanUpdate.EXPRESSION)
 @UpdatePermission(expression = HasBanUpdate.EXPRESSION)
+@AttributeOverride(name = "id", column = @Column(name = "ban_id"))
 public class BanRevokeData extends AbstractEntity {
   private BanInfo ban;
   private String reason;
   private Player author;
-
-  @Column(name = "ban_id")
-  public Integer getId() {
-    return super.id;
-  }
 
   @OneToOne(mappedBy = "banRevokeData")
   @NotNull
