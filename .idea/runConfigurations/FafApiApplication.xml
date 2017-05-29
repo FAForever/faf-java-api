@@ -9,7 +9,7 @@
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.faforever.api.FafApiApplication" />
     <option name="VM_PARAMETERS" value="-Xmx128m" />
     <option name="ALTERNATIVE_JRE_PATH" />
-    <module name="faf-api_main" />
+    <module name="faf-java-api_main" />
     <envs />
     <method />
   </configuration>
