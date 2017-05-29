@@ -17,10 +17,10 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/oauth")
 @SessionAttributes("authorizationRequest")
-public class OAuthController {
+public class OAuthApprovalController {
   private OAuthClientRepository oAuthClientRepository;
 
-  public OAuthController(OAuthClientRepository oAuthClientRepository) {
+  public OAuthApprovalController(OAuthClientRepository oAuthClientRepository) {
     this.oAuthClientRepository = oAuthClientRepository;
   }
 
