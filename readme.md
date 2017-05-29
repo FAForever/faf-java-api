@@ -42,7 +42,7 @@ This project uses:
 * Java 8 as the programming language
 * [Spring Boot](https://projects.spring.io/spring-boot/) as a framework
 * [Hibernate ORM](http://hibernate.org/orm/) as ORM mapper
-* [Elide](http://elide.io/) to serve [JSON-API](http://jsonapi.org/) conform data
+* [Elide](http://elide.io/) with [RSQL filters](http://elide.io/pages/guide/08-filters.html#rsql) to serve [JSON-API](http://jsonapi.org/) conform data
 * [Gradle](https://gradle.org/) as a build automation tool
 * [Docker](https://www.docker.com/) to deploy and run the application
 * [Swagger](http://swagger.io/) as an API documentation tool
