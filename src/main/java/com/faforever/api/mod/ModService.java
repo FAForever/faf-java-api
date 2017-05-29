@@ -62,11 +62,18 @@ public class ModService {
     short version = (short) Integer.parseInt(modInfo.getVersion().toString());
 
     if (!canUploadMod(displayName, uploader)) {
-      throw new ApiException(new Error(ErrorCode.MOD_NOT_ORIGINAL_AUTHOR));
+      Mod mod = modRepository.findOneByDisplayName(displayName)
+        .orElseThrow(() -> new IllegalStateException("Mod could not be found"));
+      throw new ApiException(new Error(ErrorCode.MOD_NOT_ORIGINAL_AUTHOR, mod.getAuthor(), displayName));
     }
 
     if (modExists(displayName, version)) {
-      throw new ApiException(new Error(ErrorCode.MOD_VERSION_EXISTS));
+      throw new ApiException(new Error(ErrorCode.MOD_VERSION_EXISTS, displayName, version));
+    }
+
+    String uuid = modInfo.getUid();
+    if (modUidExists(uuid)) {
+      throw new ApiException(new Error(ErrorCode.MOD_UID_EXISTS, uuid));
     }
 
     String zipFileName = generateZipFileName(displayName, version);
@@ -99,7 +106,12 @@ public class ModService {
       .setMod(new Mod()
         .setDisplayName(displayName)
       );
+
     return modVersionRepository.exists(Example.of(probe, ExampleMatcher.matching().withIgnoreCase()));
+  }
+
+  private boolean modUidExists(String uuid) {
+    return modVersionRepository.existsByUid(uuid);
   }
 
   private boolean canUploadMod(String displayName, Player uploader) {

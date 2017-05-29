@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ModVersionRepository extends JpaRepository<ModVersion, Integer> {
+  boolean existsByUid(String uid);
 }
