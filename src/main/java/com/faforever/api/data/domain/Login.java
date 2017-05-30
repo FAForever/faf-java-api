@@ -1,7 +1,6 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsLoginOwner;
-import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
@@ -68,7 +67,6 @@ public abstract class Login {
   }
 
   @Transient
-  @ComputedAttribute
   public List<BanInfo> getActiveBans() {
     return getBans().stream().filter(ban -> ban.getBanStatus() == BanStatus.BANNED).collect(Collectors.toList());
   }
