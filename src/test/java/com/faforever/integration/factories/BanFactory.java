@@ -18,12 +18,15 @@ public class BanFactory {
 
   @Builder
   @SneakyThrows
-  public static BanInfo createBan(Player player, Player author, String reason,
-                                  BanLevel level, OffsetDateTime expiresAt, TestDatabase database) {
+  private static BanInfo createBan(Player player, Player author, String reason,
+                                   BanLevel level, OffsetDateTime expiresAt, TestDatabase database) {
     Assert.notNull(database, "'database' must not be null");
     BanInfo ban = new BanInfo()
-      .setPlayer(player != null ? player : PlayerFactory.createPlayer(PLAYER_NAME_BANNED, database))
-      .setAuthor(author != null ? author : PlayerFactory.createPlayer(PLAYER_NAME_AUTHOR, database))
+      .setPlayer(player != null
+        ? player
+        : PlayerFactory.builder().login(PLAYER_NAME_BANNED).database(database).build())
+      .setAuthor(author != null
+        ? author : PlayerFactory.builder().login(PLAYER_NAME_AUTHOR).database(database).build())
       .setExpiresAt(expiresAt)
       .setLevel(level)
       .setReason(reason != null ? reason : DEFAULT_REASON);

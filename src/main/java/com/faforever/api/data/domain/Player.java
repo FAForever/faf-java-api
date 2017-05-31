@@ -24,6 +24,7 @@ public class Player extends Login {
   private Ladder1v1Rating ladder1v1Rating;
   private GlobalRating globalRating;
   private List<ClanMembership> clanMemberships;
+  private List<AvatarAssignment> avatarAssignments;
 
   @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
   public Ladder1v1Rating getLadder1v1Rating() {
@@ -48,6 +49,13 @@ public class Player extends Login {
       return getClanMemberships().get(0).getClan();
     }
     return null;
+  }
+
+  // Permission is managed by AvatarAssignment class
+  @UpdatePermission(expression = "Prefab.Role.All")
+  @OneToMany(mappedBy = "player")
+  public List<AvatarAssignment> getAvatarAssignments() {
+    return avatarAssignments;
   }
 
   @Override

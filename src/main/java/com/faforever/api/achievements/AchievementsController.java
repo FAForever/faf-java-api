@@ -1,6 +1,7 @@
 package com.faforever.api.achievements;
 
 import com.faforever.api.error.ProgrammingError;
+import com.faforever.api.security.OAuthScope;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.yahoo.elide.jsonapi.models.Data;
@@ -33,7 +34,7 @@ public class AchievementsController {
   }
 
   @ApiOperation(value = "Updates the state and progress of one or multiple achievements.")
-  @PreAuthorize("#oauth2.hasScope('write_achievements')")
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACHIEVEMENTS + "')")
   @RequestMapping(value = "/update", method = RequestMethod.PATCH, produces = JSON_API_MEDIA_TYPE)
   public JsonApiDocument update(@RequestBody AchievementUpdateRequest[] updateRequests) {
     return new JsonApiDocument(new Data<>(Arrays.stream(updateRequests)
