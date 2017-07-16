@@ -185,7 +185,7 @@ public class ModService {
   private String generateFileName(String displayName) {
     return Normalizer.normalize(displayName.toLowerCase(Locale.US)
         .replace("..", ".")
-        .replaceAll("[/\\\\ ]", "_"),
+        .replaceAll("[/\\\\ :*?<>|\"]", "_"),
       Form.NFKC);
   }
 
