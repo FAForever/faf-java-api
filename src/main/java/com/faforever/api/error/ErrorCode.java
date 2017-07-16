@@ -65,7 +65,8 @@ public enum ErrorCode {
   CLAN_NAME_EXISTS(156, "Clan Name already in use", "The clan name ''{0}'' is already in use. Please choose a different clan name."),
   CLAN_TAG_EXISTS(157, "Clan Tag already in use", "The clan tag ''{0}'' is already in use. Please choose a different clan tag."),
   VALIDATION_FAILED(158, "Validation failed", "{0}"),
-  MOD_UID_EXISTS(159, "Duplicate mod UID", "A mod with UID ''{0}'' already exists.");
+  MOD_UID_EXISTS(159, "Duplicate mod UID", "A mod with UID ''{0}'' already exists."),
+  MOD_STRUCTURE_INVALID(160, "Invalid file structure for mod", "Files in the the root level of the zip file are not allowed. Please ensure all files reside inside a folder.");
 
   private final int code;
   private final String title;

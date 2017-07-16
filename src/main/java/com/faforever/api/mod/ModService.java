@@ -26,6 +26,7 @@ import java.nio.file.StandardCopyOption;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -55,6 +56,7 @@ public class ModService {
     ModReader modReader = new ModReader();
     com.faforever.commons.mod.Mod modInfo = modReader.readZip(uploadedFile);
     validateModInfo(modInfo);
+    validateModStructure(uploadedFile);
 
     log.debug("Mod uploaded by user '{}' is valid: {}", uploader, modInfo);
 
@@ -97,6 +99,24 @@ public class ModService {
         log.warn("Could not delete file " + targetPath, ioException);
       }
       throw exception;
+    }
+  }
+
+  /**
+   * Ensure that all files of the zip are inside at least one root folder.
+   * Otherwise the mods will overwrite each other on client side.
+   */
+  @SneakyThrows
+  private void validateModStructure(Path uploadedFile) {
+    try (ZipFile zipFile = new ZipFile(uploadedFile.toFile())) {
+      Enumeration<? extends ZipEntry> entries = zipFile.entries();
+      while (entries.hasMoreElements()) {
+        ZipEntry zipEntry = entries.nextElement();
+
+        if (!zipEntry.isDirectory() && !zipEntry.getName().contains("/")) {
+          throw new ApiException(new Error(ErrorCode.MOD_STRUCTURE_INVALID));
+        }
+      }
     }
   }
 
