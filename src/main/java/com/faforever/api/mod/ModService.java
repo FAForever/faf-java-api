@@ -8,6 +8,7 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.utils.FilePermissionUtil;
 import com.faforever.commons.mod.ModReader;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -89,6 +90,7 @@ public class ModService {
     log.debug("Moving uploaded mod '{}' to: {}", modInfo.getName(), targetPath);
     Files.createDirectories(targetPath.getParent());
     Files.move(uploadedFile, targetPath);
+    FilePermissionUtil.setDefaultFilePermission(targetPath);
 
     try {
       store(modInfo, thumbnailPath, uploader, zipFileName);

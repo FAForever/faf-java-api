@@ -9,6 +9,7 @@ import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.error.ProgrammingError;
+import com.faforever.api.utils.FilePermissionUtil;
 import com.faforever.api.utils.JavaFxUtil;
 import com.faforever.commons.io.Unzipper;
 import com.faforever.commons.io.Zipper;
@@ -306,11 +307,13 @@ public class MapService {
   @SneakyThrows
   private void zipMapData(MapUploadData progressData) {
     cleanupBaseDir(progressData);
-    Files.createDirectories(progressData.getFinalZipFile().getParent());
+    Path finalZipFile = progressData.getFinalZipFile();
+    Files.createDirectories(finalZipFile.getParent());
     try (ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(
-        Files.newOutputStream(progressData.getFinalZipFile())))) {
+      Files.newOutputStream(finalZipFile)))) {
       Zipper.contentOf(progressData.getBaseDir()).to(zipOutputStream).zip();
     }
+    FilePermissionUtil.setDefaultFilePermission(finalZipFile);
   }
 
   @SneakyThrows
