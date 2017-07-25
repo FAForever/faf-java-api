@@ -36,6 +36,7 @@ import static org.mockito.Mockito.when;
 public class ModServiceTest {
 
   private static final String TEST_MOD = "/mods/No Friendly Fire.zip";
+  private static final String TEST_MOD_INVALID_STRUCTURE = "/mods/Mod with top level files.zip";
 
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -63,7 +64,7 @@ public class ModServiceTest {
   @Test
   @SuppressWarnings("unchecked")
   public void processUploadedMod() throws Exception {
-    Path uploadedFile = prepareMod();
+    Path uploadedFile = prepareMod(TEST_MOD);
 
     Player uploader = new Player();
 
@@ -99,7 +100,7 @@ public class ModServiceTest {
 
   @Test
   public void testExistingUid() throws Exception {
-    Path uploadedFile = prepareMod();
+    Path uploadedFile = prepareMod(TEST_MOD);
 
     when(modVersionRepository.existsByUid("26778D4E-BA75-5CC2-CBA8-63795BDE74AA")).thenReturn(true);
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.MOD_UID_EXISTS));
@@ -109,7 +110,7 @@ public class ModServiceTest {
 
   @Test
   public void testNotOriginalUploader() throws Exception {
-    Path uploadedFile = prepareMod();
+    Path uploadedFile = prepareMod(TEST_MOD);
 
     Player uploader = new Player();
     when(modRepository.existsByDisplayNameIgnoreCaseAndUploaderIsNot("No Friendly Fire", uploader)).thenReturn(true);
@@ -120,10 +121,21 @@ public class ModServiceTest {
     instance.processUploadedMod(uploadedFile, uploader);
   }
 
+  @Test
+  public void testInvalidFileStructure() throws Exception {
+    Path uploadedFile = prepareMod(TEST_MOD_INVALID_STRUCTURE);
+
+    Player uploader = new Player();
+
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.MOD_STRUCTURE_INVALID));
+
+    instance.processUploadedMod(uploadedFile, uploader);
+  }
+
   @NotNull
-  private Path prepareMod() throws IOException {
+  private Path prepareMod(String path) throws IOException {
     Path uploadedFile = temporaryFolder.getRoot().toPath().resolve("uploaded-mod.zip");
-    try (InputStream inputStream = new BufferedInputStream(getClass().getResourceAsStream(TEST_MOD))) {
+    try (InputStream inputStream = new BufferedInputStream(getClass().getResourceAsStream(path))) {
       Files.copy(inputStream, uploadedFile);
     }
     return uploadedFile;

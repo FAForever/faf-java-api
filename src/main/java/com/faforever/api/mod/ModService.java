@@ -8,6 +8,7 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.utils.FilePermissionUtil;
 import com.faforever.commons.mod.ModReader;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ import java.nio.file.StandardCopyOption;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -55,6 +57,7 @@ public class ModService {
     ModReader modReader = new ModReader();
     com.faforever.commons.mod.Mod modInfo = modReader.readZip(uploadedFile);
     validateModInfo(modInfo);
+    validateModStructure(uploadedFile);
 
     log.debug("Mod uploaded by user '{}' is valid: {}", uploader, modInfo);
 
@@ -87,6 +90,7 @@ public class ModService {
     log.debug("Moving uploaded mod '{}' to: {}", modInfo.getName(), targetPath);
     Files.createDirectories(targetPath.getParent());
     Files.move(uploadedFile, targetPath);
+    FilePermissionUtil.setDefaultFilePermission(targetPath);
 
     try {
       store(modInfo, thumbnailPath, uploader, zipFileName);
@@ -97,6 +101,24 @@ public class ModService {
         log.warn("Could not delete file " + targetPath, ioException);
       }
       throw exception;
+    }
+  }
+
+  /**
+   * Ensure that all files of the zip are inside at least one root folder.
+   * Otherwise the mods will overwrite each other on client side.
+   */
+  @SneakyThrows
+  private void validateModStructure(Path uploadedFile) {
+    try (ZipFile zipFile = new ZipFile(uploadedFile.toFile())) {
+      Enumeration<? extends ZipEntry> entries = zipFile.entries();
+      while (entries.hasMoreElements()) {
+        ZipEntry zipEntry = entries.nextElement();
+
+        if (!zipEntry.isDirectory() && !zipEntry.getName().contains("/")) {
+          throw new ApiException(new Error(ErrorCode.MOD_STRUCTURE_INVALID));
+        }
+      }
     }
   }
 
@@ -185,7 +207,7 @@ public class ModService {
   private String generateFileName(String displayName) {
     return Normalizer.normalize(displayName.toLowerCase(Locale.US)
         .replace("..", ".")
-        .replaceAll("[/\\\\ ]", "_"),
+        .replaceAll("[/\\\\ :*?<>|\"]", "_"),
       Form.NFKC);
   }
 
