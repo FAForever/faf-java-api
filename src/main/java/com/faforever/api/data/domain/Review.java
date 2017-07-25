@@ -11,9 +11,6 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
@@ -21,7 +18,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
-import java.sql.Timestamp;
 
 @Setter
 @Include(rootLevel = true, type = "review")
@@ -31,20 +27,10 @@ import java.sql.Timestamp;
 @Inheritance(strategy = InheritanceType.JOINED)
 @CreatePermission(expression = "Prefab.Role.All")
 @DeletePermission(expression = IsReviewOwner.EXPRESSION)
-public class Review {
-  private Integer id;
+public class Review extends AbstractEntity {
   private String text;
   private Byte score;
-  private Timestamp createTime;
-  private Timestamp updateTime;
   private Player player;
-
-  @Id
-  @Column(name = "id")
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  public Integer getId() {
-    return id;
-  }
 
   @Column(name = "text")
   @UpdatePermission(expression = IsReviewOwner.EXPRESSION)
@@ -58,16 +44,6 @@ public class Review {
   @UpdatePermission(expression = IsReviewOwner.EXPRESSION)
   public Byte getScore() {
     return score;
-  }
-
-  @Column(name = "create_time")
-  public Timestamp getCreateTime() {
-    return createTime;
-  }
-
-  @Column(name = "update_time")
-  public Timestamp getUpdateTime() {
-    return updateTime;
   }
 
   @ManyToOne(fetch = FetchType.LAZY)
