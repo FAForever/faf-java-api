@@ -313,6 +313,7 @@ public class MapService {
       Files.newOutputStream(finalZipFile)))) {
       Zipper.contentOf(progressData.getBaseDir()).to(zipOutputStream).zip();
     }
+    // TODO if possible, this should be done using umask instead
     FilePermissionUtil.setDefaultFilePermission(finalZipFile);
   }
 

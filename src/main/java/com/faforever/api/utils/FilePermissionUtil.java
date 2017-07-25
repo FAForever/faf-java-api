@@ -10,10 +10,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 public final class FilePermissionUtil {
-  public static final String FILE_PERMISSION_POSIX = "posix";
+  private static final String FILE_PERMISSION_POSIX = "posix";
+
+  private FilePermissionUtil() {
+    // Utility class
+  }
 
   public static void setDefaultFilePermission(Path path) throws IOException {
-
     if (!FileSystems.getDefault().supportedFileAttributeViews().contains(FILE_PERMISSION_POSIX)) {
       return;
     }
