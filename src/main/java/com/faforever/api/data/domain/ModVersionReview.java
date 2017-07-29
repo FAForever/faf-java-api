@@ -11,14 +11,12 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
 @Setter
 @Include(rootLevel = true, type = "modVersionReview")
 @Entity
 @Table(name = "mod_version_review")
-@PrimaryKeyJoinColumn(name = "review_id", referencedColumnName = "id")
 @CreatePermission(expression = "Prefab.Role.All")
 @DeletePermission(expression = IsReviewOwner.EXPRESSION)
 public class ModVersionReview extends Review {
