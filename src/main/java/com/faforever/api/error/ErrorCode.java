@@ -30,8 +30,8 @@ public enum ErrorCode {
   @Deprecated
   MOD_UI_ONLY_MISSING(122, "Missing mod type", "The file mod_info.lua must contain a property 'ui_only'."),
   MOD_NAME_TOO_LONG(123, "Invalid mod name", "The mod name must not exceed {0} characters, was: {1}"),
-  MOD_NOT_ORIGINAL_AUTHOR(124, "Permission denied", "Only the original author is allowed to upload new versions of mod: {0}."),
-  MOD_VERSION_EXISTS(125, "Duplicate mod version", "Mod ''{0}'' with version ''{1}'' already exists."),
+  MOD_NOT_ORIGINAL_AUTHOR(124, "Permission denied", "Only the original author ''{0}'' is allowed to upload new versions of mod ''{1}''."),
+  MOD_VERSION_EXISTS(125, "Duplicate mod version", "A mod with name ''{0}'' and version ''{1}'' already exists."),
   MOD_AUTHOR_MISSING(126, "Missing mod author", "The file mod_info.lua must contain a property 'author'."),
   QUERY_INVALID_RATING_TYPE(127, "Invalid rating type", "Rating type is not valid: {0}. Please pick '1v1' or 'global'."),
   LOGIN_DENIED_BANNED(128, "Login denied", "You are currently banned: {0}"),
@@ -64,7 +64,9 @@ public enum ErrorCode {
   CLAN_GENERATE_LINK_PLAYER_NOT_FOUND(155, "Player not found", "Cannot find player with id ''{0}'' who should be invited to the clan"),
   CLAN_NAME_EXISTS(156, "Clan Name already in use", "The clan name ''{0}'' is already in use. Please choose a different clan name."),
   CLAN_TAG_EXISTS(157, "Clan Tag already in use", "The clan tag ''{0}'' is already in use. Please choose a different clan tag."),
-  VALIDATION_FAILED(158, "Validation failed", "{0}");
+  VALIDATION_FAILED(158, "Validation failed", "{0}"),
+  MOD_UID_EXISTS(159, "Duplicate mod UID", "A mod with UID ''{0}'' already exists."),
+  MOD_STRUCTURE_INVALID(160, "Invalid file structure for mod", "Files in the the root level of the zip file are not allowed. Please ensure all files reside inside a folder.");
 
   private final int code;
   private final String title;

@@ -8,6 +8,7 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.utils.FilePermissionUtil;
 import com.faforever.commons.mod.ModReader;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ import java.nio.file.StandardCopyOption;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -55,6 +57,7 @@ public class ModService {
     ModReader modReader = new ModReader();
     com.faforever.commons.mod.Mod modInfo = modReader.readZip(uploadedFile);
     validateModInfo(modInfo);
+    validateModStructure(uploadedFile);
 
     log.debug("Mod uploaded by user '{}' is valid: {}", uploader, modInfo);
 
@@ -62,11 +65,18 @@ public class ModService {
     short version = (short) Integer.parseInt(modInfo.getVersion().toString());
 
     if (!canUploadMod(displayName, uploader)) {
-      throw new ApiException(new Error(ErrorCode.MOD_NOT_ORIGINAL_AUTHOR));
+      Mod mod = modRepository.findOneByDisplayName(displayName)
+        .orElseThrow(() -> new IllegalStateException("Mod could not be found"));
+      throw new ApiException(new Error(ErrorCode.MOD_NOT_ORIGINAL_AUTHOR, mod.getAuthor(), displayName));
     }
 
     if (modExists(displayName, version)) {
-      throw new ApiException(new Error(ErrorCode.MOD_VERSION_EXISTS));
+      throw new ApiException(new Error(ErrorCode.MOD_VERSION_EXISTS, displayName, version));
+    }
+
+    String uuid = modInfo.getUid();
+    if (modUidExists(uuid)) {
+      throw new ApiException(new Error(ErrorCode.MOD_UID_EXISTS, uuid));
     }
 
     String zipFileName = generateZipFileName(displayName, version);
@@ -80,6 +90,7 @@ public class ModService {
     log.debug("Moving uploaded mod '{}' to: {}", modInfo.getName(), targetPath);
     Files.createDirectories(targetPath.getParent());
     Files.move(uploadedFile, targetPath);
+    FilePermissionUtil.setDefaultFilePermission(targetPath);
 
     try {
       store(modInfo, thumbnailPath, uploader, zipFileName);
@@ -93,13 +104,36 @@ public class ModService {
     }
   }
 
+  /**
+   * Ensure that all files of the zip are inside at least one root folder.
+   * Otherwise the mods will overwrite each other on client side.
+   */
+  @SneakyThrows
+  private void validateModStructure(Path uploadedFile) {
+    try (ZipFile zipFile = new ZipFile(uploadedFile.toFile())) {
+      Enumeration<? extends ZipEntry> entries = zipFile.entries();
+      while (entries.hasMoreElements()) {
+        ZipEntry zipEntry = entries.nextElement();
+
+        if (!zipEntry.isDirectory() && !zipEntry.getName().contains("/")) {
+          throw new ApiException(new Error(ErrorCode.MOD_STRUCTURE_INVALID));
+        }
+      }
+    }
+  }
+
   private boolean modExists(String displayName, short version) {
     ModVersion probe = new ModVersion()
       .setVersion(version)
       .setMod(new Mod()
         .setDisplayName(displayName)
       );
+
     return modVersionRepository.exists(Example.of(probe, ExampleMatcher.matching().withIgnoreCase()));
+  }
+
+  private boolean modUidExists(String uuid) {
+    return modVersionRepository.existsByUid(uuid);
   }
 
   private boolean canUploadMod(String displayName, Player uploader) {
@@ -173,7 +207,7 @@ public class ModService {
   private String generateFileName(String displayName) {
     return Normalizer.normalize(displayName.toLowerCase(Locale.US)
         .replace("..", ".")
-        .replaceAll("[/\\\\ ]", "_"),
+        .replaceAll("[/\\\\ :*?<>|\"]", "_"),
       Form.NFKC);
   }
 

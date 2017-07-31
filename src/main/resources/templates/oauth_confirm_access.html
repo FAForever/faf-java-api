@@ -98,7 +98,6 @@
       border-bottom: 1px solid #ccc;
       padding: 1.5em 0;
       list-style-type: none;
-      list-style-type: none;
       -webkit-padding-start: 1em;
       -ms-padding-start: 1em;
       -moz-padding-start: 1em;
@@ -131,13 +130,15 @@
   </ul>
   <input name='user_oauth_approval' value='false' type='hidden'/>
   <div class="button-bar">
-    <form id='confirmationForm' name='confirmationForm' action='/oauth/authorize' method='post'>
-      <input name='user_oauth_approval' value='true' type='hidden'/>
-      <input name="authorize" value="Authorize" type="submit" class="button"/>
-    </form>
     <form id='denialForm' name='denialForm' action='/oauth/authorize' method='post'>
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null }"/>
       <input name='user_oauth_approval' value='false' type='hidden'/>
-      <input name="deny" value="Deny" type="submit" class="button allow-submit"/>
+      <input name="deny" value="Deny" type="submit" class="button"/>
+    </form>
+    <form id='confirmationForm' name='confirmationForm' action='/oauth/authorize' method='post'>
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null }"/>
+      <input name='user_oauth_approval' value='true' type='hidden'/>
+      <input name="authorize" value="Authorize" type="submit" class="button allow-submit"/>
     </form>
   </div>
 </div>

@@ -12,11 +12,16 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import java.util.regex.Pattern;
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
@@ -27,15 +32,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   @Profile("dev")
   public void developUserDetails(AuthenticationManagerBuilder auth) throws Exception {
     auth.inMemoryAuthentication()
-        .withUser("user").password("user").roles("USER")
-        .and().withUser("admin").password("admin").roles("USER", "ADMIN");
+      .withUser("user").password("user").roles("USER")
+      .and().withUser("admin").password("admin").roles("USER", "ADMIN");
   }
 
   @Inject
   public void prodUserDetails(AuthenticationManagerBuilder auth, UserDetailsService userDetailsService) throws Exception {
     auth
-        .userDetailsService(userDetailsService)
-        .passwordEncoder(new ShaPasswordEncoder(256));
+      .userDetailsService(userDetailsService)
+      .passwordEncoder(new ShaPasswordEncoder(256));
   }
 
   @Bean
@@ -48,8 +53,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   protected void configure(HttpSecurity http) throws Exception {
     // @formatter:off
       http
-      .csrf().disable() // http://stackoverflow.com/a/29917946
-      .headers()
+      .csrf()
+        .requireCsrfProtectionMatcher(new RequestMatcher() {
+          private Pattern allowedMethods = Pattern.compile("^(GET|HEAD|TRACE|OPTIONS)$");
+          private RequestMatcher matcher = new OrRequestMatcher(
+            new AntPathRequestMatcher("/oauth/authorize"),
+            new AntPathRequestMatcher("/login"));
+
+          @Override
+          public boolean matches(HttpServletRequest request) {
+              return matcher.matches(request) && !allowedMethods.matcher(request.getMethod()).matches();
+          }
+      })
+      .and().headers()
       .cacheControl().disable()
       .and().formLogin().loginPage("/login").permitAll()
       .and().authorizeRequests()
@@ -69,7 +85,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
       @Override
       public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-            .allowedMethods("*");
+          .allowedMethods("*");
       }
     };
   }
