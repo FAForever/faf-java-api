@@ -22,7 +22,10 @@ public class FafUserDetailsService implements UserDetailsService {
   }
 
   @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+  public UserDetails loadUserByUsername(String username) {
+    if (userRepository.findOneByLoginIgnoreCase(username) == null) {
+      throw new UsernameNotFoundException();
+    }
     return new FafUserDetails(userRepository.findOneByLoginIgnoreCase(username));
   }
 }
