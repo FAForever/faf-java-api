@@ -1,5 +1,6 @@
 package com.faforever.api.security;
 
+import com.faforever.api.data.domain.User;
 import com.faforever.api.user.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,6 +24,10 @@ public class FafUserDetailsService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    return new FafUserDetails(userRepository.findOneByLoginIgnoreCase(username));
+    User user = userRepository.findOneByLoginIgnoreCase(username); 
+    if (user == null) {
+      throw new UsernameNotFoundException("User could not be found: " + username);
+    }
+    return new FafUserDetails(user);
   }
-}
+} 
