@@ -10,12 +10,10 @@ import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.error.ProgrammingError;
 import com.faforever.api.utils.FilePermissionUtil;
-import com.faforever.api.utils.JavaFxUtil;
 import com.faforever.commons.io.Unzipper;
 import com.faforever.commons.io.Zipper;
 import com.faforever.commons.lua.LuaLoader;
 import com.faforever.commons.map.PreviewGenerator;
-import javafx.scene.image.Image;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.FileSystemUtils;
 
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
+import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.nio.charset.Charset;
@@ -48,10 +48,10 @@ import static com.github.nocatch.NoCatch.noCatch;
 @Slf4j
 public class MapService {
   private static final String[] REQUIRED_FILES = new String[]{
-      ".scmap",
-      "_save.lua",
-      "_scenario.lua",
-      "_script.lua"};
+    ".scmap",
+    "_save.lua",
+    "_scenario.lua",
+    "_script.lua"};
   private static final Charset MAP_CHARSET = StandardCharsets.ISO_8859_1;
   private final FafApiProperties fafApiProperties;
   private final MapRepository mapRepository;
@@ -71,10 +71,10 @@ public class MapService {
     Assert.isTrue(mapData.length > 0, "'mapData' must not be empty");
 
     MapUploadData progressData = new MapUploadData()
-        .setBaseDir(contentService.createTempDir())
-        .setUploadFileName(mapFilename)
-        .setAuthorEntity(author)
-        .setRanked(isRanked);
+      .setBaseDir(contentService.createTempDir())
+      .setUploadFileName(mapFilename)
+      .setAuthorEntity(author)
+      .setRanked(isRanked);
 
     progressData.setUploadedFile(progressData.getBaseDir().resolve(mapFilename));
     copyToTemporaryDirectory(mapData, progressData);
@@ -103,7 +103,7 @@ public class MapService {
   @SneakyThrows
   private void unzipFile(MapUploadData mapData) {
     try (ZipInputStream zipInputStream = new ZipInputStream(new BufferedInputStream(
-        Files.newInputStream(mapData.getUploadedFile())))) {
+      Files.newInputStream(mapData.getUploadedFile())))) {
       Unzipper.from(zipInputStream).to(mapData.getBaseDir()).unzip();
     }
   }
@@ -113,8 +113,8 @@ public class MapService {
     Optional<Path> mapFolder;
     try (Stream<Path> mapFolderStream = Files.list(mapUploadData.getBaseDir())) {
       mapFolder = mapFolderStream
-          .filter(path -> Files.isDirectory(path))
-          .findFirst();
+        .filter(path -> Files.isDirectory(path))
+        .findFirst();
     }
 
     if (!mapFolder.isPresent()) {
@@ -134,12 +134,12 @@ public class MapService {
     try (Stream<Path> mapFileStream = Files.list(mapUploadData.getOriginalMapFolder())) {
       mapFileStream.forEach(filePaths::add);
       Arrays.stream(REQUIRED_FILES)
-          .forEach(filePattern -> {
-            if (filePaths.stream()
-                .noneMatch(filePath -> filePath.toString().endsWith(filePattern))) {
-              throw new ApiException(new Error(ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING, filePattern));
-            }
-          });
+        .forEach(filePattern -> {
+          if (filePaths.stream()
+            .noneMatch(filePath -> filePath.toString().endsWith(filePattern))) {
+            throw new ApiException(new Error(ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING, filePattern));
+          }
+        });
     }
   }
 
@@ -147,9 +147,9 @@ public class MapService {
   private void parseScenarioLua(MapUploadData progressData) {
     try (Stream<Path> mapFilesStream = Files.list(progressData.getOriginalMapFolder())) {
       Path scenarioLuaPath = noCatch(() -> mapFilesStream)
-          .filter(myFile -> myFile.toString().endsWith("_scenario.lua"))
-          .findFirst()
-          .orElseThrow(() -> new ApiException(new Error(ErrorCode.MAP_SCENARIO_LUA_MISSING)));
+        .filter(myFile -> myFile.toString().endsWith("_scenario.lua"))
+        .findFirst()
+        .orElseThrow(() -> new ApiException(new Error(ErrorCode.MAP_SCENARIO_LUA_MISSING)));
       LuaValue root = noCatch(() -> LuaLoader.loadFile(scenarioLuaPath), IllegalStateException.class);
       progressData.setLuaRoot(root);
     }
@@ -210,7 +210,7 @@ public class MapService {
   private void postProcessLuaFile(MapUploadData progressData) {
     LuaValue scenarioInfo = progressData.getLuaScenarioInfo();
     Optional<Map> mapEntity = mapRepository.findOneByDisplayName(
-        scenarioInfo.get(ScenarioMapInfo.NAME).toString());
+      scenarioInfo.get(ScenarioMapInfo.NAME).toString());
     if (!mapEntity.isPresent()) {
       return;
     }
@@ -219,7 +219,7 @@ public class MapService {
     }
     int newVersion = scenarioInfo.get(ScenarioMapInfo.MAP_VERSION).toint();
     if (mapEntity.get().getVersions().stream()
-        .anyMatch(mapVersion -> mapVersion.getVersion() == newVersion)) {
+      .anyMatch(mapVersion -> mapVersion.getVersion() == newVersion)) {
       throw new ApiException(new Error(ErrorCode.MAP_VERSION_EXISTS, mapEntity.get().getDisplayName(), newVersion));
     }
     progressData.setMapEntity(mapEntity.get());
@@ -232,21 +232,21 @@ public class MapService {
       map = new Map();
     }
     map.setDisplayName(scenarioInfo.get(ScenarioMapInfo.NAME).toString())
-        .setMapType(scenarioInfo.get(ScenarioMapInfo.TYPE).tojstring())
-        .setBattleType(scenarioInfo.get(ScenarioMapInfo.CONFIGURATIONS).get(ScenarioMapInfo.CONFIGURATION_STANDARD).get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS).get(1)
-            .get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS_NAME).tojstring())
-        .setAuthor(progressData.getAuthorEntity());
+      .setMapType(scenarioInfo.get(ScenarioMapInfo.TYPE).tojstring())
+      .setBattleType(scenarioInfo.get(ScenarioMapInfo.CONFIGURATIONS).get(ScenarioMapInfo.CONFIGURATION_STANDARD).get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS).get(1)
+        .get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS_NAME).tojstring())
+      .setAuthor(progressData.getAuthorEntity());
 
     LuaValue size = scenarioInfo.get(ScenarioMapInfo.SIZE);
     MapVersion version = new MapVersion()
-        .setDescription(scenarioInfo.get(ScenarioMapInfo.DESCRIPTION).tojstring().replaceAll("<LOC .*?>", ""))
-        .setWidth(size.get(1).toint())
-        .setHeight(size.get(2).toint())
-        .setHidden(false)
-        .setRanked(progressData.isRanked())
-        .setMaxPlayers(scenarioInfo.get(ScenarioMapInfo.CONFIGURATIONS).get(ScenarioMapInfo.CONFIGURATION_STANDARD).get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS).get(1)
-            .get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS_ARMIES).length())
-        .setVersion(scenarioInfo.get(ScenarioMapInfo.MAP_VERSION).toint());
+      .setDescription(scenarioInfo.get(ScenarioMapInfo.DESCRIPTION).tojstring().replaceAll("<LOC .*?>", ""))
+      .setWidth(size.get(1).toint())
+      .setHeight(size.get(2).toint())
+      .setHidden(false)
+      .setRanked(progressData.isRanked())
+      .setMaxPlayers(scenarioInfo.get(ScenarioMapInfo.CONFIGURATIONS).get(ScenarioMapInfo.CONFIGURATION_STANDARD).get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS).get(1)
+        .get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS_ARMIES).length())
+      .setVersion(scenarioInfo.get(ScenarioMapInfo.MAP_VERSION).toint());
     map.getVersions().add(version);
     version.setMap(map);
 
@@ -255,8 +255,8 @@ public class MapService {
 
     version.setFilename(progressData.getFinalZipName());
     progressData.setFinalZipFile(
-        this.fafApiProperties.getMap().getTargetDirectory()
-            .resolve(progressData.getFinalZipName()));
+      this.fafApiProperties.getMap().getTargetDirectory()
+        .resolve(progressData.getFinalZipName()));
 
     if (Files.exists(progressData.getFinalZipFile())) {
       throw new ApiException(new Error(ErrorCode.MAP_NAME_CONFLICT, progressData.getFinalZipName()));
@@ -279,13 +279,13 @@ public class MapService {
     String newNameFolder = "/maps/" + mapData.getNewFolderName();
     try (Stream<Path> mapFileStream = Files.list(mapData.getNewMapFolder())) {
       mapFileStream
-          .filter(path -> path.toString().toLowerCase().endsWith(".lua"))
-          .forEach(path -> noCatch(() -> {
-            List<String> lines = Files.readAllLines(path, MAP_CHARSET).stream()
-                .map(line -> line.replaceAll("(?i)" + oldNameFolder, newNameFolder))
-                .collect(Collectors.toList());
-            Files.write(path, lines, MAP_CHARSET);
-          }));
+        .filter(path -> path.toString().toLowerCase().endsWith(".lua"))
+        .forEach(path -> noCatch(() -> {
+          List<String> lines = Files.readAllLines(path, MAP_CHARSET).stream()
+            .map(line -> line.replaceAll("(?i)" + oldNameFolder, newNameFolder))
+            .collect(Collectors.toList());
+          Files.write(path, lines, MAP_CHARSET);
+        }));
     }
   }
 
@@ -294,14 +294,14 @@ public class MapService {
   private void generatePreview(MapUploadData mapData) {
     String previewFilename = mapData.getNewFolderName() + ".png";
     generateImage(
-        fafApiProperties.getMap().getDirectoryPreviewPathSmall().resolve(previewFilename),
-        mapData.getNewMapFolder(),
-        fafApiProperties.getMap().getPreviewSizeSmall());
+      fafApiProperties.getMap().getDirectoryPreviewPathSmall().resolve(previewFilename),
+      mapData.getNewMapFolder(),
+      fafApiProperties.getMap().getPreviewSizeSmall());
 
     generateImage(
-        fafApiProperties.getMap().getDirectoryPreviewPathLarge().resolve(previewFilename),
-        mapData.getNewMapFolder(),
-        fafApiProperties.getMap().getPreviewSizeLarge());
+      fafApiProperties.getMap().getDirectoryPreviewPathLarge().resolve(previewFilename),
+      mapData.getNewMapFolder(),
+      fafApiProperties.getMap().getPreviewSizeLarge());
   }
 
   @SneakyThrows
@@ -329,8 +329,11 @@ public class MapService {
 
   @SneakyThrows
   private void generateImage(Path target, Path baseDir, int size) {
-    Image image = PreviewGenerator.generatePreview(baseDir, size, size);
-    JavaFxUtil.writeImage(image, target, "png");
+    BufferedImage image = PreviewGenerator.generatePreview(baseDir, size, size);
+    if (target.getNameCount() > 0) {
+      Files.createDirectories(target.getParent());
+    }
+    ImageIO.write(image, "png", target.toFile());
   }
 
   private boolean cleanup(MapUploadData mapData) {
@@ -374,10 +377,10 @@ public class MapService {
 
     private String generateNewMapNameWithVersion(String extension) {
       return Paths.get(String.format("%s.v%04d%s",
-          normalizeMapName(mapEntity.getDisplayName()),
-          mapVersionEntity.getVersion(),
-          extension))
-          .normalize().toString();
+        normalizeMapName(mapEntity.getDisplayName()),
+        mapVersionEntity.getVersion(),
+        extension))
+        .normalize().toString();
     }
 
     private String getFinalZipName() {
