@@ -215,7 +215,11 @@ public class MapService {
     if (!mapEntity.isPresent()) {
       return;
     }
-    if (mapEntity.get().getAuthor().getId() != progressData.getAuthorEntity().getId()) {
+    Player author = mapEntity.get().getAuthor();
+    if (author == null) {
+      return;
+    }
+    if (author.getId() != progressData.getAuthorEntity().getId()) {
       throw new ApiException(new Error(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR, mapEntity.get().getDisplayName()));
     }
     int newVersion = scenarioInfo.get(ScenarioMapInfo.MAP_VERSION).toint();
