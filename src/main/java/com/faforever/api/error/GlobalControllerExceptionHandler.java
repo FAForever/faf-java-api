@@ -1,5 +1,6 @@
 package com.faforever.api.error;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -15,12 +16,14 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 
 @ControllerAdvice
+@Slf4j
 class GlobalControllerExceptionHandler {
 
   @ExceptionHandler(ConstraintViolationException.class)
   @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
   @ResponseBody
   public ErrorResponse processConstraintViolationException(ConstraintViolationException ex) {
+    log.debug("Constraint violation", ex);
     final ErrorResponse errorResponse = new ErrorResponse();
     ex.getConstraintViolations().forEach(constraintViolation -> {
       String detail = constraintViolation.getMessage();
@@ -43,6 +46,7 @@ class GlobalControllerExceptionHandler {
   @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
   @ResponseBody
   public ErrorResponse processValidationException(ValidationException ex) {
+    log.debug("Entity could not be processed", ex);
     return new ErrorResponse().addError(new ErrorResult(
       String.valueOf(HttpStatus.UNPROCESSABLE_ENTITY.value()),
       ErrorCode.VALIDATION_FAILED.getTitle(),
@@ -56,6 +60,7 @@ class GlobalControllerExceptionHandler {
   @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
   @ResponseBody
   public ErrorResponse processApiException(ApiException ex) {
+    log.debug("API exception", ex);
     ErrorResponse response = new ErrorResponse();
     Arrays.stream(ex.getErrors()).forEach(error -> {
       ErrorCode errorCode = error.getErrorCode();
@@ -75,6 +80,7 @@ class GlobalControllerExceptionHandler {
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   @ResponseBody
   public ErrorResponse processProgrammingError(ProgrammingError ex) {
+    log.warn("Programming error", ex);
     ErrorResponse response = new ErrorResponse();
     response.addError(new ErrorResult(
       String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
@@ -88,10 +94,12 @@ class GlobalControllerExceptionHandler {
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   @ResponseBody
   public ErrorResponse processException(Exception ex) throws MissingServletRequestPartException {
-    //if we don't rethrow, oauth authX is broken
+    // If we don't rethrow, oauth authX is broken
     if (ex instanceof InsufficientAuthenticationException) {
       throw (InsufficientAuthenticationException) ex;
     }
+
+    log.warn("Internal server error", ex);
 
     ErrorResponse response = new ErrorResponse();
     response.addError(new ErrorResult(
@@ -106,6 +114,7 @@ class GlobalControllerExceptionHandler {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ResponseBody
   public ErrorResponse processBadRequests(Exception ex) throws Exception {
+    log.debug("Bad request", ex);
     ErrorResponse response = new ErrorResponse();
     response.addError(new ErrorResult(
       String.valueOf(HttpStatus.BAD_REQUEST.value()),
