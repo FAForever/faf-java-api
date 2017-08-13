@@ -53,6 +53,7 @@ public class MapService {
     "_scenario.lua",
     "_script.lua"};
   private static final Charset MAP_CHARSET = StandardCharsets.ISO_8859_1;
+  private static final String STUPID_MAP_FOLDER_PREFIX = "maps/";
   private final FafApiProperties fafApiProperties;
   private final MapRepository mapRepository;
   private final ContentService contentService;
@@ -253,7 +254,7 @@ public class MapService {
     progressData.setMapEntity(map);
     progressData.setMapVersionEntity(version);
 
-    version.setFilename(progressData.getFinalZipName());
+    version.setFilename(STUPID_MAP_FOLDER_PREFIX + progressData.getFinalZipName());
     progressData.setFinalZipFile(
       this.fafApiProperties.getMap().getTargetDirectory()
         .resolve(progressData.getFinalZipName()));
