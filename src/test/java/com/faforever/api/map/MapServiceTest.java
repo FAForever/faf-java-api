@@ -244,7 +244,7 @@ public class MapServiceTest {
       assertEquals(256, mapVersion.getHeight());
       assertEquals(256, mapVersion.getWidth());
       assertEquals(3, mapVersion.getMaxPlayers());
-      assertEquals("sludge_test.v0001.zip", mapVersion.getFilename());
+      assertEquals("maps/sludge_test.v0001.zip", mapVersion.getFilename());
 
       assertFalse(Files.exists(tmpDir));
 
