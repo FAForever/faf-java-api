@@ -1,7 +1,8 @@
 package com.faforever.api.deployment;
 
 import com.faforever.api.config.FafApiProperties;
-import com.faforever.api.config.FafApiProperties.Deployment.DeploymentConfiguration;
+import com.faforever.api.data.domain.FeaturedMod;
+import com.faforever.api.featuredmods.FeaturedModService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
 
-import java.util.Collections;
+import java.util.Optional;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -28,6 +29,7 @@ public class GitHubDeploymentServiceTest {
 
   private static final String EXAMPLE_REPO_URL = "https://example.com/repo.git";
   private static final String ENVIRONMENT = "junit";
+  private static final String EXAMPLE_BRANCH = "master";
   private GitHubDeploymentService instance;
 
   private FafApiProperties apiProperties;
@@ -36,11 +38,13 @@ public class GitHubDeploymentServiceTest {
   private ApplicationContext applicationContext;
   @Mock
   private ObjectMapper objectMapper;
+  @Mock
+  private FeaturedModService featuredModService;
 
   @Before
   public void setUp() throws Exception {
     apiProperties = new FafApiProperties();
-    instance = new GitHubDeploymentService(applicationContext, apiProperties, objectMapper);
+    instance = new GitHubDeploymentService(applicationContext, apiProperties, objectMapper, featuredModService);
   }
 
   @Test
@@ -50,6 +54,7 @@ public class GitHubDeploymentServiceTest {
     GHRepository repository = mock(GHRepository.class);
     when(repository.gitHttpTransportUrl()).thenReturn(EXAMPLE_REPO_URL);
     when(push.getRepository()).thenReturn(repository);
+    when(push.getRef()).thenReturn("refs/heads/master");
 
     instance.createDeploymentIfEligible(push);
 
@@ -70,18 +75,18 @@ public class GitHubDeploymentServiceTest {
     when(deploymentBuilder.payload(anyString())).thenReturn(deploymentBuilder);
     when(repository.createDeployment("refs/heads/master")).thenReturn(deploymentBuilder);
 
-    when(objectMapper.writeValueAsString(any(DeploymentConfiguration.class))).thenReturn("");
+    when(featuredModService.findByGitUrlAndGitBranch(EXAMPLE_REPO_URL, EXAMPLE_BRANCH))
+      .thenReturn(Optional.of(new FeaturedMod()
+        .setGitBranch(EXAMPLE_BRANCH)
+        .setFileExtension("nx2")
+        .setTechnicalName("faf")
+        .setGitUrl(EXAMPLE_REPO_URL)));
+
+    when(objectMapper.writeValueAsString(any(FeaturedMod.class))).thenReturn("");
 
     when(push.getRepository()).thenReturn(repository);
 
     apiProperties.getGitHub().setDeploymentEnvironment(ENVIRONMENT);
-    apiProperties.getDeployment().setConfigurations(Collections.singletonList(
-        new DeploymentConfiguration()
-            .setBranch("master")
-            .setModFilesExtension(".nx2")
-            .setModName("faf")
-            .setRepositoryUrl(EXAMPLE_REPO_URL)
-    ));
 
     instance.createDeploymentIfEligible(push);
 
@@ -108,7 +113,7 @@ public class GitHubDeploymentServiceTest {
     when(deployment.getEnvironment()).thenReturn(ENVIRONMENT);
 
     LegacyFeaturedModDeploymentTask task = mock(LegacyFeaturedModDeploymentTask.class);
-    when(task.setConfiguration(any())).thenReturn(task);
+    when(task.setFeaturedMod(any())).thenReturn(task);
     when(applicationContext.getBean(LegacyFeaturedModDeploymentTask.class)).thenReturn(task);
 
     instance.deploy(deployment);

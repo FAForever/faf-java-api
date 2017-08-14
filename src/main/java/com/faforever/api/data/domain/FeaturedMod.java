@@ -21,6 +21,9 @@ public class FeaturedMod {
   private int order;
   private String gitUrl;
   private String gitBranch;
+  private String fileExtension;
+  /** Whether overriding an existing version is allowed. */
+  private boolean allowOverride;
 
   @Id
   @Column(name = "id")
@@ -61,5 +64,15 @@ public class FeaturedMod {
   @Column(name = "git_branch")
   public String getGitBranch() {
     return gitBranch;
+  }
+
+  @Column(name = "file_extension")
+  public String getFileExtension() {
+    return fileExtension;
+  }
+
+  @Column(name = "allow_override")
+  public boolean isAllowOverride() {
+    return allowOverride;
   }
 }

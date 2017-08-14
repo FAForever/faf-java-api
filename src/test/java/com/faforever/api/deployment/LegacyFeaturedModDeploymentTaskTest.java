@@ -2,7 +2,7 @@ package com.faforever.api.deployment;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.Deployment;
-import com.faforever.api.config.FafApiProperties.Deployment.DeploymentConfiguration;
+import com.faforever.api.data.domain.FeaturedMod;
 import com.faforever.api.deployment.git.GitWrapper;
 import com.faforever.api.featuredmods.FeaturedModFile;
 import com.faforever.api.featuredmods.FeaturedModService;
@@ -67,19 +67,18 @@ public class LegacyFeaturedModDeploymentTaskTest {
 
   @Test
   public void testRunNoFileIds() throws Exception {
-    instance.setConfiguration(new DeploymentConfiguration()
-        .setBranch("branch")
-        .setModFilesExtension("nx3")
-        .setModName("faf")
-        .setReplaceExisting(true)
-        .setRepositoryUrl("git@example.com/FAForever/faf"));
+    instance.setFeaturedMod(new FeaturedMod()
+      .setGitBranch("branch")
+      .setFileExtension("nx2")
+      .setTechnicalName("faf")
+      .setGitUrl("https://example.com/FAForever/faf"));
 
     Mockito.doAnswer(invocation -> {
       Path repoFolder = invocation.getArgument(0);
       Files.createDirectories(repoFolder.resolve("someDir"));
       Files.copy(
-          LegacyFeaturedModDeploymentTaskTest.class.getResourceAsStream("/featured_mod/mod_info.lua"),
-          repoFolder.resolve("mod_info.lua")
+        LegacyFeaturedModDeploymentTaskTest.class.getResourceAsStream("/featured_mod/mod_info.lua"),
+        repoFolder.resolve("mod_info.lua")
       );
       return null;
     }).when(gitWrapper).checkoutRef(any(), any());
@@ -98,29 +97,28 @@ public class LegacyFeaturedModDeploymentTaskTest {
   @Test
   @SuppressWarnings("unchecked")
   public void testRun() throws Exception {
-    instance.setConfiguration(new DeploymentConfiguration()
-        .setBranch("branch")
-        .setModFilesExtension("nx3")
-        .setModName("faf")
-        .setReplaceExisting(true)
-        .setRepositoryUrl("git@example.com/FAForever/faf"));
+    instance.setFeaturedMod(new FeaturedMod()
+      .setGitBranch("branch")
+      .setFileExtension("nx3")
+      .setTechnicalName("faf")
+      .setGitUrl("https://example.com/FAForever/faf"));
 
     Mockito.doAnswer(invocation -> {
       Path repoFolder = invocation.getArgument(0);
       Files.createDirectories(repoFolder.resolve("someDir"));
       Files.copy(
-          LegacyFeaturedModDeploymentTaskTest.class.getResourceAsStream("/featured_mod/mod_info.lua"),
-          repoFolder.resolve("mod_info.lua")
+        LegacyFeaturedModDeploymentTaskTest.class.getResourceAsStream("/featured_mod/mod_info.lua"),
+        repoFolder.resolve("mod_info.lua")
       );
       Files.copy(LegacyFeaturedModDeploymentTaskTest.class.getResourceAsStream("/featured_mod/someDir/someFile"),
-          repoFolder.resolve("someDir/someFile")
+        repoFolder.resolve("someDir/someFile")
       );
       return null;
     }).when(gitWrapper).checkoutRef(any(), any());
 
     when(featuredModService.getFileIds("faf")).thenReturn(ImmutableMap.of(
-        "ForgedAlliance.exe", (short) 1,
-        "someDir.nx3", (short) 2
+      "ForgedAlliance.exe", (short) 1,
+      "someDir.nx3", (short) 2
     ));
 
     Path dummyExe = repositoriesFolder.getRoot().toPath().resolve("TemplateForgedAlliance.exe");

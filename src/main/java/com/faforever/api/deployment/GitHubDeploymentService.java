@@ -1,7 +1,8 @@
 package com.faforever.api.deployment;
 
 import com.faforever.api.config.FafApiProperties;
-import com.faforever.api.config.FafApiProperties.Deployment.DeploymentConfiguration;
+import com.faforever.api.data.domain.FeaturedMod;
+import com.faforever.api.featuredmods.FeaturedModService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -21,24 +22,26 @@ public class GitHubDeploymentService {
   private final ApplicationContext applicationContext;
   private final FafApiProperties fafApiProperties;
   private final ObjectMapper objectMapper;
+  private final FeaturedModService featuredModService;
 
-  public GitHubDeploymentService(ApplicationContext applicationContext, FafApiProperties fafApiProperties, ObjectMapper objectMapper) {
+  public GitHubDeploymentService(ApplicationContext applicationContext, FafApiProperties fafApiProperties,
+                                 ObjectMapper objectMapper, FeaturedModService featuredModService) {
     this.applicationContext = applicationContext;
     this.fafApiProperties = fafApiProperties;
     this.objectMapper = objectMapper;
+    this.featuredModService = featuredModService;
   }
 
   @SneakyThrows
-  public void createDeploymentIfEligible(Push push) {
+  void createDeploymentIfEligible(Push push) {
     String ref = push.getRef();
-    Optional<DeploymentConfiguration> optional = fafApiProperties.getDeployment().getConfigurations().stream()
-        .filter(configuration ->
-            push.getRepository().gitHttpTransportUrl().equals(configuration.getRepositoryUrl())
-                && push.getRef().replace("refs/heads/", "").equals(configuration.getBranch()))
-        .findFirst();
+    String httpUrl = push.getRepository().gitHttpTransportUrl();
+    String branch = push.getRef().replace("refs/heads/", "");
+
+    Optional<FeaturedMod> optional = featuredModService.findByGitUrlAndGitBranch(httpUrl, branch);
 
     if (!optional.isPresent()) {
-      log.warn("No configuration present for repository '{}' and ref '{}'", push.getRepository().gitHttpTransportUrl(), push.getRef());
+      log.warn("No configuration present for repository '{}' and branch '{}'", httpUrl, branch);
       return;
     }
 
@@ -53,7 +56,7 @@ public class GitHubDeploymentService {
 
   @Async
   @SneakyThrows
-  public void deploy(GHDeployment deployment) {
+  void deploy(GHDeployment deployment) {
     String environment = deployment.getEnvironment();
     if (!fafApiProperties.getGitHub().getDeploymentEnvironment().equals(environment)) {
       log.warn("Ignoring deployment for environment: {}", environment);
@@ -61,7 +64,7 @@ public class GitHubDeploymentService {
     }
 
     applicationContext.getBean(LegacyFeaturedModDeploymentTask.class)
-        .setConfiguration(objectMapper.readValue(deployment.getPayload(), DeploymentConfiguration.class))
+      .setFeaturedMod(objectMapper.readValue(deployment.getPayload(), FeaturedMod.class))
         .run();
   }
 }

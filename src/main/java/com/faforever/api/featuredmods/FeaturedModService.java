@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class FeaturedModService {
@@ -39,5 +40,9 @@ public class FeaturedModService {
 
   public Map<String, Short> getFileIds(String modName) {
     return legacyFeaturedModFileRepository.getFileIds(modName);
+  }
+
+  public Optional<FeaturedMod> findByGitUrlAndGitBranch(String url, String branch) {
+    return featuredModRepository.findByGitUrlAndGitBranch(url, branch);
   }
 }
