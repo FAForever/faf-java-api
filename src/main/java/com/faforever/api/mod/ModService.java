@@ -10,6 +10,7 @@ import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.utils.FilePermissionUtil;
 import com.faforever.commons.mod.ModReader;
+import com.google.common.primitives.Ints;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -153,6 +154,9 @@ public class ModService {
     }
     if (modInfo.getVersion() == null) {
       errors.add(new Error(ErrorCode.MOD_VERSION_MISSING));
+    }
+    if (Ints.tryParse(modInfo.getVersion().toString()) == null) {
+      errors.add(new Error(ErrorCode.MOD_VERSION_NOT_A_NUMBER, modInfo.getVersion().toString()));
     }
     if (modInfo.getDescription() == null) {
       errors.add(new Error(ErrorCode.MOD_DESCRIPTION_MISSING));
