@@ -3,6 +3,7 @@ package com.faforever.api.deployment;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.Deployment;
 import com.faforever.api.config.FafApiProperties.Deployment.DeploymentConfiguration;
+import com.faforever.api.data.domain.FeaturedMod;
 import com.faforever.api.deployment.git.GitWrapper;
 import com.faforever.api.featuredmods.FeaturedModFile;
 import com.faforever.api.featuredmods.FeaturedModService;
@@ -84,6 +85,9 @@ public class LegacyFeaturedModDeploymentTaskTest {
       return null;
     }).when(gitWrapper).checkoutRef(any(), any());
 
+    when(featuredModService.getFeaturedMods()).thenReturn(Collections.singletonList(
+      new FeaturedMod().setTechnicalName("faf")
+    ));
     when(featuredModService.getFileIds("faf")).thenReturn(Collections.emptyMap());
 
     Path dummyExe = repositoriesFolder.getRoot().toPath().resolve("TemplateForgedAlliance.exe");
@@ -118,6 +122,9 @@ public class LegacyFeaturedModDeploymentTaskTest {
       return null;
     }).when(gitWrapper).checkoutRef(any(), any());
 
+    when(featuredModService.getFeaturedMods()).thenReturn(Collections.singletonList(
+      new FeaturedMod().setTechnicalName("faf")
+    ));
     when(featuredModService.getFileIds("faf")).thenReturn(ImmutableMap.of(
         "ForgedAlliance.exe", (short) 1,
         "someDir.nx3", (short) 2
