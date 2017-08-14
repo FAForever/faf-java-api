@@ -45,6 +45,11 @@ faf-api:
         modName: phantomx
         modFilesExtension: phx
         replaceExisting: false
+      - repositoryUrl: https://github.com/Nomads-Project/nomads.git
+        branch: master
+        modName: nomads
+        modFilesExtension: nmd
+        replaceExisting: false
   registration:
     activation-url-format: ${ACTIVATION_URL_FORMAT}
   mail:
