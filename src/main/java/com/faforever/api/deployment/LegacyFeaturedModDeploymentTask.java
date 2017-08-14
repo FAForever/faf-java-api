@@ -19,6 +19,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import javax.transaction.Transactional;
+import javax.transaction.Transactional.TxType;
 import javax.validation.ValidationException;
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +37,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -62,6 +65,9 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   @Setter
   private FeaturedMod featuredMod;
 
+  @Setter
+  private Consumer<String> statusDescriptionListener;
+
   public LegacyFeaturedModDeploymentTask(GitWrapper gitWrapper, FeaturedModService featuredModService, FafApiProperties apiProperties) {
     this.gitWrapper = gitWrapper;
     this.featuredModService = featuredModService;
@@ -70,6 +76,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
 
   @Override
   @SneakyThrows
+  @Transactional(TxType.MANDATORY)
   public void run() {
     Assert.state(featuredMod != null, "Configuration must be set");
     String modName = featuredMod.getTechnicalName();
@@ -150,6 +157,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   }
 
   private void updateDatabase(List<StagedFile> files, short version, String modName) {
+    updateStatus("Updating database");
     List<FeaturedModFile> featuredModFiles = files.stream()
       .map(file -> new FeaturedModFile()
         .setMd5(noCatch(() -> hash(file.getTargetFile().toFile(), md5())).toString())
@@ -162,6 +170,10 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     featuredModService.save(modName, version, featuredModFiles);
   }
 
+  private void updateStatus(String message) {
+    Optional.ofNullable(statusDescriptionListener).ifPresent(listener -> listener.accept(message));
+  }
+
   /**
    * Reads all directories (except directories starting with {@code .}), zips their contents and moves the result to the
    * target folder.
@@ -170,6 +182,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
    */
   @SneakyThrows
   private List<StagedFile> packageDirectories(Path repositoryDirectory, short version, Map<String, Short> fileIds, Path targetFolder) {
+    updateStatus("Packaging files");
     try (Stream<Path> stream = Files.list(repositoryDirectory)) {
       return stream
         .filter((path) -> Files.isDirectory(path) && !path.getFileName().toString().startsWith("."))
@@ -226,6 +239,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     } else {
       gitWrapper.fetch(repositoryDirectory);
     }
+    updateStatus("Updating repository");
     gitWrapper.checkoutRef(repositoryDirectory, "refs/remotes/origin/" + branch);
   }
 

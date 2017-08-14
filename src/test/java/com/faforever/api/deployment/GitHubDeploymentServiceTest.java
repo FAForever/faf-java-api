@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kohsuke.github.GHDeployment;
 import org.kohsuke.github.GHDeploymentBuilder;
+import org.kohsuke.github.GHDeploymentStatusBuilder;
+import org.kohsuke.github.GHEventPayload.Deployment;
 import org.kohsuke.github.GHEventPayload.Push;
 import org.kohsuke.github.GHRepository;
 import org.mockito.Mock;
@@ -16,6 +18,7 @@ import org.springframework.context.ApplicationContext;
 
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -91,7 +94,12 @@ public class GitHubDeploymentServiceTest {
   public void deployEnvironmentMismatch() throws Exception {
     apiProperties.getGitHub().setDeploymentEnvironment(ENVIRONMENT);
 
-    instance.deploy(new GHDeployment());
+    Deployment deployment = mock(Deployment.class);
+    GHDeployment ghDeployment = mock(GHDeployment.class);
+    when(deployment.getDeployment()).thenReturn(ghDeployment);
+    when(ghDeployment.getEnvironment()).thenReturn("foobar");
+
+    instance.deploy(deployment);
 
     verify(applicationContext, never()).getBean(LegacyFeaturedModDeploymentTask.class);
   }
@@ -100,17 +108,42 @@ public class GitHubDeploymentServiceTest {
   public void deployEnvironmentMatch() throws Exception {
     apiProperties.getGitHub().setDeploymentEnvironment(ENVIRONMENT);
 
-    GHDeployment deployment = mock(GHDeployment.class);
-    when(deployment.getEnvironment()).thenReturn(ENVIRONMENT);
-    when(deployment.getPayload()).thenReturn("faf");
+    // Couldn't be mocked since calling ghDeployment.getId() threw an NPE
+    GHDeployment ghDeployment = new GHDeployment() {
+      @Override
+      public int getId() {
+        return 1;
+      }
+
+      @Override
+      public String getEnvironment() {
+        return ENVIRONMENT;
+      }
+
+      @Override
+      public String getPayload() {
+        return "faf";
+      }
+    };
+
+    Deployment deployment = mock(Deployment.class);
+    when(deployment.getDeployment()).thenReturn(ghDeployment);
+    GHRepository ghRepository = mock(GHRepository.class);
+
+    GHDeploymentStatusBuilder builder = mock(GHDeploymentStatusBuilder.class);
+    when(builder.description(any())).thenReturn(builder);
+    when(ghRepository.createDeployStatus(anyInt(), any())).thenReturn(builder);
+    when(deployment.getRepository()).thenReturn(ghRepository);
 
     LegacyFeaturedModDeploymentTask task = mock(LegacyFeaturedModDeploymentTask.class);
     when(task.setFeaturedMod(any())).thenReturn(task);
+    when(task.setStatusDescriptionListener(any())).thenReturn(task);
     when(applicationContext.getBean(LegacyFeaturedModDeploymentTask.class)).thenReturn(task);
     when(featuredModService.findModByTechnicalName("faf")).thenReturn(Optional.of(new FeaturedMod()));
 
     instance.deploy(deployment);
 
     verify(task).run();
+    verify(builder).create();
   }
 }
