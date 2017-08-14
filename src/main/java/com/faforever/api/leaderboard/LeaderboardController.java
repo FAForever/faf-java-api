@@ -32,18 +32,18 @@ public class LeaderboardController {
   @ApiOperation("Lists the ladder1v1 leaderboard")
   public CompletableFuture<JsonApiDocument> getLadder1v1() {
     List<Resource> values = leaderboardService.getLadder1v1Leaderboard().stream()
-        .map(entry -> new Resource(LADDER_1V1_LEADERBOARD_ENTRY, String.valueOf(entry.getId()),
-            ImmutableMap.<String, Object>builder()
-                .put("name", entry.getPlayerName())
-                .put("mean", entry.getMean())
-                .put("deviation", entry.getDeviation())
-                .put("numGames", entry.getNumGames())
-                .put("wonGames", entry.getWonGames())
-                .put("rank", entry.getRank())
-                .put("rating", (int) (entry.getMean() - 3 * entry.getDeviation()))
-                .build(),
-            null, null, null))
-        .collect(Collectors.toList());
+      .map(entry -> new Resource(LADDER_1V1_LEADERBOARD_ENTRY, String.valueOf(entry.getId()),
+        ImmutableMap.<String, Object>builder()
+          .put("name", entry.getPlayerName())
+          .put("mean", entry.getMean())
+          .put("deviation", entry.getDeviation())
+          .put("numGames", entry.getNumGames())
+          .put("wonGames", entry.getWonGames())
+          .put("rank", entry.getRank())
+          .put("rating", (int) (entry.getMean() - 3 * entry.getDeviation()))
+          .build(),
+        null, null, null))
+      .collect(Collectors.toList());
 
     return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(values)));
   }
@@ -53,17 +53,17 @@ public class LeaderboardController {
   @ApiOperation("Lists the global leaderboard")
   public CompletableFuture<JsonApiDocument> getGlobal() {
     List<Resource> values = leaderboardService.getGlobalLeaderboard().stream()
-        .map(entry -> new Resource(GLOBAL_LEADERBOARD_ENTRY, String.valueOf(entry.getId()),
-            ImmutableMap.<String, Object>builder()
-                .put("name", entry.getPlayerName())
-                .put("mean", entry.getMean())
-                .put("deviation", entry.getDeviation())
-                .put("numGames", entry.getNumGames())
-                .put("rank", entry.getRank())
-                .put("rating", (int) (entry.getMean() - 3 * entry.getDeviation()))
-                .build(),
-            null, null, null))
-        .collect(Collectors.toList());
+      .map(entry -> new Resource(GLOBAL_LEADERBOARD_ENTRY, String.valueOf(entry.getId()),
+        ImmutableMap.<String, Object>builder()
+          .put("name", entry.getPlayerName())
+          .put("mean", entry.getMean())
+          .put("deviation", entry.getDeviation())
+          .put("numGames", entry.getNumGames())
+          .put("rank", entry.getRank())
+          .put("rating", (int) (entry.getMean() - 3 * entry.getDeviation()))
+          .build(),
+        null, null, null))
+      .collect(Collectors.toList());
 
     return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(values)));
   }
@@ -74,19 +74,19 @@ public class LeaderboardController {
   public CompletableFuture<JsonApiDocument> getSingleLadder1v1(@PathVariable("playerId") String playerId) {
     Ladder1v1LeaderboardEntry entry = leaderboardService.getLadder1v1Entry(Integer.valueOf(playerId));
     if (entry == null) {
-      throw new ResourceNotFoundException();
+      throw new ResourceNotFoundException("No ladder1v1 entry found for player: " + playerId);
     }
 
     Resource resource = new Resource(LADDER_1V1_LEADERBOARD_ENTRY, playerId, ImmutableMap.<String, Object>builder()
-        .put("name", entry.getPlayerName())
-        .put("mean", entry.getMean())
-        .put("deviation", entry.getDeviation())
-        .put("numGames", entry.getNumGames())
-        .put("wonGames", entry.getWonGames())
-        .put("rank", entry.getRank())
-        .put("rating", (int) (entry.getMean() - 3 * entry.getDeviation()))
-        .build(),
-        null, null, null);
+      .put("name", entry.getPlayerName())
+      .put("mean", entry.getMean())
+      .put("deviation", entry.getDeviation())
+      .put("numGames", entry.getNumGames())
+      .put("wonGames", entry.getWonGames())
+      .put("rank", entry.getRank())
+      .put("rating", (int) (entry.getMean() - 3 * entry.getDeviation()))
+      .build(),
+      null, null, null);
 
     return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(resource)));
   }
@@ -97,18 +97,18 @@ public class LeaderboardController {
   public CompletableFuture<JsonApiDocument> getSingleGlobal(@PathVariable("playerId") String playerId) {
     GlobalLeaderboardEntry entry = leaderboardService.getGlobalEntry(Integer.valueOf(playerId));
     if (entry == null) {
-      throw new ResourceNotFoundException();
+      throw new ResourceNotFoundException("No global leaderboard entry found for player: " + playerId);
     }
 
     Resource resource = new Resource(GLOBAL_LEADERBOARD_ENTRY, playerId, ImmutableMap.<String, Object>builder()
-        .put("name", entry.getPlayerName())
-        .put("mean", entry.getMean())
-        .put("deviation", entry.getDeviation())
-        .put("numGames", entry.getNumGames())
-        .put("rank", entry.getRank())
-        .put("rating", (int) (entry.getMean() - 3 * entry.getDeviation()))
-        .build(),
-        null, null, null);
+      .put("name", entry.getPlayerName())
+      .put("mean", entry.getMean())
+      .put("deviation", entry.getDeviation())
+      .put("numGames", entry.getNumGames())
+      .put("rank", entry.getRank())
+      .put("rating", (int) (entry.getMean() - 3 * entry.getDeviation()))
+      .build(),
+      null, null, null);
 
     return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(resource)));
   }
