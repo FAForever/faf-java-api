@@ -8,7 +8,6 @@ import com.faforever.api.featuredmods.FeaturedModFile;
 import com.faforever.api.featuredmods.FeaturedModService;
 import com.faforever.commons.fa.ForgedAllianceExePatcher;
 import com.faforever.commons.mod.ModReader;
-import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import lombok.Data;
 import lombok.Setter;
@@ -33,9 +32,9 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,8 +45,8 @@ import static java.nio.file.Files.createDirectories;
 
 /**
  * Checks out a specific ref of a featured mod's Git repository and performs the required steps in order to deploy it.
- * At this point, this mechanism is rather ridiculous but that's what legacy products of uneducated people often are.
- * I hope that we'll be able to introduce a sane mechanism that doesn't require a database pretty soon.
+ * At this point, this mechanism is rather ridiculous but that's what legacy products of uneducated people often are. I
+ * hope that we'll be able to introduce a sane mechanism that doesn't require a database pretty soon.
  */
 @Slf4j
 @Component
@@ -55,7 +54,6 @@ import static java.nio.file.Files.createDirectories;
 public class LegacyFeaturedModDeploymentTask implements Runnable {
 
   private static final String NON_WORD_CHARACTER_PATTERN = "[^\\w]";
-  private static final Set<String> VALID_MOD_NAMES = Sets.newHashSet("faf", "fafbeta", "fafdevelop");
 
   private final GitWrapper gitWrapper;
   private final FeaturedModService featuredModService;
@@ -75,7 +73,9 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   public void run() {
     Assert.state(configuration != null, "Configuration must be set");
     String modName = configuration.getModName();
-    Assert.state(VALID_MOD_NAMES.contains(modName), "Unsupported mod: " + modName);
+
+    Assert.state(featuredModService.getFeaturedMods().stream()
+      .anyMatch(featuredMod -> Objects.equals(featuredMod.getTechnicalName(), modName)), "Unknown mod: " + modName);
 
     String repositoryUrl = configuration.getRepositoryUrl();
     String branch = configuration.getBranch();
@@ -84,7 +84,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     Map<String, Short> fileIds = featuredModService.getFileIds(modName);
 
     log.info("Starting deployment of '{}' from '{}', branch '{}', replaceExisting '{}', modFilesExtension '{}'",
-        modName, repositoryUrl, branch, replaceExisting, modFilesExtension);
+      modName, repositoryUrl, branch, replaceExisting, modFilesExtension);
 
     Path repositoryDirectory = buildRepositoryDirectoryPath(repositoryUrl);
     checkoutCode(repositoryDirectory, repositoryUrl, branch);
@@ -139,9 +139,9 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
       // Normally I'd create a proper query, but this is a hotfix and a protest against the DB-driven patcher
       // Luckily, BiREUS is coming soon.
       OptionalInt existingVersion = featuredModService.getFiles(modName, version).stream()
-          .mapToInt(FeaturedModFile::getVersion)
-          .filter(value -> value == version)
-          .findFirst();
+        .mapToInt(FeaturedModFile::getVersion)
+        .filter(value -> value == version)
+        .findFirst();
 
       if (existingVersion.isPresent()) {
         throw new ValidationException(String.format("Version '%s' of mod '%s' already exists", version, modName));
@@ -151,20 +151,20 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
 
   private void updateDatabase(List<StagedFile> files, short version, String modName) {
     List<FeaturedModFile> featuredModFiles = files.stream()
-        .map(file -> new FeaturedModFile()
-            .setMd5(noCatch(() -> hash(file.getTargetFile().toFile(), md5())).toString())
-            .setFileId(file.getFileId())
-            .setName(file.getTargetFile().getFileName().toString())
-            .setVersion(version)
-        )
-        .collect(Collectors.toList());
+      .map(file -> new FeaturedModFile()
+        .setMd5(noCatch(() -> hash(file.getTargetFile().toFile(), md5())).toString())
+        .setFileId(file.getFileId())
+        .setName(file.getTargetFile().getFileName().toString())
+        .setVersion(version)
+      )
+      .collect(Collectors.toList());
 
     featuredModService.save(modName, version, featuredModFiles);
   }
 
   /**
-   * Reads all directories (except directories starting with {@code .}), zips their contents and moves the result to
-   * the target folder.
+   * Reads all directories (except directories starting with {@code .}), zips their contents and moves the result to the
+   * target folder.
    *
    * @return the list of deployed files
    */
@@ -172,11 +172,11 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   private List<StagedFile> packageDirectories(Path repositoryDirectory, short version, Map<String, Short> fileIds, Path targetFolder) {
     try (Stream<Path> stream = Files.list(repositoryDirectory)) {
       return stream
-          .filter((path) -> Files.isDirectory(path) && !path.getFileName().toString().startsWith("."))
-          .map(path -> packDirectory(path, version, targetFolder, fileIds))
-          .filter(Optional::isPresent)
-          .map(Optional::get)
-          .collect(Collectors.toList());
+        .filter((path) -> Files.isDirectory(path) && !path.getFileName().toString().startsWith("."))
+        .map(path -> packDirectory(path, version, targetFolder, fileIds))
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .collect(Collectors.toList());
     }
   }
 
@@ -239,9 +239,9 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   }
 
   /**
-   * Since Java's ZIP implementation uses data descriptors, which FA doesn't implement and therefore cant' read,
-   * this implementation uses Apache's commons compress which doesn't use data descriptors as long as the target is a
-   * file or a seekable byte channel.
+   * Since Java's ZIP implementation uses data descriptors, which FA doesn't implement and therefore cant' read, this
+   * implementation uses Apache's commons compress which doesn't use data descriptors as long as the target is a file or
+   * a seekable byte channel.
    */
   private void zipDirectory(Path directoryToZip, ZipArchiveOutputStream outputStream) throws IOException {
     Files.walkFileTree(directoryToZip, new SimpleFileVisitor<Path>() {
@@ -257,8 +257,8 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
       public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
         log.trace("Zipping file {}", file.toAbsolutePath());
         outputStream.putArchiveEntry(new ZipArchiveEntry(
-            file.toFile(),
-            directoryToZip.getParent().relativize(file).toString().replace(File.separatorChar, '/'))
+          file.toFile(),
+          directoryToZip.getParent().relativize(file).toString().replace(File.separatorChar, '/'))
         );
 
         try (InputStream inputStream = Files.newInputStream(file)) {
