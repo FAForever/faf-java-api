@@ -40,6 +40,11 @@ faf-api:
         modName: fafdevelop
         modFilesExtension: nx5
         replaceExisting: true
+      - repositoryUrl: https://github.com/FAForever/faf-phantomx.git
+        branch: master
+        modName: phantomx
+        modFilesExtension: phx
+        replaceExisting: false
   registration:
     activation-url-format: ${ACTIVATION_URL_FORMAT}
   mail:
