@@ -1,5 +1,6 @@
 package com.faforever.api.config.security;
 
+import com.faforever.api.config.ApplicationProfile;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -29,7 +30,7 @@ import java.util.regex.Pattern;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Inject
-  @Profile("dev")
+  @Profile(ApplicationProfile.DEVELOPMENT)
   public void developUserDetails(AuthenticationManagerBuilder auth) throws Exception {
     auth.inMemoryAuthentication()
       .withUser("user").password("user").roles("USER")

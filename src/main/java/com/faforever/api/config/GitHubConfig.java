@@ -10,13 +10,13 @@ import java.io.IOException;
 @Configuration
 public class GitHubConfig {
   @Bean
-  @Profile("!dev")
+  @Profile("!" + ApplicationProfile.DEVELOPMENT)
   public GitHub gitHub(FafApiProperties fafApiProperties) throws IOException {
     return GitHub.connectUsingOAuth(fafApiProperties.getGitHub().getAccessToken());
   }
 
   @Bean
-  @Profile("dev")
+  @Profile(ApplicationProfile.DEVELOPMENT)
   public GitHub offlineGitHub() {
     return GitHub.offline();
   }
