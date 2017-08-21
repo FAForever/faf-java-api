@@ -90,7 +90,7 @@ public class BanInfo extends AbstractEntity {
     if (getDuration() == BanDurationType.PERMANENT) {
       return BanStatus.BANNED;
     }
-    return expiresAt.isBefore(OffsetDateTime.now())
+    return expiresAt.isAfter(OffsetDateTime.now())
       ? BanStatus.BANNED
       : BanStatus.EXPIRED;
   }
