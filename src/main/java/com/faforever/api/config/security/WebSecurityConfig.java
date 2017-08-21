@@ -1,11 +1,15 @@
 package com.faforever.api.config.security;
 
 import com.faforever.api.config.ApplicationProfile;
+import com.google.common.collect.ImmutableMap;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -13,6 +17,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -68,7 +74,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
       })
       .and().headers()
       .cacheControl().disable()
-      .and().formLogin().loginPage("/login").permitAll()
+      .and().formLogin()
+        .loginPage("/login").permitAll()
+        .failureHandler(authenticationFailureHandler())
       .and().authorizeRequests()
         .antMatchers(HttpMethod.OPTIONS).permitAll()
         .antMatchers("/oauth/**").permitAll()
@@ -89,5 +97,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
           .allowedMethods("*");
       }
     };
+  }
+
+  @Bean
+  public AuthenticationFailureHandler authenticationFailureHandler() {
+    ImmutableMap<Object, String> exceptionMappings = ImmutableMap.<Object, String>builder()
+      .put(InternalAuthenticationServiceException.class.getCanonicalName(), "/login?error=serverError")
+      .put(BadCredentialsException.class.getCanonicalName(), "/login?error=badCredentials")
+      .put(LockedException.class.getCanonicalName(), "/login?error=locked")
+      .build();
+
+    final ExceptionMappingAuthenticationFailureHandler result = new ExceptionMappingAuthenticationFailureHandler();
+    result.setExceptionMappings(exceptionMappings);
+    result.setDefaultFailureUrl("/login?error=unknown");
+    return result;
   }
 }

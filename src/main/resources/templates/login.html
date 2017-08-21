@@ -112,11 +112,15 @@
 
   <form name="f" th:action="@{/login}" method="post">
     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null }"/>
-    <div th:if="${param.error}" class="alert alert-error">
-      Invalid username and password.
+    <div th:switch="${param.error[0]}" th:unless="${param.error == null}" class="alert alert-error">
+      <p th:case="'serverError'">A server error occurred. Please contact an administrator.</p>
+      <p th:case="'badCredentials'">Invalid username or password.</p>
+      <p th:case="'locked'">Your account is currently locked. If you are unsure why or for how long, please contact a
+        moderator.</p>
+      <p th:case="'unknown'">Login failed for unknown reason, please contact an administrator.</p>
     </div>
     <div th:if="${param.logout}" class="alert alert-success">
-      You have been logged out.
+      <p>You have been logged out.</p>
     </div>
     <input type="text" id="username" name="username" placeholder="Username"/>
     <input type="password" id="password" name="password" placeholder="Password"/>
