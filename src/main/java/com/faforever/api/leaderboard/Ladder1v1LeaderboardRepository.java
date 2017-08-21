@@ -17,7 +17,7 @@ public interface Ladder1v1LeaderboardRepository extends Repository<Ladder1v1Lead
       "    @s \\:= @s + 1 rank" +
       "  FROM ladder1v1_rating JOIN login on login.id = ladder1v1_rating.id," +
       "    (SELECT @s \\:= 0) AS s" +
-      "  WHERE is_active = 1" +
+    "  WHERE is_active = 1 AND ladder1v1_rating.numGames > 0" +
       "  ORDER BY round(mean - 3 * deviation) DESC", nativeQuery = true)
   List<Ladder1v1LeaderboardEntry> getLeaderboard();
 
