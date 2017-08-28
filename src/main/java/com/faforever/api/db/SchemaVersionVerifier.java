@@ -13,7 +13,7 @@ import java.util.Objects;
 @Profile(ApplicationProfile.PRODUCTION)
 public class SchemaVersionVerifier implements PriorityOrdered {
 
-  private static final String DB_COMPATIBILITY_VERSION = "35";
+  private static final String DB_COMPATIBILITY_VERSION = "43";
 
   private final SchemaVersionRepository schemaVersionRepository;
 
