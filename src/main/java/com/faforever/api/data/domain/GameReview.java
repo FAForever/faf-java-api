@@ -11,14 +11,12 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
 @Setter
 @Include(rootLevel = true, type = "gameReview")
 @Entity
 @Table(name = "game_review")
-@PrimaryKeyJoinColumn(name = "review_id", referencedColumnName = "id")
 @CreatePermission(expression = "Prefab.Role.All")
 @DeletePermission(expression = IsReviewOwner.EXPRESSION)
 public class GameReview extends Review {
