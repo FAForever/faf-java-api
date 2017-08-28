@@ -18,6 +18,9 @@ import com.yahoo.elide.datastores.hibernate5.HibernateStore;
 import com.yahoo.elide.datastores.hibernate5.HibernateStore.Builder;
 import com.yahoo.elide.jsonapi.JsonApiMapper;
 import com.yahoo.elide.security.checks.Check;
+import com.yahoo.elide.utils.coerce.CoerceUtil;
+import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.beanutils.Converter;
 import org.hibernate.SessionFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.interceptor.AbstractCacheResolver;
@@ -29,6 +32,8 @@ import org.springframework.web.servlet.HandlerMapping;
 
 import javax.persistence.EntityManagerFactory;
 import javax.servlet.http.HttpServletRequest;
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,13 +47,36 @@ public class ElideConfig {
 
     HibernateStore hibernateStore = new Builder(entityManagerFactory.unwrap(SessionFactory.class)).build();
 
+    registerAdditionalConverters();
+
     return new Elide(new ElideSettingsBuilder(hibernateStore)
-        .withJsonApiMapper(new JsonApiMapper(entityDictionary, objectMapper))
-        .withAuditLogger(new Slf4jLogger())
-        .withEntityDictionary(entityDictionary)
-        .withJoinFilterDialect(rsqlFilterDialect)
-        .withSubqueryFilterDialect(rsqlFilterDialect)
-        .build());
+      .withJsonApiMapper(new JsonApiMapper(entityDictionary, objectMapper))
+      .withAuditLogger(new Slf4jLogger())
+      .withEntityDictionary(entityDictionary)
+      .withJoinFilterDialect(rsqlFilterDialect)
+      .withSubqueryFilterDialect(rsqlFilterDialect)
+      .build());
+  }
+
+  /**
+   * See https://github.com/yahoo/elide/issues/428.
+   */
+  private void registerAdditionalConverters() {
+    CoerceUtil.coerce("", String.class);
+    ConvertUtils.register(new Converter() {
+      @Override
+      @SuppressWarnings("unchecked")
+      public <T> T convert(Class<T> type, Object value) {
+        return (T) OffsetDateTime.parse(String.valueOf(value));
+      }
+    }, OffsetDateTime.class);
+    ConvertUtils.register(new Converter() {
+      @Override
+      @SuppressWarnings("unchecked")
+      public <T> T convert(Class<T> type, Object value) {
+        return (T) Instant.parse(String.valueOf(value));
+      }
+    }, Instant.class);
   }
 
   @Bean
@@ -88,6 +116,6 @@ public class ElideConfig {
 
   private String getDataApiPath(HttpServletRequest request) {
     return ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE))
-        .replace(DataController.PATH_PREFIX, "");
+      .replace(DataController.PATH_PREFIX, "");
   }
 }
