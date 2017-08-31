@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    include: int
   datasource:
     url: jdbc:h2:mem:faf
     username: root
