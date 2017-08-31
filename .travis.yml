@@ -17,7 +17,7 @@ before_install:
 install:
   - git clone https://github.com/FAForever/faf-stack.git faf-stack
       && pushd faf-stack
-      && git checkout 0b626dd527a8ea71a19cfa65bf855ae663f78d42
+      && git checkout 024322dfef9c600f458b91baeb1b4a7326b31580
       && cp -r config.template config
       && popd
   - docker-compose -f faf-stack/docker-compose.yml up -d faf-db

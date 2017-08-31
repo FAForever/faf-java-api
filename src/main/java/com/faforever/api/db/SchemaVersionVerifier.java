@@ -1,7 +1,5 @@
 package com.faforever.api.db;
 
-import com.faforever.api.config.ApplicationProfile;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -10,7 +8,6 @@ import javax.annotation.PostConstruct;
 import java.util.Objects;
 
 @Component
-@Profile(ApplicationProfile.PRODUCTION)
 public class SchemaVersionVerifier implements PriorityOrdered {
 
   private static final String DB_COMPATIBILITY_VERSION = "43";
