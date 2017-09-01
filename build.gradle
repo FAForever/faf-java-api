@@ -281,6 +281,9 @@ dependencies {
   compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonDatatypeJsr310Version}")
   compile("com.mandrillapp.wrapper.lutung:lutung:${lutungVersion}")
   compile("org.apache.commons:commons-compress:${commonsCompressVersion}")
+  compile("io.prometheus:simpleclient_hotspot:${prometheusVersion}")
+  compile("io.prometheus:simpleclient_servlet:${prometheusVersion}")
+  compile("io.prometheus:simpleclient_spring_boot:${prometheusVersion}")
 
   runtime("mysql:mysql-connector-java:${mysqlConnectorVersion}")
 
