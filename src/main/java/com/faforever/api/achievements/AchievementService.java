@@ -16,13 +16,13 @@ import static com.faforever.api.error.ErrorCode.ACHIEVEMENT_NOT_INCREMENTAL;
 import static com.faforever.api.error.ErrorCode.ACHIEVEMENT_NOT_STANDARD;
 
 @Service
-public class AchievementsService {
+public class AchievementService {
 
   private final AchievementRepository achievementRepository;
   private final PlayerAchievementRepository playerAchievementRepository;
 
   @Inject
-  public AchievementsService(AchievementRepository achievementRepository, PlayerAchievementRepository playerAchievementRepository) {
+  public AchievementService(AchievementRepository achievementRepository, PlayerAchievementRepository playerAchievementRepository) {
     this.achievementRepository = achievementRepository;
     this.playerAchievementRepository = playerAchievementRepository;
   }

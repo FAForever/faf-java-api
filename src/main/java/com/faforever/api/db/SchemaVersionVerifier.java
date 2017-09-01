@@ -10,7 +10,7 @@ import javax.annotation.PostConstruct;
 import java.util.Objects;
 
 @Component
-@Profile(ApplicationProfile.PRODUCTION)
+@Profile("!" + ApplicationProfile.INTEGRATION_TEST)
 public class SchemaVersionVerifier implements PriorityOrdered {
 
   private static final String DB_COMPATIBILITY_VERSION = "43";
