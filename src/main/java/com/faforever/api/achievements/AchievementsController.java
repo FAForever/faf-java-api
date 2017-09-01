@@ -24,12 +24,12 @@ import java.util.stream.Collectors;
 public class AchievementsController {
 
   private static final String JSON_API_MEDIA_TYPE = "application/vnd.api+json";
-  private final AchievementsService achievementsService;
+  private final AchievementService achievementService;
   private AtomicInteger nextUpdateId;
 
   @Inject
-  public AchievementsController(AchievementsService achievementsService) {
-    this.achievementsService = achievementsService;
+  public AchievementsController(AchievementService achievementService) {
+    this.achievementService = achievementService;
     nextUpdateId = new AtomicInteger();
   }
 
@@ -43,11 +43,11 @@ public class AchievementsController {
             case REVEAL:
               throw new UnsupportedOperationException("REVEAL is not yet implemented");
             case UNLOCK:
-              return achievementsService.unlock(request.getPlayerId(), request.getAchievementId());
+              return achievementService.unlock(request.getPlayerId(), request.getAchievementId());
             case INCREMENT:
-              return achievementsService.increment(request.getPlayerId(), request.getAchievementId(), request.getSteps());
+              return achievementService.increment(request.getPlayerId(), request.getAchievementId(), request.getSteps());
             case SET_STEPS_AT_LEAST:
-              return achievementsService.setStepsAtLeast(request.getPlayerId(), request.getAchievementId(), request.getSteps());
+              return achievementService.setStepsAtLeast(request.getPlayerId(), request.getAchievementId(), request.getSteps());
             default:
               throw new ProgrammingError("Uncovered update type: " + request.getOperation());
           }

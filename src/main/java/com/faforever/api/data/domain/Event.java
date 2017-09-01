@@ -27,7 +27,7 @@ public class Event {
   private String imageUrl;
   private Type type;
 
-  // Set by AchievementLocalizationListener
+  // Set by EventLocalizationListener
   private String name;
 
   @Id

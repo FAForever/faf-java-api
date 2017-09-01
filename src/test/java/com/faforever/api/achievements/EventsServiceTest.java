@@ -29,12 +29,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AchievementsServiceTest {
+public class EventsServiceTest {
 
   private static final int PLAYER_ID = 1;
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-  private AchievementsService instance;
+  private AchievementService instance;
   @Mock
   private AchievementRepository achievementRepository;
   @Mock
@@ -49,7 +49,7 @@ public class AchievementsServiceTest {
 
   @Before
   public void setUp() throws Exception {
-    instance = new AchievementsService(achievementRepository, playerAchievementRepository);
+    instance = new AchievementService(achievementRepository, playerAchievementRepository);
   }
 
   /**
