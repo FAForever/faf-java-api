@@ -32,6 +32,7 @@ import org.springframework.web.servlet.HandlerMapping;
 
 import javax.persistence.EntityManagerFactory;
 import javax.servlet.http.HttpServletRequest;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Collection;
@@ -77,6 +78,13 @@ public class ElideConfig {
         return (T) Instant.parse(String.valueOf(value));
       }
     }, Instant.class);
+    ConvertUtils.register(new Converter() {
+      @Override
+      @SuppressWarnings("unchecked")
+      public <T> T convert(Class<T> type, Object value) {
+        return (T) Duration.parse(String.valueOf(value));
+      }
+    }, Duration.class);
   }
 
   @Bean
