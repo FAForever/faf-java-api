@@ -28,6 +28,7 @@ public class FafApiProperties {
   private Deployment deployment = new Deployment();
   private Registration registration = new Registration();
   private Mail mail = new Mail();
+  private Challonge challonge = new Challonge();
 
   @Data
   public static class OAuth2 {
@@ -159,5 +160,11 @@ public class FafApiProperties {
     private String htmlFormat;
     private String fromEmail;
     private String fromName;
+  }
+
+  @Data
+  public static class Challonge {
+    private String baseUrl = "https://api.challonge.com";
+    private String key;
   }
 }

@@ -28,7 +28,7 @@ import java.util.Map;
 @RequestMapping(path = ClansController.PATH)
 public class ClansController {
 
-  public static final String PATH = "/clans";
+  static final String PATH = "/clans";
   private final ClanService clanService;
   private final PlayerService playerService;
 
