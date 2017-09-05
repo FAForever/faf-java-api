@@ -1,8 +1,8 @@
 package com.faforever.api.deployment;
 
 import com.faforever.api.config.FafApiProperties;
-import com.faforever.api.config.FafApiProperties.Deployment.DeploymentConfiguration;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.faforever.api.data.domain.FeaturedMod;
+import com.faforever.api.featuredmods.FeaturedModService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,10 +14,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
 
-import java.util.Collections;
+import java.util.Optional;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -35,12 +34,12 @@ public class GitHubDeploymentServiceTest {
   @Mock
   private ApplicationContext applicationContext;
   @Mock
-  private ObjectMapper objectMapper;
+  private FeaturedModService featuredModService;
 
   @Before
   public void setUp() throws Exception {
     apiProperties = new FafApiProperties();
-    instance = new GitHubDeploymentService(applicationContext, apiProperties, objectMapper);
+    instance = new GitHubDeploymentService(applicationContext, apiProperties, featuredModService);
   }
 
   @Test
@@ -50,6 +49,10 @@ public class GitHubDeploymentServiceTest {
     GHRepository repository = mock(GHRepository.class);
     when(repository.gitHttpTransportUrl()).thenReturn(EXAMPLE_REPO_URL);
     when(push.getRepository()).thenReturn(repository);
+    when(push.getRef()).thenReturn("refs/heads/junit");
+
+    when(featuredModService.findByGitUrlAndGitBranch(EXAMPLE_REPO_URL, "junit"))
+      .thenReturn(Optional.empty());
 
     instance.createDeploymentIfEligible(push);
 
@@ -59,7 +62,9 @@ public class GitHubDeploymentServiceTest {
   @Test
   public void createDeploymentIfEligible() throws Exception {
     Push push = mock(Push.class);
-    when(push.getRef()).thenReturn("refs/heads/master");
+    when(push.getRef()).thenReturn("refs/heads/junit");
+    when(featuredModService.findByGitUrlAndGitBranch(EXAMPLE_REPO_URL, "junit"))
+      .thenReturn(Optional.of(new FeaturedMod().setTechnicalName("faf")));
 
     GHRepository repository = mock(GHRepository.class);
     when(repository.gitHttpTransportUrl()).thenReturn(EXAMPLE_REPO_URL);
@@ -67,21 +72,12 @@ public class GitHubDeploymentServiceTest {
     GHDeploymentBuilder deploymentBuilder = mock(GHDeploymentBuilder.class);
     when(deploymentBuilder.autoMerge(false)).thenReturn(deploymentBuilder);
     when(deploymentBuilder.environment(ENVIRONMENT)).thenReturn(deploymentBuilder);
-    when(deploymentBuilder.payload(anyString())).thenReturn(deploymentBuilder);
-    when(repository.createDeployment("refs/heads/master")).thenReturn(deploymentBuilder);
-
-    when(objectMapper.writeValueAsString(any(DeploymentConfiguration.class))).thenReturn("");
+    when(deploymentBuilder.payload("faf")).thenReturn(deploymentBuilder);
+    when(repository.createDeployment("refs/heads/junit")).thenReturn(deploymentBuilder);
 
     when(push.getRepository()).thenReturn(repository);
 
     apiProperties.getGitHub().setDeploymentEnvironment(ENVIRONMENT);
-    apiProperties.getDeployment().setConfigurations(Collections.singletonList(
-        new DeploymentConfiguration()
-            .setBranch("master")
-            .setModFilesExtension(".nx2")
-            .setModName("faf")
-            .setRepositoryUrl(EXAMPLE_REPO_URL)
-    ));
 
     instance.createDeploymentIfEligible(push);
 
@@ -106,10 +102,12 @@ public class GitHubDeploymentServiceTest {
 
     GHDeployment deployment = mock(GHDeployment.class);
     when(deployment.getEnvironment()).thenReturn(ENVIRONMENT);
+    when(deployment.getPayload()).thenReturn("faf");
 
     LegacyFeaturedModDeploymentTask task = mock(LegacyFeaturedModDeploymentTask.class);
-    when(task.setConfiguration(any())).thenReturn(task);
+    when(task.setFeaturedMod(any())).thenReturn(task);
     when(applicationContext.getBean(LegacyFeaturedModDeploymentTask.class)).thenReturn(task);
+    when(featuredModService.findModByTechnicalName("faf")).thenReturn(Optional.of(new FeaturedMod()));
 
     instance.deploy(deployment);
 

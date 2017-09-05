@@ -6,8 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @ConfigurationProperties(prefix = "faf-api", ignoreUnknownFields = false)
@@ -135,16 +133,6 @@ public class FafApiProperties {
     private String repositoriesDirectory;
     private String filesDirectoryFormat = "updates_%s_files";
     private String forgedAllianceExePath;
-    private List<DeploymentConfiguration> configurations = new ArrayList<>();
-
-    @Data
-    public static class DeploymentConfiguration {
-      private String repositoryUrl;
-      private String branch;
-      private String modName;
-      private String modFilesExtension;
-      private boolean replaceExisting;
-    }
   }
 
   @Data
