@@ -2,7 +2,7 @@ package com.faforever.api.deployment;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.Deployment;
-import com.faforever.api.config.FafApiProperties.Deployment.DeploymentConfiguration;
+import com.faforever.api.data.domain.FeaturedMod;
 import com.faforever.api.deployment.git.GitWrapper;
 import com.faforever.api.featuredmods.FeaturedModFile;
 import com.faforever.api.featuredmods.FeaturedModService;
@@ -60,7 +60,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   private final FafApiProperties apiProperties;
 
   @Setter
-  private DeploymentConfiguration configuration;
+  private FeaturedMod featuredMod;
 
   public LegacyFeaturedModDeploymentTask(GitWrapper gitWrapper, FeaturedModService featuredModService, FafApiProperties apiProperties) {
     this.gitWrapper = gitWrapper;
@@ -71,16 +71,16 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   @Override
   @SneakyThrows
   public void run() {
-    Assert.state(configuration != null, "Configuration must be set");
-    String modName = configuration.getModName();
+    Assert.state(featuredMod != null, "Configuration must be set");
+    String modName = featuredMod.getTechnicalName();
 
     Assert.state(featuredModService.getFeaturedMods().stream()
       .anyMatch(featuredMod -> Objects.equals(featuredMod.getTechnicalName(), modName)), "Unknown mod: " + modName);
 
-    String repositoryUrl = configuration.getRepositoryUrl();
-    String branch = configuration.getBranch();
-    boolean replaceExisting = configuration.isReplaceExisting();
-    String modFilesExtension = configuration.getModFilesExtension();
+    String repositoryUrl = featuredMod.getGitUrl();
+    String branch = featuredMod.getGitBranch();
+    boolean replaceExisting = featuredMod.isReplaceExisting();
+    String modFilesExtension = featuredMod.getFileExtension();
     Map<String, Short> fileIds = featuredModService.getFileIds(modName);
 
     log.info("Starting deployment of '{}' from '{}', branch '{}', replaceExisting '{}', modFilesExtension '{}'",
@@ -137,7 +137,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   private void verifyVersion(int version, boolean replaceExisting, String modName) {
     if (!replaceExisting) {
       // Normally I'd create a proper query, but this is a hotfix and a protest against the DB-driven patcher
-      // Luckily, BiREUS is coming soon.
+      // Luckily, BiReUS is coming "soon".
       OptionalInt existingVersion = featuredModService.getFiles(modName, version).stream()
         .mapToInt(FeaturedModFile::getVersion)
         .filter(value -> value == version)
@@ -193,17 +193,17 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   }
 
   /**
-   * Creates a ZIP file with the file ending configured in {@link #configuration}. The content of the ZIP file is the
+   * Creates a ZIP file with the file ending configured in {@link #featuredMod}. The content of the ZIP file is the
    * content of the directory. If no file ID is available, an empty optional is returned.
    */
   @SneakyThrows
   private Optional<StagedFile> packDirectory(Path directory, Short version, Path targetFolder, Map<String, Short> fileIds) {
     String directoryName = directory.getFileName().toString();
-    Path targetNxtFile = targetFolder.resolve(String.format("%s.%d.%s", directoryName, version, configuration.getModFilesExtension()));
+    Path targetNxtFile = targetFolder.resolve(String.format("%s.%d.%s", directoryName, version, featuredMod.getFileExtension()));
     Path tmpNxtFile = toTmpFile(targetNxtFile);
 
     // E.g. "effects.nx2"
-    String clientFileName = String.format("%s.%s", directoryName, configuration.getModFilesExtension());
+    String clientFileName = String.format("%s.%s", directoryName, featuredMod.getFileExtension());
     Short fileId = fileIds.get(clientFileName);
     if (fileId == null) {
       log.debug("Skipping folder '{}' because there's no file ID available", directoryName);

@@ -21,6 +21,8 @@ public class FeaturedMod {
   private int order;
   private String gitUrl;
   private String gitBranch;
+  private Boolean replaceExisting;
+  private String fileExtension;
 
   @Id
   @Column(name = "id")
@@ -61,5 +63,15 @@ public class FeaturedMod {
   @Column(name = "git_branch")
   public String getGitBranch() {
     return gitBranch;
+  }
+
+  @Column(name = "replace_existing")
+  public Boolean isReplaceExisting() {
+    return replaceExisting;
+  }
+
+  @Column(name = "file_extension")
+  public String getFileExtension() {
+    return fileExtension;
   }
 }

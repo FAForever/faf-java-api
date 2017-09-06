@@ -2,7 +2,6 @@ package com.faforever.api.deployment;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.Deployment;
-import com.faforever.api.config.FafApiProperties.Deployment.DeploymentConfiguration;
 import com.faforever.api.data.domain.FeaturedMod;
 import com.faforever.api.deployment.git.GitWrapper;
 import com.faforever.api.featuredmods.FeaturedModFile;
@@ -68,12 +67,12 @@ public class LegacyFeaturedModDeploymentTaskTest {
 
   @Test
   public void testRunNoFileIds() throws Exception {
-    instance.setConfiguration(new DeploymentConfiguration()
-        .setBranch("branch")
-        .setModFilesExtension("nx3")
-        .setModName("faf")
+    instance.setFeaturedMod(new FeaturedMod()
+      .setGitBranch("branch")
+      .setFileExtension("nx3")
+      .setTechnicalName("faf")
         .setReplaceExisting(true)
-        .setRepositoryUrl("git@example.com/FAForever/faf"));
+      .setGitUrl("git@example.com/FAForever/faf"));
 
     Mockito.doAnswer(invocation -> {
       Path repoFolder = invocation.getArgument(0);
@@ -102,12 +101,12 @@ public class LegacyFeaturedModDeploymentTaskTest {
   @Test
   @SuppressWarnings("unchecked")
   public void testRun() throws Exception {
-    instance.setConfiguration(new DeploymentConfiguration()
-        .setBranch("branch")
-        .setModFilesExtension("nx3")
-        .setModName("faf")
+    instance.setFeaturedMod(new FeaturedMod()
+      .setGitBranch("branch")
+      .setFileExtension("nx3")
+      .setTechnicalName("faf")
         .setReplaceExisting(true)
-        .setRepositoryUrl("git@example.com/FAForever/faf"));
+      .setGitUrl("git@example.com/FAForever/faf"));
 
     Mockito.doAnswer(invocation -> {
       Path repoFolder = invocation.getArgument(0);

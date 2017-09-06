@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
 
+import static com.faforever.api.challonge.ChallongeController.CHALLONGE_READ_CACHE_NAME;
 import static com.faforever.api.featuredmods.FeaturedModService.FEATURED_MODS_CACHE_NAME;
 import static com.faforever.api.featuredmods.FeaturedModService.FEATURED_MOD_FILES_CACHE_NAME;
 import static com.faforever.api.leaderboard.LeaderboardService.LEADERBOARD_GLOBAL_CACHE_NAME;
@@ -35,6 +36,7 @@ public class CacheConfig {
         new GuavaCache("map", newBuilder().expireAfterWrite(1, MINUTES).build()),
         new GuavaCache("mapVersion", newBuilder().expireAfterWrite(1, MINUTES).build()),
         // Other caches
+      new GuavaCache(CHALLONGE_READ_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
         new GuavaCache(LEADERBOARD_RANKED_1V1_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
         new GuavaCache(LEADERBOARD_GLOBAL_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
         new GuavaCache(FEATURED_MODS_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),

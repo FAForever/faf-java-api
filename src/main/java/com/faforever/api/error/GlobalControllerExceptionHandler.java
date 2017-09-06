@@ -14,6 +14,7 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.concurrent.CompletionException;
 
 @ControllerAdvice
 @Slf4j
@@ -93,10 +94,13 @@ class GlobalControllerExceptionHandler {
   @ExceptionHandler(Exception.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   @ResponseBody
-  public ErrorResponse processException(Exception ex) throws MissingServletRequestPartException {
+  public ErrorResponse processException(Throwable ex) throws MissingServletRequestPartException {
     // If we don't rethrow, oauth authX is broken
     if (ex instanceof InsufficientAuthenticationException) {
       throw (InsufficientAuthenticationException) ex;
+    }
+    if (ex instanceof CompletionException) {
+      throw (CompletionException) ex;
     }
 
     log.warn("Internal server error", ex);

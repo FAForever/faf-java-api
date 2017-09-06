@@ -23,39 +23,14 @@ faf-api:
     forged-alliance-exe-path: ${FORGED_ALLIANCE_EXE_PATH}
     repositories-directory: ${REPOSITORIES_DIRECTORY}
     featured-mods-target-directory: ${FEATURED_MODS_TARGET_DIRECTORY}
-    # TODO make this runtime configuration
-    configurations:
-      - repositoryUrl: https://github.com/FAForever/fa.git
-        branch: deploy/faf
-        modName: faf
-        modFilesExtension: nx2
-        replaceExisting: false
-      - repositoryUrl: https://github.com/FAForever/fa.git
-        branch: deploy/fafbeta
-        modName: fafbeta
-        modFilesExtension: nx4
-        replaceExisting: true
-      - repositoryUrl: https://github.com/FAForever/fa.git
-        branch: deploy/fafdevelop
-        modName: fafdevelop
-        modFilesExtension: nx5
-        replaceExisting: true
-      - repositoryUrl: https://github.com/FAForever/faf-phantomx.git
-        branch: master
-        modName: phantomx
-        modFilesExtension: phx
-        replaceExisting: false
-      - repositoryUrl: https://github.com/Nomads-Project/nomads.git
-        branch: master
-        modName: nomads
-        modFilesExtension: nmd
-        replaceExisting: false
   registration:
     activation-url-format: ${ACTIVATION_URL_FORMAT}
   mail:
     mandrill-api-key: ${MANDRILL_API_KEY}
   clan:
     website-url-format: ${CLAN_WEBSITE_URL_FORMAT}
+  challonge:
+    key: ${CHALLONGE_KEY:}
 
 spring:
   datasource:

@@ -4,12 +4,12 @@ import com.yahoo.elide.annotation.Include;
 import lombok.Setter;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.sql.Time;
 
 @Entity
 @Table(name = "coop_leaderboard")
@@ -21,7 +21,7 @@ public class CoopResult {
   private short mission;
   private Game game;
   private boolean secondaryObjectives;
-  private Time duration;
+  private long duration;
   private short playerCount;
 
   @Id
@@ -47,7 +47,8 @@ public class CoopResult {
   }
 
   @Column(name = "time")
-  public Time getDuration() {
+  @Convert(converter = TimeConverter.class)
+  public long getDuration() {
     return duration;
   }
 

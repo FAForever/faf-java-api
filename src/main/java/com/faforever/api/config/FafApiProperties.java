@@ -6,8 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @ConfigurationProperties(prefix = "faf-api", ignoreUnknownFields = false)
@@ -28,6 +26,7 @@ public class FafApiProperties {
   private Deployment deployment = new Deployment();
   private Registration registration = new Registration();
   private Mail mail = new Mail();
+  private Challonge challonge = new Challonge();
 
   @Data
   public static class OAuth2 {
@@ -134,16 +133,6 @@ public class FafApiProperties {
     private String repositoriesDirectory;
     private String filesDirectoryFormat = "updates_%s_files";
     private String forgedAllianceExePath;
-    private List<DeploymentConfiguration> configurations = new ArrayList<>();
-
-    @Data
-    public static class DeploymentConfiguration {
-      private String repositoryUrl;
-      private String branch;
-      private String modName;
-      private String modFilesExtension;
-      private boolean replaceExisting;
-    }
   }
 
   @Data
@@ -159,5 +148,11 @@ public class FafApiProperties {
     private String htmlFormat;
     private String fromEmail;
     private String fromName;
+  }
+
+  @Data
+  public static class Challonge {
+    private String baseUrl = "https://api.challonge.com";
+    private String key;
   }
 }

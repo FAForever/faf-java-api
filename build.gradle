@@ -109,7 +109,7 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'propdeps'
 
 group = 'faforever'
-version = '0.7.0'
+version = '0.8.0'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -281,6 +281,9 @@ dependencies {
   compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonDatatypeJsr310Version}")
   compile("com.mandrillapp.wrapper.lutung:lutung:${lutungVersion}")
   compile("org.apache.commons:commons-compress:${commonsCompressVersion}")
+  compile("io.prometheus:simpleclient_hotspot:${prometheusVersion}")
+  compile("io.prometheus:simpleclient_servlet:${prometheusVersion}")
+  compile("io.prometheus:simpleclient_spring_boot:${prometheusVersion}")
 
   runtime("mysql:mysql-connector-java:${mysqlConnectorVersion}")
 

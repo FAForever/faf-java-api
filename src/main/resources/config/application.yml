@@ -54,8 +54,7 @@ security:
       filter-order: 3
 
 management:
-  context-path: /management
-  port: 8081
+  port: 8011
   security:
     enabled: false
 
