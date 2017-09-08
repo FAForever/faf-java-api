@@ -13,7 +13,7 @@ import javax.persistence.Transient;
 @Immutable
 @Entity
 @EntityListeners(FeaturedModFileEnricher.class)
-// Thanks to the dynamic table nature of the legacy updater, this class is not mapped to an underlying database but
+// Thanks to the dynamic table nature of the legacy updater, this class is not mapped to an underlying table but
 // a native query instead. This is why the columns here can't be found in any table.
 public class FeaturedModFile {
 
@@ -21,10 +21,10 @@ public class FeaturedModFile {
   private String group;
   private String md5;
   private String name;
-  private short version;
+  private int version;
   private String url;
   private String folderName;
-  private int fileId;
+  private short fileId;
 
   @Id
   @Column(name = "id")
@@ -48,12 +48,12 @@ public class FeaturedModFile {
   }
 
   @Column(name = "version")
-  public short getVersion() {
+  public int getVersion() {
     return version;
   }
 
   @Column(name = "fileId")
-  public int getFileId() {
+  public short getFileId() {
     return fileId;
   }
 
