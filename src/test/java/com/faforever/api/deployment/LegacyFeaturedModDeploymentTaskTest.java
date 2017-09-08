@@ -71,15 +71,15 @@ public class LegacyFeaturedModDeploymentTaskTest {
       .setGitBranch("branch")
       .setFileExtension("nx3")
       .setTechnicalName("faf")
-        .setReplaceExisting(true)
+      .setAllowOverride(true)
       .setGitUrl("git@example.com/FAForever/faf"));
 
     Mockito.doAnswer(invocation -> {
       Path repoFolder = invocation.getArgument(0);
       Files.createDirectories(repoFolder.resolve("someDir"));
       Files.copy(
-          LegacyFeaturedModDeploymentTaskTest.class.getResourceAsStream("/featured_mod/mod_info.lua"),
-          repoFolder.resolve("mod_info.lua")
+        LegacyFeaturedModDeploymentTaskTest.class.getResourceAsStream("/featured_mod/mod_info.lua"),
+        repoFolder.resolve("mod_info.lua")
       );
       return null;
     }).when(gitWrapper).checkoutRef(any(), any());
@@ -105,18 +105,18 @@ public class LegacyFeaturedModDeploymentTaskTest {
       .setGitBranch("branch")
       .setFileExtension("nx3")
       .setTechnicalName("faf")
-        .setReplaceExisting(true)
+      .setAllowOverride(true)
       .setGitUrl("git@example.com/FAForever/faf"));
 
     Mockito.doAnswer(invocation -> {
       Path repoFolder = invocation.getArgument(0);
       Files.createDirectories(repoFolder.resolve("someDir"));
       Files.copy(
-          LegacyFeaturedModDeploymentTaskTest.class.getResourceAsStream("/featured_mod/mod_info.lua"),
-          repoFolder.resolve("mod_info.lua")
+        LegacyFeaturedModDeploymentTaskTest.class.getResourceAsStream("/featured_mod/mod_info.lua"),
+        repoFolder.resolve("mod_info.lua")
       );
       Files.copy(LegacyFeaturedModDeploymentTaskTest.class.getResourceAsStream("/featured_mod/someDir/someFile"),
-          repoFolder.resolve("someDir/someFile")
+        repoFolder.resolve("someDir/someFile")
       );
       return null;
     }).when(gitWrapper).checkoutRef(any(), any());
@@ -125,8 +125,8 @@ public class LegacyFeaturedModDeploymentTaskTest {
       new FeaturedMod().setTechnicalName("faf")
     ));
     when(featuredModService.getFileIds("faf")).thenReturn(ImmutableMap.of(
-        "ForgedAlliance.exe", (short) 1,
-        "someDir.nx3", (short) 2
+      "ForgedAlliance.exe", (short) 1,
+      "someDir.nx3", (short) 2
     ));
 
     Path dummyExe = repositoriesFolder.getRoot().toPath().resolve("TemplateForgedAlliance.exe");
@@ -141,15 +141,15 @@ public class LegacyFeaturedModDeploymentTaskTest {
     List<FeaturedModFile> files = filesCaptor.getValue();
     files.sort(Comparator.comparing(FeaturedModFile::getFileId));
 
-    assertThat(files.get(0).getFileId(), is(1));
+    assertThat(files.get(0).getFileId(), is((short) 1));
     assertThat(files.get(0).getMd5(), is("47df959058cb52fe966ea5936dbd8f4c"));
     assertThat(files.get(0).getName(), is("ForgedAlliance.1337.exe"));
-    assertThat(files.get(0).getVersion(), is((short) 1337));
+    assertThat(files.get(0).getVersion(), is(1337));
 
-    assertThat(files.get(1).getFileId(), is(2));
+    assertThat(files.get(1).getFileId(), is((short) 2));
     assertThat(files.get(1).getMd5(), is(notNullValue()));
     assertThat(files.get(1).getName(), is("someDir.1337.nx3"));
-    assertThat(files.get(1).getVersion(), is((short) 1337));
+    assertThat(files.get(1).getVersion(), is(1337));
 
     assertThat(Files.exists(targetFolder.getRoot().toPath().resolve("updates_faf_files/someDir.1337.nx3")), is(true));
     assertThat(Files.exists(targetFolder.getRoot().toPath().resolve("updates_faf_files/ForgedAlliance.1337.exe")), is(true));

@@ -21,7 +21,7 @@ public class FeaturedMod {
   private int order;
   private String gitUrl;
   private String gitBranch;
-  private Boolean replaceExisting;
+  private Boolean allowOverride;
   private String fileExtension;
 
   @Id
@@ -65,9 +65,9 @@ public class FeaturedMod {
     return gitBranch;
   }
 
-  @Column(name = "replace_existing")
-  public Boolean isReplaceExisting() {
-    return replaceExisting;
+  @Column(name = "allow_override")
+  public Boolean isAllowOverride() {
+    return allowOverride;
   }
 
   @Column(name = "file_extension")

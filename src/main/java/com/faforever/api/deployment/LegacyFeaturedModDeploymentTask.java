@@ -79,18 +79,18 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
 
     String repositoryUrl = featuredMod.getGitUrl();
     String branch = featuredMod.getGitBranch();
-    boolean replaceExisting = featuredMod.isReplaceExisting();
+    boolean allowOverride = featuredMod.isAllowOverride();
     String modFilesExtension = featuredMod.getFileExtension();
     Map<String, Short> fileIds = featuredModService.getFileIds(modName);
 
-    log.info("Starting deployment of '{}' from '{}', branch '{}', replaceExisting '{}', modFilesExtension '{}'",
-      modName, repositoryUrl, branch, replaceExisting, modFilesExtension);
+    log.info("Starting deployment of '{}' from '{}', branch '{}', allowOverride '{}', modFilesExtension '{}'",
+      modName, repositoryUrl, branch, allowOverride, modFilesExtension);
 
     Path repositoryDirectory = buildRepositoryDirectoryPath(repositoryUrl);
     checkoutCode(repositoryDirectory, repositoryUrl, branch);
 
     short version = readModVersion(repositoryDirectory);
-    verifyVersion(version, replaceExisting, modName);
+    verifyVersion(version, allowOverride, modName);
 
     Deployment deployment = apiProperties.getDeployment();
     Path targetFolder = Paths.get(deployment.getFeaturedModsTargetDirectory(), String.format(deployment.getFilesDirectoryFormat(), modName));
@@ -134,8 +134,8 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     return (short) Integer.parseInt(new ModReader().readDirectory(modPath).getVersion().toString());
   }
 
-  private void verifyVersion(int version, boolean replaceExisting, String modName) {
-    if (!replaceExisting) {
+  private void verifyVersion(int version, boolean allowOverride, String modName) {
+    if (!allowOverride) {
       // Normally I'd create a proper query, but this is a hotfix and a protest against the DB-driven patcher
       // Luckily, BiReUS is coming "soon".
       OptionalInt existingVersion = featuredModService.getFiles(modName, version).stream()
@@ -153,7 +153,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     List<FeaturedModFile> featuredModFiles = files.stream()
       .map(file -> new FeaturedModFile()
         .setMd5(noCatch(() -> hash(file.getTargetFile().toFile(), md5())).toString())
-        .setFileId(file.getFileId())
+        .setFileId((short) file.getFileId())
         .setName(file.getTargetFile().getFileName().toString())
         .setVersion(version)
       )
@@ -279,7 +279,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     /**
      * ID of the file as stored in the database.
      */
-    private final int fileId;
+    private final short fileId;
     /**
      * The staged file, already in the correct location, that is ready to be renamed.
      */
