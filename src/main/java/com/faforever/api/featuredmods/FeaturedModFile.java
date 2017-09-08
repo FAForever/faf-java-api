@@ -21,10 +21,10 @@ public class FeaturedModFile {
   private String group;
   private String md5;
   private String name;
-  private short version;
+  private int version;
   private String url;
   private String folderName;
-  private int fileId;
+  private short fileId;
 
   @Id
   @Column(name = "id")
@@ -48,12 +48,12 @@ public class FeaturedModFile {
   }
 
   @Column(name = "version")
-  public short getVersion() {
+  public int getVersion() {
     return version;
   }
 
   @Column(name = "fileId")
-  public int getFileId() {
+  public short getFileId() {
     return fileId;
   }
 
