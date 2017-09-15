@@ -38,3 +38,6 @@ spring:
     password: ${DATABASE_PASSWORD}
   jpa:
     show-sql: false
+
+logging:
+  path: ${LOG_FILE_DIRECTORY:/tmp}
