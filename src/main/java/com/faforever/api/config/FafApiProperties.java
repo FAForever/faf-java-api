@@ -21,7 +21,7 @@ public class FafApiProperties {
   private Mod mod = new Mod();
   private Replay replay = new Replay();
   private Clan clan = new Clan();
-  private FeaturedMods featuredMods = new FeaturedMods();
+  private FeaturedMod featuredMod = new FeaturedMod();
   private GitHub gitHub = new GitHub();
   private Deployment deployment = new Deployment();
   private Registration registration = new Registration();
@@ -110,8 +110,9 @@ public class FafApiProperties {
   }
 
   @Data
-  public static class FeaturedMods {
+  public static class FeaturedMod {
     private String fileUrlFormat;
+    private String bireusUrlFormat;
   }
 
   @Data
