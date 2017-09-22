@@ -14,9 +14,11 @@ import java.util.List;
 
 @Entity
 @Table(name = "avatars_list")
-@Include(rootLevel = true, type = "avatar")
+@Include(rootLevel = true, type = Avatar.TYPE_NAME)
 @Setter
 public class Avatar extends AbstractEntity {
+
+  public static final String TYPE_NAME = "avatar";
 
   private String url;
   private String tooltip;

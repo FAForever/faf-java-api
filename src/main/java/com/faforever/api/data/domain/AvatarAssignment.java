@@ -14,9 +14,11 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "avatars")
-@Include(rootLevel = true, type = "avatarAssignment")
+@Include(rootLevel = true, type = AvatarAssignment.TYPE_NAME)
 @Setter
 public class AvatarAssignment extends AbstractEntity {
+  public static final String TYPE_NAME = "avatarAssignment";
+
   private boolean selected;
   private OffsetDateTime expiresAt;
   private Player player;

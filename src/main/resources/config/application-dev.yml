@@ -16,7 +16,7 @@ faf-api:
     download-url-format: ${REPLAY_DOWNLOAD_URL_FORMAT:http://content.test.faforever.com/faf/vault/replay_vault/replay.php?id=%s}
   featured-mod:
     file-url-format: ${FEATURED_MOD_URL_FORMAT:http://content.test.faforever.com/faf/updaterNew/%s/%s}
-    bireus-url-format: ${FEAUTED_MOD_BIREUS_URL_FORMAT:https://content.test.faforever.com/repositories/%s}
+    bireus-url-format: ${FEATURED_MOD_BIREUS_URL_FORMAT:https://content.test.faforever.com/repositories/%s}
   git-hub:
     access-token: ${GITHUB_ACCESS_TOKEN:none}
     deployment-environment: ${GITHUB_DEPLOYMENT_ENVIRONMENT:development}

@@ -14,6 +14,7 @@ import com.google.common.primitives.Ints;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,7 @@ public class ModService {
 
   @SneakyThrows
   @Transactional
+  @CacheEvict({Mod.TYPE_NAME, ModVersion.TYPE_NAME})
   public void processUploadedMod(Path uploadedFile, Player uploader) {
     log.debug("Player '{}' uploaded a mod", uploader);
     ModReader modReader = new ModReader();
@@ -106,8 +108,8 @@ public class ModService {
   }
 
   /**
-   * Ensure that all files of the zip are inside at least one root folder.
-   * Otherwise the mods will overwrite each other on client side.
+   * Ensure that all files of the zip are inside at least one root folder. Otherwise the mods will overwrite each other
+   * on client side.
    */
   @SneakyThrows
   private void validateModStructure(Path uploadedFile) {

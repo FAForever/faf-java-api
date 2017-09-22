@@ -12,8 +12,7 @@ import java.util.Optional;
 
 @Service
 public class FeaturedModService {
-  public static final String FEATURED_MODS_CACHE_NAME = "featuredMods";
-  public static final String FEATURED_MOD_FILES_CACHE_NAME = "featuredModFiles";
+  public static final String FEATURED_MOD_FILES_CACHE_NAME = "FeaturedModService.featuredModFiles";
 
   private final FeaturedModRepository featuredModRepository;
   private final LegacyFeaturedModFileRepository legacyFeaturedModFileRepository;
@@ -28,7 +27,6 @@ public class FeaturedModService {
     return legacyFeaturedModFileRepository.getFiles(modName, version);
   }
 
-  @Cacheable(FEATURED_MODS_CACHE_NAME)
   public List<FeaturedMod> getFeaturedMods() {
     return featuredModRepository.findAll();
   }
