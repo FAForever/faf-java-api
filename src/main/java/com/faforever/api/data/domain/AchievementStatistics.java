@@ -24,7 +24,7 @@ public class AchievementStatistics {
   private long unlockersCount;
   private BigDecimal unlockersPercent;
   private Long unlockersMinDuration;
-  private Integer unlockersAvgDuration;
+  private Long unlockersAvgDuration;
   private Long unlockersMaxDuration;
 
   @Id
@@ -55,7 +55,7 @@ public class AchievementStatistics {
   }
 
   @Column(name = "unlockers_avg_duration")
-  public Integer getUnlockersAvgDuration() {
+  public Long getUnlockersAvgDuration() {
     return unlockersAvgDuration;
   }
 
@@ -63,5 +63,4 @@ public class AchievementStatistics {
   public Long getUnlockersMaxDuration() {
     return unlockersMaxDuration;
   }
-
 }
