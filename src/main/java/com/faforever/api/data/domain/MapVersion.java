@@ -23,8 +23,10 @@ import java.util.List;
 @Setter
 @EntityListeners(MapVersionEnricher.class)
 @Table(name = "map_version")
-@Include(rootLevel = true, type = "mapVersion")
+@Include(rootLevel = true, type = MapVersion.TYPE_NAME)
 public class MapVersion extends AbstractEntity {
+
+  public static final String TYPE_NAME = "mapVersion";
 
   private String description;
   private int maxPlayers;

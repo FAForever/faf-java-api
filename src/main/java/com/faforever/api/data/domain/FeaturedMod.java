@@ -13,10 +13,12 @@ import javax.persistence.Transient;
 
 @Entity
 @Table(name = "game_featuredMods")
-@Include(rootLevel = true, type = "featuredMod")
+@Include(rootLevel = true, type = FeaturedMod.TYPE_NAME)
 @Setter
 @EntityListeners(FeaturedModEnricher.class)
 public class FeaturedMod {
+  public static final String TYPE_NAME = "featuredMod";
+
   private int id;
   private String technicalName;
   private String description;

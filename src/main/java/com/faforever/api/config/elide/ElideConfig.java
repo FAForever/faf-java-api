@@ -1,6 +1,5 @@
 package com.faforever.api.config.elide;
 
-import com.faforever.api.data.DataController;
 import com.faforever.api.data.checks.IsAuthenticated;
 import com.faforever.api.data.checks.IsClanLeader;
 import com.faforever.api.data.checks.IsClanMembershipDeletable;
@@ -37,6 +36,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Configuration
@@ -103,27 +103,27 @@ public class ElideConfig {
 
   /**
    * Returns a cache resolver that resolves cache names by JSON API type names. For instance, the type "map" will be
-   * resolved to a cache named "map".
+   * resolved to a cache named "map". If no dedicated cache config is available, the "default" config will be applied.
    */
   @Bean
   public CacheResolver elideCacheResolver(CacheManager cacheManager) {
     return new AbstractCacheResolver(cacheManager) {
       @Override
       protected Collection<String> getCacheNames(CacheOperationInvocationContext<?> context) {
-        String jsonApiPath = getDataApiPath((HttpServletRequest) context.getArgs()[1]);
-        String type = jsonApiPath.split("/")[0];
+        String entity = getEntity((HttpServletRequest) context.getArgs()[1]);
 
-        if (!cacheManager.getCacheNames().contains(type)) {
+        if (!cacheManager.getCacheNames().contains(entity)) {
           return Collections.singletonList("default");
         }
 
-        return Collections.singletonList(type);
+        return Collections.singletonList(entity);
       }
     };
   }
 
-  private String getDataApiPath(HttpServletRequest request) {
-    return ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE))
-      .replace(DataController.PATH_PREFIX, "");
+
+  @SuppressWarnings("unchecked")
+  private String getEntity(HttpServletRequest request) {
+    return (String) ((Map<String, Object>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).get("entity");
   }
 }

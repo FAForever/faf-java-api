@@ -13,9 +13,11 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "coop_leaderboard")
-@Include(rootLevel = true, type = "coopResult")
+@Include(rootLevel = true, type = CoopResult.TYPE_NAME)
 @Setter
 public class CoopResult {
+
+  public static final String TYPE_NAME = "coopResult";
 
   private int id;
   private short mission;

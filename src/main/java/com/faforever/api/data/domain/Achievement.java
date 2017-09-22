@@ -20,10 +20,12 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "achievement_definitions")
-@Include(rootLevel = true, type = "achievement")
+@Include(rootLevel = true, type = Achievement.TYPE_NAME)
 @EntityListeners(AchievementLocalizationListener.class)
 @Setter
 public class Achievement {
+
+  public static final String TYPE_NAME = "achievement";
 
   private String id;
   private int order;
