@@ -32,9 +32,11 @@ import java.util.List;
 @Entity
 @Setter
 @Table(name = "map")
-@Include(rootLevel = true, type = "map")
+@Include(rootLevel = true, type = Map.TYPE_NAME)
 @Immutable
 public class Map {
+
+  public static final String TYPE_NAME = "map";
 
   private int id;
   private String displayName;

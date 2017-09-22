@@ -1,5 +1,10 @@
 package com.faforever.api.config;
 
+import com.faforever.api.data.domain.Achievement;
+import com.faforever.api.data.domain.Event;
+import com.faforever.api.data.domain.FeaturedMod;
+import com.faforever.api.data.domain.Map;
+import com.faforever.api.data.domain.MapVersion;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.guava.GuavaCache;
@@ -27,21 +32,21 @@ public class CacheConfig {
   public CacheManager cacheManager() {
     SimpleCacheManager cacheManager = new SimpleCacheManager();
     cacheManager.setCaches(Arrays.asList(
-        // Elide caches. Cache names equal the type name, except "default" which is the fallback.
-        // TODO use constants for type names
-        new GuavaCache("default", newBuilder().expireAfterWrite(5, SECONDS).build()),
-        new GuavaCache("achievement", newBuilder().expireAfterWrite(60, MINUTES).build()),
-        new GuavaCache("achievementDefinition", newBuilder().expireAfterWrite(60, MINUTES).build()),
-        new GuavaCache("eventDefinition", newBuilder().expireAfterWrite(60, MINUTES).build()),
-        new GuavaCache("map", newBuilder().expireAfterWrite(1, MINUTES).build()),
-        new GuavaCache("mapVersion", newBuilder().expireAfterWrite(1, MINUTES).build()),
-        // Other caches
+      // Elide caches. Cache names equal the type name, except "default" which is the fallback.
+      // TODO use constants for type names
+      new GuavaCache("default", newBuilder().expireAfterWrite(5, SECONDS).build()),
+      new GuavaCache(Achievement.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
+      new GuavaCache(Event.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
+      new GuavaCache(Map.TYPE_NAME, newBuilder().expireAfterWrite(1, MINUTES).build()),
+      new GuavaCache(MapVersion.TYPE_NAME, newBuilder().expireAfterWrite(1, MINUTES).build()),
+      new GuavaCache(FeaturedMod.TYPE_NAME, newBuilder().expireAfterWrite(1, MINUTES).build()),
+      // Other caches
       new GuavaCache(CHALLONGE_READ_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
-        new GuavaCache(LEADERBOARD_RANKED_1V1_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
-        new GuavaCache(LEADERBOARD_GLOBAL_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
-        new GuavaCache(FEATURED_MODS_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
-        new GuavaCache(FEATURED_MOD_FILES_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
-        new GuavaCache(CLIENTS_CACHE_NAME, newBuilder().expireAfterWrite(5, SECONDS).build())
+      new GuavaCache(LEADERBOARD_RANKED_1V1_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
+      new GuavaCache(LEADERBOARD_GLOBAL_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
+      new GuavaCache(FEATURED_MODS_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
+      new GuavaCache(FEATURED_MOD_FILES_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
+      new GuavaCache(CLIENTS_CACHE_NAME, newBuilder().expireAfterWrite(5, SECONDS).build())
     ));
     return cacheManager;
   }
