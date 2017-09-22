@@ -114,7 +114,7 @@ public class DataController {
     return ResponseEntity.status(response.getResponseCode()).body(response.getBody());
   }
 
-  private String getJsonApiPath(HttpServletRequest request) {
+  private static String getJsonApiPath(HttpServletRequest request) {
     return ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).replace(PATH_PREFIX, "");
   }
 

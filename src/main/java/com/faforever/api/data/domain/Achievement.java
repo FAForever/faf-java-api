@@ -11,7 +11,6 @@ import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -122,7 +121,8 @@ public class Achievement {
     return updateTime;
   }
 
-  @OneToOne(mappedBy = "achievement", fetch = FetchType.LAZY)
+  // Fetching eagerly for cheaper JOIN instead of expensive SELECT (each achievement statistics select costs about 1s)
+  @OneToOne(mappedBy = "achievement")
   public AchievementStatistics getStatistics() {
     return statistics;
   }
