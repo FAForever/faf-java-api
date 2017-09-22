@@ -6,6 +6,7 @@ import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -33,7 +34,7 @@ public class AchievementStatistics {
     return id;
   }
 
-  @OneToOne
+  @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "achievement_id")
   public Achievement getAchievement() {
     return achievement;
