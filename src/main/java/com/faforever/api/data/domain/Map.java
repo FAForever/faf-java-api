@@ -48,6 +48,8 @@ public class Map {
   private Player author;
   private MapStatistics statistics;
   private MapVersion latestVersion;
+  private int numberOfReviews;
+  private float averageReviewScore;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -78,6 +80,16 @@ public class Map {
   @Column(name = "create_time")
   public OffsetDateTime getCreateTime() {
     return createTime;
+  }
+
+  @Column(name = "reviews")
+  public int getNumberOfReviews() {
+    return numberOfReviews;
+  }
+
+  @Column(name = "average_review_score")
+  public float getAverageReviewScore() {
+    return averageReviewScore;
   }
 
   @OneToMany(mappedBy = "map", cascade = CascadeType.ALL, orphanRemoval = true)

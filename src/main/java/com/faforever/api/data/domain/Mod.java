@@ -12,7 +12,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -43,6 +42,8 @@ public class Mod {
   private List<ModVersion> versions;
   private ModVersion latestVersion;
   private Player uploader;
+  private int numberOfReviews;
+  private float averageReviewScore;
 
   @Id
   @Column(name = "id")
@@ -65,7 +66,17 @@ public class Mod {
     return author;
   }
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @Column(name = "reviews")
+  public int getNumberOfReviews() {
+    return numberOfReviews;
+  }
+
+  @Column(name = "average_review_score")
+  public float getAverageReviewScore() {
+    return averageReviewScore;
+  }
+
+  @ManyToOne
   @JoinColumn(name = "uploader")
   public Player getUploader() {
     return uploader;
@@ -88,7 +99,7 @@ public class Mod {
     return versions;
   }
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumnsOrFormulas({
     @JoinColumnOrFormula(
       formula = @JoinFormula(

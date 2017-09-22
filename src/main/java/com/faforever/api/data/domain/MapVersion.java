@@ -43,6 +43,8 @@ public class MapVersion extends AbstractEntity {
   private String thumbnailUrlLarge;
   private String downloadUrl;
   private List<MapVersionReview> reviews;
+  private int numberOfReviews;
+  private float averageReviewScore;
 
   @Column(name = "description")
   public String getDescription() {
@@ -87,6 +89,16 @@ public class MapVersion extends AbstractEntity {
   @Column(name = "hidden")
   public boolean isHidden() {
     return hidden;
+  }
+
+  @Column(name = "reviews")
+  public int getNumberOfReviews() {
+    return numberOfReviews;
+  }
+
+  @Column(name = "average_review_score")
+  public float getAverageReviewScore() {
+    return averageReviewScore;
   }
 
   @ManyToOne(fetch = FetchType.LAZY)

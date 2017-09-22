@@ -43,6 +43,8 @@ public class Game {
   private List<GamePlayerStats> playerStats;
   private String replayUrl;
   private List<GameReview> reviews;
+  private int numberOfReviews;
+  private float averageReviewScore;
 
   @Id
   @Column(name = "id")
@@ -110,5 +112,15 @@ public class Game {
   @UpdatePermission(expression = "Prefab.Role.All")
   public List<GameReview> getReviews() {
     return reviews;
+  }
+
+  @Column(name = "reviews")
+  public int getNumberOfReviews() {
+    return numberOfReviews;
+  }
+
+  @Column(name = "average_review_score")
+  public float getAverageReviewScore() {
+    return averageReviewScore;
   }
 }
