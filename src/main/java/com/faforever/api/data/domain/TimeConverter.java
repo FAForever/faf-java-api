@@ -5,7 +5,7 @@ import javax.persistence.Converter;
 import java.sql.Time;
 import java.util.Optional;
 
-@Converter(autoApply = true)
+@Converter
 public class TimeConverter implements AttributeConverter<Long, Time> {
   @Override
   public Time convertToDatabaseColumn(Long seconds) {

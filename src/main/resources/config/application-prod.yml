@@ -13,8 +13,9 @@ faf-api:
     preview-url-format: ${MOD_PREVIEW_URL_FORMAT}
   replay:
     download-url-format: ${REPLAY_DOWNLOAD_URL_FORMAT}
-  featured-mods:
+  featured-mod:
     file-url-format: ${FEATURED_MOD_URL_FORMAT}
+    bireus-url-format: ${FEAUTED_MOD_BIREUS_URL_FORMAT}
   git-hub:
     access-token: ${GITHUB_ACCESS_TOKEN}
     deployment-environment: ${GITHUB_DEPLOYMENT_ENVIRONMENT:production}
@@ -38,3 +39,6 @@ spring:
     password: ${DATABASE_PASSWORD}
   jpa:
     show-sql: false
+
+logging:
+  path: ${LOG_FILE_DIRECTORY:/tmp}

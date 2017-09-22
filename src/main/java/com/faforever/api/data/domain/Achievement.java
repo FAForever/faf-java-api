@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -119,7 +120,7 @@ public class Achievement {
     return updateTime;
   }
 
-  @OneToOne(mappedBy = "achievement")
+  @OneToOne(mappedBy = "achievement", fetch = FetchType.LAZY)
   public AchievementStatistics getStatistics() {
     return statistics;
   }

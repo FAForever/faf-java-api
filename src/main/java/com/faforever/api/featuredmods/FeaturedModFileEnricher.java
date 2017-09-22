@@ -20,7 +20,7 @@ public class FeaturedModFileEnricher {
   public void enhance(FeaturedModFile featuredModFile) {
     String filename = featuredModFile.getName();
     String folder = featuredModFile.getFolderName();
-    String urlFormat = fafApiProperties.getFeaturedMods().getFileUrlFormat();
+    String urlFormat = fafApiProperties.getFeaturedMod().getFileUrlFormat();
 
     featuredModFile.setUrl(String.format(urlFormat, folder, filename));
   }

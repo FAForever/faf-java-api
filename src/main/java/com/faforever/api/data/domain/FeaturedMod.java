@@ -1,17 +1,21 @@
 package com.faforever.api.data.domain;
 
+import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
 import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "game_featuredMods")
 @Include(rootLevel = true, type = "featuredMod")
 @Setter
+@EntityListeners(FeaturedModEnricher.class)
 public class FeaturedMod {
   private int id;
   private String technicalName;
@@ -23,6 +27,7 @@ public class FeaturedMod {
   private String gitBranch;
   private Boolean allowOverride;
   private String fileExtension;
+  private String bireusUrl;
 
   @Id
   @Column(name = "id")
@@ -73,5 +78,12 @@ public class FeaturedMod {
   @Column(name = "file_extension")
   public String getFileExtension() {
     return fileExtension;
+  }
+
+  @Transient
+  @ComputedAttribute
+  // Enriched by FeaturedModEnricher
+  public String getBireusUrl() {
+    return bireusUrl;
   }
 }
