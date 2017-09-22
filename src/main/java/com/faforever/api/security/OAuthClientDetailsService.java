@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public class OAuthClientDetailsService implements ClientDetailsService {
 
-  public static final String CLIENTS_CACHE_NAME = "oAuthClients";
+  public static final String CLIENTS_CACHE_NAME = "OAuthClientDetailsService.oAuthClients";
   private final OAuthClientRepository oAuthClientRepository;
   private final FafApiProperties fafApiProperties;
 

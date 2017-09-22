@@ -8,8 +8,8 @@ import java.util.List;
 @Service
 public class LeaderboardService {
 
-  public static final String LEADERBOARD_RANKED_1V1_CACHE_NAME = "leaderboard1v1";
-  public static final String LEADERBOARD_GLOBAL_CACHE_NAME = "leaderboardGlobal";
+  public static final String LEADERBOARD_RANKED_1V1_CACHE_NAME = "LeaderboardService.leaderboard1v1";
+  public static final String LEADERBOARD_GLOBAL_CACHE_NAME = "LeaderboardService.leaderboardGlobal";
 
   private final GlobalLeaderboardRepository globalLeaderboardRepository;
   private final Ladder1v1LeaderboardRepository ladder1v1LeaderboardRepository;

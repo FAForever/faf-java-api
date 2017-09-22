@@ -28,10 +28,12 @@ import java.util.List;
 
 @Entity
 @Table(name = "\"mod\"")
-@Include(rootLevel = true, type = "mod")
+@Include(rootLevel = true, type = Mod.TYPE_NAME)
 @Immutable
 @Setter
 public class Mod {
+
+  public static final String TYPE_NAME = "mod";
 
   private Integer id;
   private String displayName;
@@ -88,11 +90,11 @@ public class Mod {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumnsOrFormulas({
-      @JoinColumnOrFormula(
-          formula = @JoinFormula(
-              value = "(SELECT mod_version.id FROM mod_version WHERE mod_version.mod_id = id ORDER BY mod_version.version DESC LIMIT 1)",
-              referencedColumnName = "id")
-      )
+    @JoinColumnOrFormula(
+      formula = @JoinFormula(
+        value = "(SELECT mod_version.id FROM mod_version WHERE mod_version.mod_id = id ORDER BY mod_version.version DESC LIMIT 1)",
+        referencedColumnName = "id")
+    )
   })
   public ModVersion getLatestVersion() {
     return latestVersion;

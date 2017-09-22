@@ -42,7 +42,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 @ConditionalOnProperty("faf-api.challonge.key")
 public class ChallongeController {
 
-  public static final String CHALLONGE_READ_CACHE_NAME = "challongeRead";
+  public static final String CHALLONGE_READ_CACHE_NAME = "ChallongeController.challongeRead";
   static final String CHALLONGE_ROUTE = "/challonge";
   private final RestTemplate restTemplate;
 

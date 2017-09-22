@@ -7,6 +7,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.kohsuke.github.GHDeployment;
 import org.kohsuke.github.GHEventPayload.Push;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,8 @@ public class GitHubDeploymentService {
   private final FafApiProperties fafApiProperties;
   private final FeaturedModService featuredModService;
 
-  public GitHubDeploymentService(ApplicationContext applicationContext, FafApiProperties fafApiProperties, FeaturedModService featuredModService) {
+  public GitHubDeploymentService(ApplicationContext applicationContext, FafApiProperties fafApiProperties,
+                                 FeaturedModService featuredModService) {
     this.applicationContext = applicationContext;
     this.fafApiProperties = fafApiProperties;
     this.featuredModService = featuredModService;
@@ -53,6 +55,7 @@ public class GitHubDeploymentService {
 
   @Async
   @SneakyThrows
+  @CacheEvict(FeaturedMod.TYPE_NAME)
   public void deploy(GHDeployment deployment) {
     String environment = deployment.getEnvironment();
     if (!fafApiProperties.getGitHub().getDeploymentEnvironment().equals(environment)) {

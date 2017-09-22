@@ -28,7 +28,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "clan")
-@Include(rootLevel = true, type = "clan")
+@Include(rootLevel = true, type = Clan.TYPE_NAME)
 @SharePermission(expression = IsClanLeader.EXPRESSION)
 @DeletePermission(expression = IsClanLeader.EXPRESSION)
 @CreatePermission(expression = "Prefab.Role.All")
@@ -36,6 +36,8 @@ import java.util.List;
 @IsLeaderInClan
 @EntityListeners(ClanEnricherListener.class)
 public class Clan extends AbstractEntity {
+
+  public static final String TYPE_NAME = "clan";
 
   private String name;
   private String tag;
