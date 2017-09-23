@@ -5,6 +5,7 @@ import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -104,11 +105,12 @@ public class MapVersion extends AbstractEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "map_id")
   @NotNull
+  @BatchSize(size = 1000)
   public Map getMap() {
     return this.map;
   }
 
-  @OneToOne(mappedBy = "mapVersion", fetch = FetchType.LAZY)
+  @OneToOne(mappedBy = "mapVersion", fetch = FetchType.EAGER)
   public MapVersionStatistics getStatistics() {
     return statistics;
   }

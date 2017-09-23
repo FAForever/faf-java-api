@@ -2,6 +2,7 @@ package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.JoinColumnOrFormula;
@@ -92,9 +93,10 @@ public class Map {
     return averageReviewScore;
   }
 
-  @OneToMany(mappedBy = "map", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "map", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   @NotEmpty
   @Valid
+  @BatchSize(size = 1000)
   public List<MapVersion> getVersions() {
     return versions;
   }
@@ -102,11 +104,12 @@ public class Map {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "author")
   @Nullable
+  @BatchSize(size = 1000)
   public Player getAuthor() {
     return author;
   }
 
-  @OneToOne(mappedBy = "map", fetch = FetchType.LAZY)
+  @OneToOne(mappedBy = "map")
   public MapStatistics getStatistics() {
     return statistics;
   }
@@ -119,6 +122,7 @@ public class Map {
               referencedColumnName = "id")
       )
   })
+  @BatchSize(size = 1000)
   public MapVersion getLatestVersion() {
     return latestVersion;
   }

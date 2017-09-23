@@ -4,6 +4,7 @@ import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -27,11 +28,13 @@ public class Player extends Login {
   private List<AvatarAssignment> avatarAssignments;
 
   @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
+  @BatchSize(size = 1000)
   public Ladder1v1Rating getLadder1v1Rating() {
     return ladder1v1Rating;
   }
 
   @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
+  @BatchSize(size = 1000)
   public GlobalRating getGlobalRating() {
     return globalRating;
   }
