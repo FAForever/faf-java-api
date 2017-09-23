@@ -42,6 +42,7 @@ public class Player extends Login {
   // Permission is managed by ClanMembership class
   @UpdatePermission(expression = "Prefab.Role.All")
   @OneToMany(mappedBy = "player")
+  @BatchSize(size = 1000)
   public List<ClanMembership> getClanMemberships() {
     return this.clanMemberships;
   }
@@ -57,6 +58,7 @@ public class Player extends Login {
   // Permission is managed by AvatarAssignment class
   @UpdatePermission(expression = "Prefab.Role.All")
   @OneToMany(mappedBy = "player")
+  @BatchSize(size = 1000)
   public List<AvatarAssignment> getAvatarAssignments() {
     return avatarAssignments;
   }
