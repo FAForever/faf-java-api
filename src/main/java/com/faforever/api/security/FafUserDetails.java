@@ -1,22 +1,19 @@
 package com.faforever.api.security;
 
+import com.faforever.api.data.domain.LegacyAccessLevel;
 import com.faforever.api.data.domain.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Collection;
-
-import static java.util.Collections.singletonList;
 
 @Getter
 public class FafUserDetails extends org.springframework.security.core.userdetails.User {
 
   private final int id;
 
-  public FafUserDetails(User user) {
-    // TODO implement lobby_admin #81
-    this(user.getId(), user.getLogin(), user.getPassword(), !user.isGlobalBanned(), singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+  public FafUserDetails(User user, Collection<? extends GrantedAuthority> authorities) {
+    this(user.getId(), user.getLogin(), user.getPassword(), !user.isGlobalBanned(), authorities);
   }
 
   public FafUserDetails(int id, String username, String password, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
@@ -24,9 +21,18 @@ public class FafUserDetails extends org.springframework.security.core.userdetail
     this.id = id;
   }
 
-
   public boolean hasPermission(String permission) {
-    // TODO: implement permission system #81
+    Collection<GrantedAuthority> authorities = this.getAuthorities();
+
+    if (authorities.contains(LegacyAccessLevel.ROLE_ADMINISTRATOR)) {
+      return true;
+    }
+
+    if (authorities.contains(LegacyAccessLevel.ROLE_MODERATOR)) {
+      // We have no admin-only permissions yet
+      return true;
+    }
+
     return false;
   }
 }
