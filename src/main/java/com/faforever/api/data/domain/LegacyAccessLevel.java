@@ -4,6 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.util.stream.Stream;
+
+/**
+ * @deprecated AccessLevel are going to be replaced with role based security
+ */
 @Getter
 @AllArgsConstructor
 @Deprecated
@@ -15,13 +20,10 @@ public enum LegacyAccessLevel implements GrantedAuthority {
   private final int code;
 
   public static LegacyAccessLevel fromCode(int code) {
-    for (LegacyAccessLevel level : LegacyAccessLevel.values()) {
-      if (level.code == code) {
-        return level;
-      }
-    }
-
-    throw new IllegalArgumentException(String.format("Code '%s' is unknown", code));
+    return Stream.of(LegacyAccessLevel.values())
+      .filter(level -> level.code == code)
+      .findFirst()
+      .orElseThrow(() -> new IllegalArgumentException(String.format("Code '%s' is unknown", code)));
   }
 
   @Override

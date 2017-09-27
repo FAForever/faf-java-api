@@ -28,13 +28,14 @@ public class FafUserDetailsService implements UserDetailsService {
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     User user = userRepository.findOneByLoginIgnoreCase(username)
-    .orElseThrow(() -> new UsernameNotFoundException("User could not be found: " + username));
+      .orElseThrow(() -> new UsernameNotFoundException("User could not be found: " + username));
 
-ArrayList<GrantedAuthority> authorities = new ArrayList<>();
+    ArrayList<GrantedAuthority> authorities = new ArrayList<>();
     authorities.add(LegacyAccessLevel.ROLE_USER);
 
     if (user.getLobbyGroup() != null) {
       authorities.add(LegacyAccessLevel.fromCode(user.getLobbyGroup().getAccessLevel()));
-    }    return new FafUserDetails(user, authorities);
+    }
+    return new FafUserDetails(user, authorities);
   }
 }

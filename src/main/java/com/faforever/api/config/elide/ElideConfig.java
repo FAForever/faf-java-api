@@ -9,10 +9,10 @@ import com.faforever.api.data.checks.IsReviewOwner;
 import com.faforever.api.data.checks.permission.HasBanRead;
 import com.faforever.api.data.checks.permission.HasBanUpdate;
 import com.faforever.api.data.checks.permission.HasLadder1v1Update;
+import com.faforever.api.security.ExtendedAuditLogger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yahoo.elide.Elide;
 import com.yahoo.elide.ElideSettingsBuilder;
-import com.yahoo.elide.audit.Slf4jLogger;
 import com.yahoo.elide.core.EntityDictionary;
 import com.yahoo.elide.core.filter.dialect.RSQLFilterDialect;
 import com.yahoo.elide.datastores.hibernate5.HibernateStore;
@@ -46,7 +46,7 @@ public class ElideConfig {
 
     return new Elide(new ElideSettingsBuilder(hibernateStore)
       .withJsonApiMapper(new JsonApiMapper(entityDictionary, objectMapper))
-      .withAuditLogger(new Slf4jLogger())
+      .withAuditLogger(new ExtendedAuditLogger())
       .withEntityDictionary(entityDictionary)
       .withJoinFilterDialect(rsqlFilterDialect)
       .withSubqueryFilterDialect(rsqlFilterDialect)
