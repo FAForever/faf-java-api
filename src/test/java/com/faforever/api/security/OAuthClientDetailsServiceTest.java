@@ -30,7 +30,7 @@ public class OAuthClientDetailsServiceTest {
 
   @Test
   public void loadClientByClientId() throws Exception {
-    when(oAuthClientRepository.findOne("123")).thenReturn(new OAuthClient().setDefaultScope(""));
+    when(oAuthClientRepository.findOne("123")).thenReturn(new OAuthClient().setDefaultScope("").setRedirectUris(""));
 
     ClientDetails result = instance.loadClientByClientId("123");
 

@@ -4,6 +4,7 @@ import com.faforever.api.data.checks.permission.HasLadder1v1Update;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
+import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 import org.hibernate.annotations.Immutable;
 
@@ -36,6 +37,7 @@ public class Ladder1v1Map {
 
   @OneToOne
   @JoinColumn(name = "idmap")
+  @UpdatePermission(expression = HasLadder1v1Update.EXPRESSION)
   public MapVersion getMapVersion() {
     return mapVersion;
   }

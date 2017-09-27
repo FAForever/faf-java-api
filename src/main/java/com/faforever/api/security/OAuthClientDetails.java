@@ -12,10 +12,10 @@ public class OAuthClientDetails extends BaseClientDetails {
   public OAuthClientDetails(OAuthClient oAuthClient) {
     super(oAuthClient.getId(),
       null,
-      oAuthClient.getDefaultScope().replace(' ', ','),
+      oAuthClient.getDefaultScope().replace(' ', ','), // stay compatible with Flask API
       "authorization_code,refresh_token,implicit,password,client_credentials",
       null,
-      oAuthClient.getRedirectUris());
+      oAuthClient.getRedirectUris().replace(' ', ',')); // stay compatible with Flask API
     setClientSecret(oAuthClient.getClientSecret());
   }
 }
