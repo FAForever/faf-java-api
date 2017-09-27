@@ -1,4 +1,20 @@
 <configuration>
   <include resource="org/springframework/boot/logging/logback/base.xml"/>
   <jmxConfigurator/>
+
+  <!--Daily rolling file appender -->
+  <appender name="AUDIT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <File>${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/audit.log</File>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <FileNamePattern>audit.%d{yyyy-MM-dd}.log</FileNamePattern>
+    </rollingPolicy>
+
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <Pattern>%d - %msg%n</Pattern>
+    </layout>
+  </appender>
+
+  <logger name="com.faforever.api.security.ExtendedAuditLogger">
+    <appender-ref ref="AUDIT"/>
+  </logger>
 </configuration>
