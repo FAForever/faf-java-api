@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 @org.springframework.stereotype.Repository
 public class LegacyFeaturedModFileRepository implements Repository<FeaturedModFile, Integer> {
-  private static final Pattern MOD_NAME_PATTERN = Pattern.compile("[a-z]+");
+  private static final Pattern MOD_NAME_PATTERN = Pattern.compile("[a-z0-9]+");
   private final EntityManager entityManager;
 
   public LegacyFeaturedModFileRepository(EntityManager entityManager) {
