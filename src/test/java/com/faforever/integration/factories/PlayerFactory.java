@@ -13,7 +13,7 @@ public class PlayerFactory {
   private static final String DEFAULT_PASSWORD = "testPassword";
 
   @Builder
-  private static Player create(String login, String password, TestDatabase database) throws Exception {
+  public static Player create(String login, String password, TestDatabase database) throws Exception {
     Assert.notNull(database, "'database' must not be null");
     User user = (User) new User()
       .setPassword(password != null ? password : DEFAULT_PASSWORD)

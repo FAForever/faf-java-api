@@ -8,6 +8,7 @@ import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -26,6 +27,7 @@ public class Player extends Login {
   private GlobalRating globalRating;
   private List<ClanMembership> clanMemberships;
   private List<AvatarAssignment> avatarAssignments;
+  private List<HardwareInformation> hardwareInformations;
 
   @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
   @BatchSize(size = 1000)
@@ -61,6 +63,11 @@ public class Player extends Login {
   @BatchSize(size = 1000)
   public List<AvatarAssignment> getAvatarAssignments() {
     return avatarAssignments;
+  }
+
+  @ManyToMany(mappedBy = "players")
+  public List<HardwareInformation> getHardwareInformations() {
+    return this.hardwareInformations;
   }
 
   @Override
