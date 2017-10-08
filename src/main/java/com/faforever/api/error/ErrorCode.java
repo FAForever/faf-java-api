@@ -44,7 +44,7 @@ public enum ErrorCode {
   TOKEN_INVALID(135, "Invalid operation", "The delivered token is invalid."),
   TOKEN_EXPIRED(136, "Invalid operation", "The delivered token has expired."),
   PASSWORD_RESET_FAILED(137, "Password reset failed", "Username and/or email did not match."),
-  PASSWORD_CHANGE_FAILED(138, "Password change failed", "Username and/or old password did not match."),
+  PASSWORD_CHANGE_FAILED(138, "Password change failed", "Your current password did not match."),
   USERNAME_CHANGE_TOO_EARLY(139, "Username change not allowed", "Only one name change per 30 days is allowed. {0} more days to go."),
   EMAIL_CHANGE_FAILED(140, "Email change failed", "An unknown error happened while updating the database."),
   STEAM_ID_UNCHANGEABLE(141, "Linking to Steam failed", "Your account is already bound to another Steam ID."),

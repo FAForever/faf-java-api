@@ -130,7 +130,11 @@ public class UserService {
     userRepository.save(user);
   }
 
-  void changePassword(String newPassword, User user) {
+  void changePassword(String currentPassword, String newPassword, User user) {
+    if (!Objects.equals(user.getPassword(), passwordEncoder.encode(currentPassword))) {
+      throw new ApiException(new Error(ErrorCode.PASSWORD_CHANGE_FAILED));
+    }
+
     user.setPassword(passwordEncoder.encode(newPassword));
     userRepository.save(user);
   }
