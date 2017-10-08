@@ -66,7 +66,6 @@ public class JsonApiNameIntegrationTest {
   @Test
   @SneakyThrows
   public void getNames() {
-    // TODO: use new PlayerFactor
     Player player = PlayerFactory.builder()
       .login("UseFactory")
       .database(database)
