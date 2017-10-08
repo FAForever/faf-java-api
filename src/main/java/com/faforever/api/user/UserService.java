@@ -79,7 +79,7 @@ public class UserService {
 
   @SneakyThrows
   private String createRegistrationToken(String username, String email, String passwordHash) {
-    int expirationSeconds = properties.getRegistration().getLinkExpirationSeconds();
+    long expirationSeconds = properties.getRegistration().getLinkExpirationSeconds();
 
     String claim = objectMapper.writeValueAsString(ImmutableMap.of(
         KEY_ACTION, ACTION_ACTIVATE,
@@ -157,7 +157,7 @@ public class UserService {
 
   @SneakyThrows
   private String createPasswordResetToken(int userId) {
-    int expirationSeconds = properties.getRegistration().getLinkExpirationSeconds();
+    long expirationSeconds = properties.getRegistration().getLinkExpirationSeconds();
 
     String claim = objectMapper.writeValueAsString(ImmutableMap.of(
         KEY_ACTION, ACTION_RESET_PASSWORD,

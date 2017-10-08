@@ -144,7 +144,7 @@ public class FafApiProperties {
 
   @Data
   public static class Registration {
-    private int linkExpirationSeconds = 3600 * 24;
+    private long linkExpirationSeconds = Duration.ofDays(1).getSeconds();
     private String activationUrlFormat;
     private String subject;
     private String htmlFormat;
@@ -154,7 +154,7 @@ public class FafApiProperties {
 
   @Data
   public static class PasswordReset {
-    private int linkExpirationSeconds = 3600 * 24;
+    private long linkExpirationSeconds = Duration.ofDays(1).getSeconds();
     private String passwordResetUrlFormat;
     private String subject;
     private String htmlFormat;
