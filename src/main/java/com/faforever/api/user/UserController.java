@@ -36,8 +36,8 @@ public class UserController {
   @PreAuthorize("#oauth2.hasScope('change_password') and hasRole('ROLE_USER')")
   @ApiOperation("Changes the password of a previously registered account.")
   @RequestMapping(path = "/changePassword", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-  public void changePassword(@RequestParam("newPassword") String newPassword, Authentication authentication) {
-    userService.changePassword(newPassword, userService.getUser(authentication));
+  public void changePassword(@RequestParam("currentPassword") String currentPassword, @RequestParam("newPassword") String newPassword, Authentication authentication) {
+    userService.changePassword(currentPassword, newPassword, userService.getUser(authentication));
   }
 
   @PreAuthorize("#oauth2.hasScope('change_login') and hasRole('ROLE_USER')")
