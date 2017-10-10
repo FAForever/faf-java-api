@@ -5,7 +5,9 @@ import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -43,6 +45,9 @@ public class MapVersion extends AbstractEntity {
   private String thumbnailUrlLarge;
   private String downloadUrl;
   private List<MapVersionReview> reviews;
+  private Ladder1v1Map ladder1v1Map;
+  private int numberOfReviews;
+  private float averageReviewScore;
 
   @Column(name = "description")
   public String getDescription() {
@@ -89,14 +94,25 @@ public class MapVersion extends AbstractEntity {
     return hidden;
   }
 
+  @Column(name = "reviews")
+  public int getNumberOfReviews() {
+    return numberOfReviews;
+  }
+
+  @Column(name = "average_review_score")
+  public float getAverageReviewScore() {
+    return averageReviewScore;
+  }
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "map_id")
   @NotNull
+  @BatchSize(size = 1000)
   public Map getMap() {
     return this.map;
   }
 
-  @OneToOne(mappedBy = "mapVersion", fetch = FetchType.LAZY)
+  @OneToOne(mappedBy = "mapVersion", fetch = FetchType.EAGER)
   public MapVersionStatistics getStatistics() {
     return statistics;
   }
@@ -129,5 +145,10 @@ public class MapVersion extends AbstractEntity {
   @UpdatePermission(expression = "Prefab.Role.All")
   public List<MapVersionReview> getReviews() {
     return reviews;
+  }
+
+  @OneToOne(mappedBy = "mapVersion", cascade = CascadeType.ALL, orphanRemoval = true)
+  public Ladder1v1Map getLadder1v1Map() {
+    return ladder1v1Map;
   }
 }

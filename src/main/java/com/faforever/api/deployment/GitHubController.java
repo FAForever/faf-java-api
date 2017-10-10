@@ -48,7 +48,7 @@ public class GitHubController {
         gitHubDeploymentService.createDeploymentIfEligible(parseEvent(body, Push.class));
         break;
       case "deployment":
-        gitHubDeploymentService.deploy(parseEvent(body, Deployment.class).getDeployment());
+        gitHubDeploymentService.deploy(parseEvent(body, Deployment.class));
         break;
       default:
         log.warn("Unhandled event: " + eventType);

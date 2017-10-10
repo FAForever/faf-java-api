@@ -2,6 +2,7 @@ package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.JoinColumnOrFormula;
@@ -48,6 +49,8 @@ public class Map {
   private Player author;
   private MapStatistics statistics;
   private MapVersion latestVersion;
+  private int numberOfReviews;
+  private float averageReviewScore;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -80,9 +83,20 @@ public class Map {
     return createTime;
   }
 
-  @OneToMany(mappedBy = "map", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Column(name = "reviews")
+  public int getNumberOfReviews() {
+    return numberOfReviews;
+  }
+
+  @Column(name = "average_review_score")
+  public float getAverageReviewScore() {
+    return averageReviewScore;
+  }
+
+  @OneToMany(mappedBy = "map", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   @NotEmpty
   @Valid
+  @BatchSize(size = 1000)
   public List<MapVersion> getVersions() {
     return versions;
   }
@@ -90,11 +104,12 @@ public class Map {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "author")
   @Nullable
+  @BatchSize(size = 1000)
   public Player getAuthor() {
     return author;
   }
 
-  @OneToOne(mappedBy = "map", fetch = FetchType.LAZY)
+  @OneToOne(mappedBy = "map")
   public MapStatistics getStatistics() {
     return statistics;
   }
@@ -107,6 +122,7 @@ public class Map {
               referencedColumnName = "id")
       )
   })
+  @BatchSize(size = 1000)
   public MapVersion getLatestVersion() {
     return latestVersion;
   }

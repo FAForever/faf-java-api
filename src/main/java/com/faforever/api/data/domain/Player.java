@@ -4,6 +4,7 @@ import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -24,14 +25,17 @@ public class Player extends Login {
   private Ladder1v1Rating ladder1v1Rating;
   private GlobalRating globalRating;
   private List<ClanMembership> clanMemberships;
+  private List<NameRecord> names;
   private List<AvatarAssignment> avatarAssignments;
 
   @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
+  @BatchSize(size = 1000)
   public Ladder1v1Rating getLadder1v1Rating() {
     return ladder1v1Rating;
   }
 
   @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
+  @BatchSize(size = 1000)
   public GlobalRating getGlobalRating() {
     return globalRating;
   }
@@ -39,6 +43,7 @@ public class Player extends Login {
   // Permission is managed by ClanMembership class
   @UpdatePermission(expression = "Prefab.Role.All")
   @OneToMany(mappedBy = "player")
+  @BatchSize(size = 1000)
   public List<ClanMembership> getClanMemberships() {
     return this.clanMemberships;
   }
@@ -51,9 +56,17 @@ public class Player extends Login {
     return null;
   }
 
+  // Permission is managed by NameRecord class
+  @UpdatePermission(expression = "Prefab.Role.All")
+  @OneToMany(mappedBy = "player")
+  public List<NameRecord> getNames() {
+    return this.names;
+  }
+
   // Permission is managed by AvatarAssignment class
   @UpdatePermission(expression = "Prefab.Role.All")
   @OneToMany(mappedBy = "player")
+  @BatchSize(size = 1000)
   public List<AvatarAssignment> getAvatarAssignments() {
     return avatarAssignments;
   }

@@ -6,12 +6,17 @@ import com.faforever.api.featuredmods.FeaturedModService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.kohsuke.github.GHDeployment;
+import org.kohsuke.github.GHDeploymentState;
+import org.kohsuke.github.GHEventPayload.Deployment;
 import org.kohsuke.github.GHEventPayload.Push;
+import org.kohsuke.github.GHRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+import java.io.IOException;
 import java.util.Optional;
 
 
@@ -31,13 +36,12 @@ public class GitHubDeploymentService {
   }
 
   @SneakyThrows
-  public void createDeploymentIfEligible(Push push) {
+  void createDeploymentIfEligible(Push push) {
     String ref = push.getRef();
-
     Optional<FeaturedMod> optional = featuredModService.findByGitUrlAndGitBranch(
-      push.getRepository().gitHttpTransportUrl(),
-      push.getRef().replace("refs/heads/", "")
-    );
+            push.getRepository().gitHttpTransportUrl(),
+                 push.getRef().replace("refs/heads/", "")
+        );
 
     if (!optional.isPresent()) {
       log.warn("No configuration present for repository '{}' and ref '{}'", push.getRepository().gitHttpTransportUrl(), push.getRef());
@@ -55,20 +59,45 @@ public class GitHubDeploymentService {
 
   @Async
   @SneakyThrows
+  @Transactional
   @CacheEvict(FeaturedMod.TYPE_NAME)
-  public void deploy(GHDeployment deployment) {
-    String environment = deployment.getEnvironment();
-    if (!fafApiProperties.getGitHub().getDeploymentEnvironment().equals(environment)) {
-      log.warn("Ignoring deployment for environment: {}", environment);
+  public void deploy(Deployment deployment) {
+    GHDeployment ghDeployment = deployment.getDeployment();
+    String environment = ghDeployment.getEnvironment();
+    String deploymentEnvironment = fafApiProperties.getGitHub().getDeploymentEnvironment();
+    if (!deploymentEnvironment.equals(environment)) {
+      log.warn("Ignoring deployment for environment '{}' as it does not match the current environment '{}'", deploymentEnvironment, environment);
       return;
     }
 
-    String modName = deployment.getPayload();
+    GHRepository repository = deployment.getRepository();
+    int deploymentId = ghDeployment.getId();
+
+    try {
+      performDeployment(ghDeployment, repository, deploymentId);
+    } catch (Exception e) {
+      updateDeploymentStatus(deploymentId, repository, GHDeploymentState.FAILURE, e.getMessage());
+    }
+  }
+
+  private void performDeployment(GHDeployment ghDeployment, GHRepository repository, int deploymentId) throws IOException {
+    String modName = ghDeployment.getPayload();
     FeaturedMod featuredMod = featuredModService.findModByTechnicalName(modName)
       .orElseThrow(() -> new IllegalArgumentException("No such mod: " + modName));
 
     applicationContext.getBean(LegacyFeaturedModDeploymentTask.class)
+      .setStatusDescriptionListener(statusText -> updateDeploymentStatus(deploymentId, repository, GHDeploymentState.PENDING, statusText))
       .setFeaturedMod(featuredMod)
       .run();
+
+    updateDeploymentStatus(deploymentId, repository, GHDeploymentState.SUCCESS, "Successfully deployed");
+  }
+
+  @SneakyThrows
+  private void updateDeploymentStatus(int deploymentId, GHRepository repository, GHDeploymentState state, String description) {
+    log.debug("Updating deployment status to '{}' with description: {}", state, description);
+    repository.createDeployStatus(deploymentId, state)
+      .description(description)
+      .create();
   }
 }

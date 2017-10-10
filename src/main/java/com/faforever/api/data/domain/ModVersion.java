@@ -48,6 +48,8 @@ public class ModVersion {
   private String thumbnailUrl;
   private String downloadUrl;
   private List<ModVersionReview> reviews;
+  private int numberOfReviews;
+  private float averageReviewScore;
 
   @Id
   @Column(name = "id")
@@ -97,6 +99,16 @@ public class ModVersion {
   @Column(name = "hidden")
   public boolean isHidden() {
     return hidden;
+  }
+
+  @Column(name = "reviews")
+  public int getNumberOfReviews() {
+    return numberOfReviews;
+  }
+
+  @Column(name = "average_review_score")
+  public float getAverageReviewScore() {
+    return averageReviewScore;
   }
 
   @Column(name = "create_time")
