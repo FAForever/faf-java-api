@@ -1,10 +1,13 @@
 package com.faforever.api.user;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.data.domain.NameRecord;
+import com.faforever.api.data.domain.Player;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.email.EmailService;
 import com.faforever.api.error.ApiExceptionWithCode;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.security.FafPasswordEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -23,12 +26,15 @@ import org.springframework.security.jwt.crypto.sign.MacSigner;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -52,6 +58,11 @@ public class UserServiceTest {
   private EmailService emailService;
   @Mock
   private UserRepository userRepository;
+  @Mock
+  private PlayerRepository playerRepository;
+  @Mock
+  private NameRecordRepository nameRecordRepository;
+
   private FafApiProperties properties;
   private static FafPasswordEncoder fafPasswordEncoder = new FafPasswordEncoder();
 
@@ -70,7 +81,7 @@ public class UserServiceTest {
 
     properties = new FafApiProperties();
     properties.getJwt().setSecret(TEST_SECRET);
-    instance = new UserService(emailService, userRepository, objectMapper, properties);
+    instance = new UserService(emailService, playerRepository, userRepository, nameRecordRepository, objectMapper, properties);
   }
 
   @Test
@@ -203,11 +214,42 @@ public class UserServiceTest {
   @Test
   public void changeLogin() {
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
+    when(playerRepository.findOne(TEST_USERID)).thenReturn(mock(Player.class));
+    when(nameRecordRepository.getDaysSinceLastNewRecord(anyInt(), anyInt())).thenReturn(Optional.empty());
 
     instance.changeLogin(TEST_USERNAME_CHANED, user);
-    ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
-    verify(userRepository).save(captor.capture());
-    assertEquals(captor.getValue().getLogin(), TEST_USERNAME_CHANED);
+    ArgumentCaptor<User> captorUser = ArgumentCaptor.forClass(User.class);
+    verify(userRepository).save(captorUser.capture());
+    assertEquals(captorUser.getValue().getLogin(), TEST_USERNAME_CHANED);
+    ArgumentCaptor<NameRecord> captorNameRecord = ArgumentCaptor.forClass(NameRecord.class);
+    verify(nameRecordRepository).save(captorNameRecord.capture());
+    assertEquals(captorNameRecord.getValue().getName(), TEST_USERNAME);
+  }
+
+  @Test
+  public void changeLoginWithUsernameInUse() {
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_TAKEN));
+
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
+    when(userRepository.existsByLoginIgnoreCase(TEST_USERNAME_CHANED)).thenReturn(true);
+    instance.changeLogin(TEST_USERNAME_CHANED, user);
+  }
+
+  @Test
+  public void changeLoginWithInvalidUsername() {
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
+
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
+    instance.changeLogin("$%&", user);
+  }
+
+  @Test
+  public void changeLoginTooEarly() {
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_CHANGE_TOO_EARLY));
+    when(nameRecordRepository.getDaysSinceLastNewRecord(anyInt(), anyInt())).thenReturn(Optional.of(5));
+
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
+    instance.changeLogin(TEST_USERNAME_CHANED, user);
   }
 
   @Test

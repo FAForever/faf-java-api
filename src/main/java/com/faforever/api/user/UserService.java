@@ -1,11 +1,13 @@
 package com.faforever.api.user;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.data.domain.NameRecord;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.email.EmailService;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.security.FafPasswordEncoder;
 import com.faforever.api.security.FafUserDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,7 +28,6 @@ import java.util.regex.Pattern;
 @Service
 @Slf4j
 public class UserService {
-
   static final String KEY_ACTION = "action";
   static final String KEY_EXPIRY = "expiry";
   static final String KEY_USERNAME = "username";
@@ -37,16 +38,20 @@ public class UserService {
   private static final String ACTION_ACTIVATE = "activate";
   private static final String ACTION_RESET_PASSWORD = "reset_password";
   private final EmailService emailService;
+  private final PlayerRepository playerRepository;
   private final UserRepository userRepository;
+  private final NameRecordRepository nameRecordRepository;
   private final ObjectMapper objectMapper;
   private final MacSigner macSigner;
   private final FafApiProperties properties;
   private final FafPasswordEncoder passwordEncoder;
 
-  public UserService(EmailService emailService, UserRepository userRepository,
-                     ObjectMapper objectMapper, FafApiProperties properties) {
+  public UserService(EmailService emailService, PlayerRepository playerRepository, UserRepository userRepository,
+                     NameRecordRepository nameRecordRepository, ObjectMapper objectMapper, FafApiProperties properties) {
     this.emailService = emailService;
+    this.playerRepository = playerRepository;
     this.userRepository = userRepository;
+    this.nameRecordRepository = nameRecordRepository;
     this.objectMapper = objectMapper;
     this.macSigner = new MacSigner(properties.getJwt().getSecret());
     this.properties = properties;
@@ -82,11 +87,11 @@ public class UserService {
     long expirationSeconds = properties.getRegistration().getLinkExpirationSeconds();
 
     String claim = objectMapper.writeValueAsString(ImmutableMap.of(
-        KEY_ACTION, ACTION_ACTIVATE,
-        KEY_EXPIRY, Instant.now().plusSeconds(expirationSeconds).toString(),
-        KEY_USERNAME, username,
-        KEY_EMAIL, email,
-        KEY_PASSWORD, passwordHash
+      KEY_ACTION, ACTION_ACTIVATE,
+      KEY_EXPIRY, Instant.now().plusSeconds(expirationSeconds).toString(),
+      KEY_USERNAME, username,
+      KEY_EMAIL, email,
+      KEY_PASSWORD, passwordHash
     ));
 
     return JwtHelper.encode(claim, macSigner).getEncoded();
@@ -140,6 +145,19 @@ public class UserService {
   }
 
   void changeLogin(String newLogin, User user) {
+    validateUsername(newLogin);
+
+    int minDaysBetweenChange = properties.getUser().getMinimumDaysBetweenUsernameChange();
+    nameRecordRepository.getDaysSinceLastNewRecord(user.getId(), minDaysBetweenChange)
+      .ifPresent(daysSinceLastRecord -> {
+        throw new ApiException(new Error(ErrorCode.USERNAME_CHANGE_TOO_EARLY, minDaysBetweenChange - daysSinceLastRecord));
+      });
+
+    NameRecord nameRecord = new NameRecord()
+      .setName(user.getLogin())
+      .setPlayer(playerRepository.findOne(user.getId()));
+    nameRecordRepository.save(nameRecord);
+
     user.setLogin(newLogin);
     userRepository.save(user);
   }
@@ -164,9 +182,9 @@ public class UserService {
     long expirationSeconds = properties.getRegistration().getLinkExpirationSeconds();
 
     String claim = objectMapper.writeValueAsString(ImmutableMap.of(
-        KEY_ACTION, ACTION_RESET_PASSWORD,
-        KEY_EXPIRY, Instant.now().plusSeconds(expirationSeconds).toString(),
-        KEY_USER_ID, userId
+      KEY_ACTION, ACTION_RESET_PASSWORD,
+      KEY_EXPIRY, Instant.now().plusSeconds(expirationSeconds).toString(),
+      KEY_USER_ID, userId
     ));
 
     return JwtHelper.encode(claim, macSigner).getEncoded();
@@ -197,8 +215,8 @@ public class UserService {
 
   public User getUser(Authentication authentication) {
     if (authentication != null
-        && authentication.getPrincipal() != null
-        && authentication.getPrincipal() instanceof FafUserDetails) {
+      && authentication.getPrincipal() != null
+      && authentication.getPrincipal() instanceof FafUserDetails) {
       return userRepository.findOne(((FafUserDetails) authentication.getPrincipal()).getId());
     }
 

@@ -28,6 +28,7 @@ public class FafApiProperties {
   private PasswordReset passwordReset = new PasswordReset();
   private Mail mail = new Mail();
   private Challonge challonge = new Challonge();
+  private User user = new User();
 
   @Data
   public static class OAuth2 {
@@ -166,5 +167,10 @@ public class FafApiProperties {
   public static class Challonge {
     private String baseUrl = "https://api.challonge.com";
     private String key;
+  }
+
+  @Data
+  public static class User {
+    private int minimumDaysBetweenUsernameChange = 30;
   }
 }
