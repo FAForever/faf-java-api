@@ -27,3 +27,5 @@ faf-api:
     secret: banana
   clan:
     website-url-format: "http://example.com/%s"
+  user:
+    minimum-days-between-username-change: 30
