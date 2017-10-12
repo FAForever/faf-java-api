@@ -11,6 +11,8 @@ faf-api:
   mod:
     download-url-format: ${MOD_DOWNLOAD_URL_FORMAT}
     preview-url-format: ${MOD_PREVIEW_URL_FORMAT}
+    target-directory: ${MOD_TARGET_DIRECTORY}
+    thumbnail-target-directory: ${MOD_THUMBNAIL_TARGET_DIRECTORY}
   replay:
     download-url-format: ${REPLAY_DOWNLOAD_URL_FORMAT}
   featured-mod:
