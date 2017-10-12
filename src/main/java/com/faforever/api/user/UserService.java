@@ -143,7 +143,7 @@ public class UserService {
 
   void changePassword(String currentPassword, String newPassword, User user) {
     if (!Objects.equals(user.getPassword(), passwordEncoder.encode(currentPassword))) {
-      throw new ApiException(new Error(ErrorCode.PASSWORD_CHANGE_FAILED));
+      throw new ApiException(new Error(ErrorCode.PASSWORD_CHANGE_FAILED_WRONG_PASSWORD));
     }
 
     user.setPassword(passwordEncoder.encode(newPassword));
@@ -176,13 +176,17 @@ public class UserService {
     userRepository.save(user);
   }
 
-  void resetPassword(String email) {
-    log.debug("Registration requested for user: {}", email);
+  void resetPassword(String identifier) {
+    log.debug("Password reset requested for user-identifier: {}", identifier);
 
-    User user = userRepository.findOneByEmailIgnoreCase(email);
+    User user = userRepository.findOneByLoginIgnoreCase(identifier);
 
     if (user == null) {
-      throw new ApiException(new Error(ErrorCode.USERNAME_INVALID));
+      user = userRepository.findOneByEmailIgnoreCase(identifier);
+    }
+
+    if (user == null) {
+      throw new ApiException(new Error(ErrorCode.UNKNOWN_IDENTIFIER));
     }
 
     String token = createPasswordResetToken(user.getId());
