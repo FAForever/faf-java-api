@@ -44,7 +44,7 @@ public enum ErrorCode {
   TOKEN_INVALID(135, "Invalid operation", "The delivered token is invalid."),
   TOKEN_EXPIRED(136, "Invalid operation", "The delivered token has expired."),
   PASSWORD_RESET_FAILED(137, "Password reset failed", "Username and/or email did not match."),
-  PASSWORD_CHANGE_FAILED(138, "Password change failed", "Your current password did not match."),
+  PASSWORD_CHANGE_FAILED_WRONG_PASSWORD(138, "Password change failed", "Your current password did not match."),
   USERNAME_CHANGE_TOO_EARLY(139, "Username change not allowed", "Only one name change per 30 days is allowed. {0} more days to go."),
   EMAIL_CHANGE_FAILED(140, "Email change failed", "An unknown error happened while updating the database."),
   STEAM_ID_UNCHANGEABLE(141, "Linking to Steam failed", "Your account is already bound to another Steam ID."),
@@ -68,7 +68,8 @@ public enum ErrorCode {
   MOD_UID_EXISTS(159, "Duplicate mod UID", "A mod with UID ''{0}'' already exists."),
   MOD_STRUCTURE_INVALID(160, "Invalid file structure for mod", "Files in the the root level of the zip file are not allowed. Please ensure all files reside inside a folder."),
   MOD_VERSION_NOT_A_NUMBER(161, "Mod version is not a number", "The mod version has to be a whole number like 123, but was ''{0}''"),
-  USERNAME_RESERVED(162, "Invalid account data", "The entered username is currently reserved: {0} (Maximum reservation time is {1} months)");
+  USERNAME_RESERVED(162, "Invalid account data", "The username ''{0}'' can only be claimed by the original owner within {1} months after it has been freed."),
+  UNKNOWN_IDENTIFIER(163, "Unable to resolve user", "The identifier does neither match a username nor an email: {0}");
 
   private final int code;
   private final String title;

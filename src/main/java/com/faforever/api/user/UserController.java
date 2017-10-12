@@ -47,10 +47,10 @@ public class UserController {
     userService.changeLogin(newUsername, userService.getUser(authentication));
   }
 
-  @ApiOperation("Sends a password reset to the email linked by this account.")
+  @ApiOperation("Sends a password reset to the username OR email linked by this account.")
   @RequestMapping(path = "/resetPassword", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-  public void resetPassword(@RequestParam("email") String email) {
-    userService.resetPassword(email);
+  public void resetPassword(@RequestParam("identifier") String identifier) {
+    userService.resetPassword(identifier);
   }
 
   @ApiOperation("Sets a new password for an account.")

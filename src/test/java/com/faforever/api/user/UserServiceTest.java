@@ -213,7 +213,7 @@ public class UserServiceTest {
 
   @Test
   public void changePasswordInvalidPassword() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.PASSWORD_CHANGE_FAILED));
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.PASSWORD_CHANGE_FAILED_WRONG_PASSWORD));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, "invalid password", TEST_EMAIL);
     instance.changePassword(TEST_CURRENT_PASSWORD, TEST_NEW_PASSWORD, user);
@@ -280,7 +280,34 @@ public class UserServiceTest {
   @Test
   @SneakyThrows
   @SuppressWarnings("unchecked")
-  public void resetPassword() {
+  public void resetPasswordByLogin() {
+    properties.getPasswordReset().setPasswordResetUrlFormat("http://www.example.com/resetPassword/%s");
+
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
+
+    when(userRepository.findOneByLoginIgnoreCase(TEST_USERNAME)).thenReturn(user);
+    instance.resetPassword(TEST_USERNAME);
+
+    verify(userRepository).findOneByLoginIgnoreCase(TEST_USERNAME);
+
+    ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
+    verify(emailService).sendPasswordResetMail(eq(TEST_USERNAME), eq(TEST_EMAIL), urlCaptor.capture());
+
+    String passwordResetUrl = urlCaptor.getValue();
+    assertThat(passwordResetUrl, startsWith("http://www.example.com/resetPassword/"));
+
+    String token = passwordResetUrl.split("/")[4];
+    HashMap<String, String> claims = objectMapper.readValue(JwtHelper.decode(token).getClaims(), HashMap.class);
+
+    assertThat(claims.get(UserService.KEY_ACTION), is("reset_password"));
+    assertThat(claims.get(UserService.KEY_USER_ID), is(user.getId()));
+    assertThat(Instant.parse(claims.get(UserService.KEY_EXPIRY)).isAfter(Instant.now()), is(true));
+  }
+
+  @Test
+  @SneakyThrows
+  @SuppressWarnings("unchecked")
+  public void resetPasswordByEmail() {
     properties.getPasswordReset().setPasswordResetUrlFormat("http://www.example.com/resetPassword/%s");
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
@@ -307,8 +334,8 @@ public class UserServiceTest {
   @Test
   @SneakyThrows
   @SuppressWarnings("unchecked")
-  public void resetPasswordUnknownUser() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
+  public void resetPasswordUnknownUsernameAndEmail() {
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.UNKNOWN_IDENTIFIER));
 
     when(userRepository.findOneByEmailIgnoreCase(TEST_EMAIL)).thenReturn(null);
     instance.resetPassword(TEST_EMAIL);
