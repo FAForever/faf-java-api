@@ -32,6 +32,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -143,6 +144,13 @@ public class UserServiceTest {
   }
 
   @Test
+  public void registerUsernameReserved() throws Exception {
+    when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(1));
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_RESERVED));
+    instance.register("junit", TEST_EMAIL, TEST_CURRENT_PASSWORD);
+  }
+
+  @Test
   public void activate() throws Exception {
     String token = JwtHelper.encode(objectMapper.writeValueAsString(ImmutableMap.of(
       UserService.KEY_ACTION, "activate",
@@ -247,6 +255,23 @@ public class UserServiceTest {
   public void changeLoginTooEarly() {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_CHANGE_TOO_EARLY));
     when(nameRecordRepository.getDaysSinceLastNewRecord(anyInt(), anyInt())).thenReturn(Optional.of(5));
+
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
+    instance.changeLogin(TEST_USERNAME_CHANED, user);
+  }
+
+  @Test
+  public void changeLoginUsernameReserved() {
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_RESERVED));
+    when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(TEST_USERID + 1));
+
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
+    instance.changeLogin(TEST_USERNAME_CHANED, user);
+  }
+
+  @Test
+  public void changeLoginUsernameReservedBySelf() {
+    when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(TEST_USERID));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
     instance.changeLogin(TEST_USERNAME_CHANED, user);

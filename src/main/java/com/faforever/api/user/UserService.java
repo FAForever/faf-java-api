@@ -67,6 +67,12 @@ public class UserService {
       throw new ApiException(new Error(ErrorCode.EMAIL_REGISTERED, email));
     }
 
+    int usernameReservationTimeInMonths = properties.getUser().getUsernameReservationTimeInMonths();
+    nameRecordRepository.getLastUsernameOwnerWithinMonths(username, usernameReservationTimeInMonths)
+      .ifPresent(reservedByUserId -> {
+        throw new ApiException(new Error(ErrorCode.USERNAME_RESERVED, username, usernameReservationTimeInMonths));
+      });
+
     String token = createRegistrationToken(username, email, passwordEncoder.encode(password));
     String activationUrl = String.format(properties.getRegistration().getActivationUrlFormat(), token);
 
@@ -151,6 +157,14 @@ public class UserService {
     nameRecordRepository.getDaysSinceLastNewRecord(user.getId(), minDaysBetweenChange)
       .ifPresent(daysSinceLastRecord -> {
         throw new ApiException(new Error(ErrorCode.USERNAME_CHANGE_TOO_EARLY, minDaysBetweenChange - daysSinceLastRecord));
+      });
+
+    int usernameReservationTimeInMonths = properties.getUser().getUsernameReservationTimeInMonths();
+    nameRecordRepository.getLastUsernameOwnerWithinMonths(newLogin, usernameReservationTimeInMonths)
+      .ifPresent(reservedByUserId -> {
+        if (reservedByUserId != user.getId()) {
+          throw new ApiException(new Error(ErrorCode.USERNAME_RESERVED, newLogin, usernameReservationTimeInMonths));
+        }
       });
 
     NameRecord nameRecord = new NameRecord()

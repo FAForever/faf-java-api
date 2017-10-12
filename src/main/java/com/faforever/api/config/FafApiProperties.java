@@ -172,5 +172,6 @@ public class FafApiProperties {
   @Data
   public static class User {
     private int minimumDaysBetweenUsernameChange = 30;
+    private int usernameReservationTimeInMonths = 6;
   }
 }

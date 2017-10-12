@@ -67,7 +67,8 @@ public enum ErrorCode {
   VALIDATION_FAILED(158, "Validation failed", "{0}"),
   MOD_UID_EXISTS(159, "Duplicate mod UID", "A mod with UID ''{0}'' already exists."),
   MOD_STRUCTURE_INVALID(160, "Invalid file structure for mod", "Files in the the root level of the zip file are not allowed. Please ensure all files reside inside a folder."),
-  MOD_VERSION_NOT_A_NUMBER(161, "Mod version is not a number", "The mod version has to be a whole number like 123, but was ''{0}''");
+  MOD_VERSION_NOT_A_NUMBER(161, "Mod version is not a number", "The mod version has to be a whole number like 123, but was ''{0}''"),
+  USERNAME_RESERVED(162, "Invalid account data", "The entered username is currently reserved: {0} (Maximum reservation time is {1} months)");
 
   private final int code;
   private final String title;
