@@ -179,15 +179,9 @@ public class UserService {
   void resetPassword(String identifier) {
     log.debug("Password reset requested for user-identifier: {}", identifier);
 
-    User user = userRepository.findOneByLoginIgnoreCase(identifier);
-
-    if (user == null) {
-      user = userRepository.findOneByEmailIgnoreCase(identifier);
-    }
-
-    if (user == null) {
-      throw new ApiException(new Error(ErrorCode.UNKNOWN_IDENTIFIER));
-    }
+    User user = userRepository.findOneByLoginIgnoreCase(identifier)
+      .orElseGet(() -> userRepository.findOneByEmailIgnoreCase(identifier)
+        .orElseThrow(() -> new ApiException(new Error(ErrorCode.UNKNOWN_IDENTIFIER))));
 
     String token = createPasswordResetToken(user.getId());
     String passwordResetUrl = String.format(properties.getPasswordReset().getPasswordResetUrlFormat(), token);
