@@ -285,7 +285,7 @@ public class UserServiceTest {
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
 
-    when(userRepository.findOneByLoginIgnoreCase(TEST_USERNAME)).thenReturn(user);
+    when(userRepository.findOneByLoginIgnoreCase(TEST_USERNAME)).thenReturn(Optional.of(user));
     instance.resetPassword(TEST_USERNAME);
 
     verify(userRepository).findOneByLoginIgnoreCase(TEST_USERNAME);
@@ -312,7 +312,7 @@ public class UserServiceTest {
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
 
-    when(userRepository.findOneByEmailIgnoreCase(TEST_EMAIL)).thenReturn(user);
+    when(userRepository.findOneByEmailIgnoreCase(TEST_EMAIL)).thenReturn(Optional.of(user));
     instance.resetPassword(TEST_EMAIL);
 
     verify(userRepository).findOneByEmailIgnoreCase(TEST_EMAIL);
@@ -337,7 +337,8 @@ public class UserServiceTest {
   public void resetPasswordUnknownUsernameAndEmail() {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.UNKNOWN_IDENTIFIER));
 
-    when(userRepository.findOneByEmailIgnoreCase(TEST_EMAIL)).thenReturn(null);
+    when(userRepository.findOneByEmailIgnoreCase(TEST_EMAIL)).thenReturn(Optional.empty());
+    when(userRepository.findOneByEmailIgnoreCase(TEST_EMAIL)).thenReturn(Optional.empty());
     instance.resetPassword(TEST_EMAIL);
   }
 
