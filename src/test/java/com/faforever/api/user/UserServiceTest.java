@@ -12,6 +12,7 @@ import com.faforever.api.security.FafPasswordEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.hash.Hashing;
 import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Rule;
@@ -24,6 +25,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.MacSigner;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Optional;
@@ -63,6 +65,8 @@ public class UserServiceTest {
   private PlayerRepository playerRepository;
   @Mock
   private NameRecordRepository nameRecordRepository;
+  @Mock
+  private AnopeUserRepository anopeUserRepository;
 
   private FafApiProperties properties;
   private static FafPasswordEncoder fafPasswordEncoder = new FafPasswordEncoder();
@@ -82,7 +86,7 @@ public class UserServiceTest {
 
     properties = new FafApiProperties();
     properties.getJwt().setSecret(TEST_SECRET);
-    instance = new UserService(emailService, playerRepository, userRepository, nameRecordRepository, objectMapper, properties);
+    instance = new UserService(emailService, playerRepository, userRepository, nameRecordRepository, objectMapper, properties, anopeUserRepository);
   }
 
   @Test
@@ -209,6 +213,7 @@ public class UserServiceTest {
     ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
     verify(userRepository).save(captor.capture());
     assertEquals(captor.getValue().getPassword(), fafPasswordEncoder.encode(TEST_NEW_PASSWORD));
+    verify(anopeUserRepository).updatePassword(TEST_USERNAME, Hashing.md5().hashString(TEST_NEW_PASSWORD, StandardCharsets.UTF_8).toString());
   }
 
   @Test
@@ -360,6 +365,7 @@ public class UserServiceTest {
     ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
     verify(userRepository).save(captor.capture());
     assertEquals(captor.getValue().getPassword(), fafPasswordEncoder.encode(TEST_NEW_PASSWORD));
+    verify(anopeUserRepository).updatePassword(TEST_USERNAME, Hashing.md5().hashString(TEST_NEW_PASSWORD, StandardCharsets.UTF_8).toString());
   }
 
   @Test

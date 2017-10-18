@@ -12,6 +12,7 @@ import com.faforever.api.security.FafPasswordEncoder;
 import com.faforever.api.security.FafUserDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.hash.Hashing;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -20,6 +21,7 @@ import org.springframework.security.jwt.crypto.sign.MacSigner;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Objects;
@@ -45,9 +47,10 @@ public class UserService {
   private final MacSigner macSigner;
   private final FafApiProperties properties;
   private final FafPasswordEncoder passwordEncoder;
+  private final AnopeUserRepository anopeUserRepository;
 
   public UserService(EmailService emailService, PlayerRepository playerRepository, UserRepository userRepository,
-                     NameRecordRepository nameRecordRepository, ObjectMapper objectMapper, FafApiProperties properties) {
+                     NameRecordRepository nameRecordRepository, ObjectMapper objectMapper, FafApiProperties properties, AnopeUserRepository anopeUserRepository) {
     this.emailService = emailService;
     this.playerRepository = playerRepository;
     this.userRepository = userRepository;
@@ -55,6 +58,7 @@ public class UserService {
     this.objectMapper = objectMapper;
     this.macSigner = new MacSigner(properties.getJwt().getSecret());
     this.properties = properties;
+    this.anopeUserRepository = anopeUserRepository;
     this.passwordEncoder = new FafPasswordEncoder();
   }
 
@@ -146,8 +150,7 @@ public class UserService {
       throw new ApiException(new Error(ErrorCode.PASSWORD_CHANGE_FAILED_WRONG_PASSWORD));
     }
 
-    user.setPassword(passwordEncoder.encode(newPassword));
-    userRepository.save(user);
+    setPassword(user, newPassword);
   }
 
   void changeLogin(String newLogin, User user) {
@@ -221,8 +224,15 @@ public class UserService {
       throw new ApiException(new Error(ErrorCode.TOKEN_INVALID));
     }
 
-    user.setPassword(passwordEncoder.encode(newPassword));
+    setPassword(user, newPassword);
+  }
+
+  private void setPassword(User user, String password) {
+    log.debug("Updating FAF password for user: {}", user);
+    user.setPassword(passwordEncoder.encode(password));
     userRepository.save(user);
+    log.debug("Updating anope password for user: {}", user);
+    anopeUserRepository.updatePassword(user.getLogin(), Hashing.md5().hashString(password, StandardCharsets.UTF_8).toString());
   }
 
   public User getUser(Authentication authentication) {
