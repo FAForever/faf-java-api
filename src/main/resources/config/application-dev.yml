@@ -30,13 +30,13 @@ faf-api:
   registration:
     activation-url-format: ${ACTIVATION_URL_FORMAT:http://localhost:8010/users/activate/%s}
   password-reset:
-    reset-password-url-format: ${PASSWORD_RESET_URL_FORMAT:http://localhost:8010/users/claimPasswordResetToken/%s}
+    password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT:http://localhost:8010/users/claimPasswordResetToken/%s}
 
 spring:
   datasource:
     url: jdbc:mysql://${DATABASE_ADDRESS:localhost}/${DATABASE_NAME:faf}?useSSL=false
     name: faf
-    username: ${DATABASE_USERNAME:faf-api}
+    username: ${DATABASE_USERNAME:faf-java-api}
     password: ${DATABASE_PASSWORD:banana}
   jpa:
     show-sql: true
