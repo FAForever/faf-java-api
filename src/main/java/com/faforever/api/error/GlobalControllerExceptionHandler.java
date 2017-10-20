@@ -2,6 +2,7 @@ package com.faforever.api.error;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -86,6 +87,22 @@ class GlobalControllerExceptionHandler {
     response.addError(new ErrorResult(
       String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
       HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+      ex.getMessage()
+    ));
+    return response;
+  }
+
+
+  @ExceptionHandler(AccessDeniedException.class)
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  @ResponseBody
+  public ErrorResponse processAccessDeniedException(Throwable ex) throws MissingServletRequestPartException {
+    log.debug("Access denied", ex);
+
+    ErrorResponse response = new ErrorResponse();
+    response.addError(new ErrorResult(
+      String.valueOf(HttpStatus.FORBIDDEN.value()),
+      ex.getClass().getName(),
       ex.getMessage()
     ));
     return response;

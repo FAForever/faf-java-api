@@ -28,6 +28,8 @@ faf-api:
     featured-mods-target-directory: ${FEATURED_MODS_TARGET_DIRECTORY}
   registration:
     activation-url-format: ${ACTIVATION_URL_FORMAT}
+  password-reset:
+    password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT}
   mail:
     mandrill-api-key: ${MANDRILL_API_KEY}
   clan:

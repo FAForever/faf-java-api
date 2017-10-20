@@ -107,6 +107,7 @@ tasks.withType(Test) {
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'propdeps'
+apply plugin: 'idea'
 
 group = 'faforever'
 version = '0.9.1'
@@ -123,13 +124,19 @@ repositories {
 
 compileJava.dependsOn(processResources)
 task wrapper(type: Wrapper) {
-  gradleVersion = '3.2.1'
+  gradleVersion = '4.2.1'
 }
 
 configurations {
   compile.exclude module: "spring-boot-starter-tomcat"
   compile.exclude module: "tomcat-jdbc"
   compile.exclude module: "assertj-core"
+}
+
+idea {
+  module {
+    testSourceDirs += file('src/inttest/java')
+  }
 }
 
 processResources {
@@ -233,6 +240,31 @@ configurations.all {
   // Cache -SNAPSHOT for 60 seconds only
   resolutionStrategy.cacheChangingModulesFor 60, 'seconds'
 }
+
+sourceSets {
+  inttest {
+    java.srcDir 'src/inttest/java'
+    resources.srcDir 'src/inttest/resources'
+    compileClasspath += main.output + test.output
+    runtimeClasspath += main.output + test.output
+  }
+}
+
+configurations {
+  inttestCompile.extendsFrom testCompile
+  inttestRuntime.extendsFrom testRuntime
+}
+
+
+task inttest(type: Test) {
+  group = LifecycleBasePlugin.VERIFICATION_GROUP
+  description = "Runs the integration tests."
+
+  testClassesDir = sourceSets.inttest.output.classesDir
+  classpath = sourceSets.inttest.runtimeClasspath
+  mustRunAfter test
+}
+build.dependsOn inttest
 
 dependencyManagement {
   dependencies {
