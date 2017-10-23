@@ -1,6 +1,7 @@
 package com.faforever.api.email;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.config.FafApiProperties.PasswordReset;
 import com.faforever.api.config.FafApiProperties.Registration;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
@@ -48,6 +49,18 @@ public class EmailService {
         email,
         registration.getSubject(),
         String.format(registration.getHtmlFormat(), username, activationUrl)
+    );
+  }
+
+  @SneakyThrows
+  public void sendPasswordResetMail(String username, String email, String passwordResetUrl) {
+    PasswordReset passwordReset = properties.getPasswordReset();
+    emailSender.sendMail(
+        passwordReset.getFromEmail(),
+        passwordReset.getFromName(),
+        email,
+        passwordReset.getSubject(),
+        String.format(passwordReset.getHtmlFormat(), username, passwordResetUrl)
     );
   }
 }

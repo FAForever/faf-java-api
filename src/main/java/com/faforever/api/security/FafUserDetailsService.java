@@ -24,10 +24,9 @@ public class FafUserDetailsService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    User user = userRepository.findOneByLoginIgnoreCase(username); 
-    if (user == null) {
-      throw new UsernameNotFoundException("User could not be found: " + username);
-    }
+    User user = userRepository.findOneByLoginIgnoreCase(username)
+      .orElseThrow(() -> new UsernameNotFoundException("User could not be found: " + username));
+
     return new FafUserDetails(user);
   }
-} 
+}

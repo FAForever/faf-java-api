@@ -25,8 +25,10 @@ public class FafApiProperties {
   private GitHub gitHub = new GitHub();
   private Deployment deployment = new Deployment();
   private Registration registration = new Registration();
+  private PasswordReset passwordReset = new PasswordReset();
   private Mail mail = new Mail();
   private Challonge challonge = new Challonge();
+  private User user = new User();
 
   @Data
   public static class OAuth2 {
@@ -143,8 +145,18 @@ public class FafApiProperties {
 
   @Data
   public static class Registration {
-    private int linkExpirationSeconds = 3600 * 24;
+    private long linkExpirationSeconds = Duration.ofDays(1).getSeconds();
     private String activationUrlFormat;
+    private String subject;
+    private String htmlFormat;
+    private String fromEmail;
+    private String fromName;
+  }
+
+  @Data
+  public static class PasswordReset {
+    private long linkExpirationSeconds = Duration.ofDays(1).getSeconds();
+    private String passwordResetUrlFormat;
     private String subject;
     private String htmlFormat;
     private String fromEmail;
@@ -155,5 +167,11 @@ public class FafApiProperties {
   public static class Challonge {
     private String baseUrl = "https://api.challonge.com";
     private String key;
+  }
+
+  @Data
+  public static class User {
+    private int minimumDaysBetweenUsernameChange = 30;
+    private int usernameReservationTimeInMonths = 6;
   }
 }

@@ -2,6 +2,8 @@ package com.faforever.api.user;
 
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,8 +28,34 @@ public class UserController {
   }
 
   @ApiOperation("Activates a previously registered account.")
-  @RequestMapping(path = "/activate", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+  @RequestMapping(path = "/activate", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
   public void activate(@RequestParam("token") String token) {
     userService.activate(token);
+  }
+
+  @PreAuthorize("#oauth2.hasScope('change_password') and hasRole('ROLE_USER')")
+  @ApiOperation("Changes the password of a previously registered account.")
+  @RequestMapping(path = "/changePassword", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+  public void changePassword(@RequestParam("currentPassword") String currentPassword, @RequestParam("newPassword") String newPassword, Authentication authentication) {
+    userService.changePassword(currentPassword, newPassword, userService.getUser(authentication));
+  }
+
+  @PreAuthorize("#oauth2.hasScope('change_login') and hasRole('ROLE_USER')")
+  @ApiOperation("Changes the login of a previously registered account.")
+  @RequestMapping(path = "/changeUsername", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+  public void changeLogin(@RequestParam("newUsername") String newUsername, Authentication authentication) {
+    userService.changeLogin(newUsername, userService.getUser(authentication));
+  }
+
+  @ApiOperation("Sends a password reset to the username OR email linked by this account.")
+  @RequestMapping(path = "/resetPassword", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+  public void resetPassword(@RequestParam("identifier") String identifier) {
+    userService.resetPassword(identifier);
+  }
+
+  @ApiOperation("Sets a new password for an account.")
+  @RequestMapping(path = "/claimPasswordResetToken", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+  public void claimPasswordResetToken(@RequestParam("token") String token, @RequestParam("newPassword") String newPassword) {
+    userService.claimPasswordResetToken(token, newPassword);
   }
 }
