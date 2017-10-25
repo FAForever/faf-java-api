@@ -1,71 +1,36 @@
 package com.faforever.api.user;
 
+
+import com.faforever.api.AbstractIntegrationTest;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.security.OAuthScope;
-import com.faforever.integration.OAuthHelper;
 import com.google.common.collect.Sets;
-import org.json.JSONObject;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.context.WebApplicationContext;
 
-import javax.transaction.Transactional;
 import java.util.Collections;
 
 import static junitx.framework.Assert.assertEquals;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("integration-test")
-@Import(OAuthHelper.class)
-@Transactional
-@Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/createUsers.sql")
-public class UserControllerTest {
-  protected final static String AUTH_USER = "USER";
-  protected final static String AUTH_MODERATOR = "MODERATOR";
-  protected final static String AUTH_ADMIN = "ADMIN";
-  MockMvc mockMvc;
-  @Autowired
-  private WebApplicationContext context;
-  @Autowired
-  private OAuthHelper oAuthHelper;
+public class UserControllerTest extends AbstractIntegrationTest {
+  @MockBean
+  private AnopeUserRepository anopeUserRepository;
 
   @Autowired
   private UserRepository userRepository;
-
-  @Before
-  public void setUp() {
-    this.mockMvc = MockMvcBuilders
-      .webAppContextSetup(this.context)
-      .apply(springSecurity())
-      .build();
-  }
-
-  void assertApiError(MvcResult mvcResult, ErrorCode errorCode) throws Exception {
-    JSONObject resonseJson = new JSONObject(mvcResult.getResponse().getContentAsString());
-    JSONAssert.assertEquals(String.format("{\"errors\":[{\"code\":\"%s\"}]}", errorCode.getCode()), resonseJson, false);
-  }
 
   @Test
   @WithUserDetails(AUTH_USER)
@@ -80,6 +45,7 @@ public class UserControllerTest {
 
     User user = userRepository.findOneByLoginIgnoreCase(AUTH_USER).get();
     assertEquals(user.getPassword(), "5c29a959abce4eda5f0e7a4e7ea53dce4fa0f0abbe8eaa63717e2fed5f193d31");
+    verify(anopeUserRepository, times(1)).updatePassword(eq(AUTH_USER), anyString());
   }
 
   @Test
