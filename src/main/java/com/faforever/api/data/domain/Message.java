@@ -24,7 +24,7 @@ public class Message {
     return id;
   }
 
-  @Column(name = "key")
+  @Column(name = "`key`")
   public String getKey() {
     return key;
   }

@@ -2,14 +2,14 @@ spring:
   profiles:
     include: int
   datasource:
-    url: jdbc:h2:mem:faf
-    username: root
-    password: banana
-    driverClassName: org.h2.Driver
+    url: jdbc:mysql://${DATABASE_ADDRESS:localhost}/${DATABASE_NAME:faf}?useSSL=false
+    name: ${DATABASE_NAME:faf}
+    username: ${DATABASE_USERNAME:faf-java-api}
+    password: ${DATABASE_PASSWORD:banana}
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: ${DATABASE_DDL_AUTO:none}
     properties:
       hibernate:
         current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
@@ -29,3 +29,9 @@ faf-api:
     website-url-format: "http://example.com/%s"
   user:
     minimum-days-between-username-change: 30
+  registration:
+    activation-url-format: "http://localhost/users/activate?token=%s"
+    subject: "Integration test registration"
+    html-format: "Integration test registration html body"
+    from-email: "integration-test@faforever.com"
+    from-name: "integration-test@faforever.com"
