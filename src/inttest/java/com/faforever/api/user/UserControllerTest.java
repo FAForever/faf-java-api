@@ -6,17 +6,13 @@ import com.faforever.api.data.domain.User;
 import com.faforever.api.email.EmailSender;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.security.OAuthScope;
-import com.google.common.collect.Sets;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.util.MultiValueMap;
-
-import java.util.Collections;
 
 import static junitx.framework.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -60,8 +56,10 @@ public class UserControllerTest extends AbstractIntegrationTest {
     params.add("currentPassword", AUTH_USER);
     params.add("newPassword", NEW_PASSWORD);
 
-    RequestPostProcessor oauthToken = oAuthHelper.addBearerToken(Sets.newHashSet(OAuthScope._WRITE_ACCOUNT_DATA));
-    mockMvc.perform(post("/users/changePassword").with(oauthToken).params(params))
+    mockMvc.perform(
+      post("/users/changePassword")
+        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .params(params))
       .andExpect(status().isOk());
 
     User user = userRepository.findOneByLoginIgnoreCase(AUTH_USER).get();
@@ -76,8 +74,9 @@ public class UserControllerTest extends AbstractIntegrationTest {
     params.add("currentPassword", AUTH_USER);
     params.add("newPassword", NEW_PASSWORD);
 
-    RequestPostProcessor oauthToken = oAuthHelper.addBearerToken(Collections.emptySet());
-    mockMvc.perform(post("/users/changePassword").with(oauthToken).params(params))
+    mockMvc.perform(
+      post("/users/changePassword")
+        .params(params))
       .andExpect(status().isForbidden());
   }
 
@@ -88,8 +87,10 @@ public class UserControllerTest extends AbstractIntegrationTest {
     params.add("currentPassword", "wrongPassword");
     params.add("newPassword", NEW_PASSWORD);
 
-    RequestPostProcessor oauthToken = oAuthHelper.addBearerToken(Sets.newHashSet(OAuthScope._WRITE_ACCOUNT_DATA));
-    MvcResult mvcResult = mockMvc.perform(post("/users/changePassword").with(oauthToken).params(params))
+    MvcResult mvcResult = mockMvc.perform(
+      post("/users/changePassword")
+        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .params(params))
       .andExpect(status().is4xxClientError())
       .andReturn();
 

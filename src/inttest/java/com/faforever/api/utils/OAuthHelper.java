@@ -1,4 +1,4 @@
-package com.faforever.integration;
+package com.faforever.api.utils;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
