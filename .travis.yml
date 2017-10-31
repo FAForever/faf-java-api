@@ -10,14 +10,14 @@ git:
 before_install:
   - sudo /etc/init.d/mysql stop
   - sudo rm /usr/local/bin/docker-compose
-  - curl -L https://github.com/docker/compose/releases/download/1.10.0/docker-compose-`uname -s`-`uname -m` > /tmp/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/1.16.1/docker-compose-`uname -s`-`uname -m` > /tmp/docker-compose
   - chmod +x /tmp/docker-compose
   - sudo mv /tmp/docker-compose /usr/local/bin
 
 install:
   - git clone https://github.com/FAForever/faf-stack.git faf-stack
       && pushd faf-stack
-      && git checkout 024322dfef9c600f458b91baeb1b4a7326b31580
+      && git checkout 17.10.26
       && cp -r config.template config
       && popd
   - docker-compose -f faf-stack/docker-compose.yml up -d faf-db
