@@ -1,10 +1,11 @@
 package com.faforever.api;
 
 import com.faforever.api.error.ErrorCode;
-import com.faforever.integration.OAuthHelper;
+import com.faforever.api.utils.OAuthHelper;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.mockito.internal.util.collections.Sets;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +17,7 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -45,6 +47,10 @@ public abstract class AbstractIntegrationTest {
       .webAppContextSetup(this.context)
       .apply(springSecurity())
       .build();
+  }
+
+  protected RequestPostProcessor getOAuthToken(String... scope) {
+    return oAuthHelper.addBearerToken(Sets.newSet(scope));
   }
 
   protected void assertApiError(MvcResult mvcResult, ErrorCode errorCode) throws Exception {
