@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -63,6 +64,7 @@ public class ClansController {
       @ApiResponse(code = 200, message = "Success with JSON { id: ?, type: 'clan'}"),
       @ApiResponse(code = 400, message = "Bad Request")})
   @RequestMapping(path = "/create", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PreAuthorize("hasRole('ROLE_USER')")
   @Transactional
   public Map<String, Serializable> createClan(@RequestParam(value = "name") String name,
                                               @RequestParam(value = "tag") String tag,

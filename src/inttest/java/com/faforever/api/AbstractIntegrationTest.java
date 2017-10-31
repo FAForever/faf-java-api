@@ -30,7 +30,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @ActiveProfiles("integration-test")
 @Import(OAuthHelper.class)
 @Transactional
-@Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/createUsers.sql")
+@Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultUser.sql")
 public abstract class AbstractIntegrationTest {
   protected final static String AUTH_USER = "USER";
   protected final static String AUTH_MODERATOR = "MODERATOR";
