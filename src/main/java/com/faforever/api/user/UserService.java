@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import static com.faforever.api.error.ErrorCode.TOKEN_INVALID;
+
 @Service
 @Slf4j
 public class UserService {
@@ -241,7 +243,6 @@ public class UserService {
       && authentication.getPrincipal() instanceof FafUserDetails) {
       return userRepository.findOne(((FafUserDetails) authentication.getPrincipal()).getId());
     }
-
-    throw new IllegalStateException("Authentication missing");
+    throw new ApiException(new Error(TOKEN_INVALID));
   }
 }
