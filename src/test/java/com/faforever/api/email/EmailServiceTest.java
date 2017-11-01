@@ -68,7 +68,7 @@ public class EmailServiceTest {
     registration.setFromEmail("foo@bar.com");
     registration.setFromName("foobar");
     registration.setSubject("Hello");
-    registration.setHtmlFormat("Hello %s, bla: %s");
+    registration.setHtmlFormat("Hello {0}, bla: {1}");
 
     instance.sendActivationMail("junit", "junit@example.com", "http://example.com");
 
@@ -81,7 +81,7 @@ public class EmailServiceTest {
     passwordReset.setFromEmail("foo@bar.com");
     passwordReset.setFromName("foobar");
     passwordReset.setSubject("Hello");
-    passwordReset.setHtmlFormat("Hello %s, bla: %s");
+    passwordReset.setHtmlFormat("Hello {0}, bla: {1}");
 
     instance.sendPasswordResetMail("junit", "junit@example.com", "http://example.com");
 
