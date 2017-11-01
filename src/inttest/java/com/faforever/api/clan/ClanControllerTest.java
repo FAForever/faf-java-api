@@ -111,11 +111,10 @@ public class ClanControllerTest extends AbstractIntegrationTest {
     params.add("tag", NEW_CLAN_TAG);
     params.add("description", NEW_CLAN_DESCRIPTION);
 
-    MvcResult result = mockMvc.perform(
+    mockMvc.perform(
       post("/clans/create")
         .params(params))
-      .andExpect(status().isForbidden())
-      .andReturn();
+      .andExpect(status().isForbidden());
   }
 
   @Test

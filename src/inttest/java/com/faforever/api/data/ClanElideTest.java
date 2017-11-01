@@ -1,6 +1,7 @@
-package com.faforever.api.clan;
+package com.faforever.api.data;
 
 import com.faforever.api.AbstractIntegrationTest;
+import com.faforever.api.clan.ClanRepository;
 import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.ClanMembership;
 import com.faforever.api.data.domain.Player;
@@ -12,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
-import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,32 +48,28 @@ public class ClanElideTest extends AbstractIntegrationTest {
   public void canDeleteMemberOfOwnClan() throws Exception {
     assertNotNull(playerRepository.findOne(12).getClan());
 
-    MvcResult result = mockMvc.perform(
+    mockMvc.perform(
       delete("/data/clanMembership/2")) // magic value from prepClanData.sql
-      .andExpect(status().isNoContent())
-      .andReturn();
-
+      .andExpect(status().isNoContent());
     assertNull(playerRepository.findOne(12).getClan());
   }
 
   @Test
   @WithUserDetails(AUTH_CLAN_LEADER)
   public void cannotDeleteMemberOfOtherClan() throws Exception {
-    MvcResult result = mockMvc.perform(
+    mockMvc.perform(
       delete("/data/clanMembership/4")) // magic value from prepClanData.sql
       .andExpect(status().isForbidden())
-      .andExpect(jsonPath("$.errors[0]", is("ForbiddenAccessException")))
-      .andReturn();
+      .andExpect(jsonPath("$.errors[0]", is("ForbiddenAccessException")));
   }
 
   @Test
   @WithUserDetails(AUTH_CLAN_LEADER)
   public void cannotDeleteLeaderFromClan() throws Exception {
-    MvcResult result = mockMvc.perform(
+    mockMvc.perform(
       delete("/data/clanMembership/1")) // magic value from prepClanData.sql
       .andExpect(status().isForbidden())
-      .andExpect(jsonPath("$.errors[0]", is("ForbiddenAccessException")))
-      .andReturn();
+      .andExpect(jsonPath("$.errors[0]", is("ForbiddenAccessException")));
   }
 
   @Test
@@ -81,10 +77,9 @@ public class ClanElideTest extends AbstractIntegrationTest {
   public void canLeaveClan() throws Exception {
     assertNotNull(playerRepository.findOne(12).getClan());
 
-    MvcResult result = mockMvc.perform(
+    mockMvc.perform(
       delete("/data/clanMembership/2")) // magic value from prepClanData.sql
-      .andExpect(status().isNoContent())
-      .andReturn();
+      .andExpect(status().isNoContent());
 
     assertNull(playerRepository.findOne(12).getClan());
   }
@@ -92,11 +87,10 @@ public class ClanElideTest extends AbstractIntegrationTest {
   @Test
   @WithUserDetails(AUTH_CLAN_MEMBER)
   public void cannotDeleteAsMember() throws Exception {
-    MvcResult result = mockMvc.perform(
+    mockMvc.perform(
       delete("/data/clanMembership/3")) // magic value from prepClanData.sql
       .andExpect(status().isForbidden())
-      .andExpect(jsonPath("$.errors[0]", is("ForbiddenAccessException")))
-      .andReturn();
+      .andExpect(jsonPath("$.errors[0]", is("ForbiddenAccessException")));
   }
 
   @Test
@@ -113,11 +107,10 @@ public class ClanElideTest extends AbstractIntegrationTest {
   public void canTransferLeadershipAsLeader() throws Exception {
     assertThat(clanRepository.findOne(1).getLeader().getLogin(), is(AUTH_CLAN_LEADER));
 
-    MvcResult result = mockMvc.perform(
+    mockMvc.perform(
       patch("/data/clan/1")
         .content(generateTransferLeadershipContent(1, 12))) // magic value from prepClanData.sql
-      .andExpect(status().isNoContent())
-      .andReturn();
+      .andExpect(status().isNoContent());
 
     assertThat(clanRepository.findOne(1).getLeader().getLogin(), is(AUTH_CLAN_MEMBER));
   }
@@ -127,12 +120,11 @@ public class ClanElideTest extends AbstractIntegrationTest {
   public void cannotTransferLeadershipAsMember() throws Exception {
     assertThat(clanRepository.findOne(1).getLeader().getLogin(), is(AUTH_CLAN_LEADER));
 
-    MvcResult result = mockMvc.perform(
+    mockMvc.perform(
       patch("/data/clan/1")
         .content(generateTransferLeadershipContent(1, 12))) // magic value from prepClanData.sql
       .andExpect(status().isForbidden())
-      .andExpect(jsonPath("$.errors[0]", is("ForbiddenAccessException")))
-      .andReturn();
+      .andExpect(jsonPath("$.errors[0]", is("ForbiddenAccessException")));
 
     assertThat(clanRepository.findOne(1).getLeader().getLogin(), is(AUTH_CLAN_LEADER));
   }
@@ -140,11 +132,10 @@ public class ClanElideTest extends AbstractIntegrationTest {
   @Test
   @WithUserDetails(AUTH_CLAN_LEADER)
   public void cannotTransferLeadershipToNonClanMember() throws Exception {
-    MvcResult result = mockMvc.perform(
+    mockMvc.perform(
       patch("/data/clan/1")
         .content(generateTransferLeadershipContent(1, 1))) // magic value from prepClanData.sql
-      .andExpect(status().is5xxServerError()) // TODO: Catch javax.validation.ConstraintViolationException and wrap it into a regular ApiException
-      .andReturn();
+      .andExpect(status().is5xxServerError()); // TODO: Catch javax.validation.ConstraintViolationException and wrap it into a regular ApiException
   }
 
   @SneakyThrows
@@ -178,10 +169,9 @@ public class ClanElideTest extends AbstractIntegrationTest {
       .map(ClanMembership::getPlayer)
       .forEach(clanMember::add);
 
-    MvcResult result = mockMvc.perform(
+    mockMvc.perform(
       delete("/data/clan/1"))
-      .andExpect(status().isNoContent()) // TODO: Catch javax.validation.ConstraintViolationException and wrap it into a regular ApiException
-      .andReturn();
+      .andExpect(status().isNoContent()); // TODO: Catch javax.validation.ConstraintViolationException and wrap it into a regular ApiException
 
     assertFalse(clanRepository.findOneByName("Alpha Clan").isPresent());
     clanMember.forEach(player -> assertNull(playerRepository.findOne(player.getId()).getClan()));
@@ -198,11 +188,10 @@ public class ClanElideTest extends AbstractIntegrationTest {
       .map(ClanMembership::getPlayer)
       .forEach(clanMember::add);
 
-    MvcResult result = mockMvc.perform(
+    mockMvc.perform(
       delete("/data/clan/1"))
       .andExpect(status().isForbidden())
-      .andExpect(jsonPath("$.errors[0]", is("ForbiddenAccessException")))
-      .andReturn();
+      .andExpect(jsonPath("$.errors[0]", is("ForbiddenAccessException")));
 
     //FIXME: for some weird Elide/Hibernate error, the transaction has ended after the error and the JpaRepository is empty
     //-> If you can fix this, uncomment the following lines
