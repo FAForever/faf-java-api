@@ -147,11 +147,36 @@ processResources {
   }
 }
 
+sourceSets {
+  inttest {
+    java.srcDir 'src/inttest/java'
+    resources.srcDir 'src/inttest/resources'
+    compileClasspath += main.output + test.output
+    runtimeClasspath += main.output + test.output
+  }
+}
+
+configurations {
+  inttestCompile.extendsFrom testCompile
+  inttestRuntime.extendsFrom testRuntime
+}
+
+
+task inttest(type: Test) {
+  group = LifecycleBasePlugin.VERIFICATION_GROUP
+  description = "Runs the integration tests."
+
+  testClassesDir = sourceSets.inttest.output.classesDir
+  classpath = sourceSets.inttest.runtimeClasspath
+  mustRunAfter test
+}
+
 // JACOCO & COVERALLS
 
 apply plugin: 'jacoco'
 apply plugin: 'com.github.kt3k.coveralls'
 jacocoTestReport {
+  executionData = files(["$buildDir/jacoco/test.exec", "$buildDir/jacoco/inttest.exec"])
   reports {
     xml.enabled = true
   }
@@ -241,29 +266,6 @@ configurations.all {
   resolutionStrategy.cacheChangingModulesFor 60, 'seconds'
 }
 
-sourceSets {
-  inttest {
-    java.srcDir 'src/inttest/java'
-    resources.srcDir 'src/inttest/resources'
-    compileClasspath += main.output + test.output
-    runtimeClasspath += main.output + test.output
-  }
-}
-
-configurations {
-  inttestCompile.extendsFrom testCompile
-  inttestRuntime.extendsFrom testRuntime
-}
-
-
-task inttest(type: Test) {
-  group = LifecycleBasePlugin.VERIFICATION_GROUP
-  description = "Runs the integration tests."
-
-  testClassesDir = sourceSets.inttest.output.classesDir
-  classpath = sourceSets.inttest.runtimeClasspath
-  mustRunAfter test
-}
 build.dependsOn inttest
 
 dependencyManagement {
