@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.MessageFormat;
 import java.util.regex.Pattern;
 
 @Service
@@ -44,11 +45,11 @@ public class EmailService {
   public void sendActivationMail(String username, String email, String activationUrl) {
     Registration registration = properties.getRegistration();
     emailSender.sendMail(
-        registration.getFromEmail(),
-        registration.getFromName(),
-        email,
-        registration.getSubject(),
-        String.format(registration.getHtmlFormat(), username, activationUrl)
+      registration.getFromEmail(),
+      registration.getFromName(),
+      email,
+      registration.getSubject(),
+      MessageFormat.format(registration.getHtmlFormat(), username, activationUrl)
     );
   }
 
@@ -56,11 +57,11 @@ public class EmailService {
   public void sendPasswordResetMail(String username, String email, String passwordResetUrl) {
     PasswordReset passwordReset = properties.getPasswordReset();
     emailSender.sendMail(
-        passwordReset.getFromEmail(),
-        passwordReset.getFromName(),
-        email,
-        passwordReset.getSubject(),
-        String.format(passwordReset.getHtmlFormat(), username, passwordResetUrl)
+      passwordReset.getFromEmail(),
+      passwordReset.getFromName(),
+      email,
+      passwordReset.getSubject(),
+      MessageFormat.format(passwordReset.getHtmlFormat(), username, passwordResetUrl)
     );
   }
 }
