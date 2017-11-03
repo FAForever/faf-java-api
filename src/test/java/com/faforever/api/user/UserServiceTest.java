@@ -353,7 +353,7 @@ public class UserServiceTest {
     String token = JwtHelper.encode(objectMapper.writeValueAsString(ImmutableMap.of(
       UserService.KEY_ACTION, "reset_password",
       UserService.KEY_EXPIRY, Instant.now().plusSeconds(100).toString(),
-      UserService.KEY_USER_ID, String.valueOf(TEST_USERID)
+      UserService.KEY_USER_ID, TEST_USERID
     )), new MacSigner(TEST_SECRET)).getEncoded();
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
