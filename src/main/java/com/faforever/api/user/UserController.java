@@ -4,6 +4,7 @@ import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
+import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,16 +17,22 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping(path = "/users")
 public class UserController {
   private final FafApiProperties fafApiProperties;
   private final UserService userService;
+  private final SteamService steamService;
 
-  public UserController(FafApiProperties fafApiProperties, UserService userService) {
+  public UserController(FafApiProperties fafApiProperties, UserService userService, SteamService steamService) {
     this.fafApiProperties = fafApiProperties;
     this.userService = userService;
+    this.steamService = steamService;
   }
 
   @ApiOperation("Registers a new account that needs to be activated.")
@@ -76,5 +83,29 @@ public class UserController {
                                       @RequestParam("newPassword") String newPassword) throws IOException {
     userService.claimPasswordResetToken(token, newPassword);
     response.sendRedirect(fafApiProperties.getPasswordReset().getSuccessRedirectUrl());
+  }
+
+  @PreAuthorize("#oauth2.hasScope('write_account_data') and hasRole('ROLE_USER')")
+  @ApiOperation("Creates an URL to the steam platform to initiate the Link To Steam process.")
+  @RequestMapping(path = "/buildSteamLinkUrl", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+  public Map<String, Serializable> buildSteamLinkUrl(Authentication authentication) {
+    String steamUrl = userService.buildSteamLinkUrl(userService.getUser(authentication));
+    return ImmutableMap.of("steam_url", steamUrl);
+  }
+
+  @ApiOperation("Processes the Steam redirect and creates the steam link in the user account.")
+  @RequestMapping(path = "/linkToSteam", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+  public void linkToSteam(HttpServletRequest request,
+                          HttpServletResponse response,
+                          @RequestParam("token") String token) throws IOException {
+    try {
+      userService.linkToSteam(token, steamService.parseSteamIdFromLoginRedirect(request));
+      response.sendRedirect(fafApiProperties.getLinkToSteam().getSuccessRedirectUrl());
+    } catch (ApiException e) {
+      String errorCodes = Stream.of(e.getErrors())
+        .map(error -> String.valueOf(error.getErrorCode().getCode()))
+        .collect(Collectors.joining(","));
+      response.sendRedirect(String.format(fafApiProperties.getLinkToSteam().getErrorRedirectUrlFormat(), errorCodes));
+    }
   }
 }

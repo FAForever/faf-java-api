@@ -37,7 +37,13 @@ faf-api:
   password-reset:
     password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT:http://localhost:8010/users/claimPasswordResetToken/%s}
     success-redirect-url: ${PASSWORD_RESET_SUCCESS_REDIRECT_URL:http://localhost:8020/password_resetted}
-
+  link-to-steam:
+    steam-redirect-url-format: "http://localhost:8010/users/linkToSteam?token=%s"
+    success-redirect-url: "http://localhost:8020/linked_to_steam"
+    error-redirect-url-format: "http://localhost:8020/error?message=%s"
+  steam:
+    realm: "http://localhost"
+    api-key: ${STEAM_API_KEY:banana}
 spring:
   datasource:
     url: jdbc:mysql://${DATABASE_ADDRESS:localhost}/${DATABASE_NAME:faf}?useSSL=false

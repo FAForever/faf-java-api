@@ -2,6 +2,7 @@ package com.faforever.api.user;
 
 
 import com.faforever.api.AbstractIntegrationTest;
+import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.email.EmailSender;
 import com.faforever.api.error.ErrorCode;
@@ -21,10 +22,15 @@ import org.springframework.util.MultiValueMap;
 import java.time.Duration;
 
 import static junitx.framework.Assert.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -41,14 +47,17 @@ public class UserControllerTest extends AbstractIntegrationTest {
   @MockBean
   private EmailSender emailSender;
 
+  @MockBean
+  private SteamService steamService;
+
   @Autowired
   private FafTokenService fafTokenService;
 
   @Autowired
-  private UserService userService;
+  private UserRepository userRepository;
 
   @Autowired
-  private UserRepository userRepository;
+  private FafApiProperties fafApiProperties;
 
   @Test
   @WithAnonymousUser
@@ -187,5 +196,67 @@ public class UserControllerTest extends AbstractIntegrationTest {
         .params(params))
       .andExpect(status().isFound())
       .andExpect(redirectedUrl("http://localhost/password_resetted"));
+  }
+
+  @Test
+  @WithAnonymousUser
+  public void buildSteamLinkUrlUnauthorized() throws Exception {
+    mockMvc.perform(
+      post("/users/buildSteamLinkUrl"))
+      .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails(AUTH_USER)
+  public void buildSteamLinkUrlWithWrongScope() throws Exception {
+    mockMvc.perform(
+      post("/users/buildSteamLinkUrl"))
+      .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails(AUTH_MODERATOR)
+  public void buildSteamLinkUrlAlreadyLinked() throws Exception {
+    MvcResult result = mockMvc.perform(
+      post("/users/buildSteamLinkUrl")
+        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA)))
+      .andExpect(status().is4xxClientError())
+      .andReturn();
+
+    assertApiError(result, ErrorCode.STEAM_ID_UNCHANGEABLE);
+  }
+
+  @Test
+  @WithUserDetails(AUTH_USER)
+  public void buildSteamLinkUrl() throws Exception {
+    when(steamService.buildLoginUrl(any())).thenReturn("steamUrl");
+
+    mockMvc.perform(
+      post("/users/buildSteamLinkUrl")
+        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA)))
+      .andExpect(status().isOk());
+
+    verify(steamService, times(1)).buildLoginUrl(anyString());
+  }
+
+  @Test
+  @WithAnonymousUser
+  public void linkToSteam() throws Exception {
+    assertThat(userRepository.findOne(1).getSteamId(), nullValue());
+
+    when(steamService.parseSteamIdFromLoginRedirect(any())).thenReturn("12345");
+    when(steamService.ownsForgedAlliance(anyString())).thenReturn(true);
+
+    String token = fafTokenService.createToken(
+      FafTokenType.LINK_TO_STEAM,
+      Duration.ofSeconds(100),
+      ImmutableMap.of(UserService.KEY_USER_ID, "1"));
+
+    mockMvc.perform(
+      get(String.format("/users/linkToSteam?token=%s&openid.identity=http://steamcommunity.com/openid/id/12345", token)))
+      .andExpect(status().isFound())
+      .andExpect(redirectedUrl(fafApiProperties.getLinkToSteam().getSuccessRedirectUrl()));
+
+    assertThat(userRepository.findOne(1).getSteamId(), is("12345"));
   }
 }

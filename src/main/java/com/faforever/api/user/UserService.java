@@ -44,9 +44,10 @@ public class UserService {
   private final FafPasswordEncoder passwordEncoder;
   private final AnopeUserRepository anopeUserRepository;
   private final FafTokenService fafTokenService;
+  private final SteamService steamService;
 
   public UserService(EmailService emailService, PlayerRepository playerRepository, UserRepository userRepository,
-                     NameRecordRepository nameRecordRepository, FafApiProperties properties, AnopeUserRepository anopeUserRepository, FafTokenService fafTokenService) {
+                     NameRecordRepository nameRecordRepository, FafApiProperties properties, AnopeUserRepository anopeUserRepository, FafTokenService fafTokenService, SteamService steamService) {
     this.emailService = emailService;
     this.playerRepository = playerRepository;
     this.userRepository = userRepository;
@@ -54,6 +55,7 @@ public class UserService {
     this.properties = properties;
     this.anopeUserRepository = anopeUserRepository;
     this.fafTokenService = fafTokenService;
+    this.steamService = steamService;
     this.passwordEncoder = new FafPasswordEncoder();
   }
 
@@ -203,5 +205,39 @@ public class UserService {
       return userRepository.findOne(((FafUserDetails) authentication.getPrincipal()).getId());
     }
     throw new ApiException(new Error(TOKEN_INVALID));
+  }
+
+  public String buildSteamLinkUrl(User user) {
+    log.debug("Building Steam link url for user id: {}", user.getId());
+    if (user.getSteamId() != null && !Objects.equals(user.getSteamId(), "")) {
+      log.debug("User with id '{}' already linked to steam", user.getId());
+      throw new ApiException(new Error(ErrorCode.STEAM_ID_UNCHANGEABLE));
+    }
+
+    String token = fafTokenService.createToken(FafTokenType.LINK_TO_STEAM,
+      Duration.ofHours(1),
+      ImmutableMap.of(KEY_USER_ID, String.valueOf(user.getId()))
+    );
+
+    return steamService.buildLoginUrl(String.format(properties.getLinkToSteam().getSteamRedirectUrlFormat(), token));
+  }
+
+  @SneakyThrows
+  public void linkToSteam(String token, String steamId) {
+    log.debug("linkToSteam requested for steamId '{}' with token: {}", steamId, token);
+    Map<String, String> attributes = fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, token);
+
+    User user = userRepository.findOne(Integer.parseInt(attributes.get(KEY_USER_ID)));
+
+    if (user == null) {
+      throw new ApiException(new Error(ErrorCode.TOKEN_INVALID));
+    }
+
+    if (!steamService.ownsForgedAlliance(steamId)) {
+      throw new ApiException(new Error(ErrorCode.STEAM_LINK_NO_FA_GAME));
+    }
+
+    user.setSteamId(steamId);
+    userRepository.save(user);
   }
 }
