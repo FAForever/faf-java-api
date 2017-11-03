@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Profile;
 import javax.persistence.EntityManager;
 
 @Configuration
-@Profile("integration-test")
+@Profile(ApplicationProfile.INTEGRATION_TEST)
 public class ElideTestConfig {
   @Bean
   HibernateStore hibernateStore(EntityManager entityManager) {
