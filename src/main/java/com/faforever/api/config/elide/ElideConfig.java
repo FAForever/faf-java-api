@@ -1,5 +1,6 @@
 package com.faforever.api.config.elide;
 
+import com.faforever.api.config.ApplicationProfile;
 import com.faforever.api.data.checks.IsAuthenticated;
 import com.faforever.api.data.checks.IsClanLeader;
 import com.faforever.api.data.checks.IsClanMembershipDeletable;
@@ -53,8 +54,7 @@ public class ElideConfig {
   }
 
   @Bean
-  @Profile({"prod", "dev"})
-    // FIXME: Remove dev once all integration tests are migrate to inttest
+  @Profile("!" + ApplicationProfile.INTEGRATION_TEST)
   HibernateStore hibernateStore(EntityManagerFactory entityManagerFactory) {
     return new Builder(entityManagerFactory.unwrap(SessionFactory.class)).build();
   }
