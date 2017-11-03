@@ -9,11 +9,10 @@ import com.faforever.api.error.ApiExceptionWithCode;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.security.FafPasswordEncoder;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.faforever.api.security.FafTokenService;
+import com.faforever.api.security.FafTokenType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
-import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -22,16 +21,13 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.security.jwt.JwtHelper;
-import org.springframework.security.jwt.crypto.sign.MacSigner;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
+import static com.faforever.api.user.UserService.KEY_USER_ID;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,13 +46,14 @@ public class UserServiceTest {
   private static final String TEST_EMAIL = "junit@example.com";
   private static final String TEST_CURRENT_PASSWORD = "oldPassword";
   private static final String TEST_NEW_PASSWORD = "newPassword";
+  private static final String TOKEN_VALUE = "someToken";
+  private static final String PASSWORD_RESET_URL_FORMAT = "http://www.example.com/resetPassword/%s";
+  private static final String ACTIVATION_URL_FORMAT = "http://www.example.com/%s";
+  private static FafPasswordEncoder fafPasswordEncoder = new FafPasswordEncoder();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   private UserService instance;
-  private ObjectMapper objectMapper;
-
   @Mock
   private EmailService emailService;
   @Mock
@@ -67,9 +64,9 @@ public class UserServiceTest {
   private NameRecordRepository nameRecordRepository;
   @Mock
   private AnopeUserRepository anopeUserRepository;
-
+  @Mock
+  private FafTokenService fafTokenService;
   private FafApiProperties properties;
-  private static FafPasswordEncoder fafPasswordEncoder = new FafPasswordEncoder();
 
   private static User createUser(int id, String name, String password, String email) {
     return (User) new User()
@@ -81,18 +78,17 @@ public class UserServiceTest {
 
   @Before
   public void setUp() throws Exception {
-    objectMapper = new ObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-
     properties = new FafApiProperties();
     properties.getJwt().setSecret(TEST_SECRET);
-    instance = new UserService(emailService, playerRepository, userRepository, nameRecordRepository, objectMapper, properties, anopeUserRepository);
+    instance = new UserService(emailService, playerRepository, userRepository, nameRecordRepository, properties, anopeUserRepository, fafTokenService);
+
+    when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
   }
 
   @Test
   @SuppressWarnings("unchecked")
   public void register() throws Exception {
-    properties.getRegistration().setActivationUrlFormat("http://www.example.com/%s");
+    properties.getRegistration().setActivationUrlFormat(ACTIVATION_URL_FORMAT);
 
     instance.register(TEST_USERNAME, TEST_EMAIL, TEST_CURRENT_PASSWORD);
 
@@ -100,18 +96,7 @@ public class UserServiceTest {
 
     ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
     verify(emailService).sendActivationMail(eq(TEST_USERNAME), eq(TEST_EMAIL), urlCaptor.capture());
-
-    String activationUrl = urlCaptor.getValue();
-    assertThat(activationUrl, startsWith("http://www.example.com/"));
-
-    String token = activationUrl.split("/")[3];
-    HashMap<String, String> claims = objectMapper.readValue(JwtHelper.decode(token).getClaims(), HashMap.class);
-
-    assertThat(claims.get(UserService.KEY_ACTION), is("activate"));
-    assertThat(claims.get(UserService.KEY_USERNAME), is(TEST_USERNAME));
-    assertThat(claims.get(UserService.KEY_EMAIL), is(TEST_EMAIL));
-    assertThat(claims.get(UserService.KEY_PASSWORD), is(fafPasswordEncoder.encode(TEST_CURRENT_PASSWORD)));
-    assertThat(Instant.parse(claims.get(UserService.KEY_EXPIRY)).isAfter(Instant.now()), is(true));
+    assertThat(urlCaptor.getValue(), is(String.format(ACTIVATION_URL_FORMAT, TOKEN_VALUE)));
   }
 
   @Test
@@ -156,15 +141,13 @@ public class UserServiceTest {
 
   @Test
   public void activate() throws Exception {
-    String token = JwtHelper.encode(objectMapper.writeValueAsString(ImmutableMap.of(
-      UserService.KEY_ACTION, "activate",
+    when(fafTokenService.resolveToken(FafTokenType.REGISTRATION, TOKEN_VALUE)).thenReturn(ImmutableMap.of(
       UserService.KEY_USERNAME, TEST_USERNAME,
       UserService.KEY_EMAIL, TEST_EMAIL,
-      UserService.KEY_EXPIRY, Instant.now().plusSeconds(3600).toString(),
       UserService.KEY_PASSWORD, fafPasswordEncoder.encode(TEST_NEW_PASSWORD)
-    )), new MacSigner(TEST_SECRET)).getEncoded();
+    ));
 
-    instance.activate(token);
+    instance.activate(TOKEN_VALUE);
 
     ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
     verify(userRepository).save(captor.capture());
@@ -173,36 +156,6 @@ public class UserServiceTest {
     assertThat(user.getLogin(), is(TEST_USERNAME));
     assertThat(user.getEmail(), is(TEST_EMAIL));
     assertThat(user.getPassword(), is(fafPasswordEncoder.encode(TEST_NEW_PASSWORD)));
-  }
-
-  @Test
-  public void activateTokenActionNotActivate() throws Exception {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.TOKEN_INVALID));
-
-    String token = JwtHelper.encode(objectMapper.writeValueAsString(ImmutableMap.of(
-      UserService.KEY_ACTION, "foobar",
-      UserService.KEY_USERNAME, TEST_USERNAME,
-      UserService.KEY_EMAIL, TEST_EMAIL,
-      UserService.KEY_EXPIRY, Instant.now().plusSeconds(3600).toString(),
-      UserService.KEY_PASSWORD, fafPasswordEncoder.encode(TEST_NEW_PASSWORD)
-    )), new MacSigner(TEST_SECRET)).getEncoded();
-
-    instance.activate(token);
-  }
-
-  @Test
-  public void activateTokenExpired() throws Exception {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.TOKEN_EXPIRED));
-
-    String token = JwtHelper.encode(objectMapper.writeValueAsString(ImmutableMap.of(
-      UserService.KEY_ACTION, "activate",
-      UserService.KEY_USERNAME, TEST_USERNAME,
-      UserService.KEY_EMAIL, TEST_EMAIL,
-      UserService.KEY_EXPIRY, Instant.now().minusSeconds(1).toString(),
-      UserService.KEY_PASSWORD, fafPasswordEncoder.encode(TEST_NEW_PASSWORD)
-    )), new MacSigner(TEST_SECRET)).getEncoded();
-
-    instance.activate(token);
   }
 
   @Test
@@ -283,10 +236,9 @@ public class UserServiceTest {
   }
 
   @Test
-  @SneakyThrows
   @SuppressWarnings("unchecked")
-  public void resetPasswordByLogin() {
-    properties.getPasswordReset().setPasswordResetUrlFormat("http://www.example.com/resetPassword/%s");
+  public void resetPasswordByLogin() throws Exception {
+    properties.getPasswordReset().setPasswordResetUrlFormat(PASSWORD_RESET_URL_FORMAT);
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
 
@@ -297,23 +249,19 @@ public class UserServiceTest {
 
     ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
     verify(emailService).sendPasswordResetMail(eq(TEST_USERNAME), eq(TEST_EMAIL), urlCaptor.capture());
+    assertThat(urlCaptor.getValue(), is(String.format(PASSWORD_RESET_URL_FORMAT, TOKEN_VALUE)));
 
-    String passwordResetUrl = urlCaptor.getValue();
-    assertThat(passwordResetUrl, startsWith("http://www.example.com/resetPassword/"));
-
-    String token = passwordResetUrl.split("/")[4];
-    HashMap<String, String> claims = objectMapper.readValue(JwtHelper.decode(token).getClaims(), HashMap.class);
-
-    assertThat(claims.get(UserService.KEY_ACTION), is("reset_password"));
-    assertThat(claims.get(UserService.KEY_USER_ID), is(user.getId()));
-    assertThat(Instant.parse(claims.get(UserService.KEY_EXPIRY)).isAfter(Instant.now()), is(true));
+    ArgumentCaptor<Map<String, String>> attributesMapCaptor = ArgumentCaptor.forClass(Map.class);
+    verify(fafTokenService).createToken(eq(FafTokenType.PASSWORD_RESET), any(), attributesMapCaptor.capture());
+    Map<String, String> tokenAttributes = attributesMapCaptor.getValue();
+    assertThat(tokenAttributes.size(), is(1));
+    assertThat(tokenAttributes.get(KEY_USER_ID), is(String.valueOf(TEST_USERID)));
   }
 
   @Test
-  @SneakyThrows
   @SuppressWarnings("unchecked")
-  public void resetPasswordByEmail() {
-    properties.getPasswordReset().setPasswordResetUrlFormat("http://www.example.com/resetPassword/%s");
+  public void resetPasswordByEmail() throws Exception {
+    properties.getPasswordReset().setPasswordResetUrlFormat(PASSWORD_RESET_URL_FORMAT);
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
 
@@ -324,22 +272,17 @@ public class UserServiceTest {
 
     ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
     verify(emailService).sendPasswordResetMail(eq(TEST_USERNAME), eq(TEST_EMAIL), urlCaptor.capture());
+    assertThat(urlCaptor.getValue(), is(String.format(PASSWORD_RESET_URL_FORMAT, TOKEN_VALUE)));
 
-    String passwordResetUrl = urlCaptor.getValue();
-    assertThat(passwordResetUrl, startsWith("http://www.example.com/resetPassword/"));
-
-    String token = passwordResetUrl.split("/")[4];
-    HashMap<String, String> claims = objectMapper.readValue(JwtHelper.decode(token).getClaims(), HashMap.class);
-
-    assertThat(claims.get(UserService.KEY_ACTION), is("reset_password"));
-    assertThat(claims.get(UserService.KEY_USER_ID), is(user.getId()));
-    assertThat(Instant.parse(claims.get(UserService.KEY_EXPIRY)).isAfter(Instant.now()), is(true));
+    ArgumentCaptor<Map<String, String>> attributesMapCaptor = ArgumentCaptor.forClass(Map.class);
+    verify(fafTokenService).createToken(eq(FafTokenType.PASSWORD_RESET), any(), attributesMapCaptor.capture());
+    Map<String, String> tokenAttributes = attributesMapCaptor.getValue();
+    assertThat(tokenAttributes.size(), is(1));
+    assertThat(tokenAttributes.get(KEY_USER_ID), is(String.valueOf(TEST_USERID)));
   }
 
   @Test
-  @SneakyThrows
-  @SuppressWarnings("unchecked")
-  public void resetPasswordUnknownUsernameAndEmail() {
+  public void resetPasswordUnknownUsernameAndEmail() throws Exception {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.UNKNOWN_IDENTIFIER));
 
     when(userRepository.findOneByEmailIgnoreCase(TEST_EMAIL)).thenReturn(Optional.empty());
@@ -348,51 +291,17 @@ public class UserServiceTest {
   }
 
   @Test
-  @SneakyThrows
-  public void claimPasswordResetToken() {
-    String token = JwtHelper.encode(objectMapper.writeValueAsString(ImmutableMap.of(
-      UserService.KEY_ACTION, "reset_password",
-      UserService.KEY_EXPIRY, Instant.now().plusSeconds(100).toString(),
-      UserService.KEY_USER_ID, TEST_USERID
-    )), new MacSigner(TEST_SECRET)).getEncoded();
+  public void claimPasswordResetToken() throws Exception {
+    when(fafTokenService.resolveToken(FafTokenType.PASSWORD_RESET, TOKEN_VALUE)).thenReturn(ImmutableMap.of(KEY_USER_ID, "5"));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
-
     when(userRepository.findOne(5)).thenReturn(user);
 
-    instance.claimPasswordResetToken(token, TEST_NEW_PASSWORD);
+    instance.claimPasswordResetToken(TOKEN_VALUE, TEST_NEW_PASSWORD);
 
     ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
     verify(userRepository).save(captor.capture());
     assertEquals(captor.getValue().getPassword(), fafPasswordEncoder.encode(TEST_NEW_PASSWORD));
     verify(anopeUserRepository).updatePassword(TEST_USERNAME, Hashing.md5().hashString(TEST_NEW_PASSWORD, StandardCharsets.UTF_8).toString());
-  }
-
-  @Test
-  @SneakyThrows
-  public void claimNonPasswordResetToken() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.TOKEN_INVALID));
-
-    String token = JwtHelper.encode(objectMapper.writeValueAsString(ImmutableMap.of(
-      UserService.KEY_ACTION, "foobar",
-      UserService.KEY_EXPIRY, Instant.now().plusSeconds(100).toString(),
-      UserService.KEY_USER_ID, String.valueOf(TEST_USERID)
-    )), new MacSigner(TEST_SECRET)).getEncoded();
-
-    instance.claimPasswordResetToken(token, TEST_NEW_PASSWORD);
-  }
-
-  @Test
-  @SneakyThrows
-  public void claimPasswordResetTokenExpired() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.TOKEN_EXPIRED));
-
-    String token = JwtHelper.encode(objectMapper.writeValueAsString(ImmutableMap.of(
-      UserService.KEY_ACTION, "reset_password",
-      UserService.KEY_EXPIRY, Instant.now().plusSeconds(-100).toString(),
-      UserService.KEY_USER_ID, String.valueOf(TEST_USERID)
-    )), new MacSigner(TEST_SECRET)).getEncoded();
-
-    instance.claimPasswordResetToken(token, TEST_NEW_PASSWORD);
   }
 }
