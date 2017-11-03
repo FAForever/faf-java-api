@@ -151,6 +151,7 @@ public class FafApiProperties {
     private String htmlFormat;
     private String fromEmail;
     private String fromName;
+    private String successRedirectUrl;
   }
 
   @Data
@@ -161,6 +162,7 @@ public class FafApiProperties {
     private String htmlFormat;
     private String fromEmail;
     private String fromName;
+    private String successRedirectUrl;
   }
 
   @Data

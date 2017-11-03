@@ -29,8 +29,14 @@ faf-api:
     website-url-format: ${CLAN_WEBSITE_URL_FORMAT:http://clans.test.faforever.com/clan/%s}
   registration:
     activation-url-format: ${ACTIVATION_URL_FORMAT:http://localhost:8010/users/activate/%s}
+    success-redirect-url: ${ACTIVATION_SUCCESS_REDIRECT_URL:http://localhost:8020/account_activated}
+    subject: "Unit test registration"
+    html-format: "Unit test registration html body"
+    from-email: "unit-test@faforever.com"
+    from-name: "unit-test@faforever.com"
   password-reset:
     password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT:http://localhost:8010/users/claimPasswordResetToken/%s}
+    success-redirect-url: ${PASSWORD_RESET_SUCCESS_REDIRECT_URL:http://localhost:8020/password_resetted}
 
 spring:
   datasource:

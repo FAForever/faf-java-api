@@ -20,7 +20,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class UserControllerTest extends AbstractIntegrationTest {
@@ -33,6 +35,9 @@ public class UserControllerTest extends AbstractIntegrationTest {
 
   @MockBean
   private EmailSender emailSender;
+
+  @Autowired
+  private UserService userService;
 
   @Autowired
   private UserRepository userRepository;
@@ -64,6 +69,16 @@ public class UserControllerTest extends AbstractIntegrationTest {
       .andReturn();
 
     assertApiError(result, ErrorCode.ALREADY_REGISTERED);
+  }
+
+  @Test
+  @WithAnonymousUser
+  public void activateWithSuccess() throws Exception {
+    String token = userService.createRegistrationToken(NEW_USER, NEW_EMAIL, NEW_PASSWORD);
+
+    mockMvc.perform(get("/users/activate?token=" + token))
+      .andExpect(status().isFound())
+      .andExpect(redirectedUrl("http://localhost/account_activated"));
   }
 
   @Test
@@ -112,5 +127,47 @@ public class UserControllerTest extends AbstractIntegrationTest {
       .andReturn();
 
     assertApiError(mvcResult, ErrorCode.PASSWORD_CHANGE_FAILED_WRONG_PASSWORD);
+  }
+
+  @Test
+  @WithAnonymousUser
+  public void resetPasswordWithUsername() throws Exception {
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("identifier", AUTH_USER);
+
+    mockMvc.perform(
+      post("/users/resetPassword")
+        .params(params))
+      .andExpect(status().isOk());
+
+    verify(emailSender, times(1)).sendMail(anyString(), anyString(), eq("user@faforever.com"), anyString(), anyString());
+  }
+
+  @Test
+  @WithAnonymousUser
+  public void resetPasswordWithEmail() throws Exception {
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("identifier", "user@faforever.com");
+
+    mockMvc.perform(
+      post("/users/resetPassword")
+        .params(params))
+      .andExpect(status().isOk());
+
+    verify(emailSender, times(1)).sendMail(anyString(), anyString(), eq("user@faforever.com"), anyString(), anyString());
+  }
+
+  @Test
+  @WithAnonymousUser
+  public void confirmPasswordReset() throws Exception {
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("token", userService.createPasswordResetToken(1));
+    params.add("newPassword", NEW_PASSWORD);
+
+    mockMvc.perform(
+      post("/users/confirmPasswordReset")
+        .params(params))
+      .andExpect(status().isFound())
+      .andExpect(redirectedUrl("http://localhost/password_resetted"));
   }
 }

@@ -1,5 +1,6 @@
 package com.faforever.api.user;
 
+import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
@@ -13,14 +14,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @RestController
 @RequestMapping(path = "/users")
 public class UserController {
-
+  private final FafApiProperties fafApiProperties;
   private final UserService userService;
 
-  public UserController(UserService userService) {
+  public UserController(FafApiProperties fafApiProperties, UserService userService) {
+    this.fafApiProperties = fafApiProperties;
     this.userService = userService;
   }
 
@@ -39,8 +43,10 @@ public class UserController {
 
   @ApiOperation("Activates a previously registered account.")
   @RequestMapping(path = "/activate", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-  public void activate(@RequestParam("token") String token) {
+  public void activate(HttpServletResponse response,
+                       @RequestParam("token") String token) throws IOException {
     userService.activate(token);
+    response.sendRedirect(fafApiProperties.getRegistration().getSuccessRedirectUrl());
   }
 
   @PreAuthorize("#oauth2.hasScope('write_account_data') and hasRole('ROLE_USER')")
@@ -64,8 +70,11 @@ public class UserController {
   }
 
   @ApiOperation("Sets a new password for an account.")
-  @RequestMapping(path = "/claimPasswordResetToken", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-  public void claimPasswordResetToken(@RequestParam("token") String token, @RequestParam("newPassword") String newPassword) {
+  @RequestMapping(path = "/confirmPasswordReset", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+  public void claimPasswordResetToken(HttpServletResponse response,
+                                      @RequestParam("token") String token,
+                                      @RequestParam("newPassword") String newPassword) throws IOException {
     userService.claimPasswordResetToken(token, newPassword);
+    response.sendRedirect(fafApiProperties.getPasswordReset().getSuccessRedirectUrl());
   }
 }

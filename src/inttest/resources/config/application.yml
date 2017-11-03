@@ -31,8 +31,16 @@ faf-api:
     website-url-format: "http://example.com/%s"
   user:
     minimum-days-between-username-change: 30
+  password-reset:
+    password-reset-url-format: "http://localhost:8010/users/claimPasswordResetToken/%s"
+    success-redirect-url: "http://localhost/password_resetted"
+    subject: "Integration test password reset"
+    html-format: "Integration test password reset html body"
+    from-email: "integration-test@faforever.com"
+    from-name: "integration-test@faforever.com"
   registration:
     activation-url-format: "http://localhost/users/activate?token=%s"
+    success-redirect-url: "http://localhost/account_activated"
     subject: "Integration test registration"
     html-format: "Integration test registration html body"
     from-email: "integration-test@faforever.com"

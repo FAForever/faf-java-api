@@ -11,6 +11,7 @@ import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.security.FafPasswordEncoder;
 import com.faforever.api.security.FafUserDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
 import lombok.SneakyThrows;
@@ -95,7 +96,8 @@ public class UserService {
   }
 
   @SneakyThrows
-  private String createRegistrationToken(String username, String email, String passwordHash) {
+  @VisibleForTesting
+  String createRegistrationToken(String username, String email, String passwordHash) {
     long expirationSeconds = properties.getRegistration().getLinkExpirationSeconds();
 
     String claim = objectMapper.writeValueAsString(ImmutableMap.of(
@@ -195,7 +197,8 @@ public class UserService {
   }
 
   @SneakyThrows
-  private String createPasswordResetToken(int userId) {
+  @VisibleForTesting
+  String createPasswordResetToken(int userId) {
     long expirationSeconds = properties.getRegistration().getLinkExpirationSeconds();
 
     String claim = objectMapper.writeValueAsString(ImmutableMap.of(
@@ -209,17 +212,17 @@ public class UserService {
 
   @SneakyThrows
   void claimPasswordResetToken(String token, String newPassword) {
-    HashMap<String, String> claims = objectMapper.readValue(JwtHelper.decodeAndVerify(token, macSigner).getClaims(), HashMap.class);
+    HashMap claims = objectMapper.readValue(JwtHelper.decodeAndVerify(token, macSigner).getClaims(), HashMap.class);
 
-    String action = claims.get(KEY_ACTION);
+    String action = (String) claims.get(KEY_ACTION);
     if (!Objects.equals(action, ACTION_RESET_PASSWORD)) {
       throw new ApiException(new Error(ErrorCode.TOKEN_INVALID));
     }
-    if (Instant.parse(claims.get(KEY_EXPIRY)).isBefore(Instant.now())) {
+    if (Instant.parse((String) claims.get(KEY_EXPIRY)).isBefore(Instant.now())) {
       throw new ApiException(new Error(ErrorCode.TOKEN_EXPIRED));
     }
 
-    int userId = Integer.parseInt(claims.get(KEY_USER_ID));
+    int userId = (Integer) claims.get(KEY_USER_ID);
     User user = userRepository.findOne(userId);
 
     if (user == null) {
