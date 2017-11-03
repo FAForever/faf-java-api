@@ -65,8 +65,11 @@ public class UserServiceTest {
   @Mock
   private AnopeUserRepository anopeUserRepository;
   @Mock
+  private SteamService steamService;
+  @Mock
   private FafTokenService fafTokenService;
   private FafApiProperties properties;
+  public static final String STEAM_ID = "someSteamId";
 
   private static User createUser(int id, String name, String password, String email) {
     return (User) new User()
@@ -80,7 +83,8 @@ public class UserServiceTest {
   public void setUp() throws Exception {
     properties = new FafApiProperties();
     properties.getJwt().setSecret(TEST_SECRET);
-    instance = new UserService(emailService, playerRepository, userRepository, nameRecordRepository, properties, anopeUserRepository, fafTokenService);
+    properties.getLinkToSteam().setSteamRedirectUrlFormat("someUrl");
+    instance = new UserService(emailService, playerRepository, userRepository, nameRecordRepository, properties, anopeUserRepository, fafTokenService, steamService);
 
     when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
   }
@@ -303,5 +307,58 @@ public class UserServiceTest {
     verify(userRepository).save(captor.capture());
     assertEquals(captor.getValue().getPassword(), fafPasswordEncoder.encode(TEST_NEW_PASSWORD));
     verify(anopeUserRepository).updatePassword(TEST_USERNAME, Hashing.md5().hashString(TEST_NEW_PASSWORD, StandardCharsets.UTF_8).toString());
+  }
+
+  @Test
+  public void buildSteamLinkUrl() throws Exception {
+    when(steamService.buildLoginUrl(any())).thenReturn("steamLoginUrl");
+
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
+    instance.buildSteamLinkUrl(user);
+  }
+
+  @Test
+  public void buildSteamLinkUrlAlreadLinked() throws Exception {
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.STEAM_ID_UNCHANGEABLE));
+
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
+    user.setSteamId(STEAM_ID);
+    instance.buildSteamLinkUrl(user);
+  }
+
+  @Test
+  public void linkToSteam() throws Exception {
+    when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE)).thenReturn(ImmutableMap.of(KEY_USER_ID, "5"));
+    when(steamService.ownsForgedAlliance(any())).thenReturn(true);
+
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
+    when(userRepository.findOne(5)).thenReturn(user);
+
+    instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
+
+    assertThat(user.getSteamId(), is(STEAM_ID));
+  }
+
+  @Test
+  public void linkToSteamUnknownUser() throws Exception {
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.TOKEN_INVALID));
+
+    when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE)).thenReturn(ImmutableMap.of(KEY_USER_ID, "5"));
+    when(userRepository.findOne(5)).thenReturn(null);
+
+    instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
+  }
+
+  @Test
+  public void linkToSteamNoGame() throws Exception {
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.STEAM_LINK_NO_FA_GAME));
+
+    when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE)).thenReturn(ImmutableMap.of(KEY_USER_ID, "5"));
+    when(steamService.ownsForgedAlliance(any())).thenReturn(false);
+
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
+    when(userRepository.findOne(5)).thenReturn(user);
+
+    instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
   }
 }

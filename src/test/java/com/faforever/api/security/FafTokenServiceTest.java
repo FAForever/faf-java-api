@@ -16,7 +16,7 @@ import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.MacSigner;
 
 import java.time.Duration;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.is;
@@ -29,7 +29,6 @@ public class FafTokenServiceTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   private ObjectMapper objectMapper;
-  private FafApiProperties properties;
   private FafTokenService instance;
 
   public FafTokenServiceTest() {
@@ -41,7 +40,7 @@ public class FafTokenServiceTest {
     objectMapper = new ObjectMapper();
     objectMapper.registerModule(new JavaTimeModule());
 
-    properties = new FafApiProperties();
+    FafApiProperties properties = new FafApiProperties();
     properties.getJwt().setSecret(TEST_SECRET);
 
     instance = new FafTokenService(objectMapper, properties);
@@ -49,7 +48,7 @@ public class FafTokenServiceTest {
 
   @Test
   public void createToken() throws Exception {
-    String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(100), new HashMap<>());
+    String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(100), Collections.emptyMap());
 
     Jwt jwt = JwtHelper.decodeAndVerify(token, macSigner);
     Map<String, String> claims = objectMapper.readValue(jwt.getClaims(), new TypeReference<Map<String, String>>() {
@@ -79,7 +78,7 @@ public class FafTokenServiceTest {
 
   @Test
   public void resolveToken() throws Exception {
-    String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(100), new HashMap<>());
+    String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(100), Collections.emptyMap());
     Map<String, String> result = instance.resolveToken(FafTokenType.REGISTRATION, token);
 
     assertThat(result.size(), is(0));
@@ -101,7 +100,7 @@ public class FafTokenServiceTest {
   public void resolveTokenExpired() throws Exception {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.TOKEN_EXPIRED));
 
-    String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(-1), new HashMap<>());
+    String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(-1), Collections.emptyMap());
     instance.resolveToken(FafTokenType.REGISTRATION, token);
   }
 
@@ -109,7 +108,7 @@ public class FafTokenServiceTest {
   public void resolveTokenInvalidType() throws Exception {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.TOKEN_INVALID));
 
-    String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(-1), new HashMap<>());
+    String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(-1), Collections.emptyMap());
     instance.resolveToken(FafTokenType.PASSWORD_RESET, token);
   }
 
