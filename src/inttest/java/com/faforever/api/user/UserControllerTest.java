@@ -5,7 +5,10 @@ import com.faforever.api.AbstractIntegrationTest;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.email.EmailSender;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.security.FafTokenService;
+import com.faforever.api.security.FafTokenType;
 import com.faforever.api.security.OAuthScope;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -14,6 +17,8 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.MultiValueMap;
+
+import java.time.Duration;
 
 import static junitx.framework.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -35,6 +40,9 @@ public class UserControllerTest extends AbstractIntegrationTest {
 
   @MockBean
   private EmailSender emailSender;
+
+  @Autowired
+  private FafTokenService fafTokenService;
 
   @Autowired
   private UserService userService;
@@ -74,7 +82,13 @@ public class UserControllerTest extends AbstractIntegrationTest {
   @Test
   @WithAnonymousUser
   public void activateWithSuccess() throws Exception {
-    String token = userService.createRegistrationToken(NEW_USER, NEW_EMAIL, NEW_PASSWORD);
+    String token = fafTokenService.createToken(FafTokenType.REGISTRATION,
+      Duration.ofSeconds(100),
+      ImmutableMap.of(
+        UserService.KEY_USERNAME, NEW_USER,
+        UserService.KEY_EMAIL, NEW_EMAIL,
+        UserService.KEY_PASSWORD, NEW_PASSWORD
+      ));
 
     mockMvc.perform(get("/users/activate?token=" + token))
       .andExpect(status().isFound())
@@ -160,8 +174,12 @@ public class UserControllerTest extends AbstractIntegrationTest {
   @Test
   @WithAnonymousUser
   public void confirmPasswordReset() throws Exception {
+    String token = fafTokenService.createToken(FafTokenType.PASSWORD_RESET,
+      Duration.ofSeconds(100),
+      ImmutableMap.of(UserService.KEY_USER_ID, String.valueOf(1)));
+
     MultiValueMap<String, String> params = new HttpHeaders();
-    params.add("token", userService.createPasswordResetToken(1));
+    params.add("token", token);
     params.add("newPassword", NEW_PASSWORD);
 
     mockMvc.perform(
