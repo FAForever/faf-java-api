@@ -1,5 +1,8 @@
 package com.faforever.api.user;
 
+import com.faforever.api.error.ApiException;
+import com.faforever.api.error.Error;
+import com.faforever.api.error.ErrorCode;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -8,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping(path = "/users")
@@ -21,9 +26,14 @@ public class UserController {
 
   @ApiOperation("Registers a new account that needs to be activated.")
   @RequestMapping(path = "/register", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-  public void register(@RequestParam("username") String username,
+  public void register(HttpServletRequest request,
+                       @RequestParam("username") String username,
                        @RequestParam("email") String email,
                        @RequestParam("password") String password) {
+    if (request.isUserInRole("USER")) {
+      throw new ApiException(new Error(ErrorCode.ALREADY_REGISTERED));
+    }
+
     userService.register(username, email, password);
   }
 

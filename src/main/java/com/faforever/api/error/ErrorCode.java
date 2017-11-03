@@ -69,7 +69,8 @@ public enum ErrorCode {
   MOD_STRUCTURE_INVALID(160, "Invalid file structure for mod", "Files in the the root level of the zip file are not allowed. Please ensure all files reside inside a folder."),
   MOD_VERSION_NOT_A_NUMBER(161, "Mod version is not a number", "The mod version has to be a whole number like 123, but was ''{0}''"),
   USERNAME_RESERVED(162, "Invalid account data", "The username ''{0}'' can only be claimed by the original owner within {1} months after it has been freed."),
-  UNKNOWN_IDENTIFIER(163, "Unable to resolve user", "The identifier does neither match a username nor an email: {0}");
+  UNKNOWN_IDENTIFIER(163, "Unable to resolve user", "The identifier does neither match a username nor an email: {0}"),
+  ALREADY_REGISTERED(164, "Registration failed", "You can't create a new account because you already have one.");
 
   private final int code;
   private final String title;
