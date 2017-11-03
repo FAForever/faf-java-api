@@ -1,8 +1,8 @@
 package com.faforever.api.data.listeners;
 
+import com.faforever.api.clan.ClanFactory;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Clan;
-import com.faforever.integration.factories.ClanFactory;
 import org.junit.Before;
 import org.junit.Test;
 

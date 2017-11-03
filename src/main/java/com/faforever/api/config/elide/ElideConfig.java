@@ -24,6 +24,7 @@ import org.apache.commons.beanutils.Converter;
 import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import javax.persistence.EntityManagerFactory;
 import java.time.Duration;
@@ -37,10 +38,8 @@ public class ElideConfig {
   public static final String DEFAULT_CACHE_NAME = "Elide.defaultCache";
 
   @Bean
-  public Elide elide(EntityManagerFactory entityManagerFactory, ObjectMapper objectMapper, EntityDictionary entityDictionary) {
+  public Elide elide(HibernateStore hibernateStore, ObjectMapper objectMapper, EntityDictionary entityDictionary) {
     RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary);
-
-    HibernateStore hibernateStore = new Builder(entityManagerFactory.unwrap(SessionFactory.class)).build();
 
     registerAdditionalConverters();
 
@@ -51,6 +50,13 @@ public class ElideConfig {
       .withJoinFilterDialect(rsqlFilterDialect)
       .withSubqueryFilterDialect(rsqlFilterDialect)
       .build());
+  }
+
+  @Bean
+  @Profile({"prod", "dev"})
+    // FIXME: Remove dev once all integration tests are migrate to inttest
+  HibernateStore hibernateStore(EntityManagerFactory entityManagerFactory) {
+    return new Builder(entityManagerFactory.unwrap(SessionFactory.class)).build();
   }
 
   /**

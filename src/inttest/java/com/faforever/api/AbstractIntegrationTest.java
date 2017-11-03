@@ -1,5 +1,6 @@
 package com.faforever.api;
 
+import com.faforever.api.config.ElideTestConfig;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.utils.OAuthHelper;
 import org.json.JSONObject;
@@ -28,9 +29,9 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("integration-test")
-@Import(OAuthHelper.class)
+@Import({ElideTestConfig.class, OAuthHelper.class})
 @Transactional
-@Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/createUsers.sql")
+@Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultUser.sql")
 public abstract class AbstractIntegrationTest {
   protected final static String AUTH_USER = "USER";
   protected final static String AUTH_MODERATOR = "MODERATOR";

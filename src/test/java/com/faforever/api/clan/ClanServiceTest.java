@@ -12,7 +12,6 @@ import com.faforever.api.error.ProgrammingError;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.player.PlayerService;
 import com.faforever.api.security.JwtService;
-import com.faforever.integration.factories.ClanFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Rule;
