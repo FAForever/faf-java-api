@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.MultiValueMap;
@@ -37,6 +38,7 @@ public class UserControllerTest extends AbstractIntegrationTest {
   private UserRepository userRepository;
 
   @Test
+  @WithAnonymousUser
   public void registerWithSuccess() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("username", NEW_USER);
@@ -47,6 +49,21 @@ public class UserControllerTest extends AbstractIntegrationTest {
       .andExpect(status().isOk());
 
     verify(emailSender, times(1)).sendMail(anyString(), anyString(), eq(NEW_EMAIL), anyString(), anyString());
+  }
+
+  @Test
+  @WithUserDetails(AUTH_USER)
+  public void registerWithAuthentication() throws Exception {
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("username", NEW_USER);
+    params.add("email", NEW_EMAIL);
+    params.add("password", NEW_PASSWORD);
+
+    MvcResult result = mockMvc.perform(post("/users/register").params(params))
+      .andExpect(status().is4xxClientError())
+      .andReturn();
+
+    assertApiError(result, ErrorCode.ALREADY_REGISTERED);
   }
 
   @Test
