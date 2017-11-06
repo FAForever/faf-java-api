@@ -11,6 +11,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+/**
+ * @deprecated LobbyGroups are supposed to be replaced with role based security
+ */
 @Entity
 @Table(name = "lobby_admin")
 @Setter
