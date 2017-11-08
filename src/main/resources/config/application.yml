@@ -1,11 +1,5 @@
 faf-api:
   version: #faf-api.version#
-  registration:
-    subject: Account activation
-    from-email: admin@faforever.com
-    from-name: Forged Alliance Forever
-    link-expiration-seconds: 86400
-    html-format: <p>Dear %1$s,</p><p>welcome to the Forged Alliance Forever community. Please visit the following link to activate your account:</p><p><a href="%2$s">%2$s</a></p><p>-- The Forged Alliance Forever team.</p>
   clan:
     invite-link-expire-duration-minutes: ${CLAN_INVITE_LINK_EXPIRE_DURATION_MINUTES:604800}
   challonge:

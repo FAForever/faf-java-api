@@ -121,7 +121,7 @@ public class FafApiProperties {
 
   @Data
   public static class Clan {
-    private long inviteLinkExpireDurationMinutes = Duration.ofDays(3).toMinutes();
+    private long inviteLinkExpireDurationMinutes = Duration.ofDays(7).toMinutes();
     private String websiteUrlFormat;
   }
 
@@ -142,6 +142,8 @@ public class FafApiProperties {
 
   @Data
   public static class Mail {
+    private String fromEmailAddress;
+    private String fromEmailName;
     private String mandrillApiKey;
   }
 
@@ -151,8 +153,6 @@ public class FafApiProperties {
     private String activationUrlFormat;
     private String subject;
     private String htmlFormat;
-    private String fromEmail;
-    private String fromName;
     private String successRedirectUrl;
   }
 
@@ -162,8 +162,6 @@ public class FafApiProperties {
     private String passwordResetUrlFormat;
     private String subject;
     private String htmlFormat;
-    private String fromEmail;
-    private String fromName;
     private String successRedirectUrl;
   }
 
