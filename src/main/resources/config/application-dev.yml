@@ -27,23 +27,24 @@ faf-api:
     featured-mods-target-directory: ${FEATURED_MODS_TARGET_DIRECTORY:build/cache/deployment}
   clan:
     website-url-format: ${CLAN_WEBSITE_URL_FORMAT:http://clans.test.faforever.com/clan/%s}
+  mail:
+    from-email-name: ${EMAIL_FROM_ADDRESS:unit-test@faforever.com}
+    from-email-address: ${EMAIL_FROM_NAME:unit-test@faforever.com}
   registration:
     activation-url-format: ${ACTIVATION_URL_FORMAT:http://localhost:8010/users/activate/%s}
     success-redirect-url: ${ACTIVATION_SUCCESS_REDIRECT_URL:http://localhost:8020/account_activated}
-    subject: "Unit test registration"
-    html-format: "Unit test registration html body"
-    from-email: "unit-test@faforever.com"
-    from-name: "unit-test@faforever.com"
+    subject: ${REGISTRATION_EMAIL_SUBJECT:Unit test registration}
+    html-format: ${REGISTRATION_EMAIL_BODY:Unit test registration html body}
   password-reset:
     password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT:http://localhost:8010/users/claimPasswordResetToken/%s}
     success-redirect-url: ${PASSWORD_RESET_SUCCESS_REDIRECT_URL:http://localhost:8020/password_resetted}
-  link-to-steam:
-    steam-redirect-url-format: "http://localhost:8010/users/linkToSteam?token=%s"
-    success-redirect-url: "http://localhost:8020/linked_to_steam"
-    error-redirect-url-format: "http://localhost:8020/error?message=%s"
   steam:
-    realm: "http://localhost"
+    realm: ${STEAM_REALM:http://localhost}
     api-key: ${STEAM_API_KEY:banana}
+  link-to-steam:
+    steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL:http://localhost:8010/users/linkToSteam?token=%s}
+    success-redirect-url: ${STEAM_LINK_SUCCESS_URL:http://localhost:8020/linked_to_steam}
+    error-redirect-url-format: ${STEAM_LINK_ERROR_URL:http://localhost:8020/error?code=%s}
 spring:
   datasource:
     url: jdbc:mysql://${DATABASE_ADDRESS:localhost}/${DATABASE_NAME:faf}?useSSL=false

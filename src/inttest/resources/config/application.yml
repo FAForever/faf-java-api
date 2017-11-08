@@ -38,20 +38,19 @@ faf-api:
     website-url-format: "http://example.com/%s"
   user:
     minimum-days-between-username-change: 30
+  mail:
+    from-email-name: "integration-test@faforever.com"
+    from-email-address: "integration-test@faforever.com"
   password-reset:
     password-reset-url-format: "http://localhost:8010/users/claimPasswordResetToken/%s"
     success-redirect-url: "http://localhost/password_resetted"
     subject: "Integration test password reset"
     html-format: "Integration test password reset html body"
-    from-email: "integration-test@faforever.com"
-    from-name: "integration-test@faforever.com"
   registration:
     activation-url-format: "http://localhost/users/activate?token=%s"
     success-redirect-url: "http://localhost/account_activated"
     subject: "Integration test registration"
     html-format: "Integration test registration html body"
-    from-email: "integration-test@faforever.com"
-    from-name: "integration-test@faforever.com"
   link-to-steam:
     steam-redirect-url-format: "http://localhost:8010/users/linkToSteam?token=%s"
     success-redirect-url: "http://localhost/linked_to_steam"

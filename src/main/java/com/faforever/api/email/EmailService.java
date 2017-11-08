@@ -45,8 +45,8 @@ public class EmailService {
   public void sendActivationMail(String username, String email, String activationUrl) {
     Registration registration = properties.getRegistration();
     emailSender.sendMail(
-      registration.getFromEmail(),
-      registration.getFromName(),
+      properties.getMail().getFromEmailAddress(),
+      properties.getMail().getFromEmailName(),
       email,
       registration.getSubject(),
       MessageFormat.format(registration.getHtmlFormat(), username, activationUrl)
@@ -57,8 +57,8 @@ public class EmailService {
   public void sendPasswordResetMail(String username, String email, String passwordResetUrl) {
     PasswordReset passwordReset = properties.getPasswordReset();
     emailSender.sendMail(
-      passwordReset.getFromEmail(),
-      passwordReset.getFromName(),
+      properties.getMail().getFromEmailAddress(),
+      properties.getMail().getFromEmailName(),
       email,
       passwordReset.getSubject(),
       MessageFormat.format(passwordReset.getHtmlFormat(), username, passwordResetUrl)
