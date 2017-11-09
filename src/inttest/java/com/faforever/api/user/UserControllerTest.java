@@ -37,9 +37,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class UserControllerTest extends AbstractIntegrationTest {
-  public static final String NEW_USER = "newUser";
-  public static final String NEW_PASSWORD = "newPassword";
-  public static final String NEW_EMAIL = "test@faforever.com";
+  private static final String NEW_USER = "newUser";
+  private static final String NEW_PASSWORD = "newPassword";
+  private static final String NEW_EMAIL = "test@faforever.com";
 
   @MockBean
   private AnopeUserRepository anopeUserRepository;
@@ -258,5 +258,46 @@ public class UserControllerTest extends AbstractIntegrationTest {
       .andExpect(redirectedUrl(fafApiProperties.getLinkToSteam().getSuccessRedirectUrl()));
 
     assertThat(userRepository.findOne(1).getSteamId(), is("12345"));
+  }
+
+  @Test
+  @WithAnonymousUser
+  public void changeUsernameUnauthorized() throws Exception {
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("newUsername", NEW_USER);
+
+    mockMvc.perform(
+      post("/users/changeUsername")
+        .params(params))
+      .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails(AUTH_USER)
+  public void changeUsernameWithWrongScope() throws Exception {
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("newUsername", NEW_USER);
+
+    mockMvc.perform(
+      post("/users/changeUsername")
+        .params(params))
+      .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails(AUTH_USER)
+  public void changeUsernameSuccess() throws Exception {
+    assertThat(userRepository.findOne(1).getLogin(), is(AUTH_USER));
+
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("newUsername", NEW_USER);
+
+    mockMvc.perform(
+      post("/users/changeUsername")
+        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .params(params))
+      .andExpect(status().isOk());
+
+    assertThat(userRepository.findOne(1).getLogin(), is(NEW_USER));
   }
 }
