@@ -72,16 +72,16 @@ public class UserController {
 
   @ApiOperation("Sends a password reset to the username OR email linked by this account.")
   @RequestMapping(path = "/resetPassword", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-  public void resetPassword(@RequestParam("identifier") String identifier) {
-    userService.resetPassword(identifier);
+  public void resetPassword(@RequestParam("identifier") String identifier,
+                            @RequestParam("newPassword") String newPassword) {
+    userService.resetPassword(identifier, newPassword);
   }
 
   @ApiOperation("Sets a new password for an account.")
   @RequestMapping(path = "/confirmPasswordReset", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
   public void claimPasswordResetToken(HttpServletResponse response,
-                                      @RequestParam("token") String token,
-                                      @RequestParam("newPassword") String newPassword) throws IOException {
-    userService.claimPasswordResetToken(token, newPassword);
+                                      @RequestParam("token") String token) throws IOException {
+    userService.claimPasswordResetToken(token);
     response.sendRedirect(fafApiProperties.getPasswordReset().getSuccessRedirectUrl());
   }
 

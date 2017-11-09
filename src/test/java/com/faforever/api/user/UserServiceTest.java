@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.faforever.api.user.UserService.KEY_PASSWORD;
 import static com.faforever.api.user.UserService.KEY_USER_ID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
@@ -247,7 +248,7 @@ public class UserServiceTest {
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
 
     when(userRepository.findOneByLoginIgnoreCase(TEST_USERNAME)).thenReturn(Optional.of(user));
-    instance.resetPassword(TEST_USERNAME);
+    instance.resetPassword(TEST_USERNAME, TEST_NEW_PASSWORD);
 
     verify(userRepository).findOneByLoginIgnoreCase(TEST_USERNAME);
 
@@ -258,8 +259,9 @@ public class UserServiceTest {
     ArgumentCaptor<Map<String, String>> attributesMapCaptor = ArgumentCaptor.forClass(Map.class);
     verify(fafTokenService).createToken(eq(FafTokenType.PASSWORD_RESET), any(), attributesMapCaptor.capture());
     Map<String, String> tokenAttributes = attributesMapCaptor.getValue();
-    assertThat(tokenAttributes.size(), is(1));
+    assertThat(tokenAttributes.size(), is(2));
     assertThat(tokenAttributes.get(KEY_USER_ID), is(String.valueOf(TEST_USERID)));
+    assertThat(tokenAttributes.get(KEY_PASSWORD), is(String.valueOf(TEST_NEW_PASSWORD)));
   }
 
   @Test
@@ -270,7 +272,7 @@ public class UserServiceTest {
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
 
     when(userRepository.findOneByEmailIgnoreCase(TEST_EMAIL)).thenReturn(Optional.of(user));
-    instance.resetPassword(TEST_EMAIL);
+    instance.resetPassword(TEST_EMAIL, TEST_NEW_PASSWORD);
 
     verify(userRepository).findOneByEmailIgnoreCase(TEST_EMAIL);
 
@@ -281,8 +283,9 @@ public class UserServiceTest {
     ArgumentCaptor<Map<String, String>> attributesMapCaptor = ArgumentCaptor.forClass(Map.class);
     verify(fafTokenService).createToken(eq(FafTokenType.PASSWORD_RESET), any(), attributesMapCaptor.capture());
     Map<String, String> tokenAttributes = attributesMapCaptor.getValue();
-    assertThat(tokenAttributes.size(), is(1));
+    assertThat(tokenAttributes.size(), is(2));
     assertThat(tokenAttributes.get(KEY_USER_ID), is(String.valueOf(TEST_USERID)));
+    assertThat(tokenAttributes.get(KEY_PASSWORD), is(String.valueOf(TEST_NEW_PASSWORD)));
   }
 
   @Test
@@ -291,17 +294,19 @@ public class UserServiceTest {
 
     when(userRepository.findOneByEmailIgnoreCase(TEST_EMAIL)).thenReturn(Optional.empty());
     when(userRepository.findOneByEmailIgnoreCase(TEST_EMAIL)).thenReturn(Optional.empty());
-    instance.resetPassword(TEST_EMAIL);
+    instance.resetPassword(TEST_EMAIL, TEST_NEW_PASSWORD);
   }
 
   @Test
   public void claimPasswordResetToken() throws Exception {
-    when(fafTokenService.resolveToken(FafTokenType.PASSWORD_RESET, TOKEN_VALUE)).thenReturn(ImmutableMap.of(KEY_USER_ID, "5"));
+    when(fafTokenService.resolveToken(FafTokenType.PASSWORD_RESET, TOKEN_VALUE))
+      .thenReturn(ImmutableMap.of(KEY_USER_ID, "5",
+        KEY_PASSWORD, TEST_NEW_PASSWORD));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_EMAIL);
     when(userRepository.findOne(5)).thenReturn(user);
 
-    instance.claimPasswordResetToken(TOKEN_VALUE, TEST_NEW_PASSWORD);
+    instance.claimPasswordResetToken(TOKEN_VALUE);
 
     ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
     verify(userRepository).save(captor.capture());
