@@ -157,6 +157,7 @@ public class UserControllerTest extends AbstractIntegrationTest {
   public void resetPasswordWithUsername() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("identifier", AUTH_USER);
+    params.add("newPassword", NEW_PASSWORD);
 
     mockMvc.perform(
       post("/users/resetPassword")
@@ -171,6 +172,7 @@ public class UserControllerTest extends AbstractIntegrationTest {
   public void resetPasswordWithEmail() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("identifier", "user@faforever.com");
+    params.add("newPassword", NEW_PASSWORD);
 
     mockMvc.perform(
       post("/users/resetPassword")
@@ -185,11 +187,11 @@ public class UserControllerTest extends AbstractIntegrationTest {
   public void confirmPasswordReset() throws Exception {
     String token = fafTokenService.createToken(FafTokenType.PASSWORD_RESET,
       Duration.ofSeconds(100),
-      ImmutableMap.of(UserService.KEY_USER_ID, String.valueOf(1)));
+      ImmutableMap.of(UserService.KEY_USER_ID, String.valueOf(1),
+        UserService.KEY_PASSWORD, NEW_PASSWORD));
 
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("token", token);
-    params.add("newPassword", NEW_PASSWORD);
 
     mockMvc.perform(
       post("/users/confirmPasswordReset")

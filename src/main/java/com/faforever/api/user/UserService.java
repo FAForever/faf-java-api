@@ -160,7 +160,7 @@ public class UserService {
     userRepository.save(user);
   }
 
-  void resetPassword(String identifier) {
+  void resetPassword(String identifier, String newPassword) {
     log.debug("Password reset requested for user-identifier: {}", identifier);
 
     User user = userRepository.findOneByLoginIgnoreCase(identifier)
@@ -169,7 +169,8 @@ public class UserService {
 
     String token = fafTokenService.createToken(FafTokenType.PASSWORD_RESET,
       Duration.ofSeconds(properties.getRegistration().getLinkExpirationSeconds()),
-      ImmutableMap.of(KEY_USER_ID, String.valueOf(user.getId())));
+      ImmutableMap.of(KEY_USER_ID, String.valueOf(user.getId()),
+        KEY_PASSWORD, newPassword));
 
     String passwordResetUrl = String.format(properties.getPasswordReset().getPasswordResetUrlFormat(), token);
 
@@ -177,10 +178,11 @@ public class UserService {
   }
 
   @SneakyThrows
-  void claimPasswordResetToken(String token, String newPassword) {
+  void claimPasswordResetToken(String token) {
     Map<String, String> claims = fafTokenService.resolveToken(FafTokenType.PASSWORD_RESET, token);
 
     int userId = Integer.parseInt(claims.get(KEY_USER_ID));
+    String newPassword = claims.get(KEY_PASSWORD);
     User user = userRepository.findOne(userId);
 
     if (user == null) {
