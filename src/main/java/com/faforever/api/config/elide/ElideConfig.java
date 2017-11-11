@@ -9,6 +9,7 @@ import com.faforever.api.data.checks.IsReviewOwner;
 import com.faforever.api.data.checks.permission.HasBanRead;
 import com.faforever.api.data.checks.permission.HasBanUpdate;
 import com.faforever.api.data.checks.permission.HasLadder1v1Update;
+import com.faforever.api.data.checks.permission.IsModerator;
 import com.faforever.api.security.ExtendedAuditLogger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yahoo.elide.Elide;
@@ -92,6 +93,7 @@ public class ElideConfig {
     ConcurrentHashMap<String, Class<? extends Check>> checks = new ConcurrentHashMap<>();
     checks.put(IsAuthenticated.EXPRESSION, IsAuthenticated.Inline.class);
     checks.put(IsLoginOwner.EXPRESSION, IsLoginOwner.Inline.class);
+    checks.put(IsModerator.EXPRESSION, IsModerator.Inline.class);
     checks.put(IsReviewOwner.EXPRESSION, IsReviewOwner.Inline.class);
     checks.put(IsClanLeader.EXPRESSION, IsClanLeader.Inline.class);
     checks.put(IsClanMembershipDeletable.EXPRESSION, IsClanMembershipDeletable.Inline.class);

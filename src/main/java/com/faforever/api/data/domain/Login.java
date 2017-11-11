@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsLoginOwner;
+import com.faforever.api.data.checks.permission.IsModerator;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
@@ -45,13 +46,13 @@ public abstract class Login {
   }
 
   @Column(name = "email")
-  @ReadPermission(expression = IsLoginOwner.EXPRESSION)
+  @ReadPermission(expression = IsLoginOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
   public String getEmail() {
     return email;
   }
 
   @Column(name = "steamid")
-  @ReadPermission(expression = IsLoginOwner.EXPRESSION)
+  @ReadPermission(expression = IsLoginOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
   public String getSteamId() {
     return steamId;
   }
