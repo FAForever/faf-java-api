@@ -34,7 +34,7 @@ public class FafUserDetailsService implements UserDetailsService {
     authorities.add(LegacyAccessLevel.ROLE_USER);
 
     if (user.getLobbyGroup() != null) {
-      authorities.add(LegacyAccessLevel.fromCode(user.getLobbyGroup().getAccessLevel()));
+      authorities.add(user.getLobbyGroup().getAccessLevel());
     }
     return new FafUserDetails(user, authorities);
   }

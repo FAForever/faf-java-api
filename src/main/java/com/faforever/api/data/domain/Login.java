@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ public abstract class Login {
   private String steamId;
   private String userAgent;
   private List<BanInfo> bans;
+  private LobbyGroup lobbyGroup;
 
   public Login() {
     this.bans = new ArrayList<>(0);
@@ -74,5 +76,10 @@ public abstract class Login {
   @Transient
   public boolean isGlobalBanned() {
     return getActiveBans().stream().anyMatch(ban -> ban.getLevel() == BanLevel.GLOBAL);
+  }
+
+  @OneToOne(mappedBy = "user")
+  public LobbyGroup getLobbyGroup() {
+    return lobbyGroup;
   }
 }
