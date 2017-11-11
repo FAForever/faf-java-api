@@ -1,6 +1,5 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.data.checks.permission.HasLadder1v1Update;
 import com.faforever.api.data.listeners.MapVersionEnricher;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
@@ -8,7 +7,6 @@ import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -146,11 +144,5 @@ public class MapVersion extends AbstractEntity {
   @UpdatePermission(expression = "Prefab.Role.All")
   public List<MapVersionReview> getReviews() {
     return reviews;
-  }
-
-  @OneToOne(mappedBy = "mapVersion", cascade = CascadeType.ALL, orphanRemoval = true)
-  @UpdatePermission(expression = HasLadder1v1Update.EXPRESSION)
-  public Ladder1v1Map getLadder1v1Map() {
-    return ladder1v1Map;
   }
 }
