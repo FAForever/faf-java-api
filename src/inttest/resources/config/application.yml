@@ -58,3 +58,5 @@ faf-api:
   steam:
     realm: "http://localhost"
     api-key: "banana"
+  replay:
+    download-url-format: "http://localhost/faf/vault/replay_vault/replay.php?id=%s"
