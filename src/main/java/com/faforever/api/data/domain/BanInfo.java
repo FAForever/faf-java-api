@@ -2,6 +2,8 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.permission.HasBanRead;
 import com.faforever.api.data.checks.permission.HasBanUpdate;
+import com.yahoo.elide.annotation.Audit;
+import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
@@ -30,6 +32,8 @@ import java.time.OffsetDateTime;
 @ReadPermission(expression = HasBanRead.EXPRESSION)
 @CreatePermission(expression = HasBanUpdate.EXPRESSION)
 @UpdatePermission(expression = HasBanUpdate.EXPRESSION)
+@Audit(action = Action.CREATE, logStatement = "Applied ban with id `{0}` for player `{1}`", logExpressions = {"${banInfo.id}", "${banInfo.player}"})
+@Audit(action = Action.UPDATE, logStatement = "Updated ban with id `{0}` for player `{1}`", logExpressions = {"${banInfo.id}", "${banInfo.player}"})
 @Setter
 public class BanInfo extends AbstractEntity {
   private Player player;

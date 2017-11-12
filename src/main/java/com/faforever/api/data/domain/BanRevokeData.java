@@ -2,6 +2,8 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.permission.HasBanRead;
 import com.faforever.api.data.checks.permission.HasBanUpdate;
+import com.yahoo.elide.annotation.Audit;
+import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
@@ -27,6 +29,7 @@ import javax.validation.constraints.NotNull;
 @CreatePermission(expression = HasBanUpdate.EXPRESSION)
 @UpdatePermission(expression = HasBanUpdate.EXPRESSION)
 @AttributeOverride(name = "id", column = @Column(name = "ban_id"))
+@Audit(action = Action.CREATE, logStatement = "Revoked ban with id `{0}` for player `{1}`", logExpressions = {"${banRevokeData.id}", "${banRevokeData.player}"})
 public class BanRevokeData extends AbstractEntity {
   private BanInfo ban;
   private String reason;

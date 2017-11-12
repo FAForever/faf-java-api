@@ -18,7 +18,7 @@ public class ExtendedAuditLogger extends AuditLogger {
 
     if (principal instanceof FafUserDetails) {
       FafUserDetails fafUserDetails = (FafUserDetails) principal;
-      user = MessageFormat.format("'{0}' with id '{1}'", fafUserDetails.getUsername(), fafUserDetails.getId());
+      user = MessageFormat.format("User `{0}` with id `{1}`", fafUserDetails.getUsername(), fafUserDetails.getId());
     } else {
       user = principal.toString();
     }
