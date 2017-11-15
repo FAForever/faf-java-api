@@ -1,5 +1,6 @@
 package com.faforever.api.config.elide;
 
+import com.faforever.api.config.ApplicationProfile;
 import com.faforever.api.data.checks.IsAuthenticated;
 import com.faforever.api.data.checks.IsClanLeader;
 import com.faforever.api.data.checks.IsClanMembershipDeletable;
@@ -8,10 +9,11 @@ import com.faforever.api.data.checks.IsReviewOwner;
 import com.faforever.api.data.checks.permission.HasBanRead;
 import com.faforever.api.data.checks.permission.HasBanUpdate;
 import com.faforever.api.data.checks.permission.HasLadder1v1Update;
+import com.faforever.api.data.checks.permission.IsModerator;
+import com.faforever.api.security.ExtendedAuditLogger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yahoo.elide.Elide;
 import com.yahoo.elide.ElideSettingsBuilder;
-import com.yahoo.elide.audit.Slf4jLogger;
 import com.yahoo.elide.core.EntityDictionary;
 import com.yahoo.elide.core.filter.dialect.RSQLFilterDialect;
 import com.yahoo.elide.datastores.hibernate5.HibernateStore;
@@ -24,6 +26,7 @@ import org.apache.commons.beanutils.Converter;
 import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import javax.persistence.EntityManagerFactory;
 import java.time.Duration;
@@ -37,20 +40,24 @@ public class ElideConfig {
   public static final String DEFAULT_CACHE_NAME = "Elide.defaultCache";
 
   @Bean
-  public Elide elide(EntityManagerFactory entityManagerFactory, ObjectMapper objectMapper, EntityDictionary entityDictionary) {
+  public Elide elide(HibernateStore hibernateStore, ObjectMapper objectMapper, EntityDictionary entityDictionary) {
     RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary);
-
-    HibernateStore hibernateStore = new Builder(entityManagerFactory.unwrap(SessionFactory.class)).build();
 
     registerAdditionalConverters();
 
     return new Elide(new ElideSettingsBuilder(hibernateStore)
       .withJsonApiMapper(new JsonApiMapper(entityDictionary, objectMapper))
-      .withAuditLogger(new Slf4jLogger())
+      .withAuditLogger(new ExtendedAuditLogger())
       .withEntityDictionary(entityDictionary)
       .withJoinFilterDialect(rsqlFilterDialect)
       .withSubqueryFilterDialect(rsqlFilterDialect)
       .build());
+  }
+
+  @Bean
+  @Profile("!" + ApplicationProfile.INTEGRATION_TEST)
+  HibernateStore hibernateStore(EntityManagerFactory entityManagerFactory) {
+    return new Builder(entityManagerFactory.unwrap(SessionFactory.class)).build();
   }
 
   /**
@@ -86,6 +93,7 @@ public class ElideConfig {
     ConcurrentHashMap<String, Class<? extends Check>> checks = new ConcurrentHashMap<>();
     checks.put(IsAuthenticated.EXPRESSION, IsAuthenticated.Inline.class);
     checks.put(IsLoginOwner.EXPRESSION, IsLoginOwner.Inline.class);
+    checks.put(IsModerator.EXPRESSION, IsModerator.Inline.class);
     checks.put(IsReviewOwner.EXPRESSION, IsReviewOwner.Inline.class);
     checks.put(IsClanLeader.EXPRESSION, IsClanLeader.Inline.class);
     checks.put(IsClanMembershipDeletable.EXPRESSION, IsClanMembershipDeletable.Inline.class);

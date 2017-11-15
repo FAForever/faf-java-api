@@ -1,0 +1,62 @@
+spring:
+  profiles:
+    include: int
+  datasource:
+    url: jdbc:mysql://${DATABASE_ADDRESS:localhost}/${DATABASE_NAME:faf}?useSSL=false
+    name: ${DATABASE_NAME:faf}
+    username: ${DATABASE_USERNAME:faf-java-api}
+    password: ${DATABASE_PASSWORD:banana}
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: ${DATABASE_DDL_AUTO:none}
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
+  h2:
+    console:
+      enabled: true
+
+security:
+  oauth2:
+    resource:
+      filter-order: 3
+
+faf-api:
+  jwt:
+    secret: banana
+  map:
+    target-directory: "build/cache/map/maps"
+    directory-preview-path-small: "build/cache/map_previews/small"
+    directory-preview-path-large: "build/cache/map_previews/large"
+    small-previews-url-format: "http://localhost/faf/vault/map_previews/small/%s"
+    large-previews-url-format: "http://localhost/faf/vault/map_previews/large/%s"
+    download-url-format: "http://localhost/faf/vault/maps/%s"
+  clan:
+    website-url-format: "http://example.com/%s"
+  user:
+    minimum-days-between-username-change: 30
+  mail:
+    from-email-name: "integration-test@faforever.com"
+    from-email-address: "integration-test@faforever.com"
+  password-reset:
+    password-reset-url-format: "http://localhost:8010/users/claimPasswordResetToken/%s"
+    success-redirect-url: "http://localhost/password_resetted"
+    subject: "Integration test password reset"
+    html-format: "Integration test password reset html body"
+  registration:
+    activation-url-format: "http://localhost/users/activate?token=%s"
+    success-redirect-url: "http://localhost/account_activated"
+    subject: "Integration test registration"
+    html-format: "Integration test registration html body"
+  link-to-steam:
+    steam-redirect-url-format: "http://localhost:8010/users/linkToSteam?token=%s"
+    success-redirect-url: "http://localhost/linked_to_steam"
+    error-redirect-url-format: "http://localhost/error?message=%s"
+  steam:
+    realm: "http://localhost"
+    api-key: "banana"
+  replay:
+    download-url-format: "http://localhost/faf/vault/replay_vault/replay.php?id=%s"

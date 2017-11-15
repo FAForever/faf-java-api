@@ -33,6 +33,8 @@ public class EmailServiceTest {
   @Before
   public void setUp() throws Exception {
     properties = new FafApiProperties();
+    properties.getMail().setFromEmailAddress("foo@bar.com");
+    properties.getMail().setFromEmailName("foobar");
 
     instance = new EmailService(domainBlacklistRepository, properties, emailSender);
   }
@@ -65,10 +67,8 @@ public class EmailServiceTest {
   @Test
   public void sendActivationMail() throws Exception {
     Registration registration = properties.getRegistration();
-    registration.setFromEmail("foo@bar.com");
-    registration.setFromName("foobar");
     registration.setSubject("Hello");
-    registration.setHtmlFormat("Hello %s, bla: %s");
+    registration.setHtmlFormat("Hello {0}, bla: {1}");
 
     instance.sendActivationMail("junit", "junit@example.com", "http://example.com");
 
@@ -78,10 +78,8 @@ public class EmailServiceTest {
   @Test
   public void sendPasswordResetMail() {
     PasswordReset passwordReset = properties.getPasswordReset();
-    passwordReset.setFromEmail("foo@bar.com");
-    passwordReset.setFromName("foobar");
     passwordReset.setSubject("Hello");
-    passwordReset.setHtmlFormat("Hello %s, bla: %s");
+    passwordReset.setHtmlFormat("Hello {0}, bla: {1}");
 
     instance.sendPasswordResetMail("junit", "junit@example.com", "http://example.com");
 

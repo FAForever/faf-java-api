@@ -39,9 +39,9 @@ public class GitHubDeploymentService {
   void createDeploymentIfEligible(Push push) {
     String ref = push.getRef();
     Optional<FeaturedMod> optional = featuredModService.findByGitUrlAndGitBranch(
-            push.getRepository().gitHttpTransportUrl(),
-                 push.getRef().replace("refs/heads/", "")
-        );
+      push.getRepository().gitHttpTransportUrl(),
+      push.getRef().replace("refs/heads/", "")
+    );
 
     if (!optional.isPresent()) {
       log.warn("No configuration present for repository '{}' and ref '{}'", push.getRepository().gitHttpTransportUrl(), push.getRef());
@@ -76,6 +76,7 @@ public class GitHubDeploymentService {
     try {
       performDeployment(ghDeployment, repository, deploymentId);
     } catch (Exception e) {
+      log.error("Deployment failed", e);
       updateDeploymentStatus(deploymentId, repository, GHDeploymentState.FAILURE, e.getMessage());
     }
   }

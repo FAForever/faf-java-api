@@ -1,4 +1,4 @@
-package com.faforever.integration.factories;
+package com.faforever.api.clan;
 
 import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.Player;

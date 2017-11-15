@@ -26,12 +26,27 @@ faf-api:
     forged-alliance-exe-path: ${FORGED_ALLIANCE_EXE_PATH}
     repositories-directory: ${REPOSITORIES_DIRECTORY}
     featured-mods-target-directory: ${FEATURED_MODS_TARGET_DIRECTORY}
-  registration:
-    activation-url-format: ${ACTIVATION_URL_FORMAT}
-  mail:
-    mandrill-api-key: ${MANDRILL_API_KEY}
   clan:
     website-url-format: ${CLAN_WEBSITE_URL_FORMAT}
+  mail:
+    mandrill-api-key: ${MANDRILL_API_KEY}
+    from-email-name: ${EMAIL_FROM_ADDRESS}
+    from-email-address: ${EMAIL_FROM_NAME}
+  registration:
+    activation-url-format: ${ACTIVATION_URL_FORMAT}
+    success-redirect-url: ${ACTIVATION_SUCCESS_REDIRECT_URL}
+    subject: ${REGISTRATION_EMAIL_SUBJECT}
+    html-format: ${REGISTRATION_EMAIL_BODY}
+  password-reset:
+    password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT}
+    success-redirect-url: ${PASSWORD_RESET_SUCCESS_REDIRECT_URL}
+  steam:
+    realm: ${STEAM_REALM}
+    api-key: ${STEAM_API_KEY}
+  link-to-steam:
+    steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL}
+    success-redirect-url: ${STEAM_LINK_SUCCESS_URL}
+    error-redirect-url-format: ${STEAM_LINK_ERROR_URL}
 
 spring:
   datasource:

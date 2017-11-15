@@ -26,6 +26,8 @@ public class FafApiProperties {
   private Deployment deployment = new Deployment();
   private Registration registration = new Registration();
   private PasswordReset passwordReset = new PasswordReset();
+  private LinkToSteam linkToSteam = new LinkToSteam();
+  private Steam steam = new Steam();
   private Mail mail = new Mail();
   private Challonge challonge = new Challonge();
   private User user = new User();
@@ -119,7 +121,7 @@ public class FafApiProperties {
 
   @Data
   public static class Clan {
-    private long inviteLinkExpireDurationMinutes = Duration.ofDays(3).toMinutes();
+    private long inviteLinkExpireDurationMinutes = Duration.ofDays(7).toMinutes();
     private String websiteUrlFormat;
   }
 
@@ -140,6 +142,8 @@ public class FafApiProperties {
 
   @Data
   public static class Mail {
+    private String fromEmailAddress;
+    private String fromEmailName;
     private String mandrillApiKey;
   }
 
@@ -149,8 +153,7 @@ public class FafApiProperties {
     private String activationUrlFormat;
     private String subject;
     private String htmlFormat;
-    private String fromEmail;
-    private String fromName;
+    private String successRedirectUrl;
   }
 
   @Data
@@ -159,8 +162,23 @@ public class FafApiProperties {
     private String passwordResetUrlFormat;
     private String subject;
     private String htmlFormat;
-    private String fromEmail;
-    private String fromName;
+    private String successRedirectUrl;
+  }
+
+  @Data
+  public static class LinkToSteam {
+    private String steamRedirectUrlFormat;
+    private String successRedirectUrl;
+    private String errorRedirectUrlFormat;
+  }
+
+  @Data
+  public static class Steam {
+    String realm;
+    String apiKey;
+    String forgedAllianceAppId = "9420";
+    String loginUrlFormat = "https://steamcommunity.com/openid/login?%s";
+    String getOwnedGamesUrlFormat = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001?%s";
   }
 
   @Data
