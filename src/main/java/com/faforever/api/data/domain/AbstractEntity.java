@@ -12,14 +12,14 @@ import java.time.OffsetDateTime;
 @MappedSuperclass
 @Setter
 public abstract class AbstractEntity {
-  protected Integer id;
+  protected int id;
   protected OffsetDateTime createTime;
   protected OffsetDateTime updateTime;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  public Integer getId() {
+  public int getId() {
     return id;
   }
 

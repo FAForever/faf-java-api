@@ -8,8 +8,6 @@ import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -20,24 +18,18 @@ import java.util.stream.Collectors;
 
 @MappedSuperclass
 @Setter
-public abstract class Login {
+public abstract class Login extends AbstractEntity {
 
-  private int id;
   private String login;
   private String email;
   private String steamId;
   private String userAgent;
   private List<BanInfo> bans;
   private LobbyGroup lobbyGroup;
+  private String recentIpAddress;
 
   public Login() {
     this.bans = new ArrayList<>(0);
-  }
-
-  @Id
-  @GeneratedValue
-  public int getId() {
-    return id;
   }
 
   @Column(name = "login")
@@ -57,6 +49,12 @@ public abstract class Login {
     return steamId;
   }
 
+  @Column(name = "ip")
+  @ReadPermission(expression = IsLoginOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
+  public String getRecentIpAddress() {
+    return recentIpAddress;
+  }
+
   @Column(name = "user_agent")
   public String getUserAgent() {
     return userAgent;
@@ -64,7 +62,7 @@ public abstract class Login {
 
   @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
   // Permission is managed by BanInfo class
-  @UpdatePermission(expression = "Prefab.Role.All")
+  @UpdatePermission(expression = IsModerator.EXPRESSION)
   public List<BanInfo> getBans() {
     return this.bans;
   }

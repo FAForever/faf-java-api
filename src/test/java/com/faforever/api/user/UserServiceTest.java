@@ -75,9 +75,9 @@ public class UserServiceTest {
   private static User createUser(int id, String name, String password, String email) {
     return (User) new User()
       .setPassword(fafPasswordEncoder.encode(password))
-      .setId(id)
       .setLogin(name)
-      .setEmail(email);
+      .setEmail(email)
+      .setId(id);
   }
 
   @Before
