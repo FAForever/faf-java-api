@@ -15,6 +15,11 @@ faf-api:
     thumbnail-target-directory: ${MOD_THUMBNAIL_TARGET_DIRECTORY}
   replay:
     download-url-format: ${REPLAY_DOWNLOAD_URL_FORMAT}
+  avatar:
+    download-url-base: ${AVATAR_DOWNLOAD_URL_BASE}
+    allowed-file-extensions: ${AVATAR_ALLOWED_FILE_EXTENSIONS}
+    max-size-bytes: ${AVATAR_MAX_SIZE_BYTES}
+    target-directory: ${AVATAR_TARGET_DIRECTORY}
   featured-mod:
     file-url-format: ${FEATURED_MOD_URL_FORMAT}
     bireus-url-format: ${FEATURED_MOD_BIREUS_URL_FORMAT}

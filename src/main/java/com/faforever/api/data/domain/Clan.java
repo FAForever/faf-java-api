@@ -1,6 +1,6 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.data.checks.IsClanLeader;
+import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.listeners.ClanEnricherListener;
 import com.faforever.api.data.validation.IsLeaderInClan;
 import com.yahoo.elide.annotation.ComputedAttribute;
@@ -29,13 +29,13 @@ import java.util.List;
 @Entity
 @Table(name = "clan")
 @Include(rootLevel = true, type = Clan.TYPE_NAME)
-@SharePermission(expression = IsClanLeader.EXPRESSION)
-@DeletePermission(expression = IsClanLeader.EXPRESSION)
+@SharePermission(expression = IsEntityOwner.EXPRESSION)
+@DeletePermission(expression = IsEntityOwner.EXPRESSION)
 @CreatePermission(expression = "Prefab.Role.All")
 @Setter
 @IsLeaderInClan
 @EntityListeners(ClanEnricherListener.class)
-public class Clan extends AbstractEntity {
+public class Clan extends AbstractEntity implements OwnableEntity {
 
   public static final String TYPE_NAME = "clan";
 
@@ -50,7 +50,7 @@ public class Clan extends AbstractEntity {
 
   @Column(name = "name")
   @NotNull
-  @UpdatePermission(expression = IsClanLeader.EXPRESSION)
+  @UpdatePermission(expression = IsEntityOwner.EXPRESSION)
   public String getName() {
     return name;
   }
@@ -58,7 +58,7 @@ public class Clan extends AbstractEntity {
   @Column(name = "tag")
   @Size(max = 3)
   @NotNull
-  @UpdatePermission(expression = IsClanLeader.EXPRESSION)
+  @UpdatePermission(expression = IsEntityOwner.EXPRESSION)
   public String getTag() {
     return tag;
   }
@@ -71,13 +71,13 @@ public class Clan extends AbstractEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "leader_id")
-  @UpdatePermission(expression = IsClanLeader.EXPRESSION)
+  @UpdatePermission(expression = IsEntityOwner.EXPRESSION)
   public Player getLeader() {
     return leader;
   }
 
   @Column(name = "description")
-  @UpdatePermission(expression = IsClanLeader.EXPRESSION)
+  @UpdatePermission(expression = IsEntityOwner.EXPRESSION)
   public String getDescription() {
     return description;
   }
@@ -100,5 +100,11 @@ public class Clan extends AbstractEntity {
   @ComputedAttribute
   public String getWebsiteUrl() {
     return websiteUrl;
+  }
+
+  @Override
+  @Transient
+  public Login getEntityOwner() {
+    return getLeader();
   }
 }

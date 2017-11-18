@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.List;
 
 @Data
 @ConfigurationProperties(prefix = "faf-api", ignoreUnknownFields = false)
@@ -20,6 +21,7 @@ public class FafApiProperties {
   private Map map = new Map();
   private Mod mod = new Mod();
   private Replay replay = new Replay();
+  private Avatar avatar = new Avatar();
   private Clan clan = new Clan();
   private FeaturedMod featuredMod = new FeaturedMod();
   private GitHub gitHub = new GitHub();
@@ -112,6 +114,15 @@ public class FafApiProperties {
   @Data
   public static class Replay {
     private String downloadUrlFormat;
+  }
+
+  @Data
+  public static class Avatar {
+    private String downloadUrlBase;
+    private List<String> allowedFileExtensions;
+    private Integer maxSizeBytes;
+    private Path targetDirectory;
+    private int maxNameLength = 100;
   }
 
   @Data
