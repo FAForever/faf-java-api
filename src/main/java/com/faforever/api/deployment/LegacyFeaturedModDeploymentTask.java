@@ -6,6 +6,7 @@ import com.faforever.api.data.domain.FeaturedMod;
 import com.faforever.api.deployment.git.GitWrapper;
 import com.faforever.api.featuredmods.FeaturedModFile;
 import com.faforever.api.featuredmods.FeaturedModService;
+import com.faforever.api.utils.FilePermissionUtil;
 import com.faforever.commons.fa.ForgedAllianceExePatcher;
 import com.faforever.commons.mod.ModReader;
 import com.google.common.io.ByteStreams;
@@ -108,7 +109,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
       log.warn("Could not find any files to deploy. Is the configuration correct?");
       return;
     }
-    files.forEach(this::renameToFinalFile);
+    files.forEach(this::finalizeFile);
 
     updateDatabase(files, version, modName);
 
@@ -161,7 +162,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     List<FeaturedModFile> featuredModFiles = files.stream()
       .map(file -> new FeaturedModFile()
         .setMd5(noCatch(() -> hash(file.getTargetFile().toFile(), md5())).toString())
-        .setFileId((short) file.getFileId())
+        .setFileId(file.getFileId())
         .setName(file.getTargetFile().getFileName().toString())
         .setVersion(version)
       )
@@ -195,12 +196,16 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
 
   /**
    * Renames the temporary file to the target file so the file is only available under its final name when it is
-   * complete.
+   * complete, and makes the file readable for everyone.
    */
-  private StagedFile renameToFinalFile(StagedFile file) {
+  private StagedFile finalizeFile(StagedFile file) {
     Path source = file.getTmpFile();
     Path target = file.getTargetFile();
-    log.trace("Renaming '{}' to '{}", source, target);
+
+    log.trace("Setting default file permission of '{}'", source);
+    FilePermissionUtil.setDefaultFilePermission(source);
+
+    log.trace("Renaming '{}' to '{}'", source, target);
     noCatch(() -> Files.move(source, target, StandardCopyOption.ATOMIC_MOVE));
     return file;
   }
