@@ -2,10 +2,8 @@ package com.faforever.api.config.elide;
 
 import com.faforever.api.config.ApplicationProfile;
 import com.faforever.api.data.checks.IsAuthenticated;
-import com.faforever.api.data.checks.IsClanLeader;
 import com.faforever.api.data.checks.IsClanMembershipDeletable;
-import com.faforever.api.data.checks.IsLoginOwner;
-import com.faforever.api.data.checks.IsReviewOwner;
+import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.permission.HasBanRead;
 import com.faforever.api.data.checks.permission.HasBanUpdate;
 import com.faforever.api.data.checks.permission.HasLadder1v1Update;
@@ -92,10 +90,8 @@ public class ElideConfig {
   public EntityDictionary entityDictionary() {
     ConcurrentHashMap<String, Class<? extends Check>> checks = new ConcurrentHashMap<>();
     checks.put(IsAuthenticated.EXPRESSION, IsAuthenticated.Inline.class);
-    checks.put(IsLoginOwner.EXPRESSION, IsLoginOwner.Inline.class);
     checks.put(IsModerator.EXPRESSION, IsModerator.Inline.class);
-    checks.put(IsReviewOwner.EXPRESSION, IsReviewOwner.Inline.class);
-    checks.put(IsClanLeader.EXPRESSION, IsClanLeader.Inline.class);
+    checks.put(IsEntityOwner.EXPRESSION, IsEntityOwner.Inline.class);
     checks.put(IsClanMembershipDeletable.EXPRESSION, IsClanMembershipDeletable.Inline.class);
     checks.put(HasBanRead.EXPRESSION, HasBanRead.Inline.class);
     checks.put(HasBanUpdate.EXPRESSION, HasBanUpdate.Inline.class);

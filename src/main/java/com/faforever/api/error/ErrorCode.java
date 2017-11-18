@@ -8,7 +8,7 @@ public enum ErrorCode {
   ACHIEVEMENT_NOT_STANDARD(101, "Invalid operation", "Only standard achievements can be unlocked directly. Achievement ID: {0}."),
   UPLOAD_FILE_MISSING(102, "Missing file", "A file has to be provided as parameter 'file'."),
   PARAMETER_MISSING(103, "Missing parameter", "A parameter ''{0}'' has to be provided."),
-  UPLOAD_INVALID_FILE_EXTENSION(104, "Invalid file extension", "File must have the following extension: {0}."),
+  UPLOAD_INVALID_FILE_EXTENSIONS(104, "Invalid file extension", "File must have the following extensions: {0}."),
   MAP_NAME_TOO_LONG(105, "Invalid map name", "The map name must not exceed {0} characters, was: {1}"),
   MAP_NOT_ORIGINAL_AUTHOR(106, "Permission denied", "Only the original author is allowed to upload new versions of map: {0}."),
   MAP_VERSION_EXISTS(107, "Duplicate map version", "Map ''{0}'' with version ''{1}'' already exists."),
@@ -52,7 +52,7 @@ public enum ErrorCode {
   MAP_SCENARIO_LUA_MISSING(143, "Invalid Map File", "Zip file does not contain a *_scenario.lua"),
   MAP_MISSING_MAP_FOLDER_INSIDE_ZIP(144, "No folder inside Zip", "Zip file must contain a folder with all map data"),
   MAP_FILE_INSIDE_ZIP_MISSING(145, "File is missing", "Cannot find needed file with pattern ''{0}'' inside zip file"),
-  MAP_UPLOAD_INVALID_METADATA(146, "Invalid metadata", "Metadata is not valid: {}"),
+  INVALID_METADATA(146, "Invalid metadata", "Metadata is not valid: {0}"),
   MAP_RENAME_FAILED(147, "Cannot rename to correct name failed ", "Cannot rename file ''{0}''"),
   MAP_INVALID_ZIP(148, "Invalid zip file", "The zip file should only contain one folder at the root level"),
   CLAN_CREATE_CREATOR_IS_IN_A_CLAN(149, "You are already in a clan", "Clan creator is already member of a clan"),
@@ -72,7 +72,12 @@ public enum ErrorCode {
   UNKNOWN_IDENTIFIER(163, "Unable to resolve user", "The identifier does neither match a username nor an email: {0}"),
   ALREADY_REGISTERED(164, "Registration failed", "You can't create a new account because you already have one."),
   STEAM_LINK_NO_FA_GAME(141, "Linking to Steam failed", "You do not own Forged Alliance on Steam or your profile is private."),
-  EMAIL_CHANGE_FAILED_WRONG_PASSWORD(138, "Email change failed", "Your current password did not match.");
+  EMAIL_CHANGE_FAILED_WRONG_PASSWORD(138, "Email change failed", "Your current password did not match."),
+  STEAM_LINK_NO_FA_GAME(165, "Linking to Steam failed", "You do not own Forged Alliance on Steam or your profile is private."),
+  FILE_NAME_TOO_LONG(166, "Invalid file name", "The file name must not exceed {0} characters, was: {1}"),
+  FILE_SIZE_EXCEEDED(167, "Invalid file size", "The file size must not exceed {0} bytes, was: {1}"),
+  AVATAR_NAME_CONFLICT(168, "Invalid avatar file name", "Avatar file name ''{0}'' already exists."),
+  AVATAR_IN_USE(169, "Avatar in use", "Could not delete avatar. Avatar still in use.");
 
   private final int code;
   private final String title;

@@ -61,7 +61,7 @@ public class MapsController {
 
     String extension = Files.getFileExtension(file.getOriginalFilename());
     if (Arrays.stream(fafApiProperties.getMap().getAllowedExtensions()).noneMatch(extension::equals)) {
-      throw new ApiException(new Error(ErrorCode.UPLOAD_INVALID_FILE_EXTENSION, (Object[]) fafApiProperties.getMap().getAllowedExtensions()));
+      throw new ApiException(new Error(ErrorCode.UPLOAD_INVALID_FILE_EXTENSIONS, String.join(", ", fafApiProperties.getMap().getAllowedExtensions())));
     }
 
     boolean ranked;
@@ -70,7 +70,7 @@ public class MapsController {
       ranked = node.path("is_ranked").asBoolean(false);
     } catch (IOException e) {
       log.debug("Could not parse metadata", e);
-      throw new ApiException(new Error(ErrorCode.MAP_UPLOAD_INVALID_METADATA, e.getMessage()));
+      throw new ApiException(new Error(ErrorCode.INVALID_METADATA, e.getMessage()));
     }
 
     Player player = playerService.getPlayer(authentication);

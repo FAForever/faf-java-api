@@ -13,6 +13,7 @@ public enum OAuthScope {
   WRITE_EVENTS(OAuthScope._WRITE_EVENTS, "Write events"),
   UPLOAD_MAP(OAuthScope._UPLOAD_MAP, "Upload maps"),
   UPLOAD_MOD(OAuthScope._UPLOAD_MOD, "Upload mods"),
+  UPLOAD_AVATAR(OAuthScope._UPLOAD_AVATAR, "Upload avatars"),
   WRITE_ACCOUNT_DATA(OAuthScope._WRITE_ACCOUNT_DATA, "Edit account data"),
   EDIT_CLAN_DATA(OAuthScope._EDIT_CLAN_DATA, "Edit clan data");
 
@@ -23,6 +24,7 @@ public enum OAuthScope {
   public static final String _WRITE_EVENTS = "write_events";
   public static final String _UPLOAD_MAP = "upload_map";
   public static final String _UPLOAD_MOD = "upload_mod";
+  public static final String _UPLOAD_AVATAR = "upload_avatar";
   public static final String _WRITE_ACCOUNT_DATA = "write_account_data";
   public static final String _EDIT_CLAN_DATA = "edit_clan_data";
 

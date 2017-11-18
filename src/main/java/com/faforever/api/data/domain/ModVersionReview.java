@@ -1,6 +1,6 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.data.checks.IsReviewOwner;
+import com.faforever.api.data.checks.IsEntityOwner;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
@@ -18,7 +18,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "mod_version_review")
 @CreatePermission(expression = "Prefab.Role.All")
-@DeletePermission(expression = IsReviewOwner.EXPRESSION)
+@DeletePermission(expression = IsEntityOwner.EXPRESSION)
 public class ModVersionReview extends Review {
 
   private ModVersion modVersion;
