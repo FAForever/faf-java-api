@@ -1,7 +1,8 @@
 package com.faforever.api.utils;
 
 
-import java.io.IOException;
+import lombok.SneakyThrows;
+
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,7 +17,8 @@ public final class FilePermissionUtil {
     // Utility class
   }
 
-  public static void setDefaultFilePermission(Path path) throws IOException {
+  @SneakyThrows
+  public static void setDefaultFilePermission(Path path) {
     if (!FileSystems.getDefault().supportedFileAttributeViews().contains(FILE_PERMISSION_POSIX)) {
       return;
     }
