@@ -5,12 +5,13 @@ import com.faforever.api.data.domain.Avatar;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.utils.FilePermissionUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.PersistenceException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -39,12 +40,13 @@ public class AvatarService {
     });
     final Path imageTargetPath = properties.getAvatar().getTargetDirectory().resolve(originalFilename);
     Files.copy(imageDataInputStream, imageTargetPath, StandardCopyOption.REPLACE_EXISTING);
+    FilePermissionUtil.setDefaultFilePermission(imageTargetPath);
     final Avatar avatar = new Avatar()
       .setTooltip(tooltip)
       .setUrl(url);
     try {
       avatarRepository.save(avatar);
-    } catch (PersistenceException e) {
+    } catch (DataAccessException e) {
       try {
         Files.delete(imageTargetPath);
       } catch (IOException ioException) {
@@ -52,6 +54,20 @@ public class AvatarService {
       }
       throw e;
     }
+  }
+
+  @SneakyThrows
+  @Transactional
+  public void deleteAvatar(Integer avatarId) {
+    final Avatar avatar = avatarRepository.getOne(avatarId);
+    if (!avatar.getAssignments().isEmpty()) {
+      throw new ApiException(new Error(ErrorCode.AVATAR_IN_USE));
+    }
+    final String downloadUrlBase = properties.getAvatar().getDownloadUrlBase();
+    final String fileName = avatar.getUrl().replace(downloadUrlBase, "");
+    final Path avatarImageFilePath = properties.getAvatar().getTargetDirectory().resolve(fileName);
+    Files.deleteIfExists(avatarImageFilePath);
+    avatarRepository.delete(avatar);
   }
 
   private void validateImageFile(String originalFilename, long avatarImageFileSize) {

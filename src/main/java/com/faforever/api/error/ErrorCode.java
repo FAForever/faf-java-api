@@ -77,7 +77,8 @@ public enum ErrorCode {
   FILE_NAME_TOO_LONG(166, "Invalid file name", "The file name must not exceed {0} characters, was: {1}"),
   FILE_SIZE_EXCEEDED(167, "Invalid file size", "The file size must not exceed {0} bytes, was: {1}"),
   AVATAR_NAME_CONFLICT(168, "Invalid avatar file name", "Avatar file name ''{0}'' already exists."),
-  AVATAR_IN_USE(169, "Avatar in use", "Could not delete avatar. Avatar still in use.");
+  AVATAR_IN_USE(169, "Avatar in use", "Could not delete avatar. Avatar still in use."),
+  ENTITY_NOT_FOUND(170, "Entity not found", "Entity not found.");
 
   private final int code;
   private final String title;

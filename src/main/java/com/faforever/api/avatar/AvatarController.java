@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -44,4 +45,18 @@ public class AvatarController {
     @ApiParam(name = "file") @RequestPart("file") MultipartFile avatarImageFile) throws IOException {
     avatarService.processUploadedAvatar(avatarMetaData.getTooltip(), avatarImageFile.getOriginalFilename(), avatarImageFile.getInputStream(), avatarImageFile.getSize());
   }
+
+  @ApiOperation(value = "Delete avatar")
+  @ApiResponses(value = {
+    @ApiResponse(code = 204, message = "Success"),
+    @ApiResponse(code = 422, message = "Invalid input", response = ErrorResponse.class),
+    @ApiResponse(code = 500, message = "Failure", response = ErrorResponse.class)})
+  @ResponseStatus(value = HttpStatus.NO_CONTENT)
+  @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._UPLOAD_AVATAR + "') and hasRole('ROLE_MODERATOR')")
+  public void deleteAvatar(
+    @ApiParam(name = "metadata") @PathVariable("id") Integer avatarId) throws IOException {
+    avatarService.deleteAvatar(avatarId);
+  }
+
 }

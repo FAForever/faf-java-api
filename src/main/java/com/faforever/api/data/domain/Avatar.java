@@ -1,8 +1,6 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.permission.IsModerator;
-import com.faforever.api.data.listeners.AvatarListener;
-import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
@@ -10,18 +8,14 @@ import lombok.Setter;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
 @Table(name = "avatars_list")
 @Include(rootLevel = true, type = Avatar.TYPE_NAME)
-@DeletePermission(expression = IsModerator.EXPRESSION)
 @Setter
-@EntityListeners(AvatarListener.class)
 public class Avatar extends AbstractEntity {
 
   public static final String TYPE_NAME = "avatar";
@@ -31,7 +25,7 @@ public class Avatar extends AbstractEntity {
   private List<AvatarAssignment> assignments;
 
   @Column(name = "url")
-  @NotNull
+//  @NotNull
   public String getUrl() {
     return url;
   }

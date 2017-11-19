@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
+import javax.persistence.EntityNotFoundException;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 import java.text.MessageFormat;
@@ -42,6 +43,20 @@ class GlobalControllerExceptionHandler {
     });
 
     return errorResponse;
+  }
+
+  @ExceptionHandler(EntityNotFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ResponseBody
+  public ErrorResponse processValidationException(EntityNotFoundException ex) {
+    log.debug("Entity could not be found", ex);
+    return new ErrorResponse().addError(new ErrorResult(
+      String.valueOf(HttpStatus.NOT_FOUND.value()),
+      ErrorCode.ENTITY_NOT_FOUND.getTitle(),
+      ex.getMessage(),
+      String.valueOf(ErrorCode.ENTITY_NOT_FOUND.getCode()),
+      null
+    ));
   }
 
   @ExceptionHandler(ValidationException.class)

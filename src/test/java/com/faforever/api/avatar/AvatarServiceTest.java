@@ -2,6 +2,7 @@ package com.faforever.api.avatar;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Avatar;
+import com.faforever.api.data.domain.AvatarAssignment;
 import com.faforever.api.error.ApiExceptionWithCode;
 import com.faforever.api.error.ErrorCode;
 import org.junit.Before;
@@ -12,9 +13,9 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,6 +24,8 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,6 +39,7 @@ public class AvatarServiceTest {
   private static final String BIG_AVATAR_FILENAME = "donator.png";
   private static final String LONG_AVATAR_FILENAME = "CachedAvataravatar_FightNight_Champion.png";
   private static final String INVALID_EXTENSION_AVATAR_FILENAME = "supcom.jpg";
+  protected static final int AVATAR_ID = 1;
 
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -71,7 +75,7 @@ public class AvatarServiceTest {
     try (final InputStream imageInputStream = loadResourceAsStream(avatarFileName)) {
       avatarService.processUploadedAvatar(TOOLTIP, avatarFileName, imageInputStream, VALID_FILE_SIZE);
       ArgumentCaptor<Avatar> avatarCaptor = ArgumentCaptor.forClass(Avatar.class);
-      verify(avatarRepository, Mockito.times(1)).save(avatarCaptor.capture());
+      verify(avatarRepository, times(1)).save(avatarCaptor.capture());
 
       final Avatar storedAvatar = avatarCaptor.getValue();
       assertEquals(avatarFileName, storedAvatar.getUrl());
@@ -116,6 +120,30 @@ public class AvatarServiceTest {
     }
   }
 
+  @Test
+  public void deleteAvatar() throws Exception {
+    final Avatar avatarToDelete = new Avatar().setUrl(VALID_AVATAR_FILENAME).setAssignments(Collections.emptyList());
+    when(avatarRepository.getOne(AVATAR_ID)).thenReturn(avatarToDelete);
+    Files.copy(loadResourceAsStream(VALID_AVATAR_FILENAME), temporaryFolder.getRoot().toPath().resolve("avatars").resolve(VALID_AVATAR_FILENAME));
+    avatarService.deleteAvatar(AVATAR_ID);
+    verify(avatarRepository, times(1)).delete(avatarToDelete);
+  }
+
+  @Test
+  public void deleteNotExistingAvatar() throws Exception {
+    when(avatarRepository.getOne(AVATAR_ID)).thenThrow(EntityNotFoundException.class);
+    expectedException.expect(EntityNotFoundException.class);
+    avatarService.deleteAvatar(AVATAR_ID);
+    verify(avatarRepository, never()).delete(new Avatar());
+  }
+
+  @Test
+  public void deleteAvatarWithAssignments() throws Exception {
+    when(avatarRepository.getOne(AVATAR_ID)).thenReturn(new Avatar().setAssignments(Collections.singletonList(new AvatarAssignment())));
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.AVATAR_IN_USE));
+    avatarService.deleteAvatar(AVATAR_ID);
+    verify(avatarRepository, never()).delete(new Avatar());
+  }
 
   private InputStream loadResourceAsStream(String filename) {
     return AvatarServiceTest.class.getResourceAsStream("/avatars/" + filename);
