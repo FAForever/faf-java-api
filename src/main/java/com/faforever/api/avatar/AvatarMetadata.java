@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class AvatarMetadata {
-  private String tooltip;
+  private String name;
 }

@@ -5,18 +5,23 @@ import com.faforever.api.data.domain.Avatar;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.utils.FileNameUtil;
 import com.faforever.api.utils.FilePermissionUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.FileImageInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.Paths;
+import java.util.Iterator;
 
 @Service
 @Slf4j
@@ -31,22 +36,30 @@ public class AvatarService {
 
   @SneakyThrows
   @Transactional
-  public void processUploadedAvatar(String tooltip, String originalFilename, InputStream imageDataInputStream, long avatarImageFileSize) {
-    String url = properties.getAvatar().getDownloadUrlBase() + originalFilename;
+  public void processUploadedAvatar(AvatarMetadata avatarMetadata, String originalFilename, InputStream imageDataInputStream, long avatarImageFileSize) {
+    final String normalizedAvatarFileName = FileNameUtil.normalizeFileName(originalFilename);
+    String url = String.format(properties.getAvatar().getDownloadUrlFormat(), normalizedAvatarFileName);
     validateImageFile(originalFilename, avatarImageFileSize);
+    final Path imageTargetPath = properties.getAvatar().getTargetDirectory().resolve(normalizedAvatarFileName);
 
-    avatarRepository.findByUrl(url).ifPresent(avatar -> {
-      throw new ApiException(new Error(ErrorCode.AVATAR_NAME_CONFLICT, originalFilename));
+    avatarRepository.findOneByUrl(url).ifPresent(avatar -> {
+      throw new ApiException(new Error(ErrorCode.AVATAR_NAME_CONFLICT, normalizedAvatarFileName));
     });
-    final Path imageTargetPath = properties.getAvatar().getTargetDirectory().resolve(originalFilename);
-    Files.copy(imageDataInputStream, imageTargetPath, StandardCopyOption.REPLACE_EXISTING);
+    if (Files.exists(imageTargetPath)) {
+      throw new ApiException(new Error(ErrorCode.AVATAR_NAME_CONFLICT, normalizedAvatarFileName));
+    }
+
+    Files.createDirectories(imageTargetPath.getParent());
+    Files.copy(imageDataInputStream, imageTargetPath);
     FilePermissionUtil.setDefaultFilePermission(imageTargetPath);
-    final Avatar avatar = new Avatar()
-      .setTooltip(tooltip)
-      .setUrl(url);
+
     try {
+      checkImageDimensions(imageTargetPath);
+      final Avatar avatar = new Avatar()
+        .setTooltip(avatarMetadata.getName())
+        .setUrl(url);
       avatarRepository.save(avatar);
-    } catch (DataAccessException e) {
+    } catch (Exception e) {
       try {
         Files.delete(imageTargetPath);
       } catch (IOException ioException) {
@@ -61,10 +74,10 @@ public class AvatarService {
   public void deleteAvatar(Integer avatarId) {
     final Avatar avatar = avatarRepository.getOne(avatarId);
     if (!avatar.getAssignments().isEmpty()) {
-      throw new ApiException(new Error(ErrorCode.AVATAR_IN_USE));
+      throw new ApiException(new Error(ErrorCode.AVATAR_IN_USE, avatarId));
     }
-    final String downloadUrlBase = properties.getAvatar().getDownloadUrlBase();
-    final String fileName = avatar.getUrl().replace(downloadUrlBase, "");
+    // TODO: 21.11.2017 !!!!!!!!!!!! HACK TO GET FILENAME FROM URL..... !!!!!!!!!!!!!!!
+    final String fileName = Paths.get(URI.create(avatar.getUrl()).getPath()).getFileName().toString();
     final Path avatarImageFilePath = properties.getAvatar().getTargetDirectory().resolve(fileName);
     Files.deleteIfExists(avatarImageFilePath);
     avatarRepository.delete(avatar);
@@ -83,6 +96,29 @@ public class AvatarService {
     }
     if (originalFilename.length() > maxFileNameLength) {
       throw new ApiException(new Error(ErrorCode.FILE_NAME_TOO_LONG, maxFileNameLength, originalFilename.length()));
+    }
+  }
+
+  @SneakyThrows
+  private void checkImageDimensions(Path imageTargetPath) {
+    final String fileExtension = com.google.common.io.Files.getFileExtension(imageTargetPath.getFileName().toString());
+    final Iterator<ImageReader> imageReadersBySuffix = ImageIO.getImageReadersBySuffix(fileExtension);
+    if (imageReadersBySuffix.hasNext()) {
+      final ImageReader imageReader = imageReadersBySuffix.next();
+      try {
+        imageReader.setInput(new FileImageInputStream(imageTargetPath.toFile()));
+
+        final int width = imageReader.getWidth(imageReader.getMinIndex());
+        final int height = imageReader.getHeight(imageReader.getMinIndex());
+        final int heightLimit = properties.getAvatar().getImageHeight();
+        final int widthLimit = properties.getAvatar().getImageWidth();
+
+        if (width != widthLimit || height != heightLimit) {
+          throw new ApiException(new Error(ErrorCode.INVALID_AVATAR_DIMENSION, widthLimit, heightLimit, width, height));
+        }
+      } finally {
+        imageReader.dispose();
+      }
     }
   }
 }
