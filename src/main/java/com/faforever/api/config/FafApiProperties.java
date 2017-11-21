@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 
 @Data
@@ -118,11 +119,13 @@ public class FafApiProperties {
 
   @Data
   public static class Avatar {
-    private String downloadUrlBase;
-    private List<String> allowedFileExtensions;
-    private Integer maxSizeBytes;
+    private String downloadUrlFormat;
+    private List<String> allowedFileExtensions = Arrays.asList("png");
     private Path targetDirectory;
+    private int maxSizeBytes = 4096;
     private int maxNameLength = 100;
+    private int imageWidth = 40;
+    private int imageHeight = 20;
   }
 
   @Data

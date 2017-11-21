@@ -34,12 +34,14 @@ public class AvatarServiceTest {
 
   private static final long VALID_FILE_SIZE = 1024;
   private static final long TOO_BIG_FILE_SIZE = 2048;
-  private static final String TOOLTIP = "Very nice avatar";
+  private static final AvatarMetadata AVATAR_METADATA = new AvatarMetadata().setName("Nice Avatar");
   private static final String VALID_AVATAR_FILENAME = "qai2.png";
   private static final String BIG_AVATAR_FILENAME = "donator.png";
   private static final String LONG_AVATAR_FILENAME = "CachedAvataravatar_FightNight_Champion.png";
   private static final String INVALID_EXTENSION_AVATAR_FILENAME = "supcom.jpg";
-  protected static final int AVATAR_ID = 1;
+  private static final String INVALID_AVATAR_DIMENSIONS_FILENAME = "supcom.png";
+  private static final int AVATAR_ID = 1;
+  private static final String DOWNLOAD_URL_FORMAT = "http://example/%s";
 
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -59,37 +61,37 @@ public class AvatarServiceTest {
     Files.createDirectories(avatarsPath);
     properties.getAvatar()
       .setTargetDirectory(avatarsPath)
-      .setDownloadUrlBase("")
+      .setDownloadUrlFormat(DOWNLOAD_URL_FORMAT)
       .setAllowedFileExtensions(Collections.singletonList("png"))
       .setMaxSizeBytes(1536)
       .setMaxNameLength(15);
 
     avatarService = new AvatarService(avatarRepository, properties);
 
-    when(avatarRepository.findByUrl(any())).thenReturn(Optional.empty());
+    when(avatarRepository.findOneByUrl(any())).thenReturn(Optional.empty());
   }
 
   @Test
   public void newAvatarUpload() throws Exception {
     final String avatarFileName = VALID_AVATAR_FILENAME;
     try (final InputStream imageInputStream = loadResourceAsStream(avatarFileName)) {
-      avatarService.processUploadedAvatar(TOOLTIP, avatarFileName, imageInputStream, VALID_FILE_SIZE);
+      avatarService.processUploadedAvatar(AVATAR_METADATA, "[./,><" + avatarFileName, imageInputStream, VALID_FILE_SIZE);
       ArgumentCaptor<Avatar> avatarCaptor = ArgumentCaptor.forClass(Avatar.class);
       verify(avatarRepository, times(1)).save(avatarCaptor.capture());
 
       final Avatar storedAvatar = avatarCaptor.getValue();
-      assertEquals(avatarFileName, storedAvatar.getUrl());
-      assertEquals(TOOLTIP, storedAvatar.getTooltip());
+      assertEquals(String.format(DOWNLOAD_URL_FORMAT, avatarFileName), storedAvatar.getUrl());
+      assertEquals(AVATAR_METADATA.getName(), storedAvatar.getTooltip());
     }
   }
 
   @Test
   public void duplicateAvatarUpload() throws Exception {
     final String avatarFileName = VALID_AVATAR_FILENAME;
-    when(avatarRepository.findByUrl(avatarFileName)).thenReturn(Optional.of(new Avatar()));
+    when(avatarRepository.findOneByUrl(String.format(DOWNLOAD_URL_FORMAT, avatarFileName))).thenReturn(Optional.of(new Avatar()));
     try (final InputStream imageInputStream = loadResourceAsStream(avatarFileName)) {
       expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.AVATAR_NAME_CONFLICT));
-      avatarService.processUploadedAvatar(TOOLTIP, avatarFileName, imageInputStream, VALID_FILE_SIZE);
+      avatarService.processUploadedAvatar(AVATAR_METADATA, avatarFileName, imageInputStream, VALID_FILE_SIZE);
     }
   }
 
@@ -98,7 +100,7 @@ public class AvatarServiceTest {
     final String avatarFileName = INVALID_EXTENSION_AVATAR_FILENAME;
     try (final InputStream imageInputStream = loadResourceAsStream(avatarFileName)) {
       expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.UPLOAD_INVALID_FILE_EXTENSIONS));
-      avatarService.processUploadedAvatar(TOOLTIP, avatarFileName, imageInputStream, VALID_FILE_SIZE);
+      avatarService.processUploadedAvatar(AVATAR_METADATA, avatarFileName, imageInputStream, VALID_FILE_SIZE);
     }
   }
 
@@ -107,7 +109,7 @@ public class AvatarServiceTest {
     final String avatarFileName = BIG_AVATAR_FILENAME;
     try (final InputStream imageInputStream = loadResourceAsStream(avatarFileName)) {
       expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.FILE_SIZE_EXCEEDED));
-      avatarService.processUploadedAvatar(TOOLTIP, avatarFileName, imageInputStream, TOO_BIG_FILE_SIZE);
+      avatarService.processUploadedAvatar(AVATAR_METADATA, avatarFileName, imageInputStream, TOO_BIG_FILE_SIZE);
     }
   }
 
@@ -116,7 +118,16 @@ public class AvatarServiceTest {
     final String avatarFileName = LONG_AVATAR_FILENAME;
     try (final InputStream imageInputStream = loadResourceAsStream(avatarFileName)) {
       expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.FILE_NAME_TOO_LONG));
-      avatarService.processUploadedAvatar(TOOLTIP, avatarFileName, imageInputStream, VALID_FILE_SIZE);
+      avatarService.processUploadedAvatar(AVATAR_METADATA, avatarFileName, imageInputStream, VALID_FILE_SIZE);
+    }
+  }
+
+  @Test
+  public void invalidDimensionsAvatarUpload() throws Exception {
+    final String avatarFileName = INVALID_AVATAR_DIMENSIONS_FILENAME;
+    try (final InputStream imageInputStream = loadResourceAsStream(avatarFileName)) {
+      expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.INVALID_AVATAR_DIMENSION));
+      avatarService.processUploadedAvatar(AVATAR_METADATA, avatarFileName, imageInputStream, VALID_FILE_SIZE);
     }
   }
 

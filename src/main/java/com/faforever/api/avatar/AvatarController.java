@@ -31,7 +31,7 @@ public class AvatarController {
 
   @ApiOperation(value = "Upload avatar", notes = "Avatar metadata - " +
     "{" +
-    " \"tooltip\": \"String\"" +
+    " \"name\": \"String\"" +
     "}")
   @ApiResponses(value = {
     @ApiResponse(code = 201, message = "Success"),
@@ -43,7 +43,7 @@ public class AvatarController {
   public void uploadAvatar(
     @ApiParam(name = "metadata") @RequestPart("metadata") AvatarMetadata avatarMetaData,
     @ApiParam(name = "file") @RequestPart("file") MultipartFile avatarImageFile) throws IOException {
-    avatarService.processUploadedAvatar(avatarMetaData.getTooltip(), avatarImageFile.getOriginalFilename(), avatarImageFile.getInputStream(), avatarImageFile.getSize());
+    avatarService.processUploadedAvatar(avatarMetaData, avatarImageFile.getOriginalFilename(), avatarImageFile.getInputStream(), avatarImageFile.getSize());
   }
 
   @ApiOperation(value = "Delete avatar")
@@ -52,10 +52,10 @@ public class AvatarController {
     @ApiResponse(code = 422, message = "Invalid input", response = ErrorResponse.class),
     @ApiResponse(code = 500, message = "Failure", response = ErrorResponse.class)})
   @ResponseStatus(value = HttpStatus.NO_CONTENT)
-  @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+  @RequestMapping(value = "/{avatarId}", method = RequestMethod.DELETE)
   @PreAuthorize("#oauth2.hasScope('" + OAuthScope._UPLOAD_AVATAR + "') and hasRole('ROLE_MODERATOR')")
   public void deleteAvatar(
-    @ApiParam(name = "metadata") @PathVariable("id") Integer avatarId) throws IOException {
+    @ApiParam(name = "avatarId") @PathVariable("avatarId") Integer avatarId) throws IOException {
     avatarService.deleteAvatar(avatarId);
   }
 

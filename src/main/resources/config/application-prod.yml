@@ -16,10 +16,12 @@ faf-api:
   replay:
     download-url-format: ${REPLAY_DOWNLOAD_URL_FORMAT}
   avatar:
-    download-url-base: ${AVATAR_DOWNLOAD_URL_BASE}
+    download-url-format: ${AVATAR_DOWNLOAD_URL_FORMAT}
+    target-directory: ${AVATAR_TARGET_DIRECTORY}
     allowed-file-extensions: ${AVATAR_ALLOWED_FILE_EXTENSIONS}
     max-size-bytes: ${AVATAR_MAX_SIZE_BYTES}
-    target-directory: ${AVATAR_TARGET_DIRECTORY}
+    image-width: ${AVATAR_IMAGE_WIDTH:}
+    image-height: ${AVATAR_IMAGE_HEIGHT:}
   featured-mod:
     file-url-format: ${FEATURED_MOD_URL_FORMAT}
     bireus-url-format: ${FEATURED_MOD_BIREUS_URL_FORMAT}

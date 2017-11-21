@@ -119,11 +119,12 @@ public class ClanService {
       throw new ApiException(new Error(ErrorCode.CLAN_ACCEPT_TOKEN_EXPIRE));
     }
 
+    final Integer clanId = invitation.getClan().getId();
     Player player = playerService.getPlayer(authentication);
-    Clan clan = clanRepository.findOne(invitation.getClan().getId());
+    Clan clan = clanRepository.findOne(clanId);
 
     if (clan == null) {
-      throw new ApiException(new Error(ErrorCode.CLAN_NOT_EXISTS));
+      throw new ApiException(new Error(ErrorCode.CLAN_NOT_EXISTS, clanId));
     }
 
     Player newMember = playerRepository.findOne(invitation.getNewMember().getId());
