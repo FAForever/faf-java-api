@@ -1,6 +1,7 @@
 package com.faforever.api.db;
 
 import com.faforever.api.config.ApplicationProfile;
+import com.faforever.api.config.FafApiProperties;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.stereotype.Component;
@@ -13,21 +14,22 @@ import java.util.Objects;
 @Profile("!" + ApplicationProfile.INTEGRATION_TEST)
 public class SchemaVersionVerifier implements PriorityOrdered {
 
-  private static final String DB_COMPATIBILITY_VERSION = "44";
-
   private final SchemaVersionRepository schemaVersionRepository;
+  private final FafApiProperties properties;
 
-  public SchemaVersionVerifier(SchemaVersionRepository schemaVersionRepository) {
+  public SchemaVersionVerifier(SchemaVersionRepository schemaVersionRepository, FafApiProperties properties) {
     this.schemaVersionRepository = schemaVersionRepository;
+    this.properties = properties;
   }
 
   @PostConstruct
   public void postConstruct() {
-    String maxVersion = schemaVersionRepository.findMaxVersion()
+    String requiredVersion = properties.getDatabase().getSchemaVersion();
+    String actualVersion = schemaVersionRepository.findMaxVersion()
       .orElseThrow(() -> new IllegalStateException("No database version is available"));
 
-    Assert.state(Objects.equals(DB_COMPATIBILITY_VERSION, maxVersion),
-      String.format("Database version is '%s' but this software requires '%s'", maxVersion, DB_COMPATIBILITY_VERSION));
+    Assert.state(Objects.equals(requiredVersion, actualVersion),
+      String.format("Database version is '%s' but this software requires '%s'", actualVersion, requiredVersion));
   }
 
   @Override
