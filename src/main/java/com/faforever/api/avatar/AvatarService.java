@@ -5,10 +5,12 @@ import com.faforever.api.data.domain.Avatar;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.error.NotFoundApiException;
 import com.faforever.api.utils.FileNameUtil;
 import com.faforever.api.utils.FilePermissionUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,7 +61,7 @@ public class AvatarService {
         .setTooltip(avatarMetadata.getName())
         .setUrl(url);
       avatarRepository.save(avatar);
-    } catch (Exception e) {
+    } catch (IOException | DataAccessException e) {
       try {
         Files.delete(imageTargetPath);
       } catch (IOException ioException) {
@@ -72,7 +74,7 @@ public class AvatarService {
   @SneakyThrows
   @Transactional
   public void deleteAvatar(Integer avatarId) {
-    final Avatar avatar = avatarRepository.getOne(avatarId);
+    final Avatar avatar = avatarRepository.findById(avatarId).orElseThrow(() -> new NotFoundApiException(new Error(ErrorCode.ENTITY_NOT_FOUND, avatarId)));
     if (!avatar.getAssignments().isEmpty()) {
       throw new ApiException(new Error(ErrorCode.AVATAR_IN_USE, avatarId));
     }
@@ -91,16 +93,15 @@ public class AvatarService {
     if (avatarImageFileSize > maxFileSizeBytes) {
       throw new ApiException(new Error(ErrorCode.FILE_SIZE_EXCEEDED, maxFileSizeBytes, avatarImageFileSize));
     }
-    if (properties.getAvatar().getAllowedFileExtensions().stream().noneMatch(extension::equals)) {
-      throw new ApiException(new Error(ErrorCode.UPLOAD_INVALID_FILE_EXTENSIONS, String.join(", ", properties.getAvatar().getAllowedFileExtensions())));
+    if (!properties.getAvatar().getAllowedExtensions().contains(extension)) {
+      throw new ApiException(new Error(ErrorCode.UPLOAD_INVALID_FILE_EXTENSIONS, properties.getAvatar().getAllowedExtensions()));
     }
     if (originalFilename.length() > maxFileNameLength) {
       throw new ApiException(new Error(ErrorCode.FILE_NAME_TOO_LONG, maxFileNameLength, originalFilename.length()));
     }
   }
 
-  @SneakyThrows
-  private void checkImageDimensions(Path imageTargetPath) {
+  private void checkImageDimensions(Path imageTargetPath) throws IOException {
     final String fileExtension = com.google.common.io.Files.getFileExtension(imageTargetPath.getFileName().toString());
     final Iterator<ImageReader> imageReadersBySuffix = ImageIO.getImageReadersBySuffix(fileExtension);
     if (imageReadersBySuffix.hasNext()) {

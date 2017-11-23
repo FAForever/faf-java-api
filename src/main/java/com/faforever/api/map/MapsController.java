@@ -26,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Arrays;
 
 @RestController
 @RequestMapping(path = "/maps")
@@ -60,8 +59,8 @@ public class MapsController {
     }
 
     String extension = Files.getFileExtension(file.getOriginalFilename());
-    if (Arrays.stream(fafApiProperties.getMap().getAllowedExtensions()).noneMatch(extension::equals)) {
-      throw new ApiException(new Error(ErrorCode.UPLOAD_INVALID_FILE_EXTENSIONS, String.join(", ", fafApiProperties.getMap().getAllowedExtensions())));
+    if (!fafApiProperties.getMap().getAllowedExtensions().contains(extension)) {
+      throw new ApiException(new Error(ErrorCode.UPLOAD_INVALID_FILE_EXTENSIONS, fafApiProperties.getMap().getAllowedExtensions()));
     }
 
     boolean ranked;
