@@ -8,7 +8,7 @@ public enum ErrorCode {
   ACHIEVEMENT_NOT_STANDARD(101, "Invalid operation", "Only standard achievements can be unlocked directly. Achievement ID: {0}."),
   UPLOAD_FILE_MISSING(102, "Missing file", "A file has to be provided as parameter 'file'."),
   PARAMETER_MISSING(103, "Missing parameter", "A parameter ''{0}'' has to be provided."),
-  UPLOAD_INVALID_FILE_EXTENSIONS(104, "Invalid file extension", "File must have the following extensions: {0}."),
+  UPLOAD_INVALID_FILE_EXTENSIONS(104, "Invalid file extension", "File must have one of the following extensions: {0}."),
   MAP_NAME_TOO_LONG(105, "Invalid map name", "The map name must not exceed {0, number} characters, was: {1, number}"),
   MAP_NOT_ORIGINAL_AUTHOR(106, "Permission denied", "Only the original author is allowed to upload new versions of map: {0}."),
   MAP_VERSION_EXISTS(107, "Duplicate map version", "Map ''{0}'' with version ''{1}'' already exists."),
@@ -78,8 +78,8 @@ public enum ErrorCode {
   FILE_SIZE_EXCEEDED(167, "Invalid file size", "The file size must not exceed {0, number} byte(s), was: {1, number}"),
   AVATAR_NAME_CONFLICT(168, "Invalid avatar file name", "Avatar file name ''{0}'' already exists."),
   AVATAR_IN_USE(169, "Avatar in use", "Could not delete avatar {0, number}. Avatar still in use."),
-  ENTITY_NOT_FOUND(170, "Entity not found", "Entity not found."),
-  INVALID_AVATAR_DIMENSION(171, "Invalid avatar dimensions", "Avatar dimensions must be {0, number}x{1, number}, was: {2, number}x{3, number}");
+  ENTITY_NOT_FOUND(170, "Entity not found", "Entity with id: {0} not found."),
+  INVALID_AVATAR_DIMENSION(171, "Invalid avatar dimensions", "Avatar dimensions must be {0, number}x{1, number}, was: {2, number}x{3, number}.");
 
   private final int code;
   private final String title;

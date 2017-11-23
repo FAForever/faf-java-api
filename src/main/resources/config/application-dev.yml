@@ -17,7 +17,7 @@ faf-api:
   avatar:
     download-url-format: ${AVATAR_DOWNLOAD_URL_FORMAT:http://content.test.faforever.com/faf/avatars/%s}
     target-directory: ${AVATAR_TARGET_DIRECTORY:build/cache/avatars}
-    allowed-file-extensions: ${AVATAR_ALLOWED_FILE_EXTENSIONS:png}
+    allowed-extensions: ${AVATAR_ALLOWED_FILE_EXTENSIONS:png}
     max-size-bytes: ${AVATAR_MAX_SIZE_BYTES:4096}
     image-width: ${AVATAR_IMAGE_WIDTH:40}
     image-height: ${AVATAR_IMAGE_HEIGHT:20}
