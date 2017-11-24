@@ -45,3 +45,6 @@ VALUES (1, 'USER', 'user@faforever.com', '92b7b421992ef490f3b75898ec0e511f1a5c02
 INSERT INTO lobby_admin (user_id, `group`) VALUES
   (2, 1),
   (3, 2);
+
+INSERT INTO name_history (change_time, user_id, previous_name) VALUES
+  (NOW(), 2, 'OLD_MODERATOR');
