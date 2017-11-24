@@ -140,7 +140,7 @@ public class UserService {
     int minDaysBetweenChange = properties.getUser().getMinimumDaysBetweenUsernameChange();
     nameRecordRepository.getDaysSinceLastNewRecord(user.getId(), minDaysBetweenChange)
       .ifPresent(daysSinceLastRecord -> {
-        throw new ApiException(new Error(ErrorCode.USERNAME_CHANGE_TOO_EARLY, minDaysBetweenChange - daysSinceLastRecord));
+        throw new ApiException(new Error(ErrorCode.USERNAME_CHANGE_TOO_EARLY, minDaysBetweenChange - daysSinceLastRecord.intValue()));
       });
 
     int usernameReservationTimeInMonths = properties.getUser().getUsernameReservationTimeInMonths();
