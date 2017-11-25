@@ -5,6 +5,7 @@ import com.faforever.api.data.domain.Avatar;
 import com.faforever.api.data.domain.AvatarAssignment;
 import com.faforever.api.error.ApiExceptionWithCode;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.error.NotFoundApiException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,7 +16,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import javax.persistence.EntityNotFoundException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -62,7 +62,7 @@ public class AvatarServiceTest {
     properties.getAvatar()
       .setTargetDirectory(avatarsPath)
       .setDownloadUrlFormat(DOWNLOAD_URL_FORMAT)
-      .setAllowedFileExtensions(Collections.singletonList("png"))
+      .setAllowedExtensions(Collections.singleton("png"))
       .setMaxSizeBytes(1536)
       .setMaxNameLength(15);
 
@@ -72,10 +72,10 @@ public class AvatarServiceTest {
   }
 
   @Test
-  public void newAvatarUpload() throws Exception {
+  public void newAvatarUploadWithValidName() throws Exception {
     final String avatarFileName = VALID_AVATAR_FILENAME;
     try (final InputStream imageInputStream = loadResourceAsStream(avatarFileName)) {
-      avatarService.processUploadedAvatar(AVATAR_METADATA, "[./,><" + avatarFileName, imageInputStream, VALID_FILE_SIZE);
+      avatarService.processUploadedAvatar(AVATAR_METADATA, "[./><" + avatarFileName, imageInputStream, VALID_FILE_SIZE);
       ArgumentCaptor<Avatar> avatarCaptor = ArgumentCaptor.forClass(Avatar.class);
       verify(avatarRepository, times(1)).save(avatarCaptor.capture());
 
@@ -134,7 +134,7 @@ public class AvatarServiceTest {
   @Test
   public void deleteAvatar() throws Exception {
     final Avatar avatarToDelete = new Avatar().setUrl(VALID_AVATAR_FILENAME).setAssignments(Collections.emptyList());
-    when(avatarRepository.getOne(AVATAR_ID)).thenReturn(avatarToDelete);
+    when(avatarRepository.findById(AVATAR_ID)).thenReturn(Optional.of(avatarToDelete));
     Files.copy(loadResourceAsStream(VALID_AVATAR_FILENAME), temporaryFolder.getRoot().toPath().resolve("avatars").resolve(VALID_AVATAR_FILENAME));
     avatarService.deleteAvatar(AVATAR_ID);
     verify(avatarRepository, times(1)).delete(avatarToDelete);
@@ -142,15 +142,15 @@ public class AvatarServiceTest {
 
   @Test
   public void deleteNotExistingAvatar() throws Exception {
-    when(avatarRepository.getOne(AVATAR_ID)).thenThrow(EntityNotFoundException.class);
-    expectedException.expect(EntityNotFoundException.class);
+    when(avatarRepository.findById(AVATAR_ID)).thenReturn(Optional.empty());
+    expectedException.expect(NotFoundApiException.class);
     avatarService.deleteAvatar(AVATAR_ID);
     verify(avatarRepository, never()).delete(new Avatar());
   }
 
   @Test
   public void deleteAvatarWithAssignments() throws Exception {
-    when(avatarRepository.getOne(AVATAR_ID)).thenReturn(new Avatar().setAssignments(Collections.singletonList(new AvatarAssignment())));
+    when(avatarRepository.findById(AVATAR_ID)).thenReturn(Optional.of(new Avatar().setAssignments(Collections.singletonList(new AvatarAssignment()))));
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.AVATAR_IN_USE));
     avatarService.deleteAvatar(AVATAR_ID);
     verify(avatarRepository, never()).delete(new Avatar());

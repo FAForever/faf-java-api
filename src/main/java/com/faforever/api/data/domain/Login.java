@@ -52,7 +52,7 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
   }
 
   @Column(name = "ip")
-  @ReadPermission(expression = IsLoginOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
   public String getRecentIpAddress() {
     return recentIpAddress;
   }
