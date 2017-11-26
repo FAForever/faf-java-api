@@ -34,6 +34,13 @@ faf-api:
     small-previews-url-format: "http://localhost/faf/vault/map_previews/small/%s"
     large-previews-url-format: "http://localhost/faf/vault/map_previews/large/%s"
     download-url-format: "http://localhost/faf/vault/maps/%s"
+  avatar:
+    download-url-format: "http://localhost/faf/avatars/%s"
+    target-directory: "build/cache/avatars"
+    allowed-extensions: "png"
+    max-size-bytes: 4096
+    image-width: 40
+    image-height: 20
   clan:
     website-url-format: "http://example.com/%s"
   user:

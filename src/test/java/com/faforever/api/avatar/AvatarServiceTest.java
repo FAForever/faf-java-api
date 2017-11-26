@@ -22,7 +22,9 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Optional;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -42,6 +44,7 @@ public class AvatarServiceTest {
   private static final String INVALID_AVATAR_DIMENSIONS_FILENAME = "supcom.png";
   private static final int AVATAR_ID = 1;
   private static final String DOWNLOAD_URL_FORMAT = "http://example/%s";
+  private static final String AVATARS_FOLDER = "avatars";
 
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -57,7 +60,7 @@ public class AvatarServiceTest {
   public void setUp() throws Exception {
 
     FafApiProperties properties = new FafApiProperties();
-    final Path avatarsPath = temporaryFolder.getRoot().toPath().resolve("avatars");
+    final Path avatarsPath = temporaryFolder.getRoot().toPath().resolve(AVATARS_FOLDER);
     Files.createDirectories(avatarsPath);
     properties.getAvatar()
       .setTargetDirectory(avatarsPath)
@@ -135,9 +138,11 @@ public class AvatarServiceTest {
   public void deleteAvatar() throws Exception {
     final Avatar avatarToDelete = new Avatar().setUrl(VALID_AVATAR_FILENAME).setAssignments(Collections.emptyList());
     when(avatarRepository.findById(AVATAR_ID)).thenReturn(Optional.of(avatarToDelete));
-    Files.copy(loadResourceAsStream(VALID_AVATAR_FILENAME), temporaryFolder.getRoot().toPath().resolve("avatars").resolve(VALID_AVATAR_FILENAME));
+    final Path avatarFilePath = temporaryFolder.getRoot().toPath().resolve(AVATARS_FOLDER).resolve(VALID_AVATAR_FILENAME);
+    Files.copy(loadResourceAsStream(VALID_AVATAR_FILENAME), avatarFilePath);
     avatarService.deleteAvatar(AVATAR_ID);
     verify(avatarRepository, times(1)).delete(avatarToDelete);
+    assertThat(avatarFilePath.toFile().exists(), is(false));
   }
 
   @Test
