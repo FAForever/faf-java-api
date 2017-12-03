@@ -32,30 +32,32 @@ public class SwaggerConfig {
   @Bean
   public Docket newsApi() {
     return new Docket(DocumentationType.SWAGGER_2)
-        .apiInfo(apiInfo())
-        .select().paths(paths())
-        .build();
+      .apiInfo(apiInfo())
+      .select().paths(paths())
+      .build();
   }
 
   private ApiInfo apiInfo() {
     return new ApiInfoBuilder()
-        .title("Forged Alliance Forever API (Prototype)")
-        .description("A prototype of a Java-based API for Forged Alliance Forever")
-        .contact(new Contact("Downlord", "https://github.com/micheljung", "downlord@faforever.com"))
-        .license("MIT")
-        .licenseUrl("https://github.com/micheljung/faf-java-api/blob/develop/LICENSE")
-        .version(fafApiProperties.getVersion())
-        .build();
+      .title("Forged Alliance Forever API (Prototype)")
+      .description("A prototype of a Java-based API for Forged Alliance Forever")
+      .contact(new Contact("Downlord", "https://github.com/micheljung", "downlord@faforever.com"))
+      .license("MIT")
+      .licenseUrl("https://github.com/micheljung/faf-java-api/blob/develop/LICENSE")
+      .version(fafApiProperties.getVersion())
+      .build();
   }
 
   private Predicate<String> paths() {
     return or(
-        regex("/oauth/(.*token.*|.*authorize)"),
-        regex("/data/.*"),
-        regex("/health.*"),
-        regex("/clans/.*"),
-        regex("/achievements/.*"),
-        regex("/events/.*"),
-        regex("/maps/.*"));
+      regex("/oauth/(.*token.*|.*authorize)"),
+      regex("/data/.*"),
+      regex("/health.*"),
+      regex("/clans/.*"),
+      regex("/achievements/.*"),
+      regex("/events/.*"),
+      regex("/users/.*"),
+      regex("/mods/.*"),
+      regex("/maps/.*"));
   }
 }

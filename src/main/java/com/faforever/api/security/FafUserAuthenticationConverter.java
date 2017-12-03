@@ -10,6 +10,7 @@ import org.springframework.util.StringUtils;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.springframework.security.core.authority.AuthorityUtils.commaSeparatedStringToAuthorityList;
 
@@ -19,7 +20,7 @@ import static org.springframework.security.core.authority.AuthorityUtils.commaSe
 public class FafUserAuthenticationConverter extends DefaultUserAuthenticationConverter {
 
   private static final String ID = "user_id";
-  private static final String NON_LOCKED = "nonLocked";
+  private static final String NON_LOCKED = "non_locked";
 
   @Override
   public Map<String, ?> convertUserAuthentication(Authentication authentication) {
@@ -41,7 +42,7 @@ public class FafUserAuthenticationConverter extends DefaultUserAuthenticationCon
 
     int id = (Integer) map.get(ID);
     String username = (String) map.get(USERNAME);
-    boolean accountNonLocked = (Boolean) map.get(NON_LOCKED);
+    boolean accountNonLocked = Optional.ofNullable((Boolean) map.get(NON_LOCKED)).orElse(true);
     Collection<? extends GrantedAuthority> authorities = getAuthorities(map);
     UserDetails user = new FafUserDetails(id, username, "N/A", accountNonLocked, authorities);
 

@@ -302,4 +302,24 @@ public class UserControllerTest extends AbstractIntegrationTest {
 
     assertThat(userRepository.findOne(1).getLogin(), is(NEW_USER));
   }
+
+  @Test
+  @WithUserDetails(AUTH_MODERATOR)
+  public void changeUsernameTooEarly() throws Exception {
+    assertThat(userRepository.findOne(2).getLogin(), is(AUTH_MODERATOR));
+
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("newUsername", NEW_USER);
+
+    MvcResult result = mockMvc.perform(
+      post("/users/changeUsername")
+        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .params(params))
+      .andExpect(status().is4xxClientError())
+      .andReturn();
+
+    assertApiError(result, ErrorCode.USERNAME_CHANGE_TOO_EARLY);
+
+    assertThat(userRepository.findOne(2).getLogin(), is(AUTH_MODERATOR));
+  }
 }

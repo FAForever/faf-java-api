@@ -4,6 +4,8 @@ faf-api:
     invite-link-expire-duration-minutes: ${CLAN_INVITE_LINK_EXPIRE_DURATION_MINUTES:604800}
   challonge:
     key: ${CHALLONGE_KEY:}
+  database:
+    schema-version: ${DATABASE_SCHEMA_VERSION:44}
 
 spring:
   application:
