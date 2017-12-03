@@ -1,5 +1,6 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.checks.permission.IsModerator;
 import com.faforever.api.data.listeners.MapVersionEnricher;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
@@ -83,11 +84,13 @@ public class MapVersion extends AbstractEntity {
     return filename;
   }
 
+  @UpdatePermission(expression = IsModerator.EXPRESSION)
   @Column(name = "ranked")
   public boolean isRanked() {
     return ranked;
   }
 
+  @UpdatePermission(expression = IsModerator.EXPRESSION)
   @Column(name = "hidden")
   public boolean isHidden() {
     return hidden;

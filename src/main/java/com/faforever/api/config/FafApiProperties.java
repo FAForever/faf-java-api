@@ -31,6 +31,7 @@ public class FafApiProperties {
   private Mail mail = new Mail();
   private Challonge challonge = new Challonge();
   private User user = new User();
+  private Database database = new Database();
 
   @Data
   public static class OAuth2 {
@@ -191,5 +192,13 @@ public class FafApiProperties {
   public static class User {
     private int minimumDaysBetweenUsernameChange = 30;
     private int usernameReservationTimeInMonths = 6;
+  }
+
+  @Data
+  public static class Database {
+    /**
+     * The database schema version required to run this application.
+     */
+    private String schemaVersion;
   }
 }

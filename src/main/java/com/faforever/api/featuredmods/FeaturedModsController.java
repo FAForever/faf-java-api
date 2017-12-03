@@ -35,9 +35,9 @@ public class FeaturedModsController {
   @ApiOperation("Lists the required files for a specific featured mod version")
   public CompletableFuture<JsonApiDocument> getFiles(@PathVariable("modId") int modId,
                                                      @PathVariable("version") String version,
-                                                     @RequestParam("page[number]") Integer page) {
+                                                     @RequestParam(value = "page[number]", required = false) Integer page) {
     Integer innerPage = Optional.ofNullable(page).orElse(0);
-    if(innerPage > 1) {
+    if (innerPage > 1) {
       return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(Collections.emptyList())));
     }
 
@@ -47,20 +47,20 @@ public class FeaturedModsController {
     Integer innerVersion = "latest".equals(version) ? null : Integer.valueOf(version);
 
     List<Resource> values = featuredModService.getFiles(featuredMod.getTechnicalName(), innerVersion).stream()
-        .map(modFileMapper())
-        .collect(Collectors.toList());
+      .map(modFileMapper())
+      .collect(Collectors.toList());
 
     return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(values)));
   }
 
   private Function<FeaturedModFile, Resource> modFileMapper() {
     return file -> new Resource("featuredModFile", String.valueOf(file.getId()),
-        ImmutableMap.<String, Object>of(
-            "group", file.getGroup(),
-            "md5", file.getMd5(),
-            "name", file.getName(),
-            "url", file.getUrl(),
-            "version", file.getVersion()
-        ), null, null, null);
+      ImmutableMap.<String, Object>of(
+        "group", file.getGroup(),
+        "md5", file.getMd5(),
+        "name", file.getName(),
+        "url", file.getUrl(),
+        "version", file.getVersion()
+      ), null, null, null);
   }
 }

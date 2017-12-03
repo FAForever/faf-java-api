@@ -8,3 +8,4 @@
 *.mp3                   binary
 *.zip                   binary
 *.exe                   binary
+*.jar                   binary

@@ -1,5 +1,6 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.checks.permission.IsModerator;
 import com.faforever.api.data.listeners.ModVersionEnricher;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Exclude;
@@ -91,11 +92,13 @@ public class ModVersion {
     return icon;
   }
 
+  @UpdatePermission(expression = IsModerator.EXPRESSION)
   @Column(name = "ranked")
   public boolean isRanked() {
     return ranked;
   }
 
+  @UpdatePermission(expression = IsModerator.EXPRESSION)
   @Column(name = "hidden")
   public boolean isHidden() {
     return hidden;
