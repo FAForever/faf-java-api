@@ -70,6 +70,15 @@ public class UserController {
     userService.changeLogin(newUsername, userService.getUser(authentication));
   }
 
+
+  @PreAuthorize("#oauth2.hasScope('write_account_data') and hasRole('ROLE_USER')")
+  @ApiOperation("Changes the email of a previously registered account.")
+  @RequestMapping(path = "/changeEmail", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+  public void changeEmail(@RequestParam("currentPassword") String currentPassword, @RequestParam("newEmail") String newEmail, Authentication authentication) {
+    userService.changeEmail(currentPassword, newEmail, userService.getUser(authentication));
+  }
+
+
   @ApiOperation("Sends a password reset to the username OR email linked by this account.")
   @RequestMapping(path = "/resetPassword", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
   public void resetPassword(@RequestParam("identifier") String identifier,
