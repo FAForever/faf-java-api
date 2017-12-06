@@ -1,6 +1,8 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.permission.IsModerator;
+import com.yahoo.elide.annotation.Audit;
+import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
@@ -22,6 +24,8 @@ import javax.persistence.Table;
 @UpdatePermission(expression = IsModerator.EXPRESSION)
 @CreatePermission(expression = IsModerator.EXPRESSION)
 @DeletePermission(expression = IsModerator.EXPRESSION)
+@Audit(action = Action.CREATE, logStatement = "Email domain `{0}` added to blacklist", logExpressions = "${domainBlacklist.domain}")
+@Audit(action = Action.DELETE, logStatement = "Email domain `{0}` removed from blacklist", logExpressions = "${domainBlacklist.domain}")
 @EqualsAndHashCode
 public class DomainBlacklist {
   private String domain;

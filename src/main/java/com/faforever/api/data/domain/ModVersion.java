@@ -2,6 +2,8 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.permission.IsModerator;
 import com.faforever.api.data.listeners.ModVersionEnricher;
+import com.yahoo.elide.annotation.Audit;
+import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
@@ -93,12 +95,14 @@ public class ModVersion {
   }
 
   @UpdatePermission(expression = IsModerator.EXPRESSION)
+  @Audit(action = Action.UPDATE, logStatement = "Updated mod version `{0}` attribute ranked to: {1}", logExpressions = {"${modVersion.id}", "${modVersion.ranked}"})
   @Column(name = "ranked")
   public boolean isRanked() {
     return ranked;
   }
 
   @UpdatePermission(expression = IsModerator.EXPRESSION)
+  @Audit(action = Action.UPDATE, logStatement = "Updated mod version `{0}` attribute hidden to: {1}", logExpressions = {"${modVersion.id}", "${modVersion.hidden}"})
   @Column(name = "hidden")
   public boolean isHidden() {
     return hidden;
