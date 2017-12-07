@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class LeaderboardController {
   }
 
   @Async
-  @RequestMapping(path = "/ladder1v1")
+  @RequestMapping(path = "/ladder1v1", method = RequestMethod.GET)
   @ApiOperation("Lists the ladder1v1 leaderboard")
   public CompletableFuture<JsonApiDocument> getLadder1v1() {
     List<Resource> values = leaderboardService.getLadder1v1Leaderboard().stream()
@@ -49,7 +50,7 @@ public class LeaderboardController {
   }
 
   @Async
-  @RequestMapping(path = "/global")
+  @RequestMapping(path = "/global", method = RequestMethod.GET)
   @ApiOperation("Lists the global leaderboard")
   public CompletableFuture<JsonApiDocument> getGlobal() {
     List<Resource> values = leaderboardService.getGlobalLeaderboard().stream()
@@ -69,7 +70,7 @@ public class LeaderboardController {
   }
 
   @Async
-  @RequestMapping(path = "/ladder1v1/{playerId}")
+  @RequestMapping(path = "/ladder1v1/{playerId}", method = RequestMethod.GET)
   @ApiOperation("Lists the ladder1v1 leaderboard for the specified player")
   public CompletableFuture<JsonApiDocument> getSingleLadder1v1(@PathVariable("playerId") String playerId) {
     Ladder1v1LeaderboardEntry entry = leaderboardService.getLadder1v1Entry(Integer.valueOf(playerId));
@@ -92,7 +93,7 @@ public class LeaderboardController {
   }
 
   @Async
-  @RequestMapping(path = "/global/{playerId}")
+  @RequestMapping(path = "/global/{playerId}", method = RequestMethod.GET)
   @ApiOperation("Lists the global leaderboard for the specified player")
   public CompletableFuture<JsonApiDocument> getSingleGlobal(@PathVariable("playerId") String playerId) {
     GlobalLeaderboardEntry entry = leaderboardService.getGlobalEntry(Integer.valueOf(playerId));
