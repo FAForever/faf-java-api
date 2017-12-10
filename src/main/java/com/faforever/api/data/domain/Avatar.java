@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.permission.IsModerator;
+import com.github.jasminb.jsonapi.annotations.Type;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
@@ -17,6 +18,7 @@ import java.util.List;
 @Table(name = "avatars_list")
 @Include(rootLevel = true, type = Avatar.TYPE_NAME)
 @Setter
+@Type(Avatar.TYPE_NAME)
 public class Avatar extends AbstractEntity {
 
   public static final String TYPE_NAME = "avatar";

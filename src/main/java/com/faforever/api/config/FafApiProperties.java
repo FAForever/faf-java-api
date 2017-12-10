@@ -120,7 +120,7 @@ public class FafApiProperties {
   @Data
   public static class Avatar {
     private String downloadUrlFormat;
-    private Set<String> allowedExtensions = ImmutableSet.of("zip");
+    private Set<String> allowedExtensions = ImmutableSet.of("png");
     private Path targetDirectory;
     private int maxSizeBytes = 4096;
     private int maxNameLength = 100;

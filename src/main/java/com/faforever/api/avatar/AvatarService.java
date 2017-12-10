@@ -6,23 +6,27 @@ import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.error.NotFoundApiException;
+import com.faforever.api.error.ProgrammingError;
 import com.faforever.api.utils.FileNameUtil;
 import com.faforever.api.utils.FilePermissionUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
-import javax.imageio.stream.FileImageInputStream;
+import javax.imageio.stream.MemoryCacheImageInputStream;
+import java.awt.Dimension;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Iterator;
 
 @Service
@@ -38,51 +42,73 @@ public class AvatarService {
 
   @SneakyThrows
   @Transactional
-  public void processUploadedAvatar(AvatarMetadata avatarMetadata, String originalFilename, InputStream imageDataInputStream, long avatarImageFileSize) {
+  public void createAvatar(AvatarMetadata avatarMetadata, String originalFilename, InputStream imageDataInputStream, long avatarImageFileSize) {
+    final Avatar avatarToCreate = new Avatar();
     final String normalizedAvatarFileName = FileNameUtil.normalizeFileName(originalFilename);
     String url = String.format(properties.getAvatar().getDownloadUrlFormat(), normalizedAvatarFileName);
-    validateImageFile(originalFilename, avatarImageFileSize);
-    final Path imageTargetPath = properties.getAvatar().getTargetDirectory().resolve(normalizedAvatarFileName);
-
-    avatarRepository.findOneByUrl(url).ifPresent(avatar -> {
+    avatarRepository.findOneByUrl(url).ifPresent(existingAvatar -> {
       throw new ApiException(new Error(ErrorCode.AVATAR_NAME_CONFLICT, normalizedAvatarFileName));
     });
-    if (Files.exists(imageTargetPath)) {
-      throw new ApiException(new Error(ErrorCode.AVATAR_NAME_CONFLICT, normalizedAvatarFileName));
-    }
+    avatarToCreate.setTooltip(avatarMetadata.getName())
+      .setUrl(url);
 
-    Files.createDirectories(imageTargetPath.getParent());
-    Files.copy(imageDataInputStream, imageTargetPath);
-    FilePermissionUtil.setDefaultFilePermission(imageTargetPath);
+    final InputStream markSupportedImageInputStream = getMarkSupportedInputStream(imageDataInputStream);
+    validateImageFile(originalFilename, avatarImageFileSize);
+    checkImageDimensions(markSupportedImageInputStream, normalizedAvatarFileName);
+    final Path imageTargetPath = properties.getAvatar().getTargetDirectory().resolve(normalizedAvatarFileName);
 
-    try {
-      checkImageDimensions(imageTargetPath);
-      final Avatar avatar = new Avatar()
-        .setTooltip(avatarMetadata.getName())
-        .setUrl(url);
-      avatarRepository.save(avatar);
-    } catch (IOException | DataAccessException e) {
-      try {
-        Files.delete(imageTargetPath);
-      } catch (IOException ioException) {
-        log.warn("Could not delete file " + imageTargetPath, ioException);
-      }
-      throw e;
-    }
+    avatarRepository.save(avatarToCreate);
+    copyAvatarFile(markSupportedImageInputStream, imageTargetPath, false);
+  }
+
+  @SneakyThrows
+  @Transactional
+  public void updateAvatar(Integer avatarId, AvatarMetadata avatarMetadata, String originalFilename, InputStream imageDataInputStream, long avatarImageFileSize) {
+    final Avatar existingAvatar = getExistingAvatar(avatarId);
+    final String normalizedAvatarFileName = getFileNameFromUrl(existingAvatar.getUrl());
+    existingAvatar.setTooltip(avatarMetadata.getName());
+
+    final InputStream markSupportedImageInputStream = getMarkSupportedInputStream(imageDataInputStream);
+    validateImageFile(originalFilename, avatarImageFileSize);
+    checkImageDimensions(markSupportedImageInputStream, originalFilename);
+    final Path imageTargetPath = properties.getAvatar().getTargetDirectory().resolve(normalizedAvatarFileName);
+
+    avatarRepository.save(existingAvatar);
+    copyAvatarFile(markSupportedImageInputStream, imageTargetPath, true);
   }
 
   @SneakyThrows
   @Transactional
   public void deleteAvatar(Integer avatarId) {
-    final Avatar avatar = avatarRepository.findById(avatarId).orElseThrow(() -> new NotFoundApiException(new Error(ErrorCode.ENTITY_NOT_FOUND, avatarId)));
+    final Avatar avatar = getExistingAvatar(avatarId);
     if (!avatar.getAssignments().isEmpty()) {
       throw new ApiException(new Error(ErrorCode.AVATAR_IN_USE, avatarId));
     }
     // TODO: 21.11.2017 !!!!!!!!!!!! HACK TO GET FILENAME FROM URL..... !!!!!!!!!!!!!!!
-    final String fileName = Paths.get(URI.create(avatar.getUrl()).getPath()).getFileName().toString();
+    final String fileName = getFileNameFromUrl(avatar.getUrl());
     final Path avatarImageFilePath = properties.getAvatar().getTargetDirectory().resolve(fileName);
     Files.deleteIfExists(avatarImageFilePath);
     avatarRepository.delete(avatar);
+  }
+
+  @NotNull
+  private String getFileNameFromUrl(@NotNull String avatarUrl) {
+    return Paths.get(URI.create(avatarUrl).getPath()).getFileName().toString();
+  }
+
+  private void copyAvatarFile(InputStream imageDataInputStream, Path imageTargetPath, boolean overwrite) throws IOException {
+    CopyOption[] copyOptions = overwrite ? new CopyOption[]{StandardCopyOption.REPLACE_EXISTING} : new CopyOption[0];
+    if (!overwrite && Files.exists(imageTargetPath)) {
+      throw new ApiException(new Error(ErrorCode.AVATAR_NAME_CONFLICT, imageTargetPath.getFileName().toString()));
+    }
+    Files.createDirectories(imageTargetPath.getParent());
+    Files.copy(imageDataInputStream, imageTargetPath, copyOptions);
+    FilePermissionUtil.setDefaultFilePermission(imageTargetPath);
+  }
+
+  @NotNull
+  private Avatar getExistingAvatar(Integer avatarId) {
+    return avatarRepository.findById(avatarId).orElseThrow(() -> new NotFoundApiException(new Error(ErrorCode.ENTITY_NOT_FOUND, avatarId)));
   }
 
   private void validateImageFile(String originalFilename, long avatarImageFileSize) {
@@ -101,25 +127,45 @@ public class AvatarService {
     }
   }
 
-  private void checkImageDimensions(Path imageTargetPath) throws IOException {
-    final String fileExtension = com.google.common.io.Files.getFileExtension(imageTargetPath.getFileName().toString());
+  private InputStream getMarkSupportedInputStream(InputStream originalStream) {
+    if (originalStream.markSupported()) {
+      return originalStream;
+    } else {
+      //todo Spring returns inputstream with mark support but in case it won't we have to make one
+      throw new ProgrammingError("Mark not supported");
+    }
+  }
+
+  private void checkImageDimensions(InputStream imageInputStream, String imageFileName) throws IOException {
+    imageInputStream.mark(4096);
+    final Dimension imageDimensions = readImageDimensions(imageInputStream, imageFileName);
+    imageInputStream.reset();
+
+    final int heightLimit = properties.getAvatar().getImageHeight();
+    final int widthLimit = properties.getAvatar().getImageWidth();
+
+    if (imageDimensions.width != widthLimit || imageDimensions.height != heightLimit) {
+      throw new ApiException(new Error(ErrorCode.INVALID_AVATAR_DIMENSION, widthLimit, heightLimit, imageDimensions.width, imageDimensions.height));
+    }
+  }
+
+  private Dimension readImageDimensions(InputStream imageInputStream, String imageFileName) throws IOException {
+    final String fileExtension = com.google.common.io.Files.getFileExtension(imageFileName);
     final Iterator<ImageReader> imageReadersBySuffix = ImageIO.getImageReadersBySuffix(fileExtension);
     if (imageReadersBySuffix.hasNext()) {
       final ImageReader imageReader = imageReadersBySuffix.next();
       try {
-        imageReader.setInput(new FileImageInputStream(imageTargetPath.toFile()));
+        imageReader.setInput(new MemoryCacheImageInputStream(imageInputStream));
 
         final int width = imageReader.getWidth(imageReader.getMinIndex());
         final int height = imageReader.getHeight(imageReader.getMinIndex());
-        final int heightLimit = properties.getAvatar().getImageHeight();
-        final int widthLimit = properties.getAvatar().getImageWidth();
 
-        if (width != widthLimit || height != heightLimit) {
-          throw new ApiException(new Error(ErrorCode.INVALID_AVATAR_DIMENSION, widthLimit, heightLimit, width, height));
-        }
+        return new Dimension(width, height);
       } finally {
         imageReader.dispose();
       }
+    } else {
+      throw new ProgrammingError("Unsupported image format. Could not read dimensions.");
     }
   }
 }
