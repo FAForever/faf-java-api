@@ -320,6 +320,7 @@ dependencies {
   compile("io.prometheus:simpleclient_servlet:${prometheusVersion}")
   compile("io.prometheus:simpleclient_spring_boot:${prometheusVersion}")
 
+  compile("com.github.jasminb:jsonapi-converter:${jsonapiConverterVersion}")
   runtime("mysql:mysql-connector-java:${mysqlConnectorVersion}")
 
   optional("org.springframework.boot:spring-boot-configuration-processor")

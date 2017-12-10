@@ -42,9 +42,34 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
         .with(getOAuthToken(OAuthScope._UPLOAD_AVATAR))
     ).andExpect(status().isCreated())
       .andExpect(content().string(""));
-    final Avatar avatar = avatarRepository.findOneByUrl("http://localhost/faf/avatars/donator.png").get();
-    assertThat(avatar.getUrl(), is("http://localhost/faf/avatars/donator.png"));
+    final Avatar avatar = avatarRepository.findOneByUrl("http://localhost/faf/avatars/avatar3.png").get();
+    assertThat(avatar.getUrl(), is("http://localhost/faf/avatars/avatar3.png"));
     assertThat(avatar.getTooltip(), is("Best avatar"));
+  }
+
+  @Test
+  @WithUserDetails(AUTH_MODERATOR)
+  public void moderatorCanReupload() throws Exception {
+    Files.copy(FileHandlingHelper.loadResourceAsStream("/avatars/donator.png"), Paths.get("build/cache/avatars/avatar1.png"));
+    mockMvc.perform(
+      createAvatarReuploadRequest(1)
+        .with(getOAuthToken(OAuthScope._UPLOAD_AVATAR))
+    ).andExpect(status().isOk())
+      .andExpect(content().string(""));
+    final Avatar avatar = avatarRepository.findOneByUrl("http://localhost/faf/avatars/avatar1.png").get();
+    assertThat(avatar.getUrl(), is("http://localhost/faf/avatars/avatar1.png"));
+    assertThat(avatar.getTooltip(), is("Best avatar"));
+  }
+
+  @Test
+  @WithUserDetails(AUTH_MODERATOR)
+  public void moderatorCanDeleteAvatar() throws Exception {
+    Files.copy(FileHandlingHelper.loadResourceAsStream("/avatars/donator.png"), Paths.get("build/cache/avatars/avatar1.png"));
+    mockMvc.perform(
+      delete("/avatars/1")
+        .with(getOAuthToken(OAuthScope._UPLOAD_AVATAR))
+    ).andExpect(status().isNoContent());
+    assertThat(avatarRepository.findById(1), is(Optional.empty()));
   }
 
   @Test
@@ -52,6 +77,24 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
   public void nonModeratorCannotUpload() throws Exception {
     mockMvc.perform(
       createAvatarUploadRequest()
+        .with(getOAuthToken(OAuthScope._UPLOAD_AVATAR))
+    ).andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails(AUTH_USER)
+  public void nonModeratorCannotReupload() throws Exception {
+    mockMvc.perform(
+      createAvatarReuploadRequest(1)
+        .with(getOAuthToken(OAuthScope._UPLOAD_AVATAR))
+    ).andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails(AUTH_USER)
+  public void nonModeratorCannotDelete() throws Exception {
+    mockMvc.perform(
+      delete("/avatars/1")
         .with(getOAuthToken(OAuthScope._UPLOAD_AVATAR))
     ).andExpect(status().isForbidden());
   }
@@ -66,24 +109,38 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_MODERATOR)
-  public void moderatorCanDeleteAvatar() throws Exception {
-    Files.copy(FileHandlingHelper.loadResourceAsStream("/avatars/donator.png"), Paths.get("build/cache/avatars/avatar1.png"));
+  @WithUserDetails(AUTH_USER)
+  public void moderatorWithoutScopeCannotReupload() throws Exception {
+    mockMvc.perform(
+      createAvatarReuploadRequest(1)
+        .with(getOAuthToken())
+    ).andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails(AUTH_USER)
+  public void moderatorWithoutScopeCannotDelete() throws Exception {
     mockMvc.perform(
       delete("/avatars/1")
-        .with(getOAuthToken(OAuthScope._UPLOAD_AVATAR))
-    ).andExpect(status().isNoContent());
-    assertThat(avatarRepository.findById(1), is(Optional.empty()));
+        .with(getOAuthToken())
+    ).andExpect(status().isForbidden());
   }
 
   @After
   public void tearDown() throws Exception {
-    Files.deleteIfExists(Paths.get("build/cache/avatars/donator.png"));
+    Files.deleteIfExists(Paths.get("build/cache/avatars/avatar1.png"));
+    Files.deleteIfExists(Paths.get("build/cache/avatars/avatar3.png"));
   }
 
   private MockMultipartHttpServletRequestBuilder createAvatarUploadRequest() throws IOException {
     return MockMvcRequestBuilders.fileUpload("/avatars/upload")
-      .file(new MockMultipartFile("file", "donator.png", MediaType.IMAGE_PNG_VALUE, FileHandlingHelper.loadResourceAsStream("/avatars/donator.png")))
+      .file(new MockMultipartFile("file", "avatar3.png", MediaType.IMAGE_PNG_VALUE, FileHandlingHelper.loadResourceAsStream("/avatars/donator.png")))
+      .file(new MockMultipartFile("metadata", "metadata.json", MediaType.APPLICATION_JSON_VALUE, FileHandlingHelper.loadResourceAsStream("/avatars/metadata.json")));
+  }
+
+  private MockMultipartHttpServletRequestBuilder createAvatarReuploadRequest(Integer id) throws IOException {
+    return MockMvcRequestBuilders.fileUpload("/avatars/{id}/upload", id)
+      .file(new MockMultipartFile("file", "avatar1.png", MediaType.IMAGE_PNG_VALUE, FileHandlingHelper.loadResourceAsStream("/avatars/donator.png")))
       .file(new MockMultipartFile("metadata", "metadata.json", MediaType.APPLICATION_JSON_VALUE, FileHandlingHelper.loadResourceAsStream("/avatars/metadata.json")));
   }
 }

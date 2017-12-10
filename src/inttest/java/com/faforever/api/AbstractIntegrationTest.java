@@ -4,6 +4,10 @@ import com.faforever.api.config.ApplicationProfile;
 import com.faforever.api.config.ElideTestConfig;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.utils.OAuthHelper;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -42,6 +46,7 @@ public abstract class AbstractIntegrationTest {
   protected MockMvc mockMvc;
   @Autowired
   protected WebApplicationContext context;
+  protected ObjectMapper objectMapper;
 
   @Before
   public void setUp() {
@@ -49,6 +54,11 @@ public abstract class AbstractIntegrationTest {
       .webAppContextSetup(this.context)
       .apply(springSecurity())
       .build();
+
+    this.objectMapper = new ObjectMapper();
+    this.objectMapper.registerModule(new JavaTimeModule());
+    this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    this.objectMapper.setSerializationInclusion(Include.NON_EMPTY);
   }
 
   protected RequestPostProcessor getOAuthToken(String... scope) {

@@ -2,6 +2,8 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.permission.IsModerator;
+import com.github.jasminb.jsonapi.annotations.Relationship;
+import com.github.jasminb.jsonapi.annotations.Type;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
@@ -24,17 +26,20 @@ import java.time.OffsetDateTime;
 @CreatePermission(expression = IsModerator.EXPRESSION)
 @DeletePermission(expression = IsModerator.EXPRESSION)
 @Setter
+@Type(AvatarAssignment.TYPE_NAME)
 public class AvatarAssignment extends AbstractEntity implements OwnableEntity {
   public static final String TYPE_NAME = "avatarAssignment";
 
-  private boolean selected;
+  private Boolean selected = Boolean.FALSE;
   private OffsetDateTime expiresAt;
+  @Relationship(Player.TYPE_NAME)
   private Player player;
+  @Relationship(Avatar.TYPE_NAME)
   private Avatar avatar;
 
   @Column(name = "selected")
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION)
-  public boolean isSelected() {
+  public Boolean isSelected() {
     return selected;
   }
 

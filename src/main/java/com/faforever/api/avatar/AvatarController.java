@@ -43,7 +43,25 @@ public class AvatarController {
   public void uploadAvatar(
     @ApiParam(name = "metadata") @RequestPart("metadata") AvatarMetadata avatarMetaData,
     @ApiParam(name = "file") @RequestPart("file") MultipartFile avatarImageFile) throws IOException {
-    avatarService.processUploadedAvatar(avatarMetaData, avatarImageFile.getOriginalFilename(), avatarImageFile.getInputStream(), avatarImageFile.getSize());
+    avatarService.createAvatar(avatarMetaData, avatarImageFile.getOriginalFilename(), avatarImageFile.getInputStream(), avatarImageFile.getSize());
+  }
+
+  @ApiOperation(value = "Update/Reupload avatar", notes = "Avatar metadata - " +
+    "{" +
+    " \"name\": \"String\"" +
+    "}")
+  @ApiResponses(value = {
+    @ApiResponse(code = 200, message = "Success"),
+    @ApiResponse(code = 422, message = "Invalid input", response = ErrorResponse.class),
+    @ApiResponse(code = 500, message = "Failure", response = ErrorResponse.class)})
+  @ResponseStatus(value = HttpStatus.OK)
+  @RequestMapping(value = "{avatarId}/upload", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._UPLOAD_AVATAR + "') and hasRole('ROLE_MODERATOR')")
+  public void reuploadAvatar(
+    @ApiParam(name = "avatarId") @PathVariable("avatarId") Integer avatarId,
+    @ApiParam(name = "metadata") @RequestPart(value = "metadata") AvatarMetadata avatarMetaData,
+    @ApiParam(name = "file") @RequestPart("file") MultipartFile avatarImageFile) throws IOException {
+    avatarService.updateAvatar(avatarId, avatarMetaData, avatarImageFile.getOriginalFilename(), avatarImageFile.getInputStream(), avatarImageFile.getSize());
   }
 
   @ApiOperation(value = "Delete avatar")

@@ -71,7 +71,6 @@ public enum ErrorCode {
   USERNAME_RESERVED(162, "Invalid account data", "The username ''{0}'' can only be claimed by the original owner within {1, number} months after it has been freed."),
   UNKNOWN_IDENTIFIER(163, "Unable to resolve user", "The identifier does neither match a username nor an email: {0}"),
   ALREADY_REGISTERED(164, "Registration failed", "You can't create a new account because you already have one."),
-  STEAM_LINK_NO_FA_GAME(141, "Linking to Steam failed", "You do not own Forged Alliance on Steam or your profile is private."),
   EMAIL_CHANGE_FAILED_WRONG_PASSWORD(138, "Email change failed", "Your current password did not match."),
   STEAM_LINK_NO_FA_GAME(165, "Linking to Steam failed", "You do not own Forged Alliance on Steam or your profile is private."),
   FILE_NAME_TOO_LONG(166, "Invalid file name", "The file name must not exceed {0, number} character(s), was: {1, number}"),
