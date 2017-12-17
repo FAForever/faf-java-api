@@ -151,12 +151,25 @@ public class UserService {
         }
       });
 
+    log.debug("Changing username for user ''{}'' to ''{}''", user, newLogin);
     NameRecord nameRecord = new NameRecord()
       .setName(user.getLogin())
       .setPlayer(playerRepository.findOne(user.getId()));
     nameRecordRepository.save(nameRecord);
 
     user.setLogin(newLogin);
+    userRepository.save(user);
+  }
+
+  public void changeEmail(String currentPassword, String newEmail, User user) {
+    if (!Objects.equals(user.getPassword(), passwordEncoder.encode(currentPassword))) {
+      throw new ApiException(new Error(ErrorCode.EMAIL_CHANGE_FAILED_WRONG_PASSWORD));
+    }
+
+    emailService.validateEmailAddress(newEmail);
+
+    log.debug("Changing email for user ''{}'' to ''{}''", user, newEmail);
+    user.setEmail(newEmail);
     userRepository.save(user);
   }
 
@@ -179,6 +192,7 @@ public class UserService {
 
   @SneakyThrows
   void claimPasswordResetToken(String token) {
+    log.debug("Trying to reset password with token: {}", token);
     Map<String, String> claims = fafTokenService.resolveToken(FafTokenType.PASSWORD_RESET, token);
 
     int userId = Integer.parseInt(claims.get(KEY_USER_ID));

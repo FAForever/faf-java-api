@@ -39,11 +39,11 @@ public class SwaggerConfig {
 
   private ApiInfo apiInfo() {
     return new ApiInfoBuilder()
-      .title("Forged Alliance Forever API (Prototype)")
-      .description("A prototype of a Java-based API for Forged Alliance Forever")
-      .contact(new Contact("Downlord", "https://github.com/micheljung", "downlord@faforever.com"))
+      .title("Forged Alliance Forever API")
+      .description("The official API for Forged Alliance Forever")
+      .contact(new Contact("Downlord", "https://github.com/FAForever/faf-java-api", "downlord@faforever.com"))
       .license("MIT")
-      .licenseUrl("https://github.com/micheljung/faf-java-api/blob/develop/LICENSE")
+      .licenseUrl("https://github.com/FAForever/faf-java-api/blob/develop/LICENSE")
       .version(fafApiProperties.getVersion())
       .build();
   }
@@ -58,6 +58,7 @@ public class SwaggerConfig {
       regex("/events/.*"),
       regex("/users/.*"),
       regex("/mods/.*"),
-      regex("/maps/.*"));
+      regex("/maps/.*"),
+      regex("/leaderboards/.*"));
   }
 }

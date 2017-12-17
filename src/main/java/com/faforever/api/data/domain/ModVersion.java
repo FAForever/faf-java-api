@@ -2,6 +2,8 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.permission.IsModerator;
 import com.faforever.api.data.listeners.ModVersionEnricher;
+import com.yahoo.elide.annotation.Audit;
+import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
@@ -20,6 +22,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.time.OffsetDateTime;
@@ -49,8 +52,7 @@ public class ModVersion {
   private String thumbnailUrl;
   private String downloadUrl;
   private List<ModVersionReview> reviews;
-  private int numberOfReviews;
-  private float averageReviewScore;
+  private ModVersionReviewsSummary reviewsSummary;
 
   @Id
   @Column(name = "id")
@@ -93,25 +95,17 @@ public class ModVersion {
   }
 
   @UpdatePermission(expression = IsModerator.EXPRESSION)
+  @Audit(action = Action.UPDATE, logStatement = "Updated mod version `{0}` attribute ranked to: {1}", logExpressions = {"${modVersion.id}", "${modVersion.ranked}"})
   @Column(name = "ranked")
   public boolean isRanked() {
     return ranked;
   }
 
   @UpdatePermission(expression = IsModerator.EXPRESSION)
+  @Audit(action = Action.UPDATE, logStatement = "Updated mod version `{0}` attribute hidden to: {1}", logExpressions = {"${modVersion.id}", "${modVersion.hidden}"})
   @Column(name = "hidden")
   public boolean isHidden() {
     return hidden;
-  }
-
-  @Column(name = "reviews")
-  public int getNumberOfReviews() {
-    return numberOfReviews;
-  }
-
-  @Column(name = "average_review_score")
-  public float getAverageReviewScore() {
-    return averageReviewScore;
   }
 
   @Column(name = "create_time")
@@ -146,5 +140,11 @@ public class ModVersion {
   @UpdatePermission(expression = "Prefab.Role.All")
   public List<ModVersionReview> getReviews() {
     return reviews;
+  }
+
+  @OneToOne(mappedBy = "modVersion")
+  @UpdatePermission(expression = "Prefab.Role.All")
+  public ModVersionReviewsSummary getReviewsSummary() {
+    return reviewsSummary;
   }
 }

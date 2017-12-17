@@ -71,7 +71,8 @@ public enum ErrorCode {
   USERNAME_RESERVED(162, "Invalid account data", "The username ''{0}'' can only be claimed by the original owner within {1} months after it has been freed."),
   UNKNOWN_IDENTIFIER(163, "Unable to resolve user", "The identifier does neither match a username nor an email: {0}"),
   ALREADY_REGISTERED(164, "Registration failed", "You can't create a new account because you already have one."),
-  STEAM_LINK_NO_FA_GAME(141, "Linking to Steam failed", "You do not own Forged Alliance on Steam or your profile is private.");
+  STEAM_LINK_NO_FA_GAME(141, "Linking to Steam failed", "You do not own Forged Alliance on Steam or your profile is private."),
+  EMAIL_CHANGE_FAILED_WRONG_PASSWORD(138, "Email change failed", "Your current password did not match.");
 
   private final int code;
   private final String title;

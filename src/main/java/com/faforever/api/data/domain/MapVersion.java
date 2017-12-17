@@ -2,6 +2,8 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.permission.IsModerator;
 import com.faforever.api.data.listeners.MapVersionEnricher;
+import com.yahoo.elide.annotation.Audit;
+import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
@@ -45,9 +47,8 @@ public class MapVersion extends AbstractEntity {
   private String thumbnailUrlLarge;
   private String downloadUrl;
   private List<MapVersionReview> reviews;
+  private MapVersionReviewsSummary reviewsSummary;
   private Ladder1v1Map ladder1v1Map;
-  private int numberOfReviews;
-  private float averageReviewScore;
 
   @Column(name = "description")
   public String getDescription() {
@@ -85,25 +86,17 @@ public class MapVersion extends AbstractEntity {
   }
 
   @UpdatePermission(expression = IsModerator.EXPRESSION)
+  @Audit(action = Action.UPDATE, logStatement = "Updated map version `{0}` attribute ranked to: {1}", logExpressions = {"${mapVersion.id}", "${mapVersion.ranked}"})
   @Column(name = "ranked")
   public boolean isRanked() {
     return ranked;
   }
 
   @UpdatePermission(expression = IsModerator.EXPRESSION)
+  @Audit(action = Action.UPDATE, logStatement = "Updated map version `{0}` attribute hidden to: {1}", logExpressions = {"${mapVersion.id}", "${mapVersion.hidden}"})
   @Column(name = "hidden")
   public boolean isHidden() {
     return hidden;
-  }
-
-  @Column(name = "reviews")
-  public int getNumberOfReviews() {
-    return numberOfReviews;
-  }
-
-  @Column(name = "average_review_score")
-  public float getAverageReviewScore() {
-    return averageReviewScore;
   }
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -147,5 +140,11 @@ public class MapVersion extends AbstractEntity {
   @UpdatePermission(expression = "Prefab.Role.All")
   public List<MapVersionReview> getReviews() {
     return reviews;
+  }
+
+  @OneToOne(mappedBy = "mapVersion")
+  @UpdatePermission(expression = "Prefab.Role.All")
+  public MapVersionReviewsSummary getReviewsSummary() {
+    return reviewsSummary;
   }
 }

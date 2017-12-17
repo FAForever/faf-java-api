@@ -153,6 +153,70 @@ public class UserControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
+  @WithUserDetails(AUTH_USER)
+  public void changeEmailWithSuccess() throws Exception {
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("currentPassword", AUTH_USER);
+    params.add("newEmail", NEW_EMAIL);
+
+    mockMvc.perform(
+      post("/users/changeEmail")
+        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .params(params))
+      .andExpect(status().isOk());
+
+    User user = userRepository.findOneByLoginIgnoreCase(AUTH_USER).get();
+    assertEquals(user.getEmail(), NEW_EMAIL);
+  }
+
+  @Test
+  @WithUserDetails(AUTH_USER)
+  public void changeEmailWithWrongScope() throws Exception {
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("currentPassword", AUTH_USER);
+    params.add("newEmail", NEW_EMAIL);
+
+    mockMvc.perform(
+      post("/users/changeEmail")
+        .params(params))
+      .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails(AUTH_USER)
+  public void changeEmailWithWrongPassword() throws Exception {
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("currentPassword", "wrongPassword");
+    params.add("newEmail", NEW_EMAIL);
+
+    MvcResult mvcResult = mockMvc.perform(
+      post("/users/changeEmail")
+        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .params(params))
+      .andExpect(status().is4xxClientError())
+      .andReturn();
+
+    assertApiError(mvcResult, ErrorCode.EMAIL_CHANGE_FAILED_WRONG_PASSWORD);
+  }
+
+  @Test
+  @WithUserDetails(AUTH_USER)
+  public void changeEmailWithInvalidEmail() throws Exception {
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("currentPassword", AUTH_USER);
+    params.add("newEmail", "invalid-email");
+
+    MvcResult mvcResult = mockMvc.perform(
+      post("/users/changeEmail")
+        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .params(params))
+      .andExpect(status().is4xxClientError())
+      .andReturn();
+
+    assertApiError(mvcResult, ErrorCode.EMAIL_INVALID);
+  }
+
+  @Test
   @WithAnonymousUser
   public void resetPasswordWithUsername() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
