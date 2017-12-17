@@ -30,6 +30,7 @@ DELETE FROM teamkills;
 DELETE FROM ladder_division_score;
 DELETE FROM ladder_division;
 DELETE FROM lobby_admin;
+DELETE FROM user_notes;
 DELETE FROM login;
 
 INSERT INTO oauth_clients (id, name, client_secret, client_type, redirect_uris, default_redirect_uri, default_scope)
