@@ -25,11 +25,13 @@ public abstract class Login extends AbstractEntity {
   private String steamId;
   private String userAgent;
   private List<BanInfo> bans;
+  private List<UserNote> userNotes;
   private LobbyGroup lobbyGroup;
   private String recentIpAddress;
 
   public Login() {
     this.bans = new ArrayList<>(0);
+    this.userNotes = new ArrayList<>(0);
   }
 
   @Column(name = "login")
@@ -65,6 +67,12 @@ public abstract class Login extends AbstractEntity {
   @UpdatePermission(expression = IsModerator.EXPRESSION)
   public List<BanInfo> getBans() {
     return this.bans;
+  }
+
+  @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
+  @UpdatePermission(expression = IsModerator.EXPRESSION)
+  public List<UserNote> getUserNotes() {
+    return this.userNotes;
   }
 
   @Transient
