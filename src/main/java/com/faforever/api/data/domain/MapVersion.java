@@ -47,9 +47,8 @@ public class MapVersion extends AbstractEntity {
   private String thumbnailUrlLarge;
   private String downloadUrl;
   private List<MapVersionReview> reviews;
+  private MapVersionReviewsSummary reviewsSummary;
   private Ladder1v1Map ladder1v1Map;
-  private int numberOfReviews;
-  private float averageReviewScore;
 
   @Column(name = "description")
   public String getDescription() {
@@ -100,16 +99,6 @@ public class MapVersion extends AbstractEntity {
     return hidden;
   }
 
-  @Column(name = "reviews")
-  public int getNumberOfReviews() {
-    return numberOfReviews;
-  }
-
-  @Column(name = "average_review_score")
-  public float getAverageReviewScore() {
-    return averageReviewScore;
-  }
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "map_id")
   @NotNull
@@ -151,5 +140,11 @@ public class MapVersion extends AbstractEntity {
   @UpdatePermission(expression = "Prefab.Role.All")
   public List<MapVersionReview> getReviews() {
     return reviews;
+  }
+
+  @OneToOne(mappedBy = "mapVersion")
+  @UpdatePermission(expression = "Prefab.Role.All")
+  public MapVersionReviewsSummary getReviewsSummary() {
+    return reviewsSummary;
   }
 }

@@ -22,6 +22,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.time.OffsetDateTime;
@@ -51,8 +52,7 @@ public class ModVersion {
   private String thumbnailUrl;
   private String downloadUrl;
   private List<ModVersionReview> reviews;
-  private int numberOfReviews;
-  private float averageReviewScore;
+  private ModVersionReviewsSummary reviewsSummary;
 
   @Id
   @Column(name = "id")
@@ -108,16 +108,6 @@ public class ModVersion {
     return hidden;
   }
 
-  @Column(name = "reviews")
-  public int getNumberOfReviews() {
-    return numberOfReviews;
-  }
-
-  @Column(name = "average_review_score")
-  public float getAverageReviewScore() {
-    return averageReviewScore;
-  }
-
   @Column(name = "create_time")
   public OffsetDateTime getCreateTime() {
     return createTime;
@@ -150,5 +140,11 @@ public class ModVersion {
   @UpdatePermission(expression = "Prefab.Role.All")
   public List<ModVersionReview> getReviews() {
     return reviews;
+  }
+
+  @OneToOne(mappedBy = "modVersion")
+  @UpdatePermission(expression = "Prefab.Role.All")
+  public ModVersionReviewsSummary getReviewsSummary() {
+    return reviewsSummary;
   }
 }
