@@ -5,7 +5,7 @@ faf-api:
   challonge:
     key: ${CHALLONGE_KEY:}
   database:
-    schema-version: ${DATABASE_SCHEMA_VERSION:44}
+    schema-version: ${DATABASE_SCHEMA_VERSION:48}
 
 spring:
   application:
