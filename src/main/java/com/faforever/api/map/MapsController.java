@@ -67,7 +67,7 @@ public class MapsController {
     boolean ranked;
     try {
       JsonNode node = objectMapper.readTree(jsonString);
-      ranked = node.path("is_ranked").asBoolean(false);
+      ranked = node.path("isRanked").asBoolean(false);
     } catch (IOException e) {
       log.debug("Could not parse metadata", e);
       throw new ApiException(new Error(ErrorCode.MAP_UPLOAD_INVALID_METADATA, e.getMessage()));
