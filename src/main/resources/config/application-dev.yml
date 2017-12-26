@@ -45,6 +45,8 @@ faf-api:
   password-reset:
     password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT:http://localhost:8010/users/claimPasswordResetToken/%s}
     success-redirect-url: ${PASSWORD_RESET_SUCCESS_REDIRECT_URL:http://localhost:8020/password_resetted}
+    subject: ${PASSWORD_RESET_EMAIL_SUBJECT:Unit test password reset}
+    html-format: ${PASSWORD_RESET_EMAIL_BODY:Unit test password reset html body}
   steam:
     realm: ${STEAM_REALM:http://localhost}
     api-key: ${STEAM_API_KEY:banana}
