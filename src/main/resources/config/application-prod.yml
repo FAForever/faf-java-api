@@ -40,6 +40,8 @@ faf-api:
   password-reset:
     password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT}
     success-redirect-url: ${PASSWORD_RESET_SUCCESS_REDIRECT_URL}
+    subject: ${PASSWORD_RESET_EMAIL_SUBJECT}
+    html-format: ${PASSWORD_RESET_EMAIL_BODY}
   steam:
     realm: ${STEAM_REALM}
     api-key: ${STEAM_API_KEY}
