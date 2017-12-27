@@ -4,6 +4,8 @@ import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.permission.IsModerator;
 import com.github.jasminb.jsonapi.annotations.Relationship;
 import com.github.jasminb.jsonapi.annotations.Type;
+import com.yahoo.elide.annotation.Audit;
+import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
@@ -25,6 +27,8 @@ import java.time.OffsetDateTime;
 @Include(rootLevel = true, type = AvatarAssignment.TYPE_NAME)
 @CreatePermission(expression = IsModerator.EXPRESSION)
 @DeletePermission(expression = IsModerator.EXPRESSION)
+@Audit(action = Action.CREATE, logStatement = "Avatar ''{0}'' has been assigned to player ''{1}''", logExpressions = {"${avatarAssignment.avatar.id}", "${avatarAssignment.player.id}"})
+@Audit(action = Action.DELETE, logStatement = "Avatar ''{0}'' has been revoked from player ''{1}''", logExpressions = {"${avatarAssignment.avatar.id}", "${avatarAssignment.player.id}"})
 @Setter
 @Type(AvatarAssignment.TYPE_NAME)
 public class AvatarAssignment extends AbstractEntity implements OwnableEntity {
@@ -39,12 +43,14 @@ public class AvatarAssignment extends AbstractEntity implements OwnableEntity {
 
   @Column(name = "selected")
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION)
+  @Audit(action = Action.UPDATE, logStatement = "Avatar ''{0}'' has been selected on player ''{1}''", logExpressions = {"${avatarAssignment.avatar.id}", "${avatarAssignment.player.id}"})
   public Boolean isSelected() {
     return selected;
   }
 
   @Column(name = "expires_at")
   @UpdatePermission(expression = IsModerator.EXPRESSION + " or Prefab.Common.UpdateOnCreate")
+  @Audit(action = Action.UPDATE, logStatement = "Expiration of avatar assignment ''{0}'' has been set to ''{1}''", logExpressions = {"${avatarAssignment.id}", "${avatarAssignment.expiresAt}"})
   public OffsetDateTime getExpiresAt() {
     return expiresAt;
   }
