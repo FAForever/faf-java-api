@@ -38,14 +38,14 @@ public class ElideConfig {
   public static final String DEFAULT_CACHE_NAME = "Elide.defaultCache";
 
   @Bean
-  public Elide elide(HibernateStore hibernateStore, ObjectMapper objectMapper, EntityDictionary entityDictionary) {
+  public Elide elide(HibernateStore hibernateStore, ObjectMapper objectMapper, EntityDictionary entityDictionary, ExtendedAuditLogger extendedAuditLogger) {
     RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary);
 
     registerAdditionalConverters();
 
     return new Elide(new ElideSettingsBuilder(hibernateStore)
       .withJsonApiMapper(new JsonApiMapper(entityDictionary, objectMapper))
-      .withAuditLogger(new ExtendedAuditLogger())
+      .withAuditLogger(extendedAuditLogger)
       .withEntityDictionary(entityDictionary)
       .withJoinFilterDialect(rsqlFilterDialect)
       .withSubqueryFilterDialect(rsqlFilterDialect)

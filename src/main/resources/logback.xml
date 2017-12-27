@@ -14,7 +14,7 @@
     </layout>
   </appender>
 
-  <logger name="com.faforever.api.security.ExtendedAuditLogger">
+  <logger name="com.faforever.api.security.AuditService">
     <appender-ref ref="AUDIT"/>
   </logger>
 </configuration>
