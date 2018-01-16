@@ -14,6 +14,13 @@ faf-api:
     preview-url-format: ${MOD_PREVIEW_URL_FORMAT:http://test.content.faforever.com/faf/vault/mods/%s}
   replay:
     download-url-format: ${REPLAY_DOWNLOAD_URL_FORMAT:http://content.test.faforever.com/faf/vault/replay_vault/replay.php?id=%s}
+  avatar:
+    download-url-format: ${AVATAR_DOWNLOAD_URL_FORMAT:http://content.test.faforever.com/faf/avatars/%s}
+    target-directory: ${AVATAR_TARGET_DIRECTORY:build/cache/avatars}
+    allowed-extensions: ${AVATAR_ALLOWED_FILE_EXTENSIONS:png}
+    max-size-bytes: ${AVATAR_MAX_SIZE_BYTES:4096}
+    image-width: ${AVATAR_IMAGE_WIDTH:40}
+    image-height: ${AVATAR_IMAGE_HEIGHT:20}
   featured-mod:
     file-url-format: ${FEATURED_MOD_URL_FORMAT:http://content.test.faforever.com/faf/updaterNew/%s/%s}
     bireus-url-format: ${FEATURED_MOD_BIREUS_URL_FORMAT:https://content.test.faforever.com/repositories/%s}
@@ -38,6 +45,8 @@ faf-api:
   password-reset:
     password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT:http://localhost:8010/users/claimPasswordResetToken/%s}
     success-redirect-url: ${PASSWORD_RESET_SUCCESS_REDIRECT_URL:http://localhost:8020/password_resetted}
+    subject: ${PASSWORD_RESET_EMAIL_SUBJECT:Unit test password reset}
+    html-format: ${PASSWORD_RESET_EMAIL_BODY:Unit test password reset html body}
   steam:
     realm: ${STEAM_REALM:http://localhost}
     api-key: ${STEAM_API_KEY:banana}

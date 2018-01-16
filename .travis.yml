@@ -28,7 +28,7 @@ script:
 after_success:
   - ./gradlew jacocoTestReport coveralls
   - if [ -n "${TRAVIS_TAG}" ]; then
-      ./gradlew pushDockerImage;
+      ./gradlew --stacktrace pushDockerImage;
     fi
   - if [ "${TRAVIS_BRANCH}" == "develop" ]; then
       ./gradlew jacocoTestReport sendCoverageToCodacy;

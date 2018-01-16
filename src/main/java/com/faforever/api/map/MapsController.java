@@ -26,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Arrays;
 
 @RestController
 @RequestMapping(path = "/maps")
@@ -60,17 +59,17 @@ public class MapsController {
     }
 
     String extension = Files.getFileExtension(file.getOriginalFilename());
-    if (Arrays.stream(fafApiProperties.getMap().getAllowedExtensions()).noneMatch(extension::equals)) {
-      throw new ApiException(new Error(ErrorCode.UPLOAD_INVALID_FILE_EXTENSION, (Object[]) fafApiProperties.getMap().getAllowedExtensions()));
+    if (!fafApiProperties.getMap().getAllowedExtensions().contains(extension)) {
+      throw new ApiException(new Error(ErrorCode.UPLOAD_INVALID_FILE_EXTENSIONS, fafApiProperties.getMap().getAllowedExtensions()));
     }
 
     boolean ranked;
     try {
       JsonNode node = objectMapper.readTree(jsonString);
-      ranked = node.path("is_ranked").asBoolean(false);
+      ranked = node.path("isRanked").asBoolean(false);
     } catch (IOException e) {
       log.debug("Could not parse metadata", e);
-      throw new ApiException(new Error(ErrorCode.MAP_UPLOAD_INVALID_METADATA, e.getMessage()));
+      throw new ApiException(new Error(ErrorCode.INVALID_METADATA, e.getMessage()));
     }
 
     Player player = playerService.getPlayer(authentication);

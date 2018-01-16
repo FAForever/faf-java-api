@@ -1,6 +1,6 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.data.checks.IsLoginOwner;
+import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.permission.IsModerator;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @MappedSuperclass
 @Setter
-public abstract class Login extends AbstractEntity {
+public abstract class Login extends AbstractEntity implements OwnableEntity {
 
   private String login;
   private String email;
@@ -40,19 +40,19 @@ public abstract class Login extends AbstractEntity {
   }
 
   @Column(name = "email")
-  @ReadPermission(expression = IsLoginOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
   public String getEmail() {
     return email;
   }
 
   @Column(name = "steamid")
-  @ReadPermission(expression = IsLoginOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
   public String getSteamId() {
     return steamId;
   }
 
   @Column(name = "ip")
-  @ReadPermission(expression = IsLoginOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
   public String getRecentIpAddress() {
     return recentIpAddress;
   }
@@ -88,5 +88,11 @@ public abstract class Login extends AbstractEntity {
   @OneToOne(mappedBy = "user")
   public LobbyGroup getLobbyGroup() {
     return lobbyGroup;
+  }
+
+  @Override
+  @Transient
+  public Login getEntityOwner() {
+    return this;
   }
 }

@@ -1,11 +1,13 @@
 package com.faforever.api.config;
 
+import com.google.common.collect.ImmutableSet;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.Set;
 
 @Data
 @ConfigurationProperties(prefix = "faf-api", ignoreUnknownFields = false)
@@ -20,6 +22,7 @@ public class FafApiProperties {
   private Map map = new Map();
   private Mod mod = new Mod();
   private Replay replay = new Replay();
+  private Avatar avatar = new Avatar();
   private Clan clan = new Clan();
   private FeaturedMod featuredMod = new FeaturedMod();
   private GitHub gitHub = new GitHub();
@@ -92,7 +95,7 @@ public class FafApiProperties {
     /**
      * Allowed file extensions of uploaded maps.
      */
-    private String[] allowedExtensions = {"zip"};
+    private Set<String> allowedExtensions = ImmutableSet.of("zip");
   }
 
   @Data
@@ -100,7 +103,7 @@ public class FafApiProperties {
     private String previewUrlFormat;
     private String downloadUrlFormat;
     /** Allowed file extensions of uploaded mods. */
-    private String[] allowedExtensions = {"zip"};
+    private Set<String> allowedExtensions = ImmutableSet.of("zip");
     /** The directory in which uploaded mod files are stored. */
     private Path targetDirectory = Paths.get("static/mods");
     /** The directory in which thumbnails of uploaded mod files are stored. */
@@ -112,6 +115,17 @@ public class FafApiProperties {
   @Data
   public static class Replay {
     private String downloadUrlFormat;
+  }
+
+  @Data
+  public static class Avatar {
+    private String downloadUrlFormat;
+    private Set<String> allowedExtensions = ImmutableSet.of("png");
+    private Path targetDirectory;
+    private int maxSizeBytes = 4096;
+    private int maxNameLength = 100;
+    private int imageWidth = 40;
+    private int imageHeight = 20;
   }
 
   @Data

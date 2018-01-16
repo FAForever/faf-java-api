@@ -12,6 +12,7 @@ import java.time.OffsetDateTime;
 @MappedSuperclass
 @Setter
 public abstract class AbstractEntity {
+  @com.github.jasminb.jsonapi.annotations.Id
   protected int id;
   protected OffsetDateTime createTime;
   protected OffsetDateTime updateTime;

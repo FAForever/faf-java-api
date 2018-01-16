@@ -1,5 +1,6 @@
 package com.faforever.api.data.domain;
 
+import com.github.jasminb.jsonapi.annotations.Type;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
@@ -16,12 +17,14 @@ import java.util.List;
 
 @Entity
 @Table(name = "login")
-@Include(rootLevel = true, type = "player")
+@Include(rootLevel = true, type = Player.TYPE_NAME)
 // Needed to change leader of a clan
 @SharePermission(expression = "Prefab.Role.All")
 @Setter
+@Type(Player.TYPE_NAME)
 public class Player extends Login {
 
+  public static final String TYPE_NAME = "player";
   private Ladder1v1Rating ladder1v1Rating;
   private GlobalRating globalRating;
   private List<ClanMembership> clanMemberships;

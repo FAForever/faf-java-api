@@ -55,6 +55,7 @@ public class SwaggerConfig {
       regex("/health.*"),
       regex("/clans/.*"),
       regex("/achievements/.*"),
+      regex("/avatars/.*"),
       regex("/events/.*"),
       regex("/users/.*"),
       regex("/mods/.*"),

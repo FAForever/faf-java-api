@@ -1,5 +1,6 @@
 package com.faforever.api.featuredmods;
 
+import com.yahoo.elide.annotation.Exclude;
 import lombok.Setter;
 import org.hibernate.annotations.Immutable;
 
@@ -21,7 +22,9 @@ public class FeaturedModFile {
   private String group;
   private String md5;
   private String name;
+  private String originalFileName;
   private int version;
+  // Enriched in FeaturedModFileEnricher
   private String url;
   private String folderName;
   private short fileId;
@@ -42,9 +45,22 @@ public class FeaturedModFile {
     return md5;
   }
 
+  /**
+   * Name of the file on the client's file system.
+   */
   @Column(name = "name")
   public String getName() {
     return name;
+  }
+
+
+  /**
+   * Name of the file on the server's file system.
+   */
+  @Column(name = "fileName")
+  @Exclude
+  public String getOriginalFileName() {
+    return originalFileName;
   }
 
   @Column(name = "version")

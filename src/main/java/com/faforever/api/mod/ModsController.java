@@ -17,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
 
 @RestController
 @RequestMapping(path = "/mods")
@@ -41,8 +40,8 @@ public class ModsController {
     }
 
     String extension = Files.getFileExtension(file.getOriginalFilename());
-    if (Arrays.stream(fafApiProperties.getMod().getAllowedExtensions()).noneMatch(extension::equals)) {
-      throw new ApiException(new Error(ErrorCode.UPLOAD_INVALID_FILE_EXTENSION, (Object[]) fafApiProperties.getMap().getAllowedExtensions()));
+    if (!fafApiProperties.getMod().getAllowedExtensions().contains(extension)) {
+      throw new ApiException(new Error(ErrorCode.UPLOAD_INVALID_FILE_EXTENSIONS, fafApiProperties.getMod().getAllowedExtensions()));
     }
 
     Path tempFile = java.nio.file.Files.createTempFile("mod", ".tmp");

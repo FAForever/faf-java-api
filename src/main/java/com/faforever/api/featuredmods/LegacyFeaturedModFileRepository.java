@@ -34,7 +34,7 @@ public class LegacyFeaturedModFileRepository implements Repository<FeaturedModFi
         "  file.md5     AS `md5`," +
         "  file.fileId  AS `fileId`," +
         "  file.id      AS `id`," +
-        "  file.name    AS `url`," +
+        "  file.name    AS `fileName`," +
         "  'updates_%1$s_files'    AS `folderName`" +
         "FROM updates_%1$s_files file" +
         "  INNER JOIN" +

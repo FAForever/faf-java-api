@@ -58,24 +58,20 @@ class GlobalControllerExceptionHandler {
     ));
   }
 
+  @ExceptionHandler(NotFoundApiException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ResponseBody
+  public ErrorResponse processValidationException(NotFoundApiException ex) {
+    log.debug("Entity could not be found", ex);
+    return createResponseFromApiException(ex, HttpStatus.NOT_FOUND);
+  }
+
   @ExceptionHandler(ApiException.class)
   @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
   @ResponseBody
   public ErrorResponse processApiException(ApiException ex) {
     log.debug("API exception", ex);
-    ErrorResponse response = new ErrorResponse();
-    Arrays.stream(ex.getErrors()).forEach(error -> {
-      ErrorCode errorCode = error.getErrorCode();
-      final Object[] args = error.getArgs();
-      response.addError(new ErrorResult(
-        String.valueOf(HttpStatus.UNPROCESSABLE_ENTITY.value()),
-        errorCode.getTitle(),
-        MessageFormat.format(errorCode.getDetail(), args),
-        String.valueOf(errorCode.getCode()),
-        ErrorResult.createMeta(args, null).orElse(null)
-      ));
-    });
-    return response;
+    return createResponseFromApiException(ex, HttpStatus.UNPROCESSABLE_ENTITY);
   }
 
   @ExceptionHandler(ProgrammingError.class)
@@ -142,6 +138,22 @@ class GlobalControllerExceptionHandler {
       ex.getClass().getName(),
       ex.getMessage()
     ));
+    return response;
+  }
+
+  private ErrorResponse createResponseFromApiException(ApiException apiException, HttpStatus status) {
+    ErrorResponse response = new ErrorResponse();
+    Arrays.stream(apiException.getErrors()).forEach(error -> {
+      ErrorCode errorCode = error.getErrorCode();
+      final Object[] args = error.getArgs();
+      response.addError(new ErrorResult(
+        String.valueOf(status.value()),
+        errorCode.getTitle(),
+        MessageFormat.format(errorCode.getDetail(), args),
+        String.valueOf(errorCode.getCode()),
+        ErrorResult.createMeta(args, null).orElse(null)
+      ));
+    });
     return response;
   }
 }

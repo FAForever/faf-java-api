@@ -8,6 +8,7 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.utils.FileNameUtil;
 import com.faforever.api.utils.FilePermissionUtil;
 import com.faforever.commons.mod.ModReader;
 import com.google.common.primitives.Ints;
@@ -26,12 +27,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.text.Normalizer;
-import java.text.Normalizer.Form;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -207,14 +205,7 @@ public class ModService {
   }
 
   private String generateFolderName(String displayName, short version) {
-    return String.format("%s.v%04d", generateFileName(displayName), version);
-  }
-
-  private String generateFileName(String displayName) {
-    return Normalizer.normalize(displayName.toLowerCase(Locale.US)
-        .replace("..", ".")
-        .replaceAll("[/\\\\ :*?<>|\"]", "_"),
-      Form.NFKC);
+    return String.format("%s.v%04d", FileNameUtil.normalizeFileName(displayName), version);
   }
 
   private void store(com.faforever.commons.mod.Mod modInfo, Optional<Path> thumbnailPath, Player uploader, String zipFileName) {
