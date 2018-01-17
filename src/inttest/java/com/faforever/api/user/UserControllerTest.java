@@ -254,12 +254,8 @@ public class UserControllerTest extends AbstractIntegrationTest {
       ImmutableMap.of(UserService.KEY_USER_ID, String.valueOf(1),
         UserService.KEY_PASSWORD, NEW_PASSWORD));
 
-    MultiValueMap<String, String> params = new HttpHeaders();
-    params.add("token", token);
-
     mockMvc.perform(
-      post("/users/confirmPasswordReset")
-        .params(params))
+      get("/users/confirmPasswordReset/{token}", token))
       .andExpect(status().isFound())
       .andExpect(redirectedUrl("http://localhost/password_resetted"));
   }
