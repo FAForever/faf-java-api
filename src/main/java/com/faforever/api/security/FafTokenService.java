@@ -64,7 +64,7 @@ public class FafTokenService {
    */
   @SneakyThrows
   public Map<String, String> resolveToken(@NotNull FafTokenType expectedTokenType, @NotNull String token) {
-    Map<String, String> claims = null;
+    Map<String, String> claims;
 
     try {
       claims = objectMapper.readValue(JwtHelper.decodeAndVerify(token, macSigner).getClaims(), new TypeReference<Map<String, String>>() {

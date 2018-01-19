@@ -35,6 +35,7 @@ public class Mod {
   public static final String TYPE_NAME = "mod";
 
   private Integer id;
+  private String uid;
   private String displayName;
   private String author;
   private OffsetDateTime createTime;
@@ -50,6 +51,13 @@ public class Mod {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   public Integer getId() {
     return id;
+  }
+
+  @Column(name = "uid")
+  @Size(max = 40)
+  @NotNull
+  public String getUid() {
+    return uid;
   }
 
   @Column(name = "display_name")
