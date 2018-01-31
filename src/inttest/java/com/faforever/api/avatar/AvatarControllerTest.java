@@ -2,11 +2,13 @@ package com.faforever.api.avatar;
 
 import com.faforever.api.AbstractIntegrationTest;
 import com.faforever.api.data.domain.Avatar;
+import com.faforever.api.security.AuditService;
 import com.faforever.api.security.OAuthScope;
 import com.faforever.api.utils.FileHandlingHelper;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -22,6 +24,9 @@ import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,6 +35,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepAvatarData.sql")
 @Sql(executionPhase = ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:sql/cleanAvatarData.sql")
 public class AvatarControllerTest extends AbstractIntegrationTest {
+  @SpyBean
+  AuditService auditServiceSpy;
 
   @Autowired
   AvatarRepository avatarRepository;
@@ -45,6 +52,8 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
     final Avatar avatar = avatarRepository.findOneByUrl("http://localhost/faf/avatars/avatar3.png").get();
     assertThat(avatar.getUrl(), is("http://localhost/faf/avatars/avatar3.png"));
     assertThat(avatar.getTooltip(), is("Best avatar"));
+
+    verify(auditServiceSpy, times(1)).logMessage(any());
   }
 
   @Test
@@ -59,6 +68,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
     final Avatar avatar = avatarRepository.findOneByUrl("http://localhost/faf/avatars/avatar1.png").get();
     assertThat(avatar.getUrl(), is("http://localhost/faf/avatars/avatar1.png"));
     assertThat(avatar.getTooltip(), is("Best avatar"));
+    verify(auditServiceSpy, times(1)).logMessage(any());
   }
 
   @Test
@@ -70,6 +80,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
         .with(getOAuthToken(OAuthScope._UPLOAD_AVATAR))
     ).andExpect(status().isNoContent());
     assertThat(avatarRepository.findById(1), is(Optional.empty()));
+    verify(auditServiceSpy, times(1)).logMessage(any());
   }
 
   @Test
@@ -79,6 +90,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
       createAvatarUploadRequest()
         .with(getOAuthToken(OAuthScope._UPLOAD_AVATAR))
     ).andExpect(status().isForbidden());
+    verify(auditServiceSpy, times(0)).logMessage(any());
   }
 
   @Test
@@ -88,6 +100,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
       createAvatarReuploadRequest(1)
         .with(getOAuthToken(OAuthScope._UPLOAD_AVATAR))
     ).andExpect(status().isForbidden());
+    verify(auditServiceSpy, times(0)).logMessage(any());
   }
 
   @Test
@@ -97,6 +110,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
       delete("/avatars/1")
         .with(getOAuthToken(OAuthScope._UPLOAD_AVATAR))
     ).andExpect(status().isForbidden());
+    verify(auditServiceSpy, times(0)).logMessage(any());
   }
 
   @Test
@@ -106,6 +120,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
       createAvatarUploadRequest()
         .with(getOAuthToken())
     ).andExpect(status().isForbidden());
+    verify(auditServiceSpy, times(0)).logMessage(any());
   }
 
   @Test
@@ -115,6 +130,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
       createAvatarReuploadRequest(1)
         .with(getOAuthToken())
     ).andExpect(status().isForbidden());
+    verify(auditServiceSpy, times(0)).logMessage(any());
   }
 
   @Test
@@ -124,6 +140,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
       delete("/avatars/1")
         .with(getOAuthToken())
     ).andExpect(status().isForbidden());
+    verify(auditServiceSpy, times(0)).logMessage(any());
   }
 
   @After
