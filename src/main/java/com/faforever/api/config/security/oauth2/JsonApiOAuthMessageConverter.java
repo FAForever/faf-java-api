@@ -11,7 +11,7 @@ import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import java.io.IOException;
 
 
-public class JsonApiOauthMessageConverter extends MappingJackson2HttpMessageConverter {
+public class JsonApiOAuthMessageConverter extends MappingJackson2HttpMessageConverter {
 
   @Override
   protected void writeInternal(Object object, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
