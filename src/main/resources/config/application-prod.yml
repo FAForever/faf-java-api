@@ -56,6 +56,11 @@ faf-api:
     steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL}
     success-redirect-url: ${STEAM_LINK_SUCCESS_URL}
     error-redirect-url-format: ${STEAM_LINK_ERROR_URL}
+  mautic:
+    base-url: ${MAUTIC_BASE_URL}
+    client-id: ${MAUTIC_CLIENT_ID}
+    client-secret: ${MAUTIC_CLIENT_SECRET}
+    access-token-url: ${MAUTIC_ACCESS_TOKEN_URL}
 
 spring:
   datasource:

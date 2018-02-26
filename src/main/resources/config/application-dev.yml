@@ -54,6 +54,7 @@ faf-api:
     steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL:http://localhost:8010/users/linkToSteam?token=%s}
     success-redirect-url: ${STEAM_LINK_SUCCESS_URL:http://localhost:8020/linked_to_steam}
     error-redirect-url-format: ${STEAM_LINK_ERROR_URL:http://localhost:8020/error?code=%s}
+
 spring:
   datasource:
     url: jdbc:mysql://${DATABASE_ADDRESS:127.0.0.1}/${DATABASE_NAME:faf}?useSSL=false

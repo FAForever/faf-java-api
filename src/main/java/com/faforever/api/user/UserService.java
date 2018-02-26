@@ -7,6 +7,7 @@ import com.faforever.api.email.EmailService;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.mautic.MauticService;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.security.FafPasswordEncoder;
 import com.faforever.api.security.FafTokenService;
@@ -22,8 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static com.faforever.api.error.ErrorCode.TOKEN_INVALID;
@@ -45,9 +48,12 @@ public class UserService {
   private final AnopeUserRepository anopeUserRepository;
   private final FafTokenService fafTokenService;
   private final SteamService steamService;
+  private final Optional<MauticService> mauticService;
 
   public UserService(EmailService emailService, PlayerRepository playerRepository, UserRepository userRepository,
-                     NameRecordRepository nameRecordRepository, FafApiProperties properties, AnopeUserRepository anopeUserRepository, FafTokenService fafTokenService, SteamService steamService) {
+                     NameRecordRepository nameRecordRepository, FafApiProperties properties,
+                     AnopeUserRepository anopeUserRepository, FafTokenService fafTokenService,
+                     SteamService steamService, Optional<MauticService> mauticService) {
     this.emailService = emailService;
     this.playerRepository = playerRepository;
     this.userRepository = userRepository;
@@ -56,6 +62,7 @@ public class UserService {
     this.anopeUserRepository = anopeUserRepository;
     this.fafTokenService = fafTokenService;
     this.steamService = steamService;
+    this.mauticService = mauticService;
     this.passwordEncoder = new FafPasswordEncoder();
   }
 
@@ -110,7 +117,7 @@ public class UserService {
   @SneakyThrows
   @SuppressWarnings("unchecked")
   @Transactional
-  void activate(String token) {
+  void activate(String token, String ipAddress) {
     Map<String, String> claims = fafTokenService.resolveToken(FafTokenType.REGISTRATION, token);
 
     String username = claims.get(KEY_USERNAME);
@@ -122,8 +129,10 @@ public class UserService {
     user.setEmail(email);
     user.setLogin(username);
 
+    user = userRepository.save(user);
     log.debug("User has been activated: {}", user);
-    userRepository.save(user);
+
+    createOrUpdateMauticContact(user, ipAddress);
   }
 
   void changePassword(String currentPassword, String newPassword, User user) {
@@ -134,7 +143,7 @@ public class UserService {
     setPassword(user, newPassword);
   }
 
-  void changeLogin(String newLogin, User user) {
+  void changeLogin(String newLogin, User user, String ipAddress) {
     validateUsername(newLogin);
 
     int minDaysBetweenChange = properties.getUser().getMinimumDaysBetweenUsernameChange();
@@ -158,10 +167,26 @@ public class UserService {
     nameRecordRepository.save(nameRecord);
 
     user.setLogin(newLogin);
-    userRepository.save(user);
+
+    createOrUpdateMauticContact(userRepository.save(user), ipAddress);
   }
 
-  public void changeEmail(String currentPassword, String newEmail, User user) {
+  private void createOrUpdateMauticContact(User user, String ipAddress) {
+    mauticService.ifPresent(service -> service.createOrUpdateContact(
+      user.getEmail(),
+      String.valueOf(user.getId()),
+      user.getLogin(),
+      ipAddress,
+      OffsetDateTime.now()
+    )
+      .thenAccept(result -> log.debug("Updated contact in Mautic: {}", user.getEmail()))
+      .exceptionally(throwable -> {
+        log.warn("Could not update contact in Mautic: {}", user, throwable);
+        return null;
+      }));
+  }
+
+  public void changeEmail(String currentPassword, String newEmail, User user, String ipAddress) {
     if (!Objects.equals(user.getPassword(), passwordEncoder.encode(currentPassword))) {
       throw new ApiException(new Error(ErrorCode.EMAIL_CHANGE_FAILED_WRONG_PASSWORD));
     }
@@ -170,7 +195,11 @@ public class UserService {
 
     log.debug("Changing email for user ''{}'' to ''{}''", user, newEmail);
     user.setEmail(newEmail);
-    userRepository.save(user);
+    createOrUpdateUser(user, ipAddress);
+  }
+
+  private void createOrUpdateUser(User user, String ipAddress) {
+    createOrUpdateMauticContact(userRepository.save(user), ipAddress);
   }
 
   void resetPassword(String identifier, String newPassword) {

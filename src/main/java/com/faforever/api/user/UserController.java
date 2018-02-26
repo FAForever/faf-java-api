@@ -4,6 +4,7 @@ import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.utils.RemoteAddressUtil;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
@@ -51,9 +52,9 @@ public class UserController {
 
   @ApiOperation("Activates a previously registered account.")
   @RequestMapping(path = "/activate", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-  public void activate(HttpServletResponse response,
+  public void activate(HttpServletRequest request, HttpServletResponse response,
                        @RequestParam("token") String token) throws IOException {
-    userService.activate(token);
+    userService.activate(token, RemoteAddressUtil.getRemoteAddress(request));
     response.sendRedirect(fafApiProperties.getRegistration().getSuccessRedirectUrl());
   }
 
@@ -67,16 +68,16 @@ public class UserController {
   @PreAuthorize("#oauth2.hasScope('write_account_data') and hasRole('ROLE_USER')")
   @ApiOperation("Changes the login of a previously registered account.")
   @RequestMapping(path = "/changeUsername", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-  public void changeLogin(@RequestParam("newUsername") String newUsername, Authentication authentication) {
-    userService.changeLogin(newUsername, userService.getUser(authentication));
+  public void changeLogin(HttpServletRequest request, @RequestParam("newUsername") String newUsername, Authentication authentication) {
+    userService.changeLogin(newUsername, userService.getUser(authentication), RemoteAddressUtil.getRemoteAddress(request));
   }
 
 
   @PreAuthorize("#oauth2.hasScope('write_account_data') and hasRole('ROLE_USER')")
   @ApiOperation("Changes the email of a previously registered account.")
   @RequestMapping(path = "/changeEmail", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-  public void changeEmail(@RequestParam("currentPassword") String currentPassword, @RequestParam("newEmail") String newEmail, Authentication authentication) {
-    userService.changeEmail(currentPassword, newEmail, userService.getUser(authentication));
+  public void changeEmail(HttpServletRequest request, @RequestParam("currentPassword") String currentPassword, @RequestParam("newEmail") String newEmail, Authentication authentication) {
+    userService.changeEmail(currentPassword, newEmail, userService.getUser(authentication), RemoteAddressUtil.getRemoteAddress(request));
   }
 
 
