@@ -22,7 +22,7 @@ import java.util.List;
 @SharePermission(expression = "Prefab.Role.All")
 @Setter
 @Type(Player.TYPE_NAME)
-public class Player extends Login {
+public class Player extends Login implements OwnableEntity {
 
   public static final String TYPE_NAME = "player";
   private Ladder1v1Rating ladder1v1Rating;
@@ -30,6 +30,7 @@ public class Player extends Login {
   private List<ClanMembership> clanMemberships;
   private List<NameRecord> names;
   private List<AvatarAssignment> avatarAssignments;
+  private List<Vote> votes;
 
   @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
   @BatchSize(size = 1000)
