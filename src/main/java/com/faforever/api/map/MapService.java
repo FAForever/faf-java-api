@@ -313,7 +313,7 @@ public class MapService {
   private void zipMapData(MapUploadData progressData) {
     cleanupBaseDir(progressData);
     Path finalZipFile = progressData.getFinalZipFile();
-    Files.createDirectories(finalZipFile.getParent());
+    Files.createDirectories(finalZipFile.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
     try (ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(
       Files.newOutputStream(finalZipFile)))) {
       Zipper.contentOf(progressData.getBaseDir()).to(zipOutputStream).zip();
@@ -336,7 +336,7 @@ public class MapService {
   private void generateImage(Path target, Path baseDir, int size) {
     BufferedImage image = PreviewGenerator.generatePreview(baseDir, size, size);
     if (target.getNameCount() > 0) {
-      Files.createDirectories(target.getParent());
+      Files.createDirectories(target.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
     }
     ImageIO.write(image, "png", target.toFile());
   }

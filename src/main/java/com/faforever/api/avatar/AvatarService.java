@@ -101,7 +101,7 @@ public class AvatarService {
     if (!overwrite && Files.exists(imageTargetPath)) {
       throw new ApiException(new Error(ErrorCode.AVATAR_NAME_CONFLICT, imageTargetPath.getFileName().toString()));
     }
-    Files.createDirectories(imageTargetPath.getParent());
+    Files.createDirectories(imageTargetPath.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
     Files.copy(imageDataInputStream, imageTargetPath, copyOptions);
     FilePermissionUtil.setDefaultFilePermission(imageTargetPath);
   }

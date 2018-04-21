@@ -131,7 +131,8 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
 
     Path targetFile = targetFolder.resolve(String.format("ForgedAlliance.%d.exe", version));
     Path tmpFile = toTmpFile(targetFile);
-    Files.createDirectories(tmpFile.getParent());
+
+    createDirectories(tmpFile.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
     Files.copy(Paths.get(apiProperties.getDeployment().getForgedAllianceExePath()), tmpFile, StandardCopyOption.REPLACE_EXISTING);
 
     ForgedAllianceExePatcher.patchVersion(tmpFile, version);
@@ -231,7 +232,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
 
     log.trace("Packaging '{}' to '{}'", directory, targetFolder);
 
-    createDirectories(targetFolder);
+    createDirectories(targetFolder, FilePermissionUtil.directoryPermissionFileAttributes());
     try (ZipArchiveOutputStream outputStream = new ZipArchiveOutputStream(tmpNxtFile.toFile())) {
       zipDirectory(directory, outputStream);
     }
@@ -240,7 +241,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
 
   private void checkoutCode(Path repositoryDirectory, String repoUrl, String branch) throws IOException {
     if (Files.notExists(repositoryDirectory)) {
-      createDirectories(repositoryDirectory.getParent());
+      createDirectories(repositoryDirectory.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
       gitWrapper.clone(repoUrl, repositoryDirectory);
     } else {
       gitWrapper.fetch(repositoryDirectory);
