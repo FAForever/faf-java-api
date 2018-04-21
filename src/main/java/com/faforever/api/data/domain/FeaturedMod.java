@@ -10,7 +10,6 @@ import javax.persistence.EntityListeners;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.util.Optional;
 
 @Entity
 @Table(name = "game_featuredMods")
@@ -74,8 +73,8 @@ public class FeaturedMod {
   }
 
   @Column(name = "allow_override")
-  public Optional<Boolean> isAllowOverride() {
-    return Optional.ofNullable(allowOverride);
+  public Boolean isAllowOverride() {
+    return allowOverride;
   }
 
   @Column(name = "file_extension")

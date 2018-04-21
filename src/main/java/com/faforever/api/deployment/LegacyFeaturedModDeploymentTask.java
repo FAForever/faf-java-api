@@ -87,7 +87,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
 
     String repositoryUrl = featuredMod.getGitUrl();
     String branch = featuredMod.getGitBranch();
-    boolean allowOverride = featuredMod.isAllowOverride().orElse(false);
+    boolean allowOverride = Optional.ofNullable(featuredMod.isAllowOverride()).orElse(false);
     String modFilesExtension = featuredMod.getFileExtension();
     Map<String, Short> fileIds = featuredModService.getFileIds(modName);
 
@@ -131,6 +131,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
 
     Path targetFile = targetFolder.resolve(String.format("ForgedAlliance.%d.exe", version));
     Path tmpFile = toTmpFile(targetFile);
+    Files.createDirectories(tmpFile.getParent());
     Files.copy(Paths.get(apiProperties.getDeployment().getForgedAllianceExePath()), tmpFile, StandardCopyOption.REPLACE_EXISTING);
 
     ForgedAllianceExePatcher.patchVersion(tmpFile, version);
