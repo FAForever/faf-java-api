@@ -110,7 +110,7 @@ apply plugin: 'propdeps'
 apply plugin: 'idea'
 
 group = 'faforever'
-version = '1.0.0'
+version = '1.1.0'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
