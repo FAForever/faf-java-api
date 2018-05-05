@@ -12,7 +12,7 @@ import java.util.Collections;
 
 @Service
 @Slf4j
-@ConditionalOnProperty(value = "faf-server.mail.mandrill-api-key")
+@ConditionalOnProperty(value = "faf-api.mail.mandrill-api-key")
 public class MandrillEmailSender implements EmailSender {
   private final MandrillApi mandrillApi;
 

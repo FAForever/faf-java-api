@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
  * Provides access to a Mautic (Open Source Marketing Automation) instance via REST API.
  */
 @Service
-@ConditionalOnProperty(value = "faf-server.mautic.client-id")
+@ConditionalOnProperty(value = "faf-api.mautic.client-id")
 public class MauticService {
 
   private final RestTemplate restOperations;
