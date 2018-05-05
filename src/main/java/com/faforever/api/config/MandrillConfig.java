@@ -1,12 +1,12 @@
 package com.faforever.api.config;
 
 import com.microtripit.mandrillapp.lutung.MandrillApi;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile(ApplicationProfile.PRODUCTION)
+@ConditionalOnProperty(value = "faf-api.mail.mandrill-api-key")
 public class MandrillConfig {
 
   @Bean

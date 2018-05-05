@@ -11,6 +11,6 @@ public class NoopEmailSender implements EmailSender {
   @Override
   public void sendMail(String fromEmail, String fromName, String toEmail, String subject, String content) {
     log.debug("Sending email from '{} <{}>' to '{}' with subject '{}' and text: {}",
-        fromName, fromEmail, toEmail, subject, content);
+      fromName, fromEmail, toEmail, subject, content);
   }
 }
