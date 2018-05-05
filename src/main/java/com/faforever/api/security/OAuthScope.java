@@ -7,6 +7,7 @@ import java.util.Optional;
 public enum OAuthScope {
 
   PUBLIC_PROFILE(OAuthScope._PUBLIC_PROFILE, "Read your public player data"),
+  CREATE_USER(OAuthScope._CREATE_USER, "Create users"),
   READ_ACHIEVEMENTS(OAuthScope._READ_ACHIEVEMENTS, "Read your achievements"),
   WRITE_ACHIEVEMENTS(OAuthScope._WRITE_ACHIEVEMENTS, "Write your achievements"),
   READ_EVENTS(OAuthScope._READ_EVENTS, "Read events"),
@@ -18,6 +19,7 @@ public enum OAuthScope {
   EDIT_CLAN_DATA(OAuthScope._EDIT_CLAN_DATA, "Edit clan data");
 
   public static final String _PUBLIC_PROFILE = "public_profile";
+  public static final String _CREATE_USER = "create_user";
   public static final String _READ_ACHIEVEMENTS = "read_achievements";
   public static final String _WRITE_ACHIEVEMENTS = "write_achievements";
   public static final String _READ_EVENTS = "read_events";

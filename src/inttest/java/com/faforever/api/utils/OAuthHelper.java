@@ -41,5 +41,4 @@ public class OAuthHelper {
   private OAuth2Request createOAuth2Request(Set<String> scope) {
     return new OAuth2Request(null, "test", null, true, scope, null, null, null, null);
   }
-
 }

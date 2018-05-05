@@ -4,6 +4,7 @@ import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.security.OAuthScope;
 import com.faforever.api.utils.RemoteAddressUtil;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.ApiOperation;
@@ -39,6 +40,7 @@ public class UserController {
 
   @ApiOperation("Registers a new account that needs to be activated.")
   @RequestMapping(path = "/register", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._CREATE_USER + "')")
   public void register(HttpServletRequest request,
                        @RequestParam("username") String username,
                        @RequestParam("email") String email,

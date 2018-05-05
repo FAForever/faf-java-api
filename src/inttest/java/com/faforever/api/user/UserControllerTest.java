@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -60,17 +61,31 @@ public class UserControllerTest extends AbstractIntegrationTest {
   private FafApiProperties fafApiProperties;
 
   @Test
-  @WithAnonymousUser
   public void registerWithSuccess() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("username", NEW_USER);
     params.add("email", NEW_EMAIL);
     params.add("password", NEW_PASSWORD);
 
-    mockMvc.perform(post("/users/register").params(params))
-      .andExpect(status().isOk());
+    mockMvc.perform(post("/users/register")
+      .with(getOAuthToken(OAuthScope._CREATE_USER))
+      .params(params)
+    ).andExpect(status().isOk());
 
     verify(emailSender, times(1)).sendMail(anyString(), anyString(), eq(NEW_EMAIL), anyString(), anyString());
+  }
+
+  @Test
+  public void registerMissingCreateUserScope() throws Exception {
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("username", NEW_USER);
+    params.add("email", NEW_EMAIL);
+    params.add("password", NEW_PASSWORD);
+
+    mockMvc.perform(post("/users/register").params(params))
+      .andExpect(status().isForbidden());
+
+    verify(emailSender, never()).sendMail(anyString(), anyString(), eq(NEW_EMAIL), anyString(), anyString());
   }
 
   @Test
@@ -81,8 +96,10 @@ public class UserControllerTest extends AbstractIntegrationTest {
     params.add("email", NEW_EMAIL);
     params.add("password", NEW_PASSWORD);
 
-    MvcResult result = mockMvc.perform(post("/users/register").params(params))
-      .andExpect(status().is4xxClientError())
+    MvcResult result = mockMvc.perform(post("/users/register")
+      .with(getOAuthToken(OAuthScope._CREATE_USER))
+      .params(params)
+    ).andExpect(status().is4xxClientError())
       .andReturn();
 
     assertApiError(result, ErrorCode.ALREADY_REGISTERED);

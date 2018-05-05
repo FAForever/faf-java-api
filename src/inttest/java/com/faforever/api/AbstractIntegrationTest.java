@@ -38,6 +38,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @Transactional
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultUser.sql")
 public abstract class AbstractIntegrationTest {
+  protected final static String AUTH_WEBSITE = "WEBSITE";
   protected final static String AUTH_USER = "USER";
   protected final static String AUTH_MODERATOR = "MODERATOR";
   protected final static String AUTH_ADMIN = "ADMIN";
