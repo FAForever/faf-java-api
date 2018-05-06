@@ -19,16 +19,13 @@ faf-api:
     download-url-format: ${AVATAR_DOWNLOAD_URL_FORMAT}
     target-directory: ${AVATAR_TARGET_DIRECTORY}
     allowed-extensions: ${AVATAR_ALLOWED_FILE_EXTENSIONS}
-    max-size-bytes: ${AVATAR_MAX_SIZE_BYTES}
-    image-width: ${AVATAR_IMAGE_WIDTH}
-    image-height: ${AVATAR_IMAGE_HEIGHT}
   featured-mod:
     file-url-format: ${FEATURED_MOD_URL_FORMAT}
     bireus-url-format: ${FEATURED_MOD_BIREUS_URL_FORMAT}
   git-hub:
-    access-token: ${GITHUB_ACCESS_TOKEN}
+    access-token: ${GITHUB_ACCESS_TOKEN:false}
     deployment-environment: ${GITHUB_DEPLOYMENT_ENVIRONMENT:production}
-    webhook-secret: ${GITHUB_WEBHOOK_SECRET}
+    webhook-secret: ${GITHUB_WEBHOOK_SECRET:false}
   deployment:
     forged-alliance-exe-path: ${FORGED_ALLIANCE_EXE_PATH}
     repositories-directory: ${REPOSITORIES_DIRECTORY}
@@ -56,11 +53,6 @@ faf-api:
     steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL}
     success-redirect-url: ${STEAM_LINK_SUCCESS_URL}
     error-redirect-url-format: ${STEAM_LINK_ERROR_URL}
-  mautic:
-    base-url: ${MAUTIC_BASE_URL}
-    client-id: ${MAUTIC_CLIENT_ID}
-    client-secret: ${MAUTIC_CLIENT_SECRET}
-    access-token-url: ${MAUTIC_ACCESS_TOKEN_URL}
 
 spring:
   datasource:

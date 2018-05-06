@@ -1,22 +1,22 @@
 package com.faforever.api.config;
 
 import org.kohsuke.github.GitHub;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 import java.io.IOException;
 
 @Configuration
 public class GitHubConfig {
   @Bean
-  @Profile("!" + ApplicationProfile.DEVELOPMENT)
+  @ConditionalOnProperty(value = "faf-api.git-hub.access-token")
   public GitHub gitHub(FafApiProperties fafApiProperties) throws IOException {
     return GitHub.connectUsingOAuth(fafApiProperties.getGitHub().getAccessToken());
   }
 
   @Bean
-  @Profile(ApplicationProfile.DEVELOPMENT)
+  @ConditionalOnProperty(value = "faf-api.git-hub.access-token", havingValue = "false", matchIfMissing = true)
   public GitHub offlineGitHub() {
     return GitHub.offline();
   }

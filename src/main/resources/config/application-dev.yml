@@ -18,9 +18,6 @@ faf-api:
     download-url-format: ${AVATAR_DOWNLOAD_URL_FORMAT:http://content.test.faforever.com/faf/avatars/%s}
     target-directory: ${AVATAR_TARGET_DIRECTORY:build/cache/avatars}
     allowed-extensions: ${AVATAR_ALLOWED_FILE_EXTENSIONS:png}
-    max-size-bytes: ${AVATAR_MAX_SIZE_BYTES:4096}
-    image-width: ${AVATAR_IMAGE_WIDTH:40}
-    image-height: ${AVATAR_IMAGE_HEIGHT:20}
   featured-mod:
     file-url-format: ${FEATURED_MOD_URL_FORMAT:http://content.test.faforever.com/faf/updaterNew/%s/%s}
     bireus-url-format: ${FEATURED_MOD_BIREUS_URL_FORMAT:https://content.test.faforever.com/repositories/%s}
