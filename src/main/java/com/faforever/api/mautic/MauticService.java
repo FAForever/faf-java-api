@@ -40,7 +40,7 @@ public class MauticService {
 
     Mautic mauticProperties = properties.getMautic();
 
-    restTemplateBuilder
+    restTemplateBuilder = restTemplateBuilder
       .additionalMessageConverters(mauticApiMessageConverter)
       .errorHandler(mauticApiErrorHandler)
       .rootUri(mauticProperties.getBaseUrl());
