@@ -22,9 +22,7 @@ faf-api:
     file-url-format: ${FEATURED_MOD_URL_FORMAT:http://content.test.faforever.com/faf/updaterNew/%s/%s}
     bireus-url-format: ${FEATURED_MOD_BIREUS_URL_FORMAT:https://content.test.faforever.com/repositories/%s}
   git-hub:
-    access-token: ${GITHUB_ACCESS_TOKEN:none}
     deployment-environment: ${GITHUB_DEPLOYMENT_ENVIRONMENT:development}
-    webhook-secret: ${GITHUB_WEBHOOK_SECRET:none}
   deployment:
     forged-alliance-exe-path: ${FORGED_ALLIANCE_EXE_PATH}
     repositories-directory: ${REPOSITORIES_DIRECTORY:build/cache/repos}

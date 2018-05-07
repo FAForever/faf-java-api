@@ -23,9 +23,7 @@ faf-api:
     file-url-format: ${FEATURED_MOD_URL_FORMAT}
     bireus-url-format: ${FEATURED_MOD_BIREUS_URL_FORMAT}
   git-hub:
-    access-token: ${GITHUB_ACCESS_TOKEN:false}
     deployment-environment: ${GITHUB_DEPLOYMENT_ENVIRONMENT:production}
-    webhook-secret: ${GITHUB_WEBHOOK_SECRET:false}
   deployment:
     forged-alliance-exe-path: ${FORGED_ALLIANCE_EXE_PATH}
     repositories-directory: ${REPOSITORIES_DIRECTORY}

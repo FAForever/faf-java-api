@@ -15,6 +15,9 @@ faf-api:
     client-id: ${MAUTIC_CLIENT_ID:false}
     client-secret: ${MAUTIC_CLIENT_SECRET:false}
     access-token-url: ${MAUTIC_ACCESS_TOKEN_URL:false}
+  git-hub:
+    access-token: ${GITHUB_ACCESS_TOKEN:false}
+    webhook-secret: ${GITHUB_WEBHOOK_SECRET:false}
 
 spring:
   application:
