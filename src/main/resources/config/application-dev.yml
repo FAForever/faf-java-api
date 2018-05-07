@@ -30,13 +30,13 @@ faf-api:
   clan:
     website-url-format: ${CLAN_WEBSITE_URL_FORMAT:http://clans.test.faforever.com/clan/%s}
   mail:
-    from-email-name: ${EMAIL_FROM_ADDRESS:unit-test@faforever.com}
-    from-email-address: ${EMAIL_FROM_NAME:unit-test@faforever.com}
+    from-email-name: ${EMAIL_FROM_ADDRESS:faf@example.com}
+    from-email-address: ${EMAIL_FROM_NAME:faf@example.com}
   registration:
-    activation-url-format: ${ACTIVATION_URL_FORMAT:http://localhost:8010/users/activate/%s}
+    activation-url-format: ${ACTIVATION_URL_FORMAT:http://localhost:8010/users/activate?token=%s}
     success-redirect-url: ${ACTIVATION_SUCCESS_REDIRECT_URL:http://localhost:8020/account_activated}
-    subject: ${REGISTRATION_EMAIL_SUBJECT:Unit test registration}
-    html-format: ${REGISTRATION_EMAIL_BODY:Unit test registration html body}
+    subject: ${REGISTRATION_EMAIL_SUBJECT:FAF User registration}
+    html-format: ${REGISTRATION_EMAIL_BODY:Registration email body}
   password-reset:
     password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT:http://localhost:8010/users/claimPasswordResetToken/%s}
     success-redirect-url: ${PASSWORD_RESET_SUCCESS_REDIRECT_URL:http://localhost:8020/password_resetted}
