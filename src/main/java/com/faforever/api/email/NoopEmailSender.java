@@ -6,11 +6,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-@ConditionalOnProperty(value = "faf-server.mail.mandrill-api-key", matchIfMissing = true)
+@ConditionalOnProperty(value = "faf-api.mail.mandrill-api-key", havingValue = "false", matchIfMissing = true)
 public class NoopEmailSender implements EmailSender {
   @Override
   public void sendMail(String fromEmail, String fromName, String toEmail, String subject, String content) {
     log.debug("Sending email from '{} <{}>' to '{}' with subject '{}' and text: {}",
-        fromName, fromEmail, toEmail, subject, content);
+      fromName, fromEmail, toEmail, subject, content);
   }
 }

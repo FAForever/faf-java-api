@@ -33,7 +33,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
 /**
  * Forwards all requests to the Challonge API, using the configured API key. GET requests are allowed by anyone, all
- * other requests require the role {@code ROLE_TOURNAMENT_DIRECTORY}. <p><strong>CAVEAT</strong>: This controller is
+ * other requests require the role {@code ROLE_TOURNAMENT_DIRECTOR}. <p><strong>CAVEAT</strong>: This controller is
  * only loaded if a Challonge API key is specified.</p>
  */
 @RestController
@@ -68,7 +68,7 @@ public class ChallongeController {
   }
 
   @Async
-  @Secured("ROLE_TOURNAMENT_DIRECTORY")
+  @Secured("ROLE_TOURNAMENT_DIRECTOR")
   @RequestMapping(path = "/**", method = {POST, PUT, DELETE}, produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<ResponseEntity<String>> write(@RequestBody(required = false) Object body, HttpMethod method, HttpServletRequest request) {
     return CompletableFuture.completedFuture(restTemplate.exchange(translateRoute(request), method, new HttpEntity<>(body), String.class));

@@ -44,9 +44,9 @@ public class MapsController {
     this.playerService = playerService;
   }
 
-  @ApiOperation("Uploads a map")
+  @ApiOperation("Upload a map")
   @ApiResponses(value = {
-    @ApiResponse(code = 200, message = "Success", response = Void.class),
+    @ApiResponse(code = 200, message = "Success"),
     @ApiResponse(code = 401, message = "Unauthorized"),
     @ApiResponse(code = 500, message = "Failure")})
   @RequestMapping(path = "/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)

@@ -15,7 +15,7 @@ public class JsonApiOauthExceptionRenderer extends DefaultOAuth2ExceptionRendere
 
   private List<HttpMessageConverter<?>> createMessageConverters() {
     List<HttpMessageConverter<?>> result = new ArrayList<HttpMessageConverter<?>>();
-    result.add(new JsonApiOauthMessageConverter());
+    result.add(new JsonApiOAuthMessageConverter());
     result.addAll(new RestTemplate().getMessageConverters());
     result.add(new JaxbOAuth2ExceptionMessageConverter());
     return result;

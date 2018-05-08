@@ -32,7 +32,7 @@ public class ModsController {
     this.fafApiProperties = fafApiProperties;
   }
 
-  @ApiOperation("Uploads a mod")
+  @ApiOperation("Upload a mod")
   @RequestMapping(path = "/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
   public void uploadMod(@RequestParam("file") MultipartFile file, Authentication authentication) throws IOException {
     if (file == null) {

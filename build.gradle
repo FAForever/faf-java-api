@@ -110,7 +110,7 @@ apply plugin: 'propdeps'
 apply plugin: 'idea'
 
 group = 'faforever'
-version = '1.0.0'
+version = '1.1.6'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -191,7 +191,7 @@ configurations {
 task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
   main = "com.codacy.CodacyCoverageReporter"
   classpath = configurations.codacy
-  args = ["-l", "Java", "-r", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"]
+  args = ["report", "-l", "Java", "-r", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"]
 }
 
 // DOCKER
@@ -332,5 +332,5 @@ dependencies {
   testCompile("com.jayway.jsonpath:json-path:${jsonPath}")
   testCompile("com.jayway.jsonpath:json-path-assert:${jsonPathAssert}")
 
-  codacy("com.github.codacy:codacy-coverage-reporter:-SNAPSHOT")
+  codacy("com.github.codacy:codacy-coverage-reporter:${codacyCoverageReporterVersion}")
 }

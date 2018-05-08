@@ -18,16 +18,11 @@ faf-api:
     download-url-format: ${AVATAR_DOWNLOAD_URL_FORMAT:http://content.test.faforever.com/faf/avatars/%s}
     target-directory: ${AVATAR_TARGET_DIRECTORY:build/cache/avatars}
     allowed-extensions: ${AVATAR_ALLOWED_FILE_EXTENSIONS:png}
-    max-size-bytes: ${AVATAR_MAX_SIZE_BYTES:4096}
-    image-width: ${AVATAR_IMAGE_WIDTH:40}
-    image-height: ${AVATAR_IMAGE_HEIGHT:20}
   featured-mod:
     file-url-format: ${FEATURED_MOD_URL_FORMAT:http://content.test.faforever.com/faf/updaterNew/%s/%s}
     bireus-url-format: ${FEATURED_MOD_BIREUS_URL_FORMAT:https://content.test.faforever.com/repositories/%s}
   git-hub:
-    access-token: ${GITHUB_ACCESS_TOKEN:none}
     deployment-environment: ${GITHUB_DEPLOYMENT_ENVIRONMENT:development}
-    webhook-secret: ${GITHUB_WEBHOOK_SECRET:none}
   deployment:
     forged-alliance-exe-path: ${FORGED_ALLIANCE_EXE_PATH}
     repositories-directory: ${REPOSITORIES_DIRECTORY:build/cache/repos}
@@ -35,13 +30,13 @@ faf-api:
   clan:
     website-url-format: ${CLAN_WEBSITE_URL_FORMAT:http://clans.test.faforever.com/clan/%s}
   mail:
-    from-email-name: ${EMAIL_FROM_ADDRESS:unit-test@faforever.com}
-    from-email-address: ${EMAIL_FROM_NAME:unit-test@faforever.com}
+    from-email-name: ${EMAIL_FROM_ADDRESS:faf@example.com}
+    from-email-address: ${EMAIL_FROM_NAME:faf@example.com}
   registration:
-    activation-url-format: ${ACTIVATION_URL_FORMAT:http://localhost:8010/users/activate/%s}
+    activation-url-format: ${ACTIVATION_URL_FORMAT:http://localhost:8010/users/activate?token=%s}
     success-redirect-url: ${ACTIVATION_SUCCESS_REDIRECT_URL:http://localhost:8020/account_activated}
-    subject: ${REGISTRATION_EMAIL_SUBJECT:Unit test registration}
-    html-format: ${REGISTRATION_EMAIL_BODY:Unit test registration html body}
+    subject: ${REGISTRATION_EMAIL_SUBJECT:FAF User registration}
+    html-format: ${REGISTRATION_EMAIL_BODY:Registration email body}
   password-reset:
     password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT:http://localhost:8010/users/claimPasswordResetToken/%s}
     success-redirect-url: ${PASSWORD_RESET_SUCCESS_REDIRECT_URL:http://localhost:8020/password_resetted}
@@ -54,6 +49,7 @@ faf-api:
     steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL:http://localhost:8010/users/linkToSteam?token=%s}
     success-redirect-url: ${STEAM_LINK_SUCCESS_URL:http://localhost:8020/linked_to_steam}
     error-redirect-url-format: ${STEAM_LINK_ERROR_URL:http://localhost:8020/error?code=%s}
+
 spring:
   datasource:
     url: jdbc:mysql://${DATABASE_ADDRESS:127.0.0.1}/${DATABASE_NAME:faf}?useSSL=false
