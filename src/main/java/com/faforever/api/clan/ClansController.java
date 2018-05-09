@@ -47,9 +47,7 @@ public class ClansController {
   public MeResult me(Authentication authentication) {
     Player player = playerService.getPlayer(authentication);
 
-    Clan clan = (!player.getClanMemberships().isEmpty())
-        ? player.getClanMemberships().get(0).getClan()
-        : null;
+    Clan clan = player.getClan();
     ClanResult clanResult = null;
     if (clan != null) {
       clanResult = ClanResult.of(clan);

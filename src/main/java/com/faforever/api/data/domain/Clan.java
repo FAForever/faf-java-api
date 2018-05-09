@@ -29,7 +29,7 @@ import java.util.List;
 @Entity
 @Table(name = "clan")
 @Include(rootLevel = true, type = Clan.TYPE_NAME)
-@SharePermission(expression = IsEntityOwner.EXPRESSION)
+@SharePermission
 @DeletePermission(expression = IsEntityOwner.EXPRESSION)
 @CreatePermission(expression = "Prefab.Role.All")
 @Setter

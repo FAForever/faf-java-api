@@ -15,8 +15,7 @@ import com.yahoo.elide.Elide;
 import com.yahoo.elide.ElideSettingsBuilder;
 import com.yahoo.elide.core.EntityDictionary;
 import com.yahoo.elide.core.filter.dialect.RSQLFilterDialect;
-import com.yahoo.elide.datastores.hibernate5.HibernateStore;
-import com.yahoo.elide.datastores.hibernate5.HibernateStore.Builder;
+import com.yahoo.elide.datastores.hibernate5.AbstractHibernateStore;
 import com.yahoo.elide.jsonapi.JsonApiMapper;
 import com.yahoo.elide.security.checks.Check;
 import com.yahoo.elide.utils.coerce.CoerceUtil;
@@ -39,7 +38,7 @@ public class ElideConfig {
   public static final String DEFAULT_CACHE_NAME = "Elide.defaultCache";
 
   @Bean
-  public Elide elide(HibernateStore hibernateStore, ObjectMapper objectMapper, EntityDictionary entityDictionary, ExtendedAuditLogger extendedAuditLogger) {
+  public Elide elide(AbstractHibernateStore hibernateStore, ObjectMapper objectMapper, EntityDictionary entityDictionary, ExtendedAuditLogger extendedAuditLogger) {
     RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary);
 
     registerAdditionalConverters();
@@ -55,8 +54,8 @@ public class ElideConfig {
 
   @Bean
   @Profile("!" + ApplicationProfile.INTEGRATION_TEST)
-  HibernateStore hibernateStore(EntityManagerFactory entityManagerFactory) {
-    return new Builder(entityManagerFactory.unwrap(SessionFactory.class)).build();
+  AbstractHibernateStore hibernateStore(EntityManagerFactory entityManagerFactory) {
+    return new AbstractHibernateStore.Builder(entityManagerFactory.unwrap(SessionFactory.class)).build();
   }
 
   /**

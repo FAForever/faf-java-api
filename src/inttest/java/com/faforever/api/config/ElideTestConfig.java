@@ -1,7 +1,6 @@
 package com.faforever.api.config;
 
-import com.yahoo.elide.datastores.hibernate5.HibernateStore;
-import com.yahoo.elide.datastores.hibernate5.HibernateStore.Builder;
+import com.yahoo.elide.datastores.hibernate5.AbstractHibernateStore;
 import org.hibernate.jpa.HibernateEntityManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +12,7 @@ import javax.persistence.EntityManager;
 @Profile(ApplicationProfile.INTEGRATION_TEST)
 public class ElideTestConfig {
   @Bean
-  HibernateStore hibernateStore(EntityManager entityManager) {
-    return new Builder((HibernateEntityManager) entityManager).build();
+  AbstractHibernateStore hibernateStore(EntityManager entityManager) {
+    return new AbstractHibernateStore.Builder((HibernateEntityManager) entityManager).build();
   }
 }

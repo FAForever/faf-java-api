@@ -13,13 +13,14 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "login")
 @Include(rootLevel = true, type = Player.TYPE_NAME)
 // Needed to change leader of a clan
-@SharePermission(expression = "Prefab.Role.All")
+@SharePermission
 @Setter
 @Type(Player.TYPE_NAME)
 public class Player extends Login {
@@ -27,9 +28,9 @@ public class Player extends Login {
   public static final String TYPE_NAME = "player";
   private Ladder1v1Rating ladder1v1Rating;
   private GlobalRating globalRating;
-  private List<ClanMembership> clanMemberships;
-  private List<NameRecord> names;
-  private List<AvatarAssignment> avatarAssignments;
+  private Set<ClanMembership> clanMemberships = new HashSet<>();
+  private Set<NameRecord> names;
+  private Set<AvatarAssignment> avatarAssignments;
 
   @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
   @BatchSize(size = 1000)
@@ -47,22 +48,22 @@ public class Player extends Login {
   @UpdatePermission(expression = "Prefab.Role.All")
   @OneToMany(mappedBy = "player")
   @BatchSize(size = 1000)
-  public List<ClanMembership> getClanMemberships() {
+  public Set<ClanMembership> getClanMemberships() {
     return this.clanMemberships;
   }
 
   @Transient
   public Clan getClan() {
-    if (getClanMemberships() != null && getClanMemberships().size() == 1) {
-      return getClanMemberships().get(0).getClan();
-    }
-    return null;
+    return getClanMemberships().stream()
+      .findFirst()
+      .map(ClanMembership::getClan)
+      .orElse(null);
   }
 
   // Permission is managed by NameRecord class
   @UpdatePermission(expression = "Prefab.Role.All")
   @OneToMany(mappedBy = "player")
-  public List<NameRecord> getNames() {
+  public Set<NameRecord> getNames() {
     return this.names;
   }
 
@@ -70,7 +71,7 @@ public class Player extends Login {
   @UpdatePermission(expression = "Prefab.Role.All")
   @OneToMany(mappedBy = "player")
   @BatchSize(size = 1000)
-  public List<AvatarAssignment> getAvatarAssignments() {
+  public Set<AvatarAssignment> getAvatarAssignments() {
     return avatarAssignments;
   }
 
