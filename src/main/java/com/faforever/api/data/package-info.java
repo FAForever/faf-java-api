@@ -1,7 +1,7 @@
 /**
  * Contains classes to access data according to the <a href="http://jsonapi.org/">JSON-API specification</a>.
  */
-@SharePermission(expression = "Prefab.Role.All")
+@SharePermission
 // Everybody can read from the api
 @ReadPermission(expression = "Prefab.Role.All")
 // By default restrict all data manipulation operation

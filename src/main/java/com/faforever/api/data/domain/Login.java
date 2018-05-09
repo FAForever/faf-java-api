@@ -12,8 +12,8 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @MappedSuperclass
@@ -24,14 +24,14 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
   private String email;
   private String steamId;
   private String userAgent;
-  private List<BanInfo> bans;
-  private List<UserNote> userNotes;
+  private Set<BanInfo> bans;
+  private Set<UserNote> userNotes;
   private LobbyGroup lobbyGroup;
   private String recentIpAddress;
 
   public Login() {
-    this.bans = new ArrayList<>(0);
-    this.userNotes = new ArrayList<>(0);
+    this.bans = new HashSet<>(0);
+    this.userNotes = new HashSet<>(0);
   }
 
   @Column(name = "login")
@@ -65,19 +65,19 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
   @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
   // Permission is managed by BanInfo class
   @UpdatePermission(expression = IsModerator.EXPRESSION)
-  public List<BanInfo> getBans() {
+  public Set<BanInfo> getBans() {
     return this.bans;
   }
 
   @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
   @UpdatePermission(expression = IsModerator.EXPRESSION)
-  public List<UserNote> getUserNotes() {
+  public Set<UserNote> getUserNotes() {
     return this.userNotes;
   }
 
   @Transient
-  public List<BanInfo> getActiveBans() {
-    return getBans().stream().filter(ban -> ban.getBanStatus() == BanStatus.BANNED).collect(Collectors.toList());
+  public Set<BanInfo> getActiveBans() {
+    return getBans().stream().filter(ban -> ban.getBanStatus() == BanStatus.BANNED).collect(Collectors.toSet());
   }
 
   @Transient

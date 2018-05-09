@@ -25,7 +25,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.jwt.Jwt;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -68,7 +67,6 @@ public class ClanServiceTest {
     String description = "A cool clan for testing";
     Player creator = new Player();
     creator.setId(1);
-    creator.setClanMemberships(new ArrayList<>());
     creator.getClanMemberships().add(new ClanMembership());
     try {
       instance.create(clanName, tag, description, creator);
@@ -87,7 +85,6 @@ public class ClanServiceTest {
 
     Player creator = new Player();
     creator.setId(1);
-    creator.setClanMemberships(new ArrayList<>());
 
     when(clanRepository.findOneByName(clanName)).thenReturn(Optional.of(new Clan()));
     try {
@@ -109,7 +106,6 @@ public class ClanServiceTest {
 
     Player creator = new Player();
     creator.setId(1);
-    creator.setClanMemberships(new ArrayList<>());
 
     when(clanRepository.findOneByName(clanName)).thenReturn(Optional.empty());
     when(clanRepository.findOneByTag(tag)).thenReturn(Optional.of(new Clan()));
@@ -133,7 +129,6 @@ public class ClanServiceTest {
 
     Player creator = new Player();
     creator.setId(1);
-    creator.setClanMemberships(new ArrayList<>());
 
     when(clanRepository.findOneByName(clanName)).thenReturn(Optional.empty());
     when(clanRepository.findOneByTag(tag)).thenReturn(Optional.empty());
@@ -340,7 +335,7 @@ public class ClanServiceTest {
     Player newMember = new Player();
     newMember.setId(2);
     newMember.setClanMemberships(
-        Collections.singletonList(new ClanMembership().setClan(clan).setPlayer(newMember)));
+      Collections.singleton(new ClanMembership().setClan(clan).setPlayer(newMember)));
 
     long expire = System.currentTimeMillis() + 1000 * 3;
     Jwt jwtToken = Mockito.mock(Jwt.class);
