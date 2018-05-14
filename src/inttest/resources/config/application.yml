@@ -60,8 +60,6 @@ faf-api:
     html-format: "Integration test registration html body"
   link-to-steam:
     steam-redirect-url-format: "http://localhost:8010/users/linkToSteam?token=%s"
-    success-redirect-url: "http://localhost/linked_to_steam"
-    error-redirect-url-format: "http://localhost/error?message=%s"
   steam:
     realm: "http://localhost"
     api-key: "banana"
