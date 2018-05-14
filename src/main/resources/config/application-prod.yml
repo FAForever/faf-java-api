@@ -49,8 +49,6 @@ faf-api:
     api-key: ${STEAM_API_KEY}
   link-to-steam:
     steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL}
-    success-redirect-url: ${STEAM_LINK_SUCCESS_URL}
-    error-redirect-url-format: ${STEAM_LINK_ERROR_URL}
 
 spring:
   datasource:

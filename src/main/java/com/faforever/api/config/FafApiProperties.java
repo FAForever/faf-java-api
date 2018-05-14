@@ -184,8 +184,6 @@ public class FafApiProperties {
   @Data
   public static class LinkToSteam {
     private String steamRedirectUrlFormat;
-    private String successRedirectUrl;
-    private String errorRedirectUrlFormat;
   }
 
   @Data
