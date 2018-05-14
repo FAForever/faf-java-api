@@ -68,7 +68,7 @@ public class MauticService {
     Optional.ofNullable(ipAddress).ifPresent(s -> body.put("ipAddress", ipAddress));
     Optional.ofNullable(lastActive).ifPresent(s -> body.put("lastActive", lastActive));
 
-    // These are Mautic "custom fields" that need to be created explicitly. For some reason, these are underscore case by default.
+    // These are Mautic "custom fields" that need to be created  explicitly. For some reason, these are underscore case by default.
     Optional.ofNullable(fafUserId).ifPresent(s -> body.put("faf_user_id", fafUserId));
     Optional.ofNullable(fafUserName).ifPresent(s -> body.put("faf_username", fafUserName));
 
