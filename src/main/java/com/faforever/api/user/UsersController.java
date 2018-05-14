@@ -27,12 +27,12 @@ import java.util.stream.Stream;
 
 @RestController
 @RequestMapping(path = "/users")
-public class UserController {
+public class UsersController {
   private final FafApiProperties fafApiProperties;
   private final UserService userService;
   private final SteamService steamService;
 
-  public UserController(FafApiProperties fafApiProperties, UserService userService, SteamService steamService) {
+  public UsersController(FafApiProperties fafApiProperties, UserService userService, SteamService steamService) {
     this.fafApiProperties = fafApiProperties;
     this.userService = userService;
     this.steamService = steamService;
@@ -103,7 +103,7 @@ public class UserController {
   @RequestMapping(path = "/buildSteamLinkUrl", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
   public Map<String, Serializable> buildSteamLinkUrl(Authentication authentication) {
     String steamUrl = userService.buildSteamLinkUrl(userService.getUser(authentication));
-    return ImmutableMap.of("steam_url", steamUrl);
+    return ImmutableMap.of("steamUrl", steamUrl);
   }
 
   @ApiOperation("Processes the Steam redirect and creates the steam link in the user account.")

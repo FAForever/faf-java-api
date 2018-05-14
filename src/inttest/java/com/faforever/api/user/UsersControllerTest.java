@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class UserControllerTest extends AbstractIntegrationTest {
+public class UsersControllerTest extends AbstractIntegrationTest {
   private static final String NEW_USER = "newUser";
   private static final String NEW_PASSWORD = "newPassword";
   private static final String NEW_EMAIL = "test@faforever.com";
