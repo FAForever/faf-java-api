@@ -120,6 +120,7 @@ public class UsersController {
       String errorsJson = objectMapper.writeValueAsString(result.getErrors());
       uriBuilder.queryParam("errors", errorsJson);
       response.sendRedirect(uriBuilder.toUriString());
+      return;
     }
 
     response.sendRedirect(result.getCallbackUrl());

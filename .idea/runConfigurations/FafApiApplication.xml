@@ -1,6 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="FafApiApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-    <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+    <module name="faf-java-api_main" />
+    <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.faforever.api.config.*" />
         <option name="ENABLED" value="true" />
@@ -9,8 +10,14 @@
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.faforever.api.FafApiApplication" />
     <option name="VM_PARAMETERS" value="-Xmx128m" />
     <option name="ALTERNATIVE_JRE_PATH" />
-    <module name="faf-java-api_main" />
-    <envs />
+    <envs>
+      <env name="MAUTIC_BASE_URL" value="http://mautic.test.faforever.com/api" />
+      <env name="MAUTIC_CLIENT_ID" value="faf-java-api" />
+      <env name="MAUTIC_CLIENT_SECRET" value="banana" />
+      <env name="REGISTRATION_EMAIL_BODY" value="User: {0}, Link: {1}" />
+      <env name="STEAM_REALM" value="http://www.faforever.com" />
+      <env name="STEAM_API_KEY" value="B71F58265308ADAD5366DC1F3673BB8A" />
+    </envs>
     <method />
   </configuration>
 </component>
