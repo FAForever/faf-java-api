@@ -1,6 +1,7 @@
 package com.faforever.api.client;
 
 import lombok.Setter;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import javax.persistence.AttributeConverter;
@@ -25,6 +26,7 @@ public class OAuthClient {
   private String defaultRedirectUri;
   private String defaultScope;
   private String iconUrl;
+  private Boolean autoApproveScopes;
 
   @Id
   @Column(name = "id")
@@ -71,6 +73,12 @@ public class OAuthClient {
   @Column(name = "icon_url")
   public String getIconUrl() {
     return iconUrl;
+  }
+
+  @Column(name = "auto_approve_scopes")
+  @Nullable
+  public Boolean isAutoApproveScopes() {
+    return autoApproveScopes;
   }
 
   @Converter(autoApply = true)
