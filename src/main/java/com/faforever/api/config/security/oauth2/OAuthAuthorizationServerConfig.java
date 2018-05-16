@@ -1,7 +1,5 @@
 package com.faforever.api.config.security.oauth2;
 
-import com.faforever.api.client.OAuthClientRepository;
-import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.security.FafUserDetailsService;
 import com.faforever.api.security.OAuthClientDetailsService;
 import org.springframework.context.annotation.Configuration;
@@ -28,19 +26,17 @@ public class OAuthAuthorizationServerConfig extends AuthorizationServerConfigure
   private final TokenStore tokenStore;
   private final TokenEnhancer tokenEnhancer;
   private final FafUserDetailsService userDetailsService;
-  private final OAuthClientRepository oAuthClientRepository;
-  private FafApiProperties properties;
+  private final OAuthClientDetailsService oAuthClientDetailsService;
 
   @Inject
   public OAuthAuthorizationServerConfig(AuthenticationManager authenticationManager, TokenStore tokenStore,
                                         TokenEnhancer tokenEnhancer, FafUserDetailsService userDetailsService,
-                                        OAuthClientRepository oAuthClientRepository, FafApiProperties properties) {
+                                        OAuthClientDetailsService oAuthClientDetailsService) {
     this.authenticationManager = authenticationManager;
     this.tokenStore = tokenStore;
     this.tokenEnhancer = tokenEnhancer;
     this.userDetailsService = userDetailsService;
-    this.oAuthClientRepository = oAuthClientRepository;
-    this.properties = properties;
+    this.oAuthClientDetailsService = oAuthClientDetailsService;
   }
 
   @Override
@@ -50,12 +46,13 @@ public class OAuthAuthorizationServerConfig extends AuthorizationServerConfigure
     oAuthServer
       .tokenKeyAccess("isAnonymous() || hasAuthority('ROLE_TRUSTED_CLIENT')")
       .checkTokenAccess("hasAuthority('ROLE_TRUSTED_CLIENT')")
-      .authenticationEntryPoint(oAuth2AuthenticationEntryPoint);
+      .authenticationEntryPoint(oAuth2AuthenticationEntryPoint)
+      .allowFormAuthenticationForClients();
   }
 
   @Override
   public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-    clients.withClientDetails(new OAuthClientDetailsService(oAuthClientRepository, properties));
+    clients.withClientDetails(oAuthClientDetailsService);
   }
 
   @Override

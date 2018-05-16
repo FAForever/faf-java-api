@@ -60,31 +60,30 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   protected void configure(HttpSecurity http) throws Exception {
     // @formatter:off
       http
-      .csrf()
-        .requireCsrfProtectionMatcher(new RequestMatcher() {
-          private Pattern allowedMethods = Pattern.compile("^(GET|HEAD|TRACE|OPTIONS)$");
-          private RequestMatcher matcher = new OrRequestMatcher(
-            new AntPathRequestMatcher("/oauth/authorize"),
-            new AntPathRequestMatcher("/login"));
+        .csrf()
+          .requireCsrfProtectionMatcher(new RequestMatcher() {
+            private Pattern allowedMethods = Pattern.compile("^(GET|HEAD|TRACE|OPTIONS)$");
+            private RequestMatcher matcher = new OrRequestMatcher(
+              new AntPathRequestMatcher("/oauth/authorize"),
+              new AntPathRequestMatcher("/login"));
 
-          @Override
-          public boolean matches(HttpServletRequest request) {
-              return matcher.matches(request) && !allowedMethods.matcher(request.getMethod()).matches();
-          }
-      })
-      .and().headers()
-      .cacheControl().disable()
-      .and().formLogin()
-        .loginPage("/login").permitAll()
-        .failureHandler(authenticationFailureHandler())
-      .and().authorizeRequests()
-        .antMatchers(HttpMethod.OPTIONS).permitAll()
-        .antMatchers("/oauth/**").permitAll()
-        // Swagger UI
-        .antMatchers("/swagger-ui.html").permitAll()
-        .antMatchers("/swagger-resources/**").permitAll()
-        .antMatchers("/v2/api-docs/**").permitAll()
-        .antMatchers("/").permitAll();
+            @Override
+            public boolean matches(HttpServletRequest request) {
+                return matcher.matches(request) && !allowedMethods.matcher(request.getMethod()).matches();
+            }
+        })
+        .and().headers()
+        .cacheControl().disable()
+        .and().formLogin()
+          .loginPage("/login").permitAll()
+          .failureHandler(authenticationFailureHandler())
+        .and().authorizeRequests()
+          .antMatchers(HttpMethod.OPTIONS).permitAll()
+          // Swagger UI
+          .antMatchers("/swagger-ui.html").permitAll()
+          .antMatchers("/swagger-resources/**").permitAll()
+          .antMatchers("/v2/api-docs/**").permitAll()
+          .antMatchers("/").permitAll();
     // @formatter:on
   }
 
