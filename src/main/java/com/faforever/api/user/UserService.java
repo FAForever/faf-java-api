@@ -191,7 +191,7 @@ public class UserService {
   }
 
   public void changeEmail(String currentPassword, String newEmail, User user, String ipAddress) {
-    if (!Objects.equals(user.getPassword(), passwordEncoder.encode(currentPassword))) {
+    if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
       throw new ApiException(new Error(ErrorCode.EMAIL_CHANGE_FAILED_WRONG_PASSWORD));
     }
 
