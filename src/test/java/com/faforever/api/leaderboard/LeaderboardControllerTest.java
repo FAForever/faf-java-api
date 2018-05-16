@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.domain.PageImpl;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,12 +35,12 @@ public class LeaderboardControllerTest {
 
   @Test
   public void getLadder1v1() throws Exception {
-    when(leaderboardService.getLadder1v1Leaderboard()).thenReturn(Arrays.asList(
+    when(leaderboardService.getLadder1v1Leaderboard(1, 100)).thenReturn(new PageImpl<>(Arrays.asList(
       new Ladder1v1LeaderboardEntry().setId(14).setPlayerName("JUnit 14").setMean(1500f).setDeviation(51f).setNumGames((short) 514).setRank(1).setWonGames((short) 270),
       new Ladder1v1LeaderboardEntry().setId(5).setPlayerName("JUnit 5").setMean(1400f).setDeviation(67f).setNumGames((short) 65).setRank(2).setWonGames((short) 32)
-    ));
+    )));
 
-    CompletableFuture<JsonApiDocument> result = instance.getLadder1v1();
+    CompletableFuture<JsonApiDocument> result = instance.getLadder1v1(1, 100);
     assertThat(result.get(), is(notNullValue()));
 
     Collection<Resource> resources = result.get().getData().get();
@@ -69,12 +70,12 @@ public class LeaderboardControllerTest {
 
   @Test
   public void getGlobal() throws Exception {
-    when(leaderboardService.getGlobalLeaderboard()).thenReturn(Arrays.asList(
+    when(leaderboardService.getGlobalLeaderboard(1, 100)).thenReturn(new PageImpl<>(Arrays.asList(
       new GlobalLeaderboardEntry().setId(14).setPlayerName("JUnit 14").setMean(1500f).setDeviation(51f).setNumGames((short) 514).setRank(1),
       new GlobalLeaderboardEntry().setId(5).setPlayerName("JUnit 5").setMean(1400f).setDeviation(67f).setNumGames((short) 65).setRank(2)
-    ));
+    )));
 
-    CompletableFuture<JsonApiDocument> result = instance.getGlobal();
+    CompletableFuture<JsonApiDocument> result = instance.getGlobal(1, 100);
     assertThat(result.get(), is(notNullValue()));
 
     Collection<Resource> resources = result.get().getData().get();

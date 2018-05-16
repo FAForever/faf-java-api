@@ -10,11 +10,13 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @RestController
 @RequestMapping(path = "/leaderboards")
@@ -31,8 +33,9 @@ public class LeaderboardController {
   @Async
   @RequestMapping(path = "/ladder1v1", method = RequestMethod.GET)
   @ApiOperation("Lists the ladder1v1 leaderboard")
-  public CompletableFuture<JsonApiDocument> getLadder1v1() {
-    List<Resource> values = leaderboardService.getLadder1v1Leaderboard().stream()
+  public CompletableFuture<JsonApiDocument> getLadder1v1(@RequestParam(value = "page[number]", required = false) Integer page,
+                                                         @RequestParam(value = "page[size]", required = false) Integer pageSize) {
+    List<Resource> values = StreamSupport.stream(leaderboardService.getLadder1v1Leaderboard(page, pageSize).spliterator(), false)
       .map(entry -> new Resource(LADDER_1V1_LEADERBOARD_ENTRY, String.valueOf(entry.getId()),
         ImmutableMap.<String, Object>builder()
           .put("name", entry.getPlayerName())
@@ -52,8 +55,9 @@ public class LeaderboardController {
   @Async
   @RequestMapping(path = "/global", method = RequestMethod.GET)
   @ApiOperation("Lists the global leaderboard")
-  public CompletableFuture<JsonApiDocument> getGlobal() {
-    List<Resource> values = leaderboardService.getGlobalLeaderboard().stream()
+  public CompletableFuture<JsonApiDocument> getGlobal(@RequestParam(value = "page[number]", required = false) Integer page,
+                                                      @RequestParam(value = "page[size]", required = false) Integer pageSize) {
+    List<Resource> values = StreamSupport.stream(leaderboardService.getGlobalLeaderboard(page, pageSize).spliterator(), false)
       .map(entry -> new Resource(GLOBAL_LEADERBOARD_ENTRY, String.valueOf(entry.getId()),
         ImmutableMap.<String, Object>builder()
           .put("name", entry.getPlayerName())

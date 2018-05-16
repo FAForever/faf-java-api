@@ -5,6 +5,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.Collections;
 import java.util.List;
@@ -31,23 +34,23 @@ public class LeaderboardServiceTest {
 
   @Test
   public void getLadder1v1Leaderboard() throws Exception {
-    List<Ladder1v1LeaderboardEntry> leaderboard = Collections.emptyList();
-    when(ladder1v1LeaderboardRepository.getLeaderboard()).thenReturn(leaderboard);
+    Page<Ladder1v1LeaderboardEntry> leaderboard = new PageImpl<>(Collections.emptyList());
+    when(ladder1v1LeaderboardRepository.getLeaderboardByPage(new PageRequest(0, 100))).thenReturn(leaderboard);
 
-    List<Ladder1v1LeaderboardEntry> result = instance.getLadder1v1Leaderboard();
+    List<Ladder1v1LeaderboardEntry> result = instance.getLadder1v1Leaderboard(1, 100).getContent();
 
-    assertThat(result, is(leaderboard));
-    verify(ladder1v1LeaderboardRepository).getLeaderboard();
+    assertThat(result, is(leaderboard.getContent()));
+    verify(ladder1v1LeaderboardRepository).getLeaderboardByPage(new PageRequest(0,100));
   }
 
   @Test
   public void getGlobalLeaderboard() throws Exception {
-    List<GlobalLeaderboardEntry> leaderboard = Collections.emptyList();
-    when(globalLeaderboardRepository.getLeaderboard()).thenReturn(leaderboard);
+    Page<GlobalLeaderboardEntry> leaderboard = new PageImpl<>(Collections.emptyList());
+    when(globalLeaderboardRepository.getLeaderboardByPage(new PageRequest(0, 100))).thenReturn(leaderboard);
 
-    List<GlobalLeaderboardEntry> result = instance.getGlobalLeaderboard();
+    List<GlobalLeaderboardEntry> result = instance.getGlobalLeaderboard(1, 100).getContent();
 
-    assertThat(result, is(leaderboard));
-    verify(globalLeaderboardRepository).getLeaderboard();
+    assertThat(result, is(leaderboard.getContent()));
+    verify(globalLeaderboardRepository).getLeaderboardByPage(new PageRequest(0,100));
   }
 }

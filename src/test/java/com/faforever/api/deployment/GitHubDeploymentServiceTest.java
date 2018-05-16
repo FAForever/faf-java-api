@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -76,6 +77,7 @@ public class GitHubDeploymentServiceTest {
     when(deploymentBuilder.autoMerge(false)).thenReturn(deploymentBuilder);
     when(deploymentBuilder.environment(ENVIRONMENT)).thenReturn(deploymentBuilder);
     when(deploymentBuilder.payload("faf")).thenReturn(deploymentBuilder);
+    when(deploymentBuilder.requiredContexts(Collections.emptyList())).thenReturn(deploymentBuilder);
     when(repository.createDeployment("refs/heads/junit")).thenReturn(deploymentBuilder);
 
     when(push.getRepository()).thenReturn(repository);
