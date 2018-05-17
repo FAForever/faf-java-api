@@ -147,7 +147,8 @@ public class UserService {
     setPassword(user, newPassword);
   }
 
-  void changeLogin(String newLogin, User user, String ipAddress) {
+  @Transactional
+  public void changeLogin(String newLogin, User user, String ipAddress) {
     validateUsername(newLogin);
 
     int minDaysBetweenChange = properties.getUser().getMinimumDaysBetweenUsernameChange();
