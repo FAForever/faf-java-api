@@ -18,6 +18,8 @@ faf-api:
   git-hub:
     access-token: ${GITHUB_ACCESS_TOKEN:false}
     webhook-secret: ${GITHUB_WEBHOOK_SECRET:false}
+  anope:
+    database-name: ${ANOPE_DATABASE_NAME:faf-anope}
 
 spring:
   application:
