@@ -17,7 +17,7 @@ public interface GlobalLeaderboardRepository extends Repository<GlobalLeaderboar
     "    global_rating.numGames," +
     "    @s \\:= @s + 1 rank" +
     "  FROM global_rating JOIN login on login.id = global_rating.id," +
-    "    (SELECT @s \\:= 0) AS s" +
+    "    (SELECT @s \\:= ?#{#pageable.offset}) AS s" +
     "  WHERE is_active = 1" +
     "  ORDER BY round(mean - 3 * deviation) DESC \n#pageable\n",
     countQuery = "SELECT count(*) FROM ladder1v1_rating WHERE is_active = 1 AND ladder1v1_rating.numGames > 0",
