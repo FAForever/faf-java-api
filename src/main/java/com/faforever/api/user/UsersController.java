@@ -63,14 +63,14 @@ public class UsersController {
     response.sendRedirect(fafApiProperties.getRegistration().getSuccessRedirectUrl());
   }
 
-  @PreAuthorize("#oauth2.hasScope('write_account_data') and hasRole('ROLE_USER')")
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
   @ApiOperation("Changes the password of a previously registered account.")
   @RequestMapping(path = "/changePassword", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
   public void changePassword(@RequestParam("currentPassword") String currentPassword, @RequestParam("newPassword") String newPassword, Authentication authentication) {
     userService.changePassword(currentPassword, newPassword, userService.getUser(authentication));
   }
 
-  @PreAuthorize("#oauth2.hasScope('write_account_data') and hasRole('ROLE_USER')")
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
   @ApiOperation("Changes the login of a previously registered account.")
   @RequestMapping(path = "/changeUsername", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
   public void changeLogin(HttpServletRequest request, @RequestParam("newUsername") String newUsername, Authentication authentication) {
@@ -78,7 +78,7 @@ public class UsersController {
   }
 
 
-  @PreAuthorize("#oauth2.hasScope('write_account_data') and hasRole('ROLE_USER')")
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
   @ApiOperation("Changes the email of a previously registered account.")
   @RequestMapping(path = "/changeEmail", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
   public void changeEmail(HttpServletRequest request, @RequestParam("currentPassword") String currentPassword, @RequestParam("newEmail") String newEmail, Authentication authentication) {
@@ -101,7 +101,7 @@ public class UsersController {
     response.sendRedirect(fafApiProperties.getPasswordReset().getSuccessRedirectUrl());
   }
 
-  @PreAuthorize("#oauth2.hasScope('write_account_data') and hasRole('ROLE_USER')")
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
   @ApiOperation("Creates an URL to the steam platform to initiate the Link To Steam process.")
   @RequestMapping(path = "/buildSteamLinkUrl", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
   public Map<String, Serializable> buildSteamLinkUrl(Authentication authentication, @RequestParam("callbackUrl") String callbackUrl) {
