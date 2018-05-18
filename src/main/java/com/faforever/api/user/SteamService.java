@@ -2,6 +2,7 @@ package com.faforever.api.user;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.Steam;
+import com.google.common.collect.ImmutableMap;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
@@ -13,7 +14,6 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -55,17 +55,15 @@ public class SteamService {
 
     Steam steam = properties.getSteam();
 
-    RestTemplate restTemplate = new RestTemplate();
-    List<NameValuePair> steamArgs = new ArrayList<>();
-    steamArgs.add(new BasicNameValuePair("key", steam.getApiKey()));
-    steamArgs.add(new BasicNameValuePair("steamid", steamId));
-    steamArgs.add(new BasicNameValuePair("format", "json"));
-    steamArgs.add(new BasicNameValuePair("appids_filter[0]", steam.getForgedAllianceAppId()));
-    String queryArgs = URLEncodedUtils.format(steamArgs, StandardCharsets.UTF_8);
+    String answer = new RestTemplate().getForObject(steam.getGetOwnedGamesUrlFormat(), String.class, ImmutableMap.of(
+      "key", steam.getApiKey(),
+      "steamId", steamId,
+      "format", "json",
+      "faAppId", steam.getForgedAllianceAppId()
+    ));
+    JSONObject result = new JSONObject(answer);
 
-    String response = restTemplate.getForObject(String.format(steam.getGetOwnedGamesUrlFormat(), queryArgs), String.class);
-    JSONObject result = new JSONObject(response);
-
-    return result.getJSONObject("response").getInt("game_count") > 0;
+    JSONObject response = result.getJSONObject("response");
+    return response.has("game_count") && response.getInt("game_count") > 0;
   }
 }

@@ -193,7 +193,7 @@ public class FafApiProperties {
     String apiKey;
     String forgedAllianceAppId = "9420";
     String loginUrlFormat = "https://steamcommunity.com/openid/login?%s";
-    String getOwnedGamesUrlFormat = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001?%s";
+    String getOwnedGamesUrlFormat = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001?key={key}&steamid={steamId}&format={format}&appids_filter[0]={faAppId}";
   }
 
   @Data
