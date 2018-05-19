@@ -13,7 +13,6 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -94,9 +93,9 @@ public class UsersController {
   }
 
   @ApiOperation("Sets a new password for an account.")
-  @RequestMapping(path = "/confirmPasswordReset/{token}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+  @RequestMapping(path = "/confirmPasswordReset", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
   public void claimPasswordResetToken(HttpServletResponse response,
-                                      @PathVariable("token") String token) throws IOException {
+                                      @RequestParam("token") String token) throws IOException {
     userService.claimPasswordResetToken(token);
     response.sendRedirect(fafApiProperties.getPasswordReset().getSuccessRedirectUrl());
   }
