@@ -268,7 +268,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
         UserService.KEY_PASSWORD, NEW_PASSWORD));
 
     mockMvc.perform(
-      get("/users/confirmPasswordReset/{token}", token))
+      get("/users/confirmPasswordReset?token={token}", token))
       .andExpect(status().isFound())
       .andExpect(redirectedUrl("http://localhost/password_resetted"));
   }
