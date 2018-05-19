@@ -30,18 +30,18 @@ faf-api:
   clan:
     website-url-format: ${CLAN_WEBSITE_URL_FORMAT:http://clans.test.faforever.com/clan/%s}
   mail:
-    from-email-name: ${EMAIL_FROM_ADDRESS:faf@example.com}
-    from-email-address: ${EMAIL_FROM_NAME:faf@example.com}
+    from-email-name: ${EMAIL_FROM_NAME:FAForever}
+    from-email-address: ${EMAIL_FROM_ADDRESS:faf@example.com}
   registration:
     activation-url-format: ${ACTIVATION_URL_FORMAT:http://localhost:8010/users/activate?token=%s}
     success-redirect-url: ${ACTIVATION_SUCCESS_REDIRECT_URL:http://localhost:8020/account_activated}
-    subject: ${REGISTRATION_EMAIL_SUBJECT:FAF User registration}
+    subject: ${REGISTRATION_EMAIL_SUBJECT:FAF user registration}
     html-format: ${REGISTRATION_EMAIL_BODY:Registration email body}
   password-reset:
-    password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT:http://localhost:8010/users/claimPasswordResetToken/%s}
+    password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT:http://localhost:8010/users/claimPasswordResetToken?token=%s}
     success-redirect-url: ${PASSWORD_RESET_SUCCESS_REDIRECT_URL:http://localhost:8020/password_resetted}
-    subject: ${PASSWORD_RESET_EMAIL_SUBJECT:Unit test password reset}
-    html-format: ${PASSWORD_RESET_EMAIL_BODY:Unit test password reset html body}
+    subject: ${PASSWORD_RESET_EMAIL_SUBJECT:FAF password reset}
+    html-format: ${PASSWORD_RESET_EMAIL_BODY:Registration email body}
   steam:
     realm: ${STEAM_REALM:http://localhost}
     api-key: ${STEAM_API_KEY:banana}
