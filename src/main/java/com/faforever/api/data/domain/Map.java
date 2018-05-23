@@ -1,5 +1,6 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.listeners.MapChangeListener;
 import com.yahoo.elide.annotation.Include;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
@@ -14,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -35,6 +37,7 @@ import java.util.List;
 @Table(name = "map")
 @Include(rootLevel = true, type = Map.TYPE_NAME)
 @Immutable
+@EntityListeners(MapChangeListener.class)
 public class Map {
 
   public static final String TYPE_NAME = "map";
