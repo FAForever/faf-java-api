@@ -48,7 +48,7 @@ public class LegacyFeaturedModFileRepository implements Repository<FeaturedModFi
         "  ) latest" +
         "    ON file.fileId = latest.fileId" +
         "       AND file.version = latest.version" +
-        "  LEFT JOIN updates_%1$s b" +
+        "  INNER JOIN updates_%1$s b" +
         "    ON b.id = file.fileId;", innerModName, (version == null ? "" : "WHERE version <= :version")), FeaturedModFile.class);
 
     if (version != null) {
