@@ -18,6 +18,7 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.luaj.vm2.LuaValue;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -67,7 +68,8 @@ public class MapService {
 
   @Transactional
   @SneakyThrows
-  void uploadMap(byte[] mapData, String mapFilename, Player author, boolean isRanked) {
+  @CacheEvict(value = {Map.TYPE_NAME, MapVersion.TYPE_NAME}, allEntries = true)
+  public void uploadMap(byte[] mapData, String mapFilename, Player author, boolean isRanked) {
     Assert.notNull(author, "'author' must not be null");
     Assert.isTrue(mapData.length > 0, "'mapData' must not be empty");
 

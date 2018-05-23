@@ -51,7 +51,7 @@ public class ModService {
 
   @SneakyThrows
   @Transactional
-  @CacheEvict({Mod.TYPE_NAME, ModVersion.TYPE_NAME})
+  @CacheEvict(value = {Mod.TYPE_NAME, ModVersion.TYPE_NAME}, allEntries = true)
   public void processUploadedMod(Path uploadedFile, Player uploader) {
     log.debug("Player '{}' uploaded a mod", uploader);
     ModReader modReader = new ModReader();
