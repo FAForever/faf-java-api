@@ -1,6 +1,5 @@
 package com.faforever.api.config.elide;
 
-import com.faforever.api.config.ApplicationProfile;
 import com.faforever.api.data.checks.BooleanChange;
 import com.faforever.api.data.checks.IsAuthenticated;
 import com.faforever.api.data.checks.IsClanMembershipDeletable;
@@ -24,7 +23,6 @@ import org.apache.commons.beanutils.Converter;
 import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 import javax.persistence.EntityManagerFactory;
 import java.time.Duration;
@@ -53,7 +51,6 @@ public class ElideConfig {
   }
 
   @Bean
-  @Profile("!" + ApplicationProfile.INTEGRATION_TEST)
   AbstractHibernateStore hibernateStore(EntityManagerFactory entityManagerFactory) {
     return new AbstractHibernateStore.Builder(entityManagerFactory.unwrap(SessionFactory.class)).build();
   }
