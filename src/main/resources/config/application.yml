@@ -20,6 +20,9 @@ faf-api:
     webhook-secret: ${GITHUB_WEBHOOK_SECRET:false}
   anope:
     database-name: ${ANOPE_DATABASE_NAME:faf-anope}
+  rating:
+    default-mean: 1500
+    default-deviation: 500
 
 spring:
   application:

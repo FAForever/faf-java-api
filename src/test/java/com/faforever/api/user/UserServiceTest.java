@@ -1,6 +1,8 @@
 package com.faforever.api.user;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.data.domain.GlobalRating;
+import com.faforever.api.data.domain.Ladder1v1Rating;
 import com.faforever.api.data.domain.NameRecord;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.data.domain.User;
@@ -9,6 +11,8 @@ import com.faforever.api.error.ApiExceptionWithCode;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.mautic.MauticService;
 import com.faforever.api.player.PlayerRepository;
+import com.faforever.api.rating.GlobalRatingRepository;
+import com.faforever.api.rating.Ladder1v1RatingRepository;
 import com.faforever.api.security.FafPasswordEncoder;
 import com.faforever.api.security.FafTokenService;
 import com.faforever.api.security.FafTokenType;
@@ -84,6 +88,10 @@ public class UserServiceTest {
   private FafTokenService fafTokenService;
   @Mock
   private MauticService mauticService;
+  @Mock
+  private GlobalRatingRepository globalRatingRepository;
+  @Mock
+  private Ladder1v1RatingRepository ladder1v1RatingRepository;
 
   private FafApiProperties properties;
 
@@ -100,7 +108,7 @@ public class UserServiceTest {
     properties = new FafApiProperties();
     properties.getJwt().setSecret(TEST_SECRET);
     properties.getLinkToSteam().setSteamRedirectUrlFormat("%s");
-    instance = new UserService(emailService, playerRepository, userRepository, nameRecordRepository, properties, anopeUserRepository, fafTokenService, steamService, Optional.of(mauticService));
+    instance = new UserService(emailService, playerRepository, userRepository, nameRecordRepository, properties, anopeUserRepository, fafTokenService, steamService, Optional.of(mauticService), globalRatingRepository, ladder1v1RatingRepository);
 
     when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
     when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
@@ -178,6 +186,8 @@ public class UserServiceTest {
 
     ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
     verify(userRepository).save(captor.capture());
+    verify(globalRatingRepository).save(any(GlobalRating.class));
+    verify(ladder1v1RatingRepository).save(any(Ladder1v1Rating.class));
 
     User user = captor.getValue();
     assertThat(user.getLogin(), is(TEST_USERNAME));

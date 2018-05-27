@@ -37,6 +37,7 @@ public class FafApiProperties {
   private Database database = new Database();
   private Mautic mautic = new Mautic();
   private Anope anope = new Anope();
+  private Rating rating = new Rating();
 
   @Data
   public static class OAuth2 {
@@ -236,5 +237,11 @@ public class FafApiProperties {
   @Data
   public class Anope {
     private String databaseName;
+  }
+
+  @Data
+  public class Rating {
+    private int defaultMean;
+    private int defaultDeviation;
   }
 }
