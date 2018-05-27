@@ -1,6 +1,8 @@
 package com.faforever.api.user;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.data.domain.GlobalRating;
+import com.faforever.api.data.domain.Ladder1v1Rating;
 import com.faforever.api.data.domain.NameRecord;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.email.EmailService;
@@ -9,6 +11,8 @@ import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.mautic.MauticService;
 import com.faforever.api.player.PlayerRepository;
+import com.faforever.api.rating.GlobalRatingRepository;
+import com.faforever.api.rating.Ladder1v1RatingRepository;
 import com.faforever.api.security.FafPasswordEncoder;
 import com.faforever.api.security.FafTokenService;
 import com.faforever.api.security.FafTokenType;
@@ -53,11 +57,13 @@ public class UserService {
   private final FafTokenService fafTokenService;
   private final SteamService steamService;
   private final Optional<MauticService> mauticService;
+  private final GlobalRatingRepository globalRatingRepository;
+  private final Ladder1v1RatingRepository ladder1v1RatingRepository;
 
   public UserService(EmailService emailService, PlayerRepository playerRepository, UserRepository userRepository,
                      NameRecordRepository nameRecordRepository, FafApiProperties properties,
                      AnopeUserRepository anopeUserRepository, FafTokenService fafTokenService,
-                     SteamService steamService, Optional<MauticService> mauticService) {
+                     SteamService steamService, Optional<MauticService> mauticService, GlobalRatingRepository globalRatingRepository, Ladder1v1RatingRepository ladder1v1RatingRepository) {
     this.emailService = emailService;
     this.playerRepository = playerRepository;
     this.userRepository = userRepository;
@@ -67,6 +73,8 @@ public class UserService {
     this.fafTokenService = fafTokenService;
     this.steamService = steamService;
     this.mauticService = mauticService;
+    this.globalRatingRepository = globalRatingRepository;
+    this.ladder1v1RatingRepository = ladder1v1RatingRepository;
     this.passwordEncoder = new FafPasswordEncoder();
   }
 
@@ -134,6 +142,24 @@ public class UserService {
     user.setLogin(username);
 
     user = userRepository.save(user);
+
+    // @Deprecated
+    // TODO: Move this db activity to the server (upcert instead of update) */
+    // >>>
+    double mean = properties.getRating().getDefaultMean();
+    double deviation = properties.getRating().getDefaultDeviation();
+
+    globalRatingRepository.save((GlobalRating) new GlobalRating()
+      .setId(user.getId())
+      .setMean(mean)
+      .setDeviation(deviation));
+
+    ladder1v1RatingRepository.save((Ladder1v1Rating) new Ladder1v1Rating()
+      .setId(user.getId())
+      .setMean(mean)
+      .setDeviation(deviation));
+    // <<<
+
     log.debug("User has been activated: {}", user);
 
     createOrUpdateMauticContact(user, ipAddress);
