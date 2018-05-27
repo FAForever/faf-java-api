@@ -35,6 +35,9 @@ public class FafApiProperties {
   private Challonge challonge = new Challonge();
   private User user = new User();
   private Database database = new Database();
+  private Mautic mautic = new Mautic();
+  private Anope anope = new Anope();
+  private Rating rating = new Rating();
 
   @Data
   public static class OAuth2 {
@@ -160,6 +163,7 @@ public class FafApiProperties {
     private String fromEmailAddress;
     private String fromEmailName;
     private String mandrillApiKey;
+    private Smtp smtp;
   }
 
   @Data
@@ -183,8 +187,6 @@ public class FafApiProperties {
   @Data
   public static class LinkToSteam {
     private String steamRedirectUrlFormat;
-    private String successRedirectUrl;
-    private String errorRedirectUrlFormat;
   }
 
   @Data
@@ -193,7 +195,7 @@ public class FafApiProperties {
     String apiKey;
     String forgedAllianceAppId = "9420";
     String loginUrlFormat = "https://steamcommunity.com/openid/login?%s";
-    String getOwnedGamesUrlFormat = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001?%s";
+    String getOwnedGamesUrlFormat = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001?key={key}&steamid={steamId}&format={format}&appids_filter[0]={faAppId}";
   }
 
   @Data
@@ -214,5 +216,32 @@ public class FafApiProperties {
      * The database schema version required to run this application.
      */
     private String schemaVersion;
+  }
+
+  @Data
+  public static class Mautic {
+    private String baseUrl;
+    private String clientId;
+    private String clientSecret;
+    private String accessTokenUrl;
+  }
+
+  @Data
+  public static class Smtp {
+    private String host;
+    private Integer port;
+    private String user;
+    private String password;
+  }
+
+  @Data
+  public class Anope {
+    private String databaseName;
+  }
+
+  @Data
+  public class Rating {
+    private int defaultMean;
+    private int defaultDeviation;
   }
 }

@@ -18,6 +18,7 @@ public class IsEntityOwner {
     public boolean ok(OwnableEntity entity, RequestScope requestScope, Optional<ChangeSpec> changeSpec) {
       Object opaqueUser = requestScope.getUser().getOpaqueUser();
       return opaqueUser instanceof FafUserDetails
+        && entity.getEntityOwner() != null
         && entity.getEntityOwner().getId() == ((FafUserDetails) opaqueUser).getId();
     }
 

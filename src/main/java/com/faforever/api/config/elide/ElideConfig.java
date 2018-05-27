@@ -1,6 +1,7 @@
 package com.faforever.api.config.elide;
 
 import com.faforever.api.config.ApplicationProfile;
+import com.faforever.api.data.checks.BooleanChange;
 import com.faforever.api.data.checks.IsAuthenticated;
 import com.faforever.api.data.checks.IsClanMembershipDeletable;
 import com.faforever.api.data.checks.IsEntityOwner;
@@ -38,14 +39,14 @@ public class ElideConfig {
   public static final String DEFAULT_CACHE_NAME = "Elide.defaultCache";
 
   @Bean
-  public Elide elide(HibernateStore hibernateStore, ObjectMapper objectMapper, EntityDictionary entityDictionary) {
+  public Elide elide(HibernateStore hibernateStore, ObjectMapper objectMapper, EntityDictionary entityDictionary, ExtendedAuditLogger extendedAuditLogger) {
     RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary);
 
     registerAdditionalConverters();
 
     return new Elide(new ElideSettingsBuilder(hibernateStore)
       .withJsonApiMapper(new JsonApiMapper(entityDictionary, objectMapper))
-      .withAuditLogger(new ExtendedAuditLogger())
+      .withAuditLogger(extendedAuditLogger)
       .withEntityDictionary(entityDictionary)
       .withJoinFilterDialect(rsqlFilterDialect)
       .withSubqueryFilterDialect(rsqlFilterDialect)
@@ -96,7 +97,8 @@ public class ElideConfig {
     checks.put(HasBanRead.EXPRESSION, HasBanRead.Inline.class);
     checks.put(HasBanUpdate.EXPRESSION, HasBanUpdate.Inline.class);
     checks.put(HasLadder1v1Update.EXPRESSION, HasLadder1v1Update.Inline.class);
-
+    checks.put(BooleanChange.TO_FALSE_EXPRESSION, BooleanChange.ToFalse.class);
+    checks.put(BooleanChange.TO_TRUE_EXPRESSION, BooleanChange.ToTrue.class);
     return new EntityDictionary(checks);
   }
 }

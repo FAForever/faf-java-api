@@ -2,7 +2,6 @@ package com.faforever.api.user;
 
 
 import com.faforever.api.AbstractIntegrationTest;
-import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.email.EmailSender;
 import com.faforever.api.error.ErrorCode;
@@ -28,6 +27,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class UserControllerTest extends AbstractIntegrationTest {
+public class UsersControllerTest extends AbstractIntegrationTest {
   private static final String NEW_USER = "newUser";
   private static final String NEW_PASSWORD = "newPassword";
   private static final String NEW_EMAIL = "test@faforever.com";
@@ -56,21 +56,32 @@ public class UserControllerTest extends AbstractIntegrationTest {
   @Autowired
   private UserRepository userRepository;
 
-  @Autowired
-  private FafApiProperties fafApiProperties;
-
   @Test
-  @WithAnonymousUser
   public void registerWithSuccess() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("username", NEW_USER);
     params.add("email", NEW_EMAIL);
     params.add("password", NEW_PASSWORD);
 
-    mockMvc.perform(post("/users/register").params(params))
-      .andExpect(status().isOk());
+    mockMvc.perform(post("/users/register")
+      .with(getOAuthToken(OAuthScope._CREATE_USER))
+      .params(params)
+    ).andExpect(status().isOk());
 
     verify(emailSender, times(1)).sendMail(anyString(), anyString(), eq(NEW_EMAIL), anyString(), anyString());
+  }
+
+  @Test
+  public void registerMissingCreateUserScope() throws Exception {
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("username", NEW_USER);
+    params.add("email", NEW_EMAIL);
+    params.add("password", NEW_PASSWORD);
+
+    mockMvc.perform(post("/users/register").params(params))
+      .andExpect(status().isForbidden());
+
+    verify(emailSender, never()).sendMail(anyString(), anyString(), eq(NEW_EMAIL), anyString(), anyString());
   }
 
   @Test
@@ -81,8 +92,10 @@ public class UserControllerTest extends AbstractIntegrationTest {
     params.add("email", NEW_EMAIL);
     params.add("password", NEW_PASSWORD);
 
-    MvcResult result = mockMvc.perform(post("/users/register").params(params))
-      .andExpect(status().is4xxClientError())
+    MvcResult result = mockMvc.perform(post("/users/register")
+      .with(getOAuthToken(OAuthScope._CREATE_USER))
+      .params(params)
+    ).andExpect(status().is4xxClientError())
       .andReturn();
 
     assertApiError(result, ErrorCode.ALREADY_REGISTERED);
@@ -255,7 +268,7 @@ public class UserControllerTest extends AbstractIntegrationTest {
         UserService.KEY_PASSWORD, NEW_PASSWORD));
 
     mockMvc.perform(
-      get("/users/confirmPasswordReset/{token}", token))
+      get("/users/confirmPasswordReset?token={token}", token))
       .andExpect(status().isFound())
       .andExpect(redirectedUrl("http://localhost/password_resetted"));
   }
@@ -264,7 +277,7 @@ public class UserControllerTest extends AbstractIntegrationTest {
   @WithAnonymousUser
   public void buildSteamLinkUrlUnauthorized() throws Exception {
     mockMvc.perform(
-      post("/users/buildSteamLinkUrl"))
+      post("/users/buildSteamLinkUrl?callbackUrl=foo"))
       .andExpect(status().isForbidden());
   }
 
@@ -272,7 +285,7 @@ public class UserControllerTest extends AbstractIntegrationTest {
   @WithUserDetails(AUTH_USER)
   public void buildSteamLinkUrlWithWrongScope() throws Exception {
     mockMvc.perform(
-      post("/users/buildSteamLinkUrl"))
+      post("/users/buildSteamLinkUrl?callbackUrl=foo"))
       .andExpect(status().isForbidden());
   }
 
@@ -280,7 +293,7 @@ public class UserControllerTest extends AbstractIntegrationTest {
   @WithUserDetails(AUTH_MODERATOR)
   public void buildSteamLinkUrlAlreadyLinked() throws Exception {
     MvcResult result = mockMvc.perform(
-      post("/users/buildSteamLinkUrl")
+      post("/users/buildSteamLinkUrl?callbackUrl=foo")
         .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA)))
       .andExpect(status().is4xxClientError())
       .andReturn();
@@ -294,7 +307,7 @@ public class UserControllerTest extends AbstractIntegrationTest {
     when(steamService.buildLoginUrl(any())).thenReturn("steamUrl");
 
     mockMvc.perform(
-      post("/users/buildSteamLinkUrl")
+      post("/users/buildSteamLinkUrl?callbackUrl=foo")
         .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA)))
       .andExpect(status().isOk());
 
@@ -306,20 +319,25 @@ public class UserControllerTest extends AbstractIntegrationTest {
   public void linkToSteam() throws Exception {
     assertThat(userRepository.findOne(1).getSteamId(), nullValue());
 
-    when(steamService.parseSteamIdFromLoginRedirect(any())).thenReturn("12345");
-    when(steamService.ownsForgedAlliance(anyString())).thenReturn(true);
-
+    String steamId = "1234";
+    String callbackUrl = "callbackUrl";
     String token = fafTokenService.createToken(
       FafTokenType.LINK_TO_STEAM,
       Duration.ofSeconds(100),
-      ImmutableMap.of(UserService.KEY_USER_ID, "1"));
+      ImmutableMap.of(
+        UserService.KEY_USER_ID, "2",
+        UserService.KEY_STEAM_LINK_CALLBACK_URL, callbackUrl
+      ));
+
+    when(steamService.parseSteamIdFromLoginRedirect(any())).thenReturn(steamId);
+    when(steamService.ownsForgedAlliance(anyString())).thenReturn(true);
 
     mockMvc.perform(
-      get(String.format("/users/linkToSteam?token=%s&openid.identity=http://steamcommunity.com/openid/id/12345", token)))
+      get(String.format("/users/linkToSteam?callbackUrl=%s&token=%s&openid.identity=http://steamcommunity.com/openid/id/%s", callbackUrl, token, steamId)))
       .andExpect(status().isFound())
-      .andExpect(redirectedUrl(fafApiProperties.getLinkToSteam().getSuccessRedirectUrl()));
+      .andExpect(redirectedUrl(callbackUrl));
 
-    assertThat(userRepository.findOne(1).getSteamId(), is("12345"));
+    assertThat(userRepository.findOne(2).getSteamId(), is(steamId));
   }
 
   @Test

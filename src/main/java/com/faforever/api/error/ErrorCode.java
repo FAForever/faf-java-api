@@ -72,7 +72,7 @@ public enum ErrorCode {
   UNKNOWN_IDENTIFIER(163, "Unable to resolve user", "The identifier does neither match a username nor an email: {0}"),
   ALREADY_REGISTERED(164, "Registration failed", "You can't create a new account because you already have one."),
   EMAIL_CHANGE_FAILED_WRONG_PASSWORD(138, "Email change failed", "Your current password did not match."),
-  STEAM_LINK_NO_FA_GAME(165, "Linking to Steam failed", "You do not own Forged Alliance on Steam or your profile is private."),
+  STEAM_LINK_NO_FA_GAME(165, "Linking to Steam failed", "You do not own Forged Alliance on Steam or your profile is private. Please set your games list temporarily to 'public'."),
   FILE_NAME_TOO_LONG(166, "Invalid file name", "The file name must not exceed {0, number} character(s), was: {1, number}"),
   FILE_SIZE_EXCEEDED(167, "Invalid file size", "The file size must not exceed {0, number} byte(s), was: {1, number}"),
   AVATAR_NAME_CONFLICT(168, "Invalid avatar file name", "Avatar file name ''{0}'' already exists."),

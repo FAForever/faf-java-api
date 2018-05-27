@@ -1,5 +1,7 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.checks.BooleanChange;
+import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.permission.IsModerator;
 import com.faforever.api.data.listeners.MapVersionEnricher;
 import com.yahoo.elide.annotation.Audit;
@@ -28,7 +30,7 @@ import java.util.List;
 @EntityListeners(MapVersionEnricher.class)
 @Table(name = "map_version")
 @Include(rootLevel = true, type = MapVersion.TYPE_NAME)
-public class MapVersion extends AbstractEntity {
+public class MapVersion extends AbstractEntity implements OwnableEntity {
 
   public static final String TYPE_NAME = "mapVersion";
 
@@ -50,6 +52,7 @@ public class MapVersion extends AbstractEntity {
   private MapVersionReviewsSummary reviewsSummary;
   private Ladder1v1Map ladder1v1Map;
 
+  @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " or " + IsModerator.EXPRESSION)
   @Column(name = "description")
   public String getDescription() {
     return description;
@@ -85,14 +88,14 @@ public class MapVersion extends AbstractEntity {
     return filename;
   }
 
-  @UpdatePermission(expression = IsModerator.EXPRESSION)
+  @UpdatePermission(expression = IsModerator.EXPRESSION + " or (" + IsEntityOwner.EXPRESSION + " and " + BooleanChange.TO_FALSE_EXPRESSION + ")")
   @Audit(action = Action.UPDATE, logStatement = "Updated map version `{0}` attribute ranked to: {1}", logExpressions = {"${mapVersion.id}", "${mapVersion.ranked}"})
   @Column(name = "ranked")
   public boolean isRanked() {
     return ranked;
   }
 
-  @UpdatePermission(expression = IsModerator.EXPRESSION)
+  @UpdatePermission(expression = IsModerator.EXPRESSION + " or (" + IsEntityOwner.EXPRESSION + " and " + BooleanChange.TO_TRUE_EXPRESSION + ")")
   @Audit(action = Action.UPDATE, logStatement = "Updated map version `{0}` attribute hidden to: {1}", logExpressions = {"${mapVersion.id}", "${mapVersion.hidden}"})
   @Column(name = "hidden")
   public boolean isHidden() {
@@ -146,5 +149,11 @@ public class MapVersion extends AbstractEntity {
   @UpdatePermission(expression = "Prefab.Role.All")
   public MapVersionReviewsSummary getReviewsSummary() {
     return reviewsSummary;
+  }
+
+  @Transient
+  @Override
+  public Login getEntityOwner() {
+    return map.getAuthor();
   }
 }

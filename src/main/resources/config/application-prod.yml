@@ -19,16 +19,11 @@ faf-api:
     download-url-format: ${AVATAR_DOWNLOAD_URL_FORMAT}
     target-directory: ${AVATAR_TARGET_DIRECTORY}
     allowed-extensions: ${AVATAR_ALLOWED_FILE_EXTENSIONS}
-    max-size-bytes: ${AVATAR_MAX_SIZE_BYTES}
-    image-width: ${AVATAR_IMAGE_WIDTH}
-    image-height: ${AVATAR_IMAGE_HEIGHT}
   featured-mod:
     file-url-format: ${FEATURED_MOD_URL_FORMAT}
     bireus-url-format: ${FEATURED_MOD_BIREUS_URL_FORMAT}
   git-hub:
-    access-token: ${GITHUB_ACCESS_TOKEN}
     deployment-environment: ${GITHUB_DEPLOYMENT_ENVIRONMENT:production}
-    webhook-secret: ${GITHUB_WEBHOOK_SECRET}
   deployment:
     forged-alliance-exe-path: ${FORGED_ALLIANCE_EXE_PATH}
     repositories-directory: ${REPOSITORIES_DIRECTORY}
@@ -37,8 +32,8 @@ faf-api:
     website-url-format: ${CLAN_WEBSITE_URL_FORMAT}
   mail:
     mandrill-api-key: ${MANDRILL_API_KEY}
-    from-email-name: ${EMAIL_FROM_ADDRESS}
-    from-email-address: ${EMAIL_FROM_NAME}
+    from-email-name: ${EMAIL_FROM_NAME}
+    from-email-address: ${EMAIL_FROM_ADDRESS}
   registration:
     activation-url-format: ${ACTIVATION_URL_FORMAT}
     success-redirect-url: ${ACTIVATION_SUCCESS_REDIRECT_URL}
@@ -54,8 +49,6 @@ faf-api:
     api-key: ${STEAM_API_KEY}
   link-to-steam:
     steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL}
-    success-redirect-url: ${STEAM_LINK_SUCCESS_URL}
-    error-redirect-url-format: ${STEAM_LINK_ERROR_URL}
 
 spring:
   datasource:

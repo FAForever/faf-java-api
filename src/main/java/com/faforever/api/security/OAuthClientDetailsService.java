@@ -8,9 +8,11 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.ClientRegistrationException;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Service
 public class OAuthClientDetailsService implements ClientDetailsService {
 
   public static final String CLIENTS_CACHE_NAME = "OAuthClientDetailsService.oAuthClients";

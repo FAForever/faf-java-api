@@ -1,8 +1,6 @@
 package com.faforever.api.map;
 
 import com.faforever.api.config.FafApiProperties;
-import com.faforever.api.data.domain.Map;
-import com.faforever.api.data.domain.MapVersion;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
@@ -15,7 +13,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,13 +41,12 @@ public class MapsController {
     this.playerService = playerService;
   }
 
-  @ApiOperation("Uploads a map")
+  @ApiOperation("Upload a map")
   @ApiResponses(value = {
-    @ApiResponse(code = 200, message = "Success", response = Void.class),
+    @ApiResponse(code = 200, message = "Success"),
     @ApiResponse(code = 401, message = "Unauthorized"),
     @ApiResponse(code = 500, message = "Failure")})
   @RequestMapping(path = "/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-  @CacheEvict({Map.TYPE_NAME, MapVersion.TYPE_NAME})
   public void uploadMap(@RequestParam("file") MultipartFile file,
                         @RequestParam("metadata") String jsonString,
                         Authentication authentication) throws IOException {

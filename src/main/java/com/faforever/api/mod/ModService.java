@@ -14,7 +14,6 @@ import com.faforever.commons.mod.ModReader;
 import com.google.common.primitives.Ints;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -52,7 +51,7 @@ public class ModService {
 
   @SneakyThrows
   @Transactional
-  @CacheEvict({Mod.TYPE_NAME, ModVersion.TYPE_NAME})
+  @CacheEvict(value = {Mod.TYPE_NAME, ModVersion.TYPE_NAME}, allEntries = true)
   public void processUploadedMod(Path uploadedFile, Player uploader) {
     log.debug("Player '{}' uploaded a mod", uploader);
     ModReader modReader = new ModReader();
@@ -89,7 +88,7 @@ public class ModService {
     Optional<Path> thumbnailPath = extractThumbnail(uploadedFile, version, displayName, modInfo.getIcon());
 
     log.debug("Moving uploaded mod '{}' to: {}", modInfo.getName(), targetPath);
-    Files.createDirectories(targetPath.getParent());
+    Files.createDirectories(targetPath.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
     Files.move(uploadedFile, targetPath);
     FilePermissionUtil.setDefaultFilePermission(targetPath);
 
@@ -166,12 +165,11 @@ public class ModService {
     }
 
     if (!errors.isEmpty()) {
-      throw new ApiException(errors.toArray(new Error[errors.size()]));
+      throw new ApiException(errors.toArray(new Error[0]));
     }
   }
 
   @SneakyThrows
-  @Nullable
   private Optional<Path> extractThumbnail(Path modZipFile, short version, String displayName, String icon) {
     if (icon == null) {
       return Optional.empty();
@@ -187,7 +185,7 @@ public class ModService {
       Path targetPath = properties.getMod().getThumbnailTargetDirectory().resolve(thumbnailFileName);
 
       log.debug("Extracting thumbnail of mod '{}' to: {}", displayName, targetPath);
-      Files.createDirectories(targetPath.getParent());
+      Files.createDirectories(targetPath.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
       try (InputStream inputStream = new BufferedInputStream(zipFile.getInputStream(entry))) {
         Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
       }

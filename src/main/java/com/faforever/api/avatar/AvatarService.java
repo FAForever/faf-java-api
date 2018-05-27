@@ -7,6 +7,7 @@ import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.error.NotFoundApiException;
 import com.faforever.api.error.ProgrammingError;
+import com.faforever.api.security.Audit;
 import com.faforever.api.utils.FileNameUtil;
 import com.faforever.api.utils.FilePermissionUtil;
 import lombok.SneakyThrows;
@@ -42,6 +43,7 @@ public class AvatarService {
 
   @SneakyThrows
   @Transactional
+  @Audit(messageTemplate = "Avatar [''{0}'' - ''{1}''] created.", expressions = {"${avatarMetadata.name}", "${originalFilename}"})
   public void createAvatar(AvatarMetadata avatarMetadata, String originalFilename, InputStream imageDataInputStream, long avatarImageFileSize) {
     final Avatar avatarToCreate = new Avatar();
     final String normalizedAvatarFileName = FileNameUtil.normalizeFileName(originalFilename);
@@ -63,6 +65,7 @@ public class AvatarService {
 
   @SneakyThrows
   @Transactional
+  @Audit(messageTemplate = "Avatar ''{0}'' updated with [''{1}'' - ''{2}''].", expressions = {"${avatarId}", "${avatarMetadata.name}", "${originalFilename}"})
   public void updateAvatar(Integer avatarId, AvatarMetadata avatarMetadata, String originalFilename, InputStream imageDataInputStream, long avatarImageFileSize) {
     final Avatar existingAvatar = getExistingAvatar(avatarId);
     final String normalizedAvatarFileName = getFileNameFromUrl(existingAvatar.getUrl());
@@ -79,6 +82,7 @@ public class AvatarService {
 
   @SneakyThrows
   @Transactional
+  @Audit(messageTemplate = "Avatar ''{0}'' deleted.", expressions = "${avatarId}")
   public void deleteAvatar(Integer avatarId) {
     final Avatar avatar = getExistingAvatar(avatarId);
     if (!avatar.getAssignments().isEmpty()) {
@@ -101,7 +105,7 @@ public class AvatarService {
     if (!overwrite && Files.exists(imageTargetPath)) {
       throw new ApiException(new Error(ErrorCode.AVATAR_NAME_CONFLICT, imageTargetPath.getFileName().toString()));
     }
-    Files.createDirectories(imageTargetPath.getParent());
+    Files.createDirectories(imageTargetPath.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
     Files.copy(imageDataInputStream, imageTargetPath, copyOptions);
     FilePermissionUtil.setDefaultFilePermission(imageTargetPath);
   }

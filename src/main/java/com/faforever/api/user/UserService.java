@@ -1,13 +1,18 @@
 package com.faforever.api.user;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.data.domain.GlobalRating;
+import com.faforever.api.data.domain.Ladder1v1Rating;
 import com.faforever.api.data.domain.NameRecord;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.email.EmailService;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.mautic.MauticService;
 import com.faforever.api.player.PlayerRepository;
+import com.faforever.api.rating.GlobalRatingRepository;
+import com.faforever.api.rating.Ladder1v1RatingRepository;
 import com.faforever.api.security.FafPasswordEncoder;
 import com.faforever.api.security.FafTokenService;
 import com.faforever.api.security.FafTokenType;
@@ -15,6 +20,7 @@ import com.faforever.api.security.FafUserDetails;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
 import lombok.SneakyThrows;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -22,8 +28,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static com.faforever.api.error.ErrorCode.TOKEN_INVALID;
@@ -35,6 +45,7 @@ public class UserService {
   static final String KEY_EMAIL = "email";
   static final String KEY_PASSWORD = "password";
   static final String KEY_USER_ID = "id";
+  static final String KEY_STEAM_LINK_CALLBACK_URL = "callbackUrl";
   private static final Pattern USERNAME_PATTERN = Pattern.compile("[A-Za-z][A-Za-z0-9_-]{2,15}$");
   private final EmailService emailService;
   private final PlayerRepository playerRepository;
@@ -45,9 +56,14 @@ public class UserService {
   private final AnopeUserRepository anopeUserRepository;
   private final FafTokenService fafTokenService;
   private final SteamService steamService;
+  private final Optional<MauticService> mauticService;
+  private final GlobalRatingRepository globalRatingRepository;
+  private final Ladder1v1RatingRepository ladder1v1RatingRepository;
 
   public UserService(EmailService emailService, PlayerRepository playerRepository, UserRepository userRepository,
-                     NameRecordRepository nameRecordRepository, FafApiProperties properties, AnopeUserRepository anopeUserRepository, FafTokenService fafTokenService, SteamService steamService) {
+                     NameRecordRepository nameRecordRepository, FafApiProperties properties,
+                     AnopeUserRepository anopeUserRepository, FafTokenService fafTokenService,
+                     SteamService steamService, Optional<MauticService> mauticService, GlobalRatingRepository globalRatingRepository, Ladder1v1RatingRepository ladder1v1RatingRepository) {
     this.emailService = emailService;
     this.playerRepository = playerRepository;
     this.userRepository = userRepository;
@@ -56,6 +72,9 @@ public class UserService {
     this.anopeUserRepository = anopeUserRepository;
     this.fafTokenService = fafTokenService;
     this.steamService = steamService;
+    this.mauticService = mauticService;
+    this.globalRatingRepository = globalRatingRepository;
+    this.ladder1v1RatingRepository = ladder1v1RatingRepository;
     this.passwordEncoder = new FafPasswordEncoder();
   }
 
@@ -110,7 +129,7 @@ public class UserService {
   @SneakyThrows
   @SuppressWarnings("unchecked")
   @Transactional
-  void activate(String token) {
+  void activate(String token, String ipAddress) {
     Map<String, String> claims = fafTokenService.resolveToken(FafTokenType.REGISTRATION, token);
 
     String username = claims.get(KEY_USERNAME);
@@ -122,8 +141,28 @@ public class UserService {
     user.setEmail(email);
     user.setLogin(username);
 
+    user = userRepository.save(user);
+
+    // @Deprecated
+    // TODO: Move this db activity to the server (upcert instead of update) */
+    // >>>
+    double mean = properties.getRating().getDefaultMean();
+    double deviation = properties.getRating().getDefaultDeviation();
+
+    globalRatingRepository.save((GlobalRating) new GlobalRating()
+      .setId(user.getId())
+      .setMean(mean)
+      .setDeviation(deviation));
+
+    ladder1v1RatingRepository.save((Ladder1v1Rating) new Ladder1v1Rating()
+      .setId(user.getId())
+      .setMean(mean)
+      .setDeviation(deviation));
+    // <<<
+
     log.debug("User has been activated: {}", user);
-    userRepository.save(user);
+
+    createOrUpdateMauticContact(user, ipAddress);
   }
 
   void changePassword(String currentPassword, String newPassword, User user) {
@@ -134,7 +173,8 @@ public class UserService {
     setPassword(user, newPassword);
   }
 
-  void changeLogin(String newLogin, User user) {
+  @Transactional
+  public void changeLogin(String newLogin, User user, String ipAddress) {
     validateUsername(newLogin);
 
     int minDaysBetweenChange = properties.getUser().getMinimumDaysBetweenUsernameChange();
@@ -158,11 +198,27 @@ public class UserService {
     nameRecordRepository.save(nameRecord);
 
     user.setLogin(newLogin);
-    userRepository.save(user);
+
+    createOrUpdateMauticContact(userRepository.save(user), ipAddress);
   }
 
-  public void changeEmail(String currentPassword, String newEmail, User user) {
-    if (!Objects.equals(user.getPassword(), passwordEncoder.encode(currentPassword))) {
+  private void createOrUpdateMauticContact(User user, String ipAddress) {
+    mauticService.ifPresent(service -> service.createOrUpdateContact(
+      user.getEmail(),
+      String.valueOf(user.getId()),
+      user.getLogin(),
+      ipAddress,
+      OffsetDateTime.now()
+    )
+      .thenAccept(result -> log.debug("Updated contact in Mautic: {}", user.getEmail()))
+      .exceptionally(throwable -> {
+        log.warn("Could not update contact in Mautic: {}", user, throwable);
+        return null;
+      }));
+  }
+
+  public void changeEmail(String currentPassword, String newEmail, User user, String ipAddress) {
+    if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
       throw new ApiException(new Error(ErrorCode.EMAIL_CHANGE_FAILED_WRONG_PASSWORD));
     }
 
@@ -170,7 +226,11 @@ public class UserService {
 
     log.debug("Changing email for user ''{}'' to ''{}''", user, newEmail);
     user.setEmail(newEmail);
-    userRepository.save(user);
+    createOrUpdateUser(user, ipAddress);
+  }
+
+  private void createOrUpdateUser(User user, String ipAddress) {
+    createOrUpdateMauticContact(userRepository.save(user), ipAddress);
   }
 
   void resetPassword(String identifier, String newPassword) {
@@ -223,7 +283,7 @@ public class UserService {
     throw new ApiException(new Error(TOKEN_INVALID));
   }
 
-  public String buildSteamLinkUrl(User user) {
+  public String buildSteamLinkUrl(User user, String callbackUrl) {
     log.debug("Building Steam link url for user id: {}", user.getId());
     if (user.getSteamId() != null && !Objects.equals(user.getSteamId(), "")) {
       log.debug("User with id '{}' already linked to steam", user.getId());
@@ -232,14 +292,17 @@ public class UserService {
 
     String token = fafTokenService.createToken(FafTokenType.LINK_TO_STEAM,
       Duration.ofHours(1),
-      ImmutableMap.of(KEY_USER_ID, String.valueOf(user.getId()))
+      ImmutableMap.of(
+        KEY_USER_ID, String.valueOf(user.getId()),
+        KEY_STEAM_LINK_CALLBACK_URL, callbackUrl
+      )
     );
 
     return steamService.buildLoginUrl(String.format(properties.getLinkToSteam().getSteamRedirectUrlFormat(), token));
   }
 
   @SneakyThrows
-  public void linkToSteam(String token, String steamId) {
+  public SteamLinkResult linkToSteam(String token, String steamId) {
     log.debug("linkToSteam requested for steamId '{}' with token: {}", steamId, token);
     Map<String, String> attributes = fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, token);
 
@@ -249,11 +312,20 @@ public class UserService {
       throw new ApiException(new Error(ErrorCode.TOKEN_INVALID));
     }
 
+    String callbackUrl = attributes.get(KEY_STEAM_LINK_CALLBACK_URL);
     if (!steamService.ownsForgedAlliance(steamId)) {
-      throw new ApiException(new Error(ErrorCode.STEAM_LINK_NO_FA_GAME));
+      return new SteamLinkResult(callbackUrl, Collections.singletonList(new Error(ErrorCode.STEAM_LINK_NO_FA_GAME)));
     }
 
     user.setSteamId(steamId);
     userRepository.save(user);
+
+    return new SteamLinkResult(callbackUrl, Collections.emptyList());
+  }
+
+  @Value
+  static class SteamLinkResult {
+    String callbackUrl;
+    List<Error> errors;
   }
 }

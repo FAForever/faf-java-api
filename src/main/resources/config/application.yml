@@ -1,11 +1,28 @@
 faf-api:
   version: #faf-api.version#
+  avatar:
+    max-size-bytes: ${AVATAR_MAX_SIZE_BYTES:4096}
+    image-width: ${AVATAR_IMAGE_WIDTH:40}
+    image-height: ${AVATAR_IMAGE_HEIGHT:20}
   clan:
     invite-link-expire-duration-minutes: ${CLAN_INVITE_LINK_EXPIRE_DURATION_MINUTES:604800}
   challonge:
     key: ${CHALLONGE_KEY:}
   database:
     schema-version: ${DATABASE_SCHEMA_VERSION:48}
+  mautic:
+    base-url: ${MAUTIC_BASE_URL:false}
+    client-id: ${MAUTIC_CLIENT_ID:false}
+    client-secret: ${MAUTIC_CLIENT_SECRET:false}
+    access-token-url: ${MAUTIC_ACCESS_TOKEN_URL:false}
+  git-hub:
+    access-token: ${GITHUB_ACCESS_TOKEN:false}
+    webhook-secret: ${GITHUB_WEBHOOK_SECRET:false}
+  anope:
+    database-name: ${ANOPE_DATABASE_NAME:faf-anope}
+  rating:
+    default-mean: 1500
+    default-deviation: 500
 
 spring:
   application:
@@ -37,6 +54,11 @@ spring:
       max-file-size: 300MB
       max-request-size: 300MB
       file-size-threshold: 5MB
+  mail:
+    host: ${MAIL_HOST:false}
+    port: ${MAIL_PORT:false}
+    username: ${MAIL_USERNAME:false}
+    password: ${MAIL_PASSWORD:false}
 
 server:
   # Mind that this is configured in the docker compose file as well (that is, in the gradle script that generates it)

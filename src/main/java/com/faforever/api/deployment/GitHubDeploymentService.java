@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Optional;
 
 
@@ -52,6 +53,7 @@ public class GitHubDeploymentService {
       .autoMerge(false)
       .environment(fafApiProperties.getGitHub().getDeploymentEnvironment())
       .payload(optional.get().getTechnicalName())
+      .requiredContexts(Collections.emptyList())
       .create();
 
     log.info("Created deployment: {}", ghDeployment);
@@ -60,7 +62,7 @@ public class GitHubDeploymentService {
   @Async
   @SneakyThrows
   @Transactional
-  @CacheEvict(FeaturedMod.TYPE_NAME)
+  @CacheEvict(value = FeaturedMod.TYPE_NAME, allEntries = true)
   public void deploy(Deployment deployment) {
     GHDeployment ghDeployment = deployment.getDeployment();
     String environment = ghDeployment.getEnvironment();
