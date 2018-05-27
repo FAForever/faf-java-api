@@ -285,6 +285,7 @@ dependencies {
   compile("org.springframework.boot:spring-boot-starter-jetty")
   compile("org.springframework.boot:spring-boot-starter-security")
   compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+  compile("org.springframework.boot:spring-boot-starter-mail")
   compile("de.codecentric:spring-boot-admin-starter-client:${springBootAdminClientVersion}")
 
   compile("com.github.FAForever:faf-java-commons:${fafCommonsVersion}")

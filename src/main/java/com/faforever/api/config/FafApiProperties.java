@@ -162,6 +162,7 @@ public class FafApiProperties {
     private String fromEmailAddress;
     private String fromEmailName;
     private String mandrillApiKey;
+    private Smtp smtp;
   }
 
   @Data
@@ -222,6 +223,14 @@ public class FafApiProperties {
     private String clientId;
     private String clientSecret;
     private String accessTokenUrl;
+  }
+
+  @Data
+  public static class Smtp {
+    private String host;
+    private Integer port;
+    private String user;
+    private String password;
   }
 
   @Data

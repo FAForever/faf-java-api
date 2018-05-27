@@ -6,11 +6,11 @@ import com.microtripit.mandrillapp.lutung.view.MandrillMessage.Recipient;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 
-@Service
+@Component
 @Slf4j
 @ConditionalOnProperty(value = "faf-api.mail.mandrill-api-key")
 public class MandrillEmailSender implements EmailSender {

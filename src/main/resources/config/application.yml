@@ -51,6 +51,11 @@ spring:
       max-file-size: 300MB
       max-request-size: 300MB
       file-size-threshold: 5MB
+  mail:
+    host: ${MAIL_HOST:false}
+    port: ${MAIL_PORT:false}
+    username: ${MAIL_USERNAME:false}
+    password: ${MAIL_PASSWORD:false}
 
 server:
   # Mind that this is configured in the docker compose file as well (that is, in the gradle script that generates it)

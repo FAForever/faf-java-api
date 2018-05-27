@@ -1,16 +1,36 @@
 package com.faforever.api.email;
 
+import com.faforever.api.email.NoopEmailSender.MailSenderCondition;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Service;
+import org.springframework.boot.autoconfigure.condition.NoneNestedConditions;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 @Slf4j
-@ConditionalOnProperty(value = "faf-api.mail.mandrill-api-key", havingValue = "false", matchIfMissing = true)
+@Conditional(MailSenderCondition.class)
 public class NoopEmailSender implements EmailSender {
   @Override
   public void sendMail(String fromEmail, String fromName, String toEmail, String subject, String content) {
-    log.debug("Sending email from '{} <{}>' to '{}' with subject '{}' and text: {}",
+    log.debug("Would send email from '{} <{}>' to '{}' with subject '{}' and text: {}",
       fromName, fromEmail, toEmail, subject, content);
+  }
+
+  static class MailSenderCondition extends NoneNestedConditions {
+
+    MailSenderCondition() {
+      super(ConfigurationPhase.PARSE_CONFIGURATION);
+    }
+
+    @ConditionalOnProperty("faf-api.mail.mandrill-api-key")
+    static class HostProperty {
+
+    }
+
+    @ConditionalOnProperty("spring.mail.host")
+    static class JndiNameProperty {
+
+    }
   }
 }
