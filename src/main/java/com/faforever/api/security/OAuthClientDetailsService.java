@@ -10,8 +10,6 @@ import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.ClientRegistrationException;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class OAuthClientDetailsService implements ClientDetailsService {
 
@@ -27,7 +25,7 @@ public class OAuthClientDetailsService implements ClientDetailsService {
   @Override
   @Cacheable(CLIENTS_CACHE_NAME)
   public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {
-    OAuthClient oAuthClient = Optional.ofNullable(oAuthClientRepository.findOne(clientId))
+    OAuthClient oAuthClient = oAuthClientRepository.findById(clientId)
         .orElseThrow(() -> new ClientRegistrationException("Unknown client: " + clientId));
 
     OAuthClientDetails clientDetails = new OAuthClientDetails(oAuthClient);

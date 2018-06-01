@@ -64,7 +64,7 @@ public class VotingServiceTest {
     Player player = new Player();
 
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
-    when(votingSubjectRepository.findOne(votingSubject.getId())).thenReturn(votingSubject);
+    when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
 
     instance.saveVote(vote, player);
     verify(voteRepository).save(vote);
@@ -99,7 +99,7 @@ public class VotingServiceTest {
     Player player = new Player();
 
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.of(new Vote()));
-    when(votingSubjectRepository.findOne(votingSubject.getId())).thenReturn(votingSubject);
+    when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
 
     try {
       instance.saveVote(vote, player);
@@ -142,9 +142,9 @@ public class VotingServiceTest {
     Player player = new Player();
 
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
-    when(votingSubjectRepository.findOne(votingSubject.getId())).thenReturn(votingSubject);
-    when(votingChoiceRepository.findOne(votingChoice.getId())).thenReturn(votingChoice);
-    when(votingChoiceRepository.findOne(votingChoice2.getId())).thenReturn(votingChoice2);
+    when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
+    when(votingChoiceRepository.findById(votingChoice.getId())).thenReturn(Optional.of(votingChoice));
+    when(votingChoiceRepository.findById(votingChoice2.getId())).thenReturn(Optional.of(votingChoice2));
 
     instance.saveVote(vote, player);
     verify(voteRepository).save(vote);
@@ -177,7 +177,7 @@ public class VotingServiceTest {
     Player player = new Player();
 
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
-    when(votingSubjectRepository.findOne(votingSubject.getId())).thenReturn(votingSubject);
+    when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
 
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.VOTING_CHOICE_DOES_NOT_EXIST));
 
@@ -218,9 +218,9 @@ public class VotingServiceTest {
     Player player = new Player();
 
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
-    when(votingSubjectRepository.findOne(votingSubject.getId())).thenReturn(votingSubject);
-    when(votingChoiceRepository.findOne(votingChoice.getId())).thenReturn(votingChoice);
-    when(votingChoiceRepository.findOne(votingChoice2.getId())).thenReturn(votingChoice2);
+    when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
+    when(votingChoiceRepository.findById(votingChoice.getId())).thenReturn(Optional.of(votingChoice));
+    when(votingChoiceRepository.findById(votingChoice2.getId())).thenReturn(Optional.of(votingChoice2));
 
     try {
       instance.saveVote(vote, player);
@@ -261,9 +261,9 @@ public class VotingServiceTest {
     Player player = new Player();
 
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
-    when(votingSubjectRepository.findOne(votingSubject.getId())).thenReturn(votingSubject);
-    when(votingChoiceRepository.findOne(votingChoice.getId())).thenReturn(votingChoice);
-    when(votingChoiceRepository.findOne(votingChoice2.getId())).thenReturn(votingChoice2);
+    when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
+    when(votingChoiceRepository.findById(votingChoice.getId())).thenReturn(Optional.of(votingChoice));
+    when(votingChoiceRepository.findById(votingChoice2.getId())).thenReturn(Optional.of(votingChoice2));
 
     try {
       instance.saveVote(vote, player);
@@ -301,8 +301,8 @@ public class VotingServiceTest {
     Player player = new Player();
 
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
-    when(votingSubjectRepository.findOne(votingSubject.getId())).thenReturn(votingSubject);
-    when(votingChoiceRepository.findOne(votingChoice.getId())).thenReturn(votingChoice);
+    when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
+    when(votingChoiceRepository.findById(votingChoice.getId())).thenReturn(Optional.of(votingChoice));
     try {
       instance.saveVote(vote, player);
     } catch (ApiException e) {

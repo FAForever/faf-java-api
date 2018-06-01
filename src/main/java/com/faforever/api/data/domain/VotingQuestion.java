@@ -11,7 +11,6 @@ import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
-import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.EqualsAndHashCode;
 import lombok.Setter;
@@ -36,7 +35,6 @@ import java.util.Set;
 @Entity
 @Table(name = "voting_question")
 @ReadPermission(expression = "Prefab.Role.All")
-@SharePermission(expression = IsModerator.EXPRESSION)
 @DeletePermission(expression = IsModerator.EXPRESSION)
 @UpdatePermission(expression = IsModerator.EXPRESSION)
 @CreatePermission(expression = IsModerator.EXPRESSION)

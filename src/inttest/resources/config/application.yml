@@ -70,3 +70,8 @@ faf-api:
   mautic:
     client-id: banana
     client-secret: banana
+
+
+logging:
+  level:
+    org.springframework.security: DEBUG

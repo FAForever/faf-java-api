@@ -25,7 +25,8 @@ public class PlayerService {
     if (authentication != null
         && authentication.getPrincipal() != null
         && authentication.getPrincipal() instanceof FafUserDetails) {
-      return playerRepository.findOne(((FafUserDetails) authentication.getPrincipal()).getId());
+      return playerRepository.findById(((FafUserDetails) authentication.getPrincipal()).getId())
+        .orElseThrow(() -> new ApiException(new Error(TOKEN_INVALID)));
     }
     throw new ApiException(new Error(TOKEN_INVALID));
   }

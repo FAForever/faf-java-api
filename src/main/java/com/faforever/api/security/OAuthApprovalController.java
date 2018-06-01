@@ -27,7 +27,8 @@ public class OAuthApprovalController {
   @GetMapping("/confirm_access")
   public ModelAndView confirmAccess(Map<String, Object> model) {
     final AuthorizationRequest authorizationRequest = (AuthorizationRequest) model.get("authorizationRequest");
-    final OAuthClient client = oAuthClientRepository.findOne(authorizationRequest.getClientId());
+    final OAuthClient client = oAuthClientRepository.findById(authorizationRequest.getClientId())
+      .orElseThrow(() -> new IllegalArgumentException("No client with ID: " + authorizationRequest.getClientId()));
     Set<OAuthScope> scopes = getScopesFromScopeString(authorizationRequest.getScope());
 
     return new ModelAndView("oauth_confirm_access")
