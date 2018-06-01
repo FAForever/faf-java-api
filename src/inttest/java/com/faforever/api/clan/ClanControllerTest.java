@@ -67,7 +67,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
   @WithUserDetails(AUTH_CLAN_MEMBER)
   public void meDataWithClan() throws Exception {
     Player player = getPlayer();
-    Clan clan = clanRepository.findOne(1);
+    Clan clan = clanRepository.findById(1).get();
 
     mockMvc.perform(
       get("/clans/me/"))

@@ -106,6 +106,7 @@ tasks.withType(Test) {
 
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
 apply plugin: 'propdeps'
 apply plugin: 'idea'
 
@@ -275,7 +276,9 @@ dependencyManagement {
 }
 
 dependencies {
-  compile("org.springframework.boot:spring-boot-starter-actuator")
+  runtime("org.springframework.boot:spring-boot-properties-migrator")
+  runtime("io.micrometer:micrometer-registry-prometheus")
+
   compile("org.springframework.boot:spring-boot-starter-jdbc")
   compile("org.springframework.boot:spring-boot-starter-data-jpa")
   compile("org.springframework.boot:spring-boot-starter-web")
@@ -283,14 +286,13 @@ dependencies {
   compile("org.springframework.boot:spring-boot-starter-security")
   compile("org.springframework.boot:spring-boot-starter-thymeleaf")
   compile("org.springframework.boot:spring-boot-starter-mail")
-  compile("de.codecentric:spring-boot-admin-starter-client:${springBootAdminClientVersion}")
 
+  compile("com.github.ben-manes.caffeine:caffeine")
   compile("com.github.FAForever:faf-java-commons:${fafCommonsVersion}")
   compile("org.kohsuke:github-api:${githubApiVersion}")
   compile("org.jolokia:jolokia-core")
   compile("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
   compile("org.springframework.security.oauth:spring-security-oauth2:${springSecurityOauth2Version}")
-  compile("org.springframework:spring-context-support:${springContextSupportVersion}")
   compile("org.eclipse.jgit:org.eclipse.jgit:${jgitVersionn}")
   compile("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
   compile("com.google.guava:guava:${guavaVersion}")
@@ -298,6 +300,8 @@ dependencies {
   compile("io.springfox:springfox-swagger2:${swaggerVersion}")
   compile("io.swagger:swagger-core:${swaggerCoreVersion}")
   compile("javax.inject:javax.inject:${javaxInjectVersion}")
+  // When switching from Java 8 to 9, I got "class file for javax.interceptor.interceptorbinding not found". Adding this fixed it, but IDK what caused it.
+  compile("javax.interceptor:javax.interceptor-api:${javaxInterceptorApiVersion}")
   compile("com.yahoo.elide:elide-core:${elideVersion}")
   compile("com.yahoo.elide:elide-swagger:${elideVersion}")
   compile("com.yahoo.elide:elide-datastore-hibernate5:${elideVersion}")
@@ -313,9 +317,6 @@ dependencies {
   compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonDatatypeJsr310Version}")
   compile("com.mandrillapp.wrapper.lutung:lutung:${lutungVersion}")
   compile("org.apache.commons:commons-compress:${commonsCompressVersion}")
-  compile("io.prometheus:simpleclient_hotspot:${prometheusVersion}")
-  compile("io.prometheus:simpleclient_servlet:${prometheusVersion}")
-  compile("io.prometheus:simpleclient_spring_boot:${prometheusVersion}")
   compile("org.json:json:${jsonVersion}")
 
   compile("com.github.jasminb:jsonapi-converter:${jsonapiConverterVersion}")

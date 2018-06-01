@@ -46,14 +46,13 @@ public class VotingService {
       vote.setVotingAnswers(Collections.emptySet());
     }
 
-    VotingSubject subject = votingSubjectRepository.findOne(vote.getVotingSubject().getId());
+    VotingSubject subject = votingSubjectRepository.findById(vote.getVotingSubject().getId())
+      .orElseThrow(() -> new IllegalArgumentException("Subject of vote not found"));
 
     vote.getVotingAnswers().forEach(votingAnswer -> {
       VotingChoice votingChoice = votingAnswer.getVotingChoice();
-      VotingChoice one = votingChoiceRepository.findOne(votingChoice.getId());
-      if (one == null) {
-        throw new ApiException(new Error(ErrorCode.VOTING_CHOICE_DOES_NOT_EXIST, votingChoice.getId()));
-      }
+      VotingChoice one = votingChoiceRepository.findById(votingChoice.getId())
+        .orElseThrow(() -> new ApiException(new Error(ErrorCode.VOTING_CHOICE_DOES_NOT_EXIST, votingChoice.getId())));
       votingAnswer.setVotingChoice(one);
       votingAnswer.setVote(vote);
     });
@@ -97,10 +96,8 @@ public class VotingService {
   }
 
   private List<Error> ableToVote(Player player, int votingSubjectId) {
-    VotingSubject subject = votingSubjectRepository.findOne(votingSubjectId);
-    if (subject == null) {
-      throw new ApiException(new Error(ErrorCode.VOTING_SUBJECT_DOES_NOT_EXIST, votingSubjectId));
-    }
+    VotingSubject subject = votingSubjectRepository.findById(votingSubjectId)
+      .orElseThrow(() -> new ApiException(new Error(ErrorCode.VOTING_SUBJECT_DOES_NOT_EXIST, votingSubjectId)));
 
     List<Error> errors = new ArrayList<>();
     Optional<Vote> byPlayerAndVotingSubject = voteRepository.findByPlayerAndVotingSubjectId(player, votingSubjectId);

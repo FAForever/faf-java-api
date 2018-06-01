@@ -4,7 +4,6 @@ import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.GlobalRating;
 import com.faforever.api.data.domain.Ladder1v1Rating;
 import com.faforever.api.data.domain.NameRecord;
-import com.faforever.api.data.domain.Player;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.email.EmailService;
 import com.faforever.api.error.ApiExceptionWithCode;
@@ -48,7 +47,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -242,7 +240,6 @@ public class UserServiceTest {
   @Test
   public void changeLogin() {
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    when(playerRepository.findOne(TEST_USERID)).thenReturn(mock(Player.class));
     when(nameRecordRepository.getDaysSinceLastNewRecord(anyInt(), anyInt())).thenReturn(Optional.empty());
 
     instance.changeLogin(TEST_USERNAME_CHANGED, user, "127.0.0.1");
@@ -365,7 +362,7 @@ public class UserServiceTest {
         KEY_PASSWORD, TEST_NEW_PASSWORD));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    when(userRepository.findOne(5)).thenReturn(user);
+    when(userRepository.findById(5)).thenReturn(Optional.of(user));
 
     instance.claimPasswordResetToken(TOKEN_VALUE);
 
@@ -423,7 +420,7 @@ public class UserServiceTest {
     when(steamService.ownsForgedAlliance(any())).thenReturn(true);
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    when(userRepository.findOne(5)).thenReturn(user);
+    when(userRepository.findById(5)).thenReturn(Optional.of(user));
 
     SteamLinkResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
 
@@ -438,7 +435,7 @@ public class UserServiceTest {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.TOKEN_INVALID));
 
     when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE)).thenReturn(ImmutableMap.of(KEY_USER_ID, "5"));
-    when(userRepository.findOne(5)).thenReturn(null);
+    when(userRepository.findById(5)).thenReturn(Optional.empty());
 
     instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
     verifyZeroInteractions(mauticService);
@@ -454,7 +451,7 @@ public class UserServiceTest {
     when(steamService.ownsForgedAlliance(any())).thenReturn(false);
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    when(userRepository.findOne(5)).thenReturn(user);
+    when(userRepository.findById(5)).thenReturn(Optional.of(user));
 
     SteamLinkResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
 

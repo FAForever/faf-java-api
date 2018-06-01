@@ -86,19 +86,15 @@ public class ClanService {
 
   @SneakyThrows
   String generatePlayerInvitationToken(Player requester, int newMemberId, int clanId) {
-    Clan clan = clanRepository.findOne(clanId);
+    Clan clan = clanRepository.findById(clanId)
+      .orElseThrow(() -> new ApiException(new Error(ErrorCode.CLAN_NOT_EXISTS, clanId)));
 
-    if (clan == null) {
-      throw new ApiException(new Error(ErrorCode.CLAN_NOT_EXISTS, clanId));
-    }
     if (requester.getId() != clan.getLeader().getId()) {
       throw new ApiException(new Error(ErrorCode.CLAN_NOT_LEADER, clanId));
     }
 
-    Player newMember = playerRepository.findOne(newMemberId);
-    if (newMember == null) {
-      throw new ApiException(new Error(ErrorCode.CLAN_GENERATE_LINK_PLAYER_NOT_FOUND, newMemberId));
-    }
+    Player newMember = playerRepository.findById(newMemberId)
+      .orElseThrow(() -> new ApiException(new Error(ErrorCode.CLAN_GENERATE_LINK_PLAYER_NOT_FOUND, newMemberId)));
 
     long expire = Instant.now()
       .plus(fafApiProperties.getClan().getInviteLinkExpireDurationMinutes(), ChronoUnit.MINUTES)
@@ -121,16 +117,12 @@ public class ClanService {
 
     final Integer clanId = invitation.getClan().getId();
     Player player = playerService.getPlayer(authentication);
-    Clan clan = clanRepository.findOne(clanId);
+    Clan clan = clanRepository.findById(clanId)
+      .orElseThrow(() -> new ApiException(new Error(ErrorCode.CLAN_NOT_EXISTS, clanId)));
 
-    if (clan == null) {
-      throw new ApiException(new Error(ErrorCode.CLAN_NOT_EXISTS, clanId));
-    }
+    Player newMember = playerRepository.findById(invitation.getNewMember().getId())
+      .orElseThrow(() -> new ProgrammingError("ClanMember does not exist: " + invitation.getNewMember().getId()));
 
-    Player newMember = playerRepository.findOne(invitation.getNewMember().getId());
-    if (newMember == null) {
-      throw new ProgrammingError("ClanMember does not exist: " + invitation.getNewMember().getId());
-    }
 
     if (player.getId() != newMember.getId()) {
       throw new ApiException(new Error(ErrorCode.CLAN_ACCEPT_WRONG_PLAYER));

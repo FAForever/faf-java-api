@@ -14,7 +14,7 @@ import com.faforever.api.data.domain.Mod;
 import com.faforever.api.data.domain.ModVersion;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.guava.GuavaCache;
+import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.cache.interceptor.AbstractCacheResolver;
 import org.springframework.cache.interceptor.CacheOperationInvocationContext;
 import org.springframework.cache.interceptor.CacheResolver;
@@ -34,7 +34,7 @@ import static com.faforever.api.featuredmods.FeaturedModService.FEATURED_MOD_FIL
 import static com.faforever.api.leaderboard.LeaderboardService.LEADERBOARD_GLOBAL_CACHE_NAME;
 import static com.faforever.api.leaderboard.LeaderboardService.LEADERBOARD_RANKED_1V1_CACHE_NAME;
 import static com.faforever.api.security.OAuthClientDetailsService.CLIENTS_CACHE_NAME;
-import static com.google.common.cache.CacheBuilder.newBuilder;
+import static com.github.benmanes.caffeine.cache.Caffeine.newBuilder;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -48,24 +48,24 @@ public class CacheConfig {
     SimpleCacheManager cacheManager = new SimpleCacheManager();
     cacheManager.setCaches(Arrays.asList(
       // Elide entity caches
-      new GuavaCache(ElideConfig.DEFAULT_CACHE_NAME, newBuilder().maximumSize(0).build()),
-      new GuavaCache(Avatar.TYPE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
-      new GuavaCache(AvatarAssignment.TYPE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
-      new GuavaCache(Achievement.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
-      new GuavaCache(Clan.TYPE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
-      new GuavaCache(Event.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
-      new GuavaCache(FeaturedMod.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
-      new GuavaCache(Map.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
-      new GuavaCache(MapVersion.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
-      new GuavaCache(MapStatistics.TYPE_NAME, newBuilder().expireAfterWrite(1, MINUTES).build()),
-      new GuavaCache(Mod.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
-      new GuavaCache(ModVersion.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
+      new CaffeineCache(ElideConfig.DEFAULT_CACHE_NAME, newBuilder().maximumSize(0).build()),
+      new CaffeineCache(Avatar.TYPE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
+      new CaffeineCache(AvatarAssignment.TYPE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
+      new CaffeineCache(Achievement.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
+      new CaffeineCache(Clan.TYPE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
+      new CaffeineCache(Event.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
+      new CaffeineCache(FeaturedMod.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
+      new CaffeineCache(Map.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
+      new CaffeineCache(MapVersion.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
+      new CaffeineCache(MapStatistics.TYPE_NAME, newBuilder().expireAfterWrite(1, MINUTES).build()),
+      new CaffeineCache(Mod.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
+      new CaffeineCache(ModVersion.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
       // Other caches
-      new GuavaCache(CHALLONGE_READ_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
-      new GuavaCache(LEADERBOARD_RANKED_1V1_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
-      new GuavaCache(LEADERBOARD_GLOBAL_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
-      new GuavaCache(FEATURED_MOD_FILES_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
-      new GuavaCache(CLIENTS_CACHE_NAME, newBuilder().expireAfterWrite(5, SECONDS).build())
+      new CaffeineCache(CHALLONGE_READ_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
+      new CaffeineCache(LEADERBOARD_RANKED_1V1_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
+      new CaffeineCache(LEADERBOARD_GLOBAL_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
+      new CaffeineCache(FEATURED_MOD_FILES_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
+      new CaffeineCache(CLIENTS_CACHE_NAME, newBuilder().expireAfterWrite(5, SECONDS).build())
     ));
     return cacheManager;
   }
