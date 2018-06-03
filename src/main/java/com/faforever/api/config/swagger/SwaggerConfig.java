@@ -60,6 +60,7 @@ public class SwaggerConfig {
       regex("/users/.*"),
       regex("/mods/.*"),
       regex("/maps/.*"),
-      regex("/leaderboards/.*"));
+      regex("/leaderboards/.*"),
+      regex("/voting/.*"));
   }
 }

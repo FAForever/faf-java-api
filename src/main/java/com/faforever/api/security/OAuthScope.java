@@ -16,7 +16,9 @@ public enum OAuthScope {
   UPLOAD_MOD(OAuthScope._UPLOAD_MOD, "Upload mods"),
   UPLOAD_AVATAR(OAuthScope._UPLOAD_AVATAR, "Upload avatars"),
   WRITE_ACCOUNT_DATA(OAuthScope._WRITE_ACCOUNT_DATA, "Edit account data"),
-  EDIT_CLAN_DATA(OAuthScope._EDIT_CLAN_DATA, "Edit clan data");
+  EDIT_CLAN_DATA(OAuthScope._EDIT_CLAN_DATA, "Edit clan data"),
+  VOTE(OAuthScope._VOTE, "Vote");
+
 
   public static final String _PUBLIC_PROFILE = "public_profile";
   public static final String _CREATE_USER = "create_user";
@@ -29,6 +31,7 @@ public enum OAuthScope {
   public static final String _UPLOAD_AVATAR = "upload_avatar";
   public static final String _WRITE_ACCOUNT_DATA = "write_account_data";
   public static final String _EDIT_CLAN_DATA = "edit_clan_data";
+  public static final String _VOTE = "vote";
 
   private static final Map<String, OAuthScope> fromString;
 
