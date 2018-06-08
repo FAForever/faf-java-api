@@ -1,6 +1,8 @@
-package com.faforever.api.data.domain;
+package com.faforever.api.data.listeners;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.data.domain.FeaturedMod;
+import com.faforever.api.data.domain.FeaturedModEnricher;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,7 +17,7 @@ public class FeaturedModEnricherTest {
   private FeaturedModEnricher featuredModEnricher;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     FafApiProperties fafApiProperties = new FafApiProperties();
     fafApiProperties.getFeaturedMod().setBireusUrlFormat("http://example.com/%s");
 
@@ -25,7 +27,7 @@ public class FeaturedModEnricherTest {
   }
 
   @Test
-  public void enrich() throws Exception {
+  public void enrich() {
     FeaturedMod featuredMod = new FeaturedMod();
     featuredMod.setTechnicalName("faf");
 
