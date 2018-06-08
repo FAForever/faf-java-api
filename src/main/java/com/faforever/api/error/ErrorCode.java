@@ -86,7 +86,9 @@ public enum ErrorCode {
   VOTE_ALREADY_ENDED(176, "Vote ended  already", "You can not vote if the voting has already finished. Vote ended at ''{0}''."),
   MALFORMATTED_ALTERNATIVE_ORDINALS(177, "You have malformatted alternative ordinals", "Check your preference ordinals. You might have left out an option in between."),
   VOTED_TWICE_ON_ONE_OPTION(178, "Selected one option twice", "You can not vote twice for one option. Voting Choice with id ''{0}'' was selected twice."),
-  CAN_NOT_REVEAL_RESULTS_WHEN_VOTING_IS_NOT_FINISHED(179, "Vote still ongoing", "You can reveal results when voting is ongoing. Please set reveal results only after voting finished.");
+  CAN_NOT_REVEAL_RESULTS_WHEN_VOTING_IS_NOT_FINISHED(179, "Vote still ongoing", "You can reveal results when voting is ongoing. Please set reveal results only after voting finished."),
+  VOTING_SUBJECT_DOES_NOT_EXIST(180, "Voting subject does not exist", "There is no voting subject with the ID ''{0}''."),
+  VOTING_CHOICE_DOES_NOT_EXIST(181, "Invalid choice", "There is no voting choice with the ID ''{0}''.");
 
   private final int code;
   private final String title;

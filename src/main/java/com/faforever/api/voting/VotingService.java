@@ -10,7 +10,6 @@ import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.game.GamePlayerStatsRepository;
-import com.faforever.api.player.PlayerRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -19,6 +18,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -28,14 +28,12 @@ public class VotingService {
   private final VotingSubjectRepository votingSubjectRepository;
   private final GamePlayerStatsRepository gamePlayerStatsRepository;
   private final VotingChoiceRepository votingChoiceRepository;
-  private final PlayerRepository playerRepository;
 
-  public VotingService(VoteRepository voteRepository, VotingSubjectRepository votingSubjectRepository, GamePlayerStatsRepository gamePlayerStatsRepository, VotingChoiceRepository votingChoiceRepository, PlayerRepository playerRepository) {
+  public VotingService(VoteRepository voteRepository, VotingSubjectRepository votingSubjectRepository, GamePlayerStatsRepository gamePlayerStatsRepository, VotingChoiceRepository votingChoiceRepository) {
     this.voteRepository = voteRepository;
     this.votingSubjectRepository = votingSubjectRepository;
     this.gamePlayerStatsRepository = gamePlayerStatsRepository;
     this.votingChoiceRepository = votingChoiceRepository;
-    this.playerRepository = playerRepository;
   }
 
   @Transactional
@@ -53,6 +51,9 @@ public class VotingService {
     vote.getVotingAnswers().forEach(votingAnswer -> {
       VotingChoice votingChoice = votingAnswer.getVotingChoice();
       VotingChoice one = votingChoiceRepository.findOne(votingChoice.getId());
+      if (one == null) {
+        throw new ApiException(new Error(ErrorCode.VOTING_CHOICE_DOES_NOT_EXIST, votingChoice.getId()));
+      }
       votingAnswer.setVotingChoice(one);
       votingAnswer.setVote(vote);
     });
@@ -80,7 +81,7 @@ public class VotingService {
         for (int i = 0; i < countOfAnswers; i++) {
           int finalI = i;
           long answersWithOrdinal = votingAnswers.stream()
-            .filter(votingAnswer -> votingAnswer.getAlternativeOrdinal() == Integer.valueOf(finalI))
+            .filter(votingAnswer -> Objects.equals(votingAnswer.getAlternativeOrdinal(), finalI))
             .count();
           if (answersWithOrdinal == 1) {
             continue;
@@ -95,13 +96,18 @@ public class VotingService {
     voteRepository.save(vote);
   }
 
-  List<Error> ableToVote(Player player, int votingSubjectId) {
+  private List<Error> ableToVote(Player player, int votingSubjectId) {
+    VotingSubject subject = votingSubjectRepository.findOne(votingSubjectId);
+    if (subject == null) {
+      throw new ApiException(new Error(ErrorCode.VOTING_SUBJECT_DOES_NOT_EXIST, votingSubjectId));
+    }
+
     List<Error> errors = new ArrayList<>();
     Optional<Vote> byPlayerAndVotingSubject = voteRepository.findByPlayerAndVotingSubjectId(player, votingSubjectId);
     if (byPlayerAndVotingSubject.isPresent()) {
       errors.add(new Error(ErrorCode.VOTED_TWICE));
     }
-    VotingSubject subject = votingSubjectRepository.findOne(votingSubjectId);
+
     int gamesPlayed = gamePlayerStatsRepository.countByPlayerAndGameValidity(player, Validity.VALID);
 
     if (subject.getBeginOfVoteTime().isAfter(OffsetDateTime.now())) {
@@ -116,10 +122,6 @@ public class VotingService {
       errors.add(new Error(ErrorCode.NOT_ENOUGH_GAMES, gamesPlayed, subject.getMinGamesToVote()));
     }
     return errors;
-  }
-
-  List<VotingSubject> votingSubjectsAbleToVote(int userId) {
-    return votingSubjectsAbleToVote(playerRepository.findOne(userId));
   }
 
   List<VotingSubject> votingSubjectsAbleToVote(Player player) {

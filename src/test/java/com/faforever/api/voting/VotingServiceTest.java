@@ -7,11 +7,13 @@ import com.faforever.api.data.domain.VotingChoice;
 import com.faforever.api.data.domain.VotingQuestion;
 import com.faforever.api.data.domain.VotingSubject;
 import com.faforever.api.error.ApiException;
+import com.faforever.api.error.ApiExceptionWithCode;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.game.GamePlayerStatsRepository;
-import com.faforever.api.player.PlayerRepository;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -29,6 +31,9 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VotingServiceTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
   private VotingService instance;
   @Mock
   private VoteRepository voteRepository;
@@ -38,12 +43,10 @@ public class VotingServiceTest {
   private GamePlayerStatsRepository gamePlayerStatsRepository;
   @Mock
   private VotingChoiceRepository votingChoiceRepository;
-  @Mock
-  private PlayerRepository playerRepository;
 
   @Before
   public void setUp() {
-    instance = new VotingService(voteRepository, votingSubjectRepository, gamePlayerStatsRepository, votingChoiceRepository, playerRepository);
+    instance = new VotingService(voteRepository, votingSubjectRepository, gamePlayerStatsRepository, votingChoiceRepository);
   }
 
   @Test
@@ -67,6 +70,19 @@ public class VotingServiceTest {
     verify(voteRepository).save(vote);
   }
 
+  @Test
+  public void saveVoteInvalidVoteId() {
+    Vote vote = new Vote();
+    VotingSubject votingSubject = new VotingSubject();
+    votingSubject.setId(1);
+
+    vote.setVotingSubject(votingSubject);
+
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.VOTING_SUBJECT_DOES_NOT_EXIST));
+
+    instance.saveVote(vote, new Player());
+    verify(voteRepository, never()).save(vote);
+  }
 
   @Test
   public void notSaveVoteIfUserVotedAlready() {
@@ -132,6 +148,41 @@ public class VotingServiceTest {
 
     instance.saveVote(vote, player);
     verify(voteRepository).save(vote);
+  }
+
+  @Test
+  public void saveVoteInvalidChoiceId() {
+    VotingSubject votingSubject = new VotingSubject();
+    votingSubject.setId(1);
+    votingSubject.setBeginOfVoteTime(OffsetDateTime.now());
+    votingSubject.setEndOfVoteTime(OffsetDateTime.MAX);
+
+    VotingQuestion votingQuestion = new VotingQuestion();
+    votingQuestion.setAlternativeQuestion(true);
+    votingSubject.setVotingQuestions(Collections.singleton(votingQuestion));
+    votingQuestion.setMaxAnswers(2);
+
+    Vote vote = new Vote();
+
+    VotingAnswer votingAnswer = new VotingAnswer();
+    VotingChoice votingChoice = new VotingChoice();
+    votingChoice.setId(1);
+    votingChoice.setVotingQuestion(votingQuestion);
+    votingAnswer.setVotingChoice(votingChoice);
+    votingAnswer.setAlternativeOrdinal(0);
+
+    vote.setVotingAnswers(new HashSet<>(Collections.singletonList(votingAnswer)));
+
+    vote.setVotingSubject(votingSubject);
+    Player player = new Player();
+
+    when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
+    when(votingSubjectRepository.findOne(votingSubject.getId())).thenReturn(votingSubject);
+
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.VOTING_CHOICE_DOES_NOT_EXIST));
+
+    instance.saveVote(vote, player);
+    verify(voteRepository, never()).save(vote);
   }
 
   @Test
