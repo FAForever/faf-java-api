@@ -48,8 +48,8 @@ public class VotingChoice extends AbstractEntity {
   private String choiceText;
   private String descriptionKey;
   private String description;
-  private int numberOfAnswers;
-  private int ordinal;
+  private Integer numberOfAnswers;
+  private Integer ordinal;
   private VotingQuestion votingQuestion;
   private Set<VotingAnswer> votingAnswers;
 
@@ -78,7 +78,7 @@ public class VotingChoice extends AbstractEntity {
 
   @Column(name = "ordinal")
   @NotNull
-  public int getOrdinal() {
+  public Integer getOrdinal() {
     return ordinal;
   }
 

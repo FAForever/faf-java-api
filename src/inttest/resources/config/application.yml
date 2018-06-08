@@ -43,6 +43,8 @@ faf-api:
     image-height: 20
   clan:
     website-url-format: "http://example.com/%s"
+  tutorial:
+    thumbnail-url-format: "http://test.com/faf/tutorials/%s/xyz"
   user:
     minimum-days-between-username-change: 30
   mail:
