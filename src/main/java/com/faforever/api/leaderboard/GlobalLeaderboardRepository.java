@@ -19,6 +19,11 @@ public interface GlobalLeaderboardRepository extends Repository<GlobalLeaderboar
     "  FROM global_rating JOIN login on login.id = global_rating.id," +
     "    (SELECT @s \\:= ?#{#pageable.offset}) AS s" +
     "  WHERE is_active = 1" +
+    "   AND login.id NOT IN (" +
+    "     SELECT player_id FROM ban" +
+    "     LEFT JOIN ban_revoke on ban.id = ban_revoke.ban_id" +
+    "     WHERE (expires_at is null or expires_at <= NOW()) AND ban_revoke.ban_id IS NULL" +
+    "  ) " +
     "  ORDER BY round(mean - 3 * deviation) DESC \n#pageable\n",
     countQuery = "SELECT count(*) FROM ladder1v1_rating WHERE is_active = 1 AND ladder1v1_rating.numGames > 0",
     nativeQuery = true)
@@ -34,6 +39,11 @@ public interface GlobalLeaderboardRepository extends Repository<GlobalLeaderboar
     "FROM global_rating JOIN login on login.id = global_rating.id,\n" +
     "(SELECT @s \\:= 0) AS s\n" +
     "WHERE is_active = 1\n" +
+    "   AND login.id NOT IN (" +
+    "     SELECT player_id FROM ban" +
+    "     LEFT JOIN ban_revoke on ban.id = ban_revoke.ban_id" +
+    "     WHERE (expires_at is null or expires_at <= NOW()) AND ban_revoke.ban_id IS NULL" +
+    "  ) " +
     "ORDER BY round(mean - 3 * deviation) DESC) as leaderboard WHERE id = :playerId", nativeQuery = true)
   GlobalLeaderboardEntry findByPlayerId(@Param("playerId") int playerId);
 }
