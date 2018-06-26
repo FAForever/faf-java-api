@@ -81,15 +81,6 @@ public class AvatarElideTest extends AbstractIntegrationTest {
         ))
     ).andExpect(status().isCreated());
     Optional<AvatarAssignment> createdAssignment = avatarAssignmentRepository.findOneByAvatarIdAndPlayerId(1, 1);
-    createdAssignment = avatarAssignmentRepository.findOneByAvatarAndPlayer(avatar, player);
-    createdAssignment = avatarAssignmentRepository.findOneByAvatarAndPlayer(avatar, player);
-    createdAssignment = avatarAssignmentRepository.findOneByAvatarAndPlayer(avatar, player);
-    createdAssignment = avatarAssignmentRepository.findOneByAvatarAndPlayer(avatar, player);
-    createdAssignment = avatarAssignmentRepository.findOneByAvatarAndPlayer(avatar, player);
-    createdAssignment = avatarAssignmentRepository.findOneByAvatarAndPlayer(avatar, player);
-    createdAssignment = avatarAssignmentRepository.findOneByAvatarAndPlayer(avatar, player);
-    createdAssignment = avatarAssignmentRepository.findOneByAvatarAndPlayer(avatar, player);
-    createdAssignment = avatarAssignmentRepository.findOneByAvatarAndPlayer(avatar, player);
     assertThat(createdAssignment.isPresent(), is(true));
     assertThat(createdAssignment.get().getPlayer().getId(), is(player.getId()));
     assertThat(createdAssignment.get().getAvatar().getId(), is(avatar.getId()));
