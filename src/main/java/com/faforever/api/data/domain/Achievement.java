@@ -12,13 +12,16 @@ import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.SecondaryTable;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "achievement_definitions")
+@SecondaryTable(name = "achievement_statistics", pkJoinColumns = @PrimaryKeyJoinColumn(name = "achievement_id", referencedColumnName = "id"))
 @Include(rootLevel = true, type = Achievement.TYPE_NAME)
 @EntityListeners(AchievementLocalizationListener.class)
 @Setter
@@ -38,7 +41,11 @@ public class Achievement {
   private int experiencePoints;
   private OffsetDateTime createTime;
   private OffsetDateTime updateTime;
-  private AchievementStatistics statistics;
+  private long unlockersCount;
+  private BigDecimal unlockersPercent;
+  private Long unlockersMinDuration;
+  private Long unlockersAvgDuration;
+  private Long unlockersMaxDuration;
 
   // Set by AchievementLocalizationListener
   private String name;
@@ -121,9 +128,28 @@ public class Achievement {
     return updateTime;
   }
 
-  // Fetching eagerly for cheaper JOIN instead of expensive SELECT (each achievement statistics select costs about 1s)
-  @OneToOne(mappedBy = "achievement")
-  public AchievementStatistics getStatistics() {
-    return statistics;
+  @Column(name = "unlockers_count", table = "achievement_statistics")
+  public long getUnlockersCount() {
+    return unlockersCount;
+  }
+
+  @Column(name = "unlockers_percent", table = "achievement_statistics")
+  public BigDecimal getUnlockersPercent() {
+    return unlockersPercent;
+  }
+
+  @Column(name = "unlockers_min_duration", table = "achievement_statistics")
+  public Long getUnlockersMinDuration() {
+    return unlockersMinDuration;
+  }
+
+  @Column(name = "unlockers_avg_duration", table = "achievement_statistics")
+  public Long getUnlockersAvgDuration() {
+    return unlockersAvgDuration;
+  }
+
+  @Column(name = "unlockers_max_duration", table = "achievement_statistics")
+  public Long getUnlockersMaxDuration() {
+    return unlockersMaxDuration;
   }
 }
