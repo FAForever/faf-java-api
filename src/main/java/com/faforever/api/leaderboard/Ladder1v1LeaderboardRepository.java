@@ -23,7 +23,7 @@ public interface Ladder1v1LeaderboardRepository extends Repository<Ladder1v1Lead
     "   AND login.id NOT IN (" +
     "     SELECT player_id FROM ban" +
     "     LEFT JOIN ban_revoke on ban.id = ban_revoke.ban_id" +
-    "     WHERE (expires_at is null or expires_at <= NOW()) AND ban_revoke.ban_id IS NULL" +
+    "     WHERE (expires_at is null or expires_at > NOW()) AND ban_revoke.ban_id IS NULL" +
     "  ) " +
     "  ORDER BY round(mean - 3 * deviation) DESC \n#pageable\n",
     countQuery = "SELECT count(*) FROM ladder1v1_rating WHERE is_active = 1 AND ladder1v1_rating.numGames > 0",
@@ -44,7 +44,7 @@ public interface Ladder1v1LeaderboardRepository extends Repository<Ladder1v1Lead
     "   AND login.id NOT IN (" +
     "     SELECT player_id FROM ban" +
     "     LEFT JOIN ban_revoke on ban.id = ban_revoke.ban_id" +
-    "     WHERE (expires_at is null or expires_at <= NOW()) AND ban_revoke.ban_id IS NULL" +
+    "     WHERE (expires_at is null or expires_at > NOW()) AND ban_revoke.ban_id IS NULL" +
     "  ) " +
     "ORDER BY round(mean - 3 * deviation) DESC) as leaderboard WHERE id = :playerId", nativeQuery = true)
   Ladder1v1LeaderboardEntry findByPlayerId(@Param("playerId") int playerId);
