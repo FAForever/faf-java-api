@@ -222,6 +222,42 @@ public class MapServiceTest {
   }
 
   @Test
+  public void positiveUploadTestWithProblematicCharacters() throws IOException {
+    String zipFilename = "scmp_037_no_ascii.zip";
+    when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
+    try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
+      byte[] mapData = ByteStreams.toByteArray(inputStream);
+
+      Path tmpDir = temporaryDirectory.getRoot().toPath();
+      instance.uploadMap(mapData, zipFilename, author, true);
+
+      ArgumentCaptor<com.faforever.api.data.domain.Map> mapCaptor = ArgumentCaptor.forClass(com.faforever.api.data.domain.Map.class);
+      verify(mapRepository, Mockito.times(1)).save(mapCaptor.capture());
+      assertEquals("No_Ascii", mapCaptor.getValue().getDisplayName());
+      assertEquals("skirmish", mapCaptor.getValue().getMapType());
+      assertEquals("FFA", mapCaptor.getValue().getBattleType());
+      assertEquals(1, mapCaptor.getValue().getVersions().size());
+
+      MapVersion mapVersion = mapCaptor.getValue().getVersions().get(0);
+      assertEquals("The thick, brackish water clings to everything, staining anything it touches. If it weren't for this planet's proximity to the Quarantine Zone, no one would ever bother coming here.", mapVersion.getDescription());
+      assertEquals(1, mapVersion.getVersion());
+      assertEquals(256, mapVersion.getHeight());
+      assertEquals(256, mapVersion.getWidth());
+      assertEquals(3, mapVersion.getMaxPlayers());
+      assertEquals("maps/no_ascii.v0001.zip", mapVersion.getFilename());
+
+      assertFalse(Files.exists(tmpDir));
+
+      Path generatedFile = finalDirectory.getRoot().toPath().resolve("no_ascii.v0001.zip");
+      assertTrue(Files.exists(generatedFile));
+
+      assertTrue(Files.exists(mapProperties.getDirectoryPreviewPathLarge().resolve("no_ascii.v0001.png")));
+      assertTrue(Files.exists(mapProperties.getDirectoryPreviewPathSmall().resolve("no_ascii.v0001.png")));
+
+    }
+  }
+
+  @Test
   public void positiveUploadTest() throws IOException {
     String zipFilename = "scmp_037.zip";
     when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
@@ -233,7 +269,7 @@ public class MapServiceTest {
 
       ArgumentCaptor<com.faforever.api.data.domain.Map> mapCaptor = ArgumentCaptor.forClass(com.faforever.api.data.domain.Map.class);
       verify(mapRepository, Mockito.times(1)).save(mapCaptor.capture());
-      assertEquals("Sludge_Test", mapCaptor.getValue().getDisplayName());
+      assertEquals("sludge_test", mapCaptor.getValue().getDisplayName());
       assertEquals("skirmish", mapCaptor.getValue().getMapType());
       assertEquals("FFA", mapCaptor.getValue().getBattleType());
       assertEquals(1, mapCaptor.getValue().getVersions().size());

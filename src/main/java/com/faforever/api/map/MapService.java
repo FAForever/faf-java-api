@@ -9,6 +9,7 @@ import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.error.ProgrammingError;
+import com.faforever.api.utils.FileNameUtil;
 import com.faforever.api.utils.FilePermissionUtil;
 import com.faforever.commons.io.Unzipper;
 import com.faforever.commons.io.Zipper;
@@ -72,6 +73,8 @@ public class MapService {
   public void uploadMap(byte[] mapData, String mapFilename, Player author, boolean isRanked) {
     Assert.notNull(author, "'author' must not be null");
     Assert.isTrue(mapData.length > 0, "'mapData' must not be empty");
+
+    mapFilename = FileNameUtil.normalizeFileName(mapFilename);
 
     MapUploadData progressData = new MapUploadData()
       .setBaseDir(contentService.createTempDir())
@@ -238,7 +241,8 @@ public class MapService {
     if (map == null) {
       map = new Map();
     }
-    map.setDisplayName(scenarioInfo.get(ScenarioMapInfo.NAME).toString())
+    String name = FileNameUtil.normalizeFileName(scenarioInfo.get(ScenarioMapInfo.NAME).toString());
+    map.setDisplayName(name)
       .setMapType(scenarioInfo.get(ScenarioMapInfo.TYPE).tojstring())
       .setBattleType(scenarioInfo.get(ScenarioMapInfo.CONFIGURATIONS).get(ScenarioMapInfo.CONFIGURATION_STANDARD).get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS).get(1)
         .get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS_NAME).tojstring())
