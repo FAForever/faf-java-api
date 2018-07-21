@@ -9,7 +9,6 @@ import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
-import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 
@@ -23,7 +22,6 @@ import javax.persistence.Table;
 @Table(name = "messages")
 @Setter
 @Include(rootLevel = true)
-@SharePermission(expression = IsModerator.EXPRESSION)
 @DeletePermission(expression = IsModerator.EXPRESSION)
 @UpdatePermission(expression = IsModerator.EXPRESSION)
 @CreatePermission(expression = IsModerator.EXPRESSION)
