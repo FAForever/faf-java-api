@@ -11,7 +11,6 @@ import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
-import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 
@@ -32,7 +31,6 @@ import java.util.List;
 @Table(name = "tutorial_category")
 @Setter
 @Include(rootLevel = true, type = TutorialCategory.TYPE_NAME)
-@SharePermission(expression = IsModerator.EXPRESSION)
 @DeletePermission(expression = IsModerator.EXPRESSION)
 @UpdatePermission(expression = IsModerator.EXPRESSION)
 @CreatePermission(expression = IsModerator.EXPRESSION)

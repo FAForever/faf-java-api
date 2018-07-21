@@ -10,7 +10,6 @@ import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
-import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +27,6 @@ import javax.validation.constraints.NotNull;
 @Table(name = "tutorial")
 @Setter
 @Include(rootLevel = true, type = Tutorial.TYPE_NAME)
-@SharePermission(expression = IsModerator.EXPRESSION)
 @DeletePermission(expression = IsModerator.EXPRESSION)
 @UpdatePermission(expression = IsModerator.EXPRESSION)
 @CreatePermission(expression = IsModerator.EXPRESSION)
