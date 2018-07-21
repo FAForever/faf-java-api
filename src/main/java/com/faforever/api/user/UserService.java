@@ -258,7 +258,7 @@ public class UserService {
     int userId = Integer.parseInt(claims.get(KEY_USER_ID));
     String newPassword = claims.get(KEY_PASSWORD);
     User user = userRepository.findById(userId)
-      .orElseThrow(() -> new ApiException(new Error(ErrorCode.TOKEN_INVALID)));
+      .orElseThrow(() -> new ApiException(new Error(TOKEN_INVALID)));
 
     setPassword(user, newPassword);
   }
@@ -305,7 +305,7 @@ public class UserService {
     Map<String, String> attributes = fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, token);
 
     User user = userRepository.findById(Integer.parseInt(attributes.get(KEY_USER_ID)))
-      .orElseThrow(() -> new ApiException(new Error(ErrorCode.TOKEN_INVALID)));
+      .orElseThrow(() -> new ApiException(new Error(TOKEN_INVALID)));
 
     String callbackUrl = attributes.get(KEY_STEAM_LINK_CALLBACK_URL);
     if (!steamService.ownsForgedAlliance(steamId)) {

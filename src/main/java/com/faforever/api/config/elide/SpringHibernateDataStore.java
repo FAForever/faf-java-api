@@ -127,6 +127,7 @@ public class SpringHibernateDataStore implements DataStore {
           // Turns out that hibernate may include non-entity types in this list when using things
           // like envers. Since they are not entities, we do not want to bind them into the entity
           // dictionary
+          logger.debug("Ignoring entity", e);
         }
       });
   }
