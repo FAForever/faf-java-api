@@ -199,6 +199,7 @@ task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
 
 apply plugin: 'com.bmuschko.docker-remote-api'
 apply plugin: 'application'
+mainClassName = 'com.faforever.api.FafApiApplication'
 
 import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
