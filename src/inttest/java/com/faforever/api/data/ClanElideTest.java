@@ -135,7 +135,7 @@ public class ClanElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/clan/1")
         .content(generateTransferLeadershipContent(1, 1))) // magic value from prepClanData.sql
-      .andExpect(status().is5xxServerError()); // TODO: Catch javax.validation.ConstraintViolationException and wrap it into a regular ApiException
+      .andExpect(status().is4xxClientError()); // TODO: Catch javax.validation.ConstraintViolationException and wrap it into a regular ApiException
   }
 
   @SneakyThrows

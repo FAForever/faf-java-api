@@ -4,9 +4,6 @@ import com.faforever.api.data.domain.VotingAnswer;
 import com.faforever.api.data.domain.VotingChoice;
 import com.faforever.api.data.domain.VotingQuestion;
 import com.faforever.api.data.domain.VotingSubject;
-import com.faforever.api.error.ApiException;
-import com.faforever.api.error.Error;
-import com.faforever.api.error.ErrorCode;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -40,12 +37,8 @@ public class VotingSubjectEnricher {
 
   @PreUpdate
   public void preUpdate(VotingSubject votingSubject) {
-    if (votingSubject.getEndOfVoteTime().isAfter(OffsetDateTime.now()) && votingSubject.getRevealWinner()) {
-      throw new ApiException(new Error(ErrorCode.CAN_NOT_REVEAL_RESULTS_WHEN_VOTING_IS_NOT_FINISHED));
-    }
     updateWinners(votingSubject);
   }
-
 
   private void updateWinners(VotingSubject votingSubject) {
     votingSubject.getVotingQuestions().forEach(this::calculateWinners);

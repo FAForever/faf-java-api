@@ -199,7 +199,7 @@ public class VotingElideTest extends AbstractIntegrationTest {
   @WithUserDetails(AUTH_MODERATOR)
   public void testRevealWinnerOnNoneEndedSubjectFails() throws Exception {
     mockMvc.perform(patch("/data/votingSubject/1").content(PATCH_VOTING_SUBJECT_REVEAL_ID_1))
-      .andExpect(status().is(500));
+      .andExpect(status().is4xxClientError());
   }
 
   @Test

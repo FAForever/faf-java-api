@@ -19,10 +19,6 @@ spring:
     console:
       enabled: true
 
-security:
-  oauth2:
-    resource:
-      filter-order: 3
 
 faf-api:
   jwt:

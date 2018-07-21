@@ -2,6 +2,7 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.permission.IsModerator;
 import com.faforever.api.data.listeners.VotingSubjectEnricher;
+import com.faforever.api.data.validation.VotingSubjectRevealWinnerCheck;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.yahoo.elide.annotation.Audit;
@@ -39,6 +40,7 @@ import java.util.Set;
 @Audit(action = Action.UPDATE, logStatement = "Updated voting subject with id: {0}", logExpressions = {"${votingSubject.id}"})
 @Setter
 @EntityListeners(VotingSubjectEnricher.class)
+@VotingSubjectRevealWinnerCheck
 public class VotingSubject extends AbstractEntity {
   public static final String TYPE_NAME = "votingSubject";
 

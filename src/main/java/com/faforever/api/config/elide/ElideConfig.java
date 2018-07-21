@@ -14,17 +14,18 @@ import com.yahoo.elide.Elide;
 import com.yahoo.elide.ElideSettingsBuilder;
 import com.yahoo.elide.core.EntityDictionary;
 import com.yahoo.elide.core.filter.dialect.RSQLFilterDialect;
-import com.yahoo.elide.datastores.hibernate5.AbstractHibernateStore;
 import com.yahoo.elide.jsonapi.JsonApiMapper;
 import com.yahoo.elide.security.checks.Check;
 import com.yahoo.elide.utils.coerce.CoerceUtil;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
-import org.hibernate.SessionFactory;
+import org.hibernate.ScrollMode;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
 
-import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityManager;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -36,12 +37,12 @@ public class ElideConfig {
   public static final String DEFAULT_CACHE_NAME = "Elide.defaultCache";
 
   @Bean
-  public Elide elide(AbstractHibernateStore hibernateStore, ObjectMapper objectMapper, EntityDictionary entityDictionary, ExtendedAuditLogger extendedAuditLogger) {
+  public Elide elide(SpringHibernateDataStore springHibernateDataStore, ObjectMapper objectMapper, EntityDictionary entityDictionary, ExtendedAuditLogger extendedAuditLogger) {
     RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary);
 
     registerAdditionalConverters();
 
-    return new Elide(new ElideSettingsBuilder(hibernateStore)
+    return new Elide(new ElideSettingsBuilder(springHibernateDataStore)
       .withJsonApiMapper(new JsonApiMapper(entityDictionary, objectMapper))
       .withAuditLogger(extendedAuditLogger)
       .withEntityDictionary(entityDictionary)
@@ -51,8 +52,10 @@ public class ElideConfig {
   }
 
   @Bean
-  AbstractHibernateStore hibernateStore(EntityManagerFactory entityManagerFactory) {
-    return new AbstractHibernateStore.Builder(entityManagerFactory.unwrap(SessionFactory.class)).build();
+  SpringHibernateDataStore springHibernateDataStore(PlatformTransactionManager txManager,
+                                                    AutowireCapableBeanFactory beanFactory,
+                                                    EntityManager entityManager) {
+    return new SpringHibernateDataStore(txManager, beanFactory, entityManager, false, true, ScrollMode.FORWARD_ONLY);
   }
 
   /**
