@@ -277,7 +277,6 @@ dependencyManagement {
 }
 
 dependencies {
-  runtime("org.springframework.boot:spring-boot-properties-migrator")
   runtime("io.micrometer:micrometer-registry-prometheus")
 
   compile("org.springframework.boot:spring-boot-starter-jdbc")
