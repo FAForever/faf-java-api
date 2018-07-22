@@ -68,11 +68,6 @@ server:
   jetty:
     max-http-post-size: 314572800
 
-security:
-  oauth2:
-    resource:
-      filter-order: 3
-
 management:
   port: 8011
   security:
