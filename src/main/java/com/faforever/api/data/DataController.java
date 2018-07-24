@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -41,11 +40,11 @@ public class DataController {
     return authentication != null ? authentication.getPrincipal() : null;
   }
 
+  //!!! No @Transactional - transactions are being handled by Elide
   @RequestMapping(
     method = RequestMethod.GET,
     produces = JSON_API_MEDIA_TYPE,
     value = {"/{entity}", "/{entity}/{id}/relationships/{entity2}", "/{entity}/{id}/{child}", "/{entity}/{id}"})
-  @Transactional(readOnly = true)
   @Cacheable(cacheResolver = "elideCacheResolver", keyGenerator = GetCacheKeyGenerator.NAME)
   public ResponseEntity<String> get(@RequestParam final Map<String, String> allRequestParams,
                                     final HttpServletRequest request,
@@ -58,11 +57,11 @@ public class DataController {
     return wrapResponse(response);
   }
 
+  //!!! No @Transactional - transactions are being handled by Elide
   @RequestMapping(
     method = RequestMethod.POST,
     produces = JSON_API_MEDIA_TYPE,
     value = {"/{entity}", "/{entity}/{id}/relationships/{entity2}", "/{entity}/{id}/{child}", "/{entity}/{id}"})
-  @Transactional
   @Cacheable(cacheResolver = "elideCacheResolver")
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<String> post(@RequestBody final String body,
@@ -76,11 +75,11 @@ public class DataController {
     return wrapResponse(response);
   }
 
+  //!!! No @Transactional - transactions are being handled by Elide
   @RequestMapping(
     method = RequestMethod.PATCH,
     produces = JSON_API_MEDIA_TYPE,
     value = {"/{entity}/{id}", "/{entity}/{id}/relationships/{entity2}"})
-  @Transactional
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<String> patch(@RequestBody final String body,
                                       final HttpServletRequest request,
@@ -94,11 +93,11 @@ public class DataController {
     return wrapResponse(response);
   }
 
+  //!!! No @Transactional - transactions are being handled by Elide
   @RequestMapping(
     method = RequestMethod.DELETE,
     produces = JSON_API_MEDIA_TYPE,
     value = {"/{entity}/{id}", "/{entity}/{id}/relationships/{entity2}"})
-  @Transactional
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<String> delete(final HttpServletRequest request,
                                        final Authentication authentication) {

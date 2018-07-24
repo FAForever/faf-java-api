@@ -41,7 +41,8 @@ DELETE FROM login;
 
 INSERT INTO oauth_clients (id, name, client_secret, client_type, redirect_uris, default_redirect_uri, default_scope)
 VALUES
-  ('test', 'test', 'test', 'public', 'http://localhost https://www.getpostman.com/oauth2/callback ', 'http://localhost',
+  ('test', 'test', '{noop}test', 'public', 'http://localhost https://www.getpostman.com/oauth2/callback ',
+   'http://localhost',
    'read_events read_achievements upload_map upload_mod upload_avatar write_account_data vote');
 
 INSERT INTO login (id, login, email, password, steamid)
