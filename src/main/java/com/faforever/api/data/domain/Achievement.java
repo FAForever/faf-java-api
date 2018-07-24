@@ -21,7 +21,7 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "achievement_definitions")
-@SecondaryTable(name = "achievement_statistics", pkJoinColumns = @PrimaryKeyJoinColumn(name = "achievement_id", referencedColumnName = "id"))
+@SecondaryTable(name = "achievement_statistics", pkJoinColumns = @PrimaryKeyJoinColumn(name = "id", referencedColumnName = "achievement_id"))
 @Include(rootLevel = true, type = Achievement.TYPE_NAME)
 @EntityListeners(AchievementLocalizationListener.class)
 @Setter
