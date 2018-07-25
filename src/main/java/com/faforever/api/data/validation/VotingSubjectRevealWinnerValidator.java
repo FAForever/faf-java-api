@@ -10,7 +10,7 @@ public class VotingSubjectRevealWinnerValidator implements ConstraintValidator<V
 
   @Override
   public void initialize(VotingSubjectRevealWinnerCheck constraintAnnotation) {
-    //Comment for codacy to show that this constructor is intentional empty
+    // Comment for codacy to show that this constructor is intentional empty
   }
 
   @Override

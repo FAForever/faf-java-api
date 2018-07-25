@@ -33,7 +33,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(ApplicationProfile.INTEGRATION_TEST)
-@Import({OAuthHelper.class})
+@Import(OAuthHelper.class)
 @Transactional
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultUser.sql")
 public abstract class AbstractIntegrationTest {
