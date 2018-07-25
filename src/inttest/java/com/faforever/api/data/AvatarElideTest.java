@@ -39,7 +39,7 @@ public class AvatarElideTest extends AbstractIntegrationTest {
 
   @Test
   public void getUnusedAvatar() throws Exception {
-    Avatar avatar = avatarRepository.findById(1).get();
+    Avatar avatar = avatarRepository.getOne(1);
 
     mockMvc.perform(get("/data/avatar/1"))
       .andExpect(status().isOk())
@@ -52,7 +52,7 @@ public class AvatarElideTest extends AbstractIntegrationTest {
 
   @Test
   public void getAvatarWithPlayer() throws Exception {
-    Avatar avatar = avatarRepository.findById(2).get();
+    Avatar avatar = avatarRepository.getOne(2);
 
     mockMvc.perform(get("/data/avatar/2"))
       .andExpect(status().isOk())
