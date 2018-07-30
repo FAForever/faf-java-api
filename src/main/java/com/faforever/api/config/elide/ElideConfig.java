@@ -4,6 +4,7 @@ import com.faforever.api.data.checks.BooleanChange;
 import com.faforever.api.data.checks.IsAuthenticated;
 import com.faforever.api.data.checks.IsClanMembershipDeletable;
 import com.faforever.api.data.checks.IsEntityOwner;
+import com.faforever.api.data.checks.IsInAwaitingState;
 import com.faforever.api.data.checks.permission.HasBanRead;
 import com.faforever.api.data.checks.permission.HasBanUpdate;
 import com.faforever.api.data.checks.permission.HasLadder1v1Update;
@@ -98,6 +99,7 @@ public class ElideConfig {
     checks.put(HasLadder1v1Update.EXPRESSION, HasLadder1v1Update.Inline.class);
     checks.put(BooleanChange.TO_FALSE_EXPRESSION, BooleanChange.ToFalse.class);
     checks.put(BooleanChange.TO_TRUE_EXPRESSION, BooleanChange.ToTrue.class);
+    checks.put(IsInAwaitingState.EXPRESSION, IsInAwaitingState.Inline.class);
     return new EntityDictionary(checks);
   }
 }

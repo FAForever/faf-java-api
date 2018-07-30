@@ -7,6 +7,7 @@ import com.faforever.api.security.OAuthScope;
 import com.faforever.api.voting.VotingQuestionRepository;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
@@ -267,7 +268,10 @@ public class VotingElideTest extends AbstractIntegrationTest {
   @Test
   @WithUserDetails(AUTH_MODERATOR)
   public void testRevealWinnerOnEndedSubjectWorks() throws Exception {
-    mockMvc.perform(patch("/data/votingSubject/2").content(PATCH_VOTING_SUBJECT_REVEAL_ID_2))
+    mockMvc.perform(
+      patch("/data/votingSubject/2")
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .content(PATCH_VOTING_SUBJECT_REVEAL_ID_2))
       .andExpect(status().isNoContent());
     VotingQuestion question = votingQuestionRepository.getOne(2);
     List<VotingChoice> winners = question.getWinners();
@@ -278,7 +282,10 @@ public class VotingElideTest extends AbstractIntegrationTest {
   @Test
   @WithUserDetails(AUTH_MODERATOR)
   public void testRevealWinnerOnNoneEndedSubjectFails() throws Exception {
-    mockMvc.perform(patch("/data/votingSubject/1").content(PATCH_VOTING_SUBJECT_REVEAL_ID_1))
+    mockMvc.perform(
+      patch("/data/votingSubject/1")
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .content(PATCH_VOTING_SUBJECT_REVEAL_ID_1))
       .andExpect(status().is4xxClientError());
   }
 

@@ -27,6 +27,8 @@ DELETE FROM ban_revoke;
 DELETE FROM ban;
 DELETE FROM clan_membership;
 DELETE FROM clan;
+DELETE FROM reported_user;
+DELETE FROM moderation_report;
 DELETE FROM game_player_stats;
 DELETE FROM game_reviews_summary;
 DELETE FROM game_review;

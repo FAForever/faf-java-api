@@ -2,6 +2,7 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.permission.IsModerator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
@@ -92,6 +93,7 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
 
   @Override
   @Transient
+  @JsonIgnore
   public Login getEntityOwner() {
     return this;
   }

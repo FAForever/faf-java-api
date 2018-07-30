@@ -4,6 +4,7 @@ import com.yahoo.elide.Elide;
 import com.yahoo.elide.ElideResponse;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.interceptor.KeyGenerator;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -28,7 +29,8 @@ import java.util.Map;
 public class DataController {
 
   public static final String PATH_PREFIX = "/data";
-  private static final String JSON_API_MEDIA_TYPE = "application/vnd.api+json";
+  public static final String JSON_API_MEDIA_TYPE = "application/vnd.api+json";
+  public static final String JSON_API_PATCH_MEDIA_TYPE = "application/vnd.api+json;ext=jsonpatch";
 
   private final Elide elide;
 
@@ -60,6 +62,7 @@ public class DataController {
   //!!! No @Transactional - transactions are being handled by Elide
   @RequestMapping(
     method = RequestMethod.POST,
+    consumes = {JSON_API_MEDIA_TYPE, MediaType.APPLICATION_JSON_VALUE},
     produces = JSON_API_MEDIA_TYPE,
     value = {"/{entity}", "/{entity}/{id}/relationships/{entity2}", "/{entity}/{id}/{child}", "/{entity}/{id}"})
   @Cacheable(cacheResolver = "elideCacheResolver")
@@ -78,14 +81,37 @@ public class DataController {
   //!!! No @Transactional - transactions are being handled by Elide
   @RequestMapping(
     method = RequestMethod.PATCH,
+    consumes = {JSON_API_MEDIA_TYPE, MediaType.APPLICATION_JSON_VALUE},
     produces = JSON_API_MEDIA_TYPE,
     value = {"/{entity}/{id}", "/{entity}/{id}/relationships/{entity2}"})
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<String> patch(@RequestBody final String body,
                                       final HttpServletRequest request,
                                       final Authentication authentication) {
-    ElideResponse response = elide.patch(JSON_API_MEDIA_TYPE,
+    ElideResponse response = elide.patch(
       JSON_API_MEDIA_TYPE,
+      JSON_API_MEDIA_TYPE,
+      getJsonApiPath(request),
+      body,
+      getPrincipal(authentication)
+    );
+    return wrapResponse(response);
+  }
+
+  //!!! No @Transactional - transactions are being handled by Elide
+  @RequestMapping(
+    method = RequestMethod.PATCH,
+    consumes = JSON_API_PATCH_MEDIA_TYPE,
+    produces = JSON_API_PATCH_MEDIA_TYPE,
+    value = "/{entity}")
+  // should contain "/{entity}/{id}" but spring will call this method even for JSON_API_MEDIA_TYPE
+  @PreAuthorize("hasRole('USER')")
+  public ResponseEntity<String> extensionPatch(@RequestBody final String body,
+                                               final HttpServletRequest request,
+                                               final Authentication authentication) {
+    ElideResponse response = elide.patch(
+      JSON_API_PATCH_MEDIA_TYPE,
+      JSON_API_PATCH_MEDIA_TYPE,
       getJsonApiPath(request),
       body,
       getPrincipal(authentication)

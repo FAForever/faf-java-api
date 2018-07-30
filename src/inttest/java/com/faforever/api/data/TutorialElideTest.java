@@ -1,12 +1,11 @@
 package com.faforever.api.data;
 
 import com.faforever.api.AbstractIntegrationTest;
-import com.faforever.api.data.domain.Tutorial;
-import com.faforever.api.data.domain.TutorialCategory;
-import com.github.jasminb.jsonapi.JSONAPIDocument;
-import com.github.jasminb.jsonapi.ResourceConverter;
+import com.faforever.commons.api.dto.Tutorial;
+import com.faforever.commons.api.dto.TutorialCategory;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
@@ -27,7 +26,7 @@ public class TutorialElideTest extends AbstractIntegrationTest {
   private static Tutorial tutorial() {
     Tutorial tutorial = new Tutorial();
     TutorialCategory category = new TutorialCategory();
-    category.setId(1);
+    category.setId("1");
     tutorial.setCategory(category);
     tutorial.setImage("abc.png");
     tutorial.setDescription("abc");
@@ -71,10 +70,9 @@ public class TutorialElideTest extends AbstractIntegrationTest {
   @Test
   @WithUserDetails(AUTH_USER)
   public void cannotPostTutorialAsUser() throws Exception {
-    final ResourceConverter resourceConverter = new ResourceConverter(objectMapper, Tutorial.class);
-
     mockMvc.perform(post("/data/tutorial")
-      .content(resourceConverter.writeDocument(new JSONAPIDocument<>(tutorial()))))
+      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+      .content(createJsonApiContent(tutorial())))
       .andExpect(status().isForbidden());
   }
 
@@ -89,9 +87,10 @@ public class TutorialElideTest extends AbstractIntegrationTest {
   @Test
   @WithUserDetails(AUTH_MODERATOR)
   public void moderatorCanPostTutorial() throws Exception {
-    final ResourceConverter resourceConverter = new ResourceConverter(objectMapper, Tutorial.class);
-
-    MvcResult mvcResult = mockMvc.perform(post("/data/tutorial").content(resourceConverter.writeDocument(new JSONAPIDocument<>(tutorial()))))
+    MvcResult mvcResult = mockMvc.perform(
+      post("/data/tutorial")
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .content(createJsonApiContent(tutorial())))
       .andExpect(status().isCreated())
       .andReturn();
 
