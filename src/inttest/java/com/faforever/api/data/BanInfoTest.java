@@ -2,8 +2,13 @@ package com.faforever.api.data;
 
 import com.faforever.api.AbstractIntegrationTest;
 import com.faforever.api.player.PlayerRepository;
+import com.faforever.commons.api.dto.BanInfo;
+import com.faforever.commons.api.dto.BanLevel;
+import com.faforever.commons.api.dto.ModerationReport;
+import com.faforever.commons.api.dto.Player;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
@@ -18,8 +23,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultUser.sql")
+@Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepMapData.sql")
+@Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepGameData.sql")
+@Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepModerationReportData.sql")
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepBanData.sql")
 @Sql(executionPhase = ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:sql/cleanBanData.sql")
+@Sql(executionPhase = ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:sql/cleanModerationReportData.sql")
+@Sql(executionPhase = ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:sql/cleanGameData.sql")
+@Sql(executionPhase = ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:sql/cleanMapData.sql")
 public class BanInfoTest extends AbstractIntegrationTest {
   /*
   {
@@ -69,6 +80,7 @@ public class BanInfoTest extends AbstractIntegrationTest {
   @WithUserDetails(AUTH_USER)
   public void cannotCreateBanInfoAsUser() throws Exception {
     mockMvc.perform(post("/data/banInfo")
+      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isForbidden());
   }
@@ -94,9 +106,26 @@ public class BanInfoTest extends AbstractIntegrationTest {
     assertThat(playerRepository.getOne(3).getBans().size(), is(0));
 
     mockMvc.perform(post("/data/banInfo")
+      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isCreated());
 
     assertThat(playerRepository.getOne(3).getBans().size(), is(1));
+  }
+
+  @Test
+  @WithUserDetails(AUTH_MODERATOR)
+  public void canCreateBanInfoBasedOnModerationReportAsModerator() throws Exception {
+
+    final BanInfo banInfo = new BanInfo()
+      .setLevel(BanLevel.CHAT)
+      .setReason("Ban reason")
+      .setPlayer((Player) new Player().setId("3"))
+      .setModerationReport((ModerationReport) new ModerationReport().setId("1"));
+    mockMvc.perform(post("/data/banInfo")
+      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+      .content(createJsonApiContent(banInfo)))
+      .andExpect(status().isCreated())
+      .andExpect(jsonPath("$.data.relationships.moderationReport.data.id", is("1")));
   }
 }

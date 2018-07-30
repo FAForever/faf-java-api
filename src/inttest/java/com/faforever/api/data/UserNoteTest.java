@@ -4,6 +4,7 @@ import com.faforever.api.AbstractIntegrationTest;
 import com.faforever.api.player.PlayerRepository;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
@@ -69,6 +70,7 @@ public class UserNoteTest extends AbstractIntegrationTest {
   @WithUserDetails(AUTH_USER)
   public void cannotCreateUserNoteAsUser() throws Exception {
     mockMvc.perform(post("/data/userNote")
+      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isForbidden());
   }
@@ -94,6 +96,7 @@ public class UserNoteTest extends AbstractIntegrationTest {
     assertThat(playerRepository.getOne(3).getUserNotes().size(), is(0));
 
     mockMvc.perform(post("/data/userNote")
+      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isCreated());
 

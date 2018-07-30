@@ -31,7 +31,6 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
 
-@EqualsAndHashCode(of = "id", callSuper = false)
 @Entity
 @Table(name = "voting_question")
 @ReadPermission(expression = "Prefab.Role.All")
@@ -43,6 +42,7 @@ import java.util.Set;
 @Audit(action = Action.UPDATE, logStatement = "Updated voting question with id:{0}", logExpressions = {"${votingQuestion.id}"})
 @Include(rootLevel = true, type = VotingQuestion.TYPE_NAME)
 @Setter
+@EqualsAndHashCode(of = {}, callSuper = true)
 @EntityListeners(VotingQuestionEnricher.class)
 public class VotingQuestion extends AbstractEntity {
   public static final String TYPE_NAME = "votingQuestion";

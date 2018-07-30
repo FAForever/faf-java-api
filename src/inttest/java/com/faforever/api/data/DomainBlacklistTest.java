@@ -2,6 +2,7 @@ package com.faforever.api.data;
 
 import com.faforever.api.AbstractIntegrationTest;
 import org.junit.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
@@ -56,6 +57,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
   public void cannotCreateDomainBlacklistAsUser() throws Exception {
     mockMvc.perform(
       post("/data/domainBlacklist")
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
         .content(NEW_DOMAIN))
       .andExpect(status().isForbidden());
   }
@@ -65,6 +67,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
   public void canCreateDomainBlacklistAsModerator() throws Exception {
     mockMvc.perform(
       post("/data/domainBlacklist")
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
         .content(NEW_DOMAIN))
       .andExpect(status().isCreated());
   }

@@ -1,5 +1,6 @@
 package com.faforever.api.data.domain;
 
+import lombok.EqualsAndHashCode;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -11,8 +12,8 @@ import java.time.OffsetDateTime;
 
 @MappedSuperclass
 @Setter
+@EqualsAndHashCode(of = "id")
 public abstract class AbstractEntity {
-  @com.github.jasminb.jsonapi.annotations.Id
   protected int id;
   protected OffsetDateTime createTime;
   protected OffsetDateTime updateTime;

@@ -15,7 +15,7 @@ import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 
 @Setter
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = {}, callSuper = true)
 @MappedSuperclass
 public class Review extends AbstractEntity implements OwnableEntity {
   private String text;
