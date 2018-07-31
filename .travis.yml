@@ -27,11 +27,21 @@ script:
 
 after_success:
   - ./gradlew jacocoTestReport coveralls
+  - export IMAGE_TAG=faf-java-api;
+  - export REPO=faforever/faf-java-api;
   - if [ -n "${TRAVIS_TAG}" ]; then
-      ./gradlew --stacktrace pushDockerImage;
+    docker build -t ${IMAGE_TAG} . &&
+    echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin &&
+    docker tag ${IMAGE_TAG} ${REPO}:${TRAVIS_TAG} &&
+    docker push ${REPO};
     fi
+# TODO Codacy coverage reporter does not yet support Java 9. See https://github.com/codacy/codacy-coverage-reporter/issues/76
+#      ./gradlew sendCoverageToCodacy;
   - if [ "${TRAVIS_BRANCH}" == "develop" ]; then
-      ./gradlew jacocoTestReport sendCoverageToCodacy;
+    docker build -t ${IMAGE_TAG} . &&
+    echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin &&
+    docker tag ${IMAGE_TAG} ${REPO}:${TRAVIS_BRANCH} &&
+    docker push ${REPO};
     fi
 
 before_cache:
