@@ -5,7 +5,6 @@ buildscript {
     maven { url 'http://repo.spring.io/plugins-release' }
   }
   dependencies {
-    classpath("com.bmuschko:gradle-docker-plugin:${gradleDockerVersion}")
     classpath("org.springframework.build.gradle:propdeps-plugin:${propdepsVersion}")
     classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
     classpath("org.kt3k.gradle.plugin:coveralls-gradle-plugin:${coverallsGradlePluginVersion}")
@@ -193,74 +192,6 @@ task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
   main = "com.codacy.CodacyCoverageReporter"
   classpath = configurations.codacy
   args = ["report", "-l", "Java", "-r", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"]
-}
-
-// DOCKER
-
-apply plugin: 'com.bmuschko.docker-remote-api'
-apply plugin: 'application'
-mainClassName = 'com.faforever.api.FafApiApplication'
-
-import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
-import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-
-applicationName = rootProject.name
-docker {
-  if (project.hasProperty('dockerHost')) {
-    url = dockerHost
-  }
-
-  registryCredentials {
-    if (project.hasProperty('dockerUsername') && project.hasProperty('dockerPassword')) {
-      username = dockerUsername
-      password = dockerPassword
-    }
-  }
-}
-
-task dockerCopyDistResources(type: Copy, dependsOn: distTar) {
-  group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
-  description = "Copies the distribution resources to a temporary directory for image creation."
-
-  from { distTar.archivePath }
-  from 'src/main/docker/default-cmd.sh'
-  into { createDockerfile.destFile.parentFile }
-}
-
-task createDockerfile(type: Dockerfile, dependsOn: dockerCopyDistResources) {
-  group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
-  destFile = file("${buildDir}/docker/Dockerfile")
-  from 'frolvlad/alpine-oraclejdk8:slim'
-  maintainer 'Michel Jung "michel.jung89@gmail.com"'
-
-  environmentVariable 'user', 'root'
-
-  user '${user}'
-
-  volume '/tmp'
-  addFile 'default-cmd.sh', 'default-cmd.sh'
-  addFile({ distTar.archivePath.name }, { '/' })
-
-  runCommand 'chmod +x default-cmd.sh'
-
-  exposePort 8010
-
-  defaultCommand './default-cmd.sh', "/${project.name}-${project.version}/bin/${project.name}"
-}
-
-task buildDockerImage(type: DockerBuildImage, dependsOn: createDockerfile) {
-  inputDir file(createDockerfile.destFile.parentFile)
-  tag "${project.group}/${rootProject.name}:${project.version}"
-}
-
-task pushDockerImage(type: DockerPushImage, dependsOn: buildDockerImage) {
-  group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
-  description = "Publishes the created docker image tagged with the project's version."
-
-  imageName "${project.group}/${rootProject.name}"
-  tag project.version
 }
 
 configurations.all {
