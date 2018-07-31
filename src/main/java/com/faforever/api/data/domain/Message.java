@@ -15,6 +15,8 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -33,15 +35,16 @@ import javax.persistence.Table;
 public class Message {
 
   public static final String TYPE_NAME = "message";
-  private int id;
+  private Integer id;
   private String key;
   private String language;
   private String region;
   private String value;
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  public int getId() {
+  public Integer getId() {
     return id;
   }
 
