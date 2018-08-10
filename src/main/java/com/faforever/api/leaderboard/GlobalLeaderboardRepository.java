@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface GlobalLeaderboardRepository extends Repository<GlobalLeaderboardEntry, Integer> {
 
-  // TODO remove the \n#pageable\n fix when upgrading to spring boot 2. See https://jira.spring.io/browse/DATAJPA-1011
   @Query(value = "SELECT" +
     "    global_rating.id," +
     "    login.login," +
@@ -24,7 +23,7 @@ public interface GlobalLeaderboardRepository extends Repository<GlobalLeaderboar
     "     LEFT JOIN ban_revoke on ban.id = ban_revoke.ban_id" +
     "     WHERE (expires_at is null or expires_at <= NOW()) AND ban_revoke.ban_id IS NULL" +
     "  ) " +
-    "  ORDER BY round(mean - 3 * deviation) DESC \n#pageable\n",
+    "  ORDER BY round(mean - 3 * deviation) DESC LIMIT ?#{#pageable.offset},?#{#pageable.pageSize}",
     countQuery = "SELECT count(*) FROM ladder1v1_rating WHERE is_active = 1 AND ladder1v1_rating.numGames > 0",
     nativeQuery = true)
   Page<GlobalLeaderboardEntry> getLeaderboardByPage(Pageable pageable);
