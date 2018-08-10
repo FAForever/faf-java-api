@@ -25,7 +25,12 @@ public interface Ladder1v1LeaderboardRepository extends Repository<Ladder1v1Lead
     "     WHERE (expires_at is null or expires_at > NOW()) AND ban_revoke.ban_id IS NULL" +
     "  ) " +
     "  ORDER BY round(mean - 3 * deviation) DESC LIMIT ?#{#pageable.offset},?#{#pageable.pageSize}",
-    countQuery = "SELECT count(*) FROM ladder1v1_rating WHERE is_active = 1 AND ladder1v1_rating.numGames > 0",
+    countQuery = "SELECT count(*) FROM ladder1v1_rating WHERE is_active = 1 AND ladder1v1_rating.numGames > 0" +
+      "   AND id NOT IN (" +
+      "     SELECT player_id FROM ban" +
+      "     LEFT JOIN ban_revoke on ban.id = ban_revoke.ban_id" +
+      "     WHERE (expires_at is null or expires_at > NOW()) AND ban_revoke.ban_id IS NULL" +
+      "  ) -- Dummy placeholder for pageable, prevents 'Unknown parameter position': ?,?,?",
     nativeQuery = true)
   Page<Ladder1v1LeaderboardEntry> getLeaderboardByPage(Pageable pageable);
 
