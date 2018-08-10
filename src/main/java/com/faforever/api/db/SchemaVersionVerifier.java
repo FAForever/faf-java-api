@@ -29,7 +29,9 @@ public class SchemaVersionVerifier implements PriorityOrdered {
       .orElseThrow(() -> new IllegalStateException("No database version is available"));
 
     Assert.state(Objects.equals(requiredVersion, actualVersion),
-      String.format("Database version is '%s' but this software requires '%s'", actualVersion, requiredVersion));
+      String.format("Database version is '%s' but this software requires '%s'. If you are sure that this version is " +
+          "compatible, you can override the expected version by setting the environment variable DATABASE_SCHEMA_VERSION.",
+        actualVersion, requiredVersion));
   }
 
   @Override
