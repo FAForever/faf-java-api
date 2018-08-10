@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface Ladder1v1LeaderboardRepository extends Repository<Ladder1v1LeaderboardEntry, Integer> {
 
-  // TODO remove the \n#pageable\n fix when upgrading to spring boot 2. See https://jira.spring.io/browse/DATAJPA-1011
   @Query(value = "SELECT" +
     "    ladder1v1_rating.id," +
     "    login.login," +
@@ -25,7 +24,7 @@ public interface Ladder1v1LeaderboardRepository extends Repository<Ladder1v1Lead
     "     LEFT JOIN ban_revoke on ban.id = ban_revoke.ban_id" +
     "     WHERE (expires_at is null or expires_at > NOW()) AND ban_revoke.ban_id IS NULL" +
     "  ) " +
-    "  ORDER BY round(mean - 3 * deviation) DESC \n#pageable\n",
+    "  ORDER BY round(mean - 3 * deviation) DESC LIMIT ?#{#pageable.offset},?#{#pageable.pageSize}",
     countQuery = "SELECT count(*) FROM ladder1v1_rating WHERE is_active = 1 AND ladder1v1_rating.numGames > 0",
     nativeQuery = true)
   Page<Ladder1v1LeaderboardEntry> getLeaderboardByPage(Pageable pageable);
