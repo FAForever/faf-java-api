@@ -68,7 +68,7 @@ public class GitHubDeploymentService {
     String environment = ghDeployment.getEnvironment();
     String deploymentEnvironment = fafApiProperties.getGitHub().getDeploymentEnvironment();
     if (!deploymentEnvironment.equals(environment)) {
-      log.warn("Ignoring deployment for environment '{}' as it does not match the current environment '{}'", deploymentEnvironment, environment);
+      log.warn("Ignoring deployment for environment '{}' as it does not match the current environment '{}'", environment, deploymentEnvironment);
       return;
     }
 
