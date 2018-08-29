@@ -4,6 +4,7 @@ import com.faforever.api.data.checks.IsEntityOwner;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
+import lombok.EqualsAndHashCode;
 import lombok.Setter;
 
 import javax.persistence.CascadeType;
@@ -21,6 +22,7 @@ import java.util.Set;
 @Include(type = Vote.TYPE_NAME, rootLevel = true)
 @ReadPermission(expression = IsEntityOwner.EXPRESSION)
 @UpdatePermission(expression = "Prefab.Role.None")
+@EqualsAndHashCode(of = {"player", "votingSubject"}, callSuper = false)
 @Setter
 public class Vote extends AbstractEntity implements OwnableEntity {
   public static final String TYPE_NAME = "vote";

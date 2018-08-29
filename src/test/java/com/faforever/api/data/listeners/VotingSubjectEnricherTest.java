@@ -89,40 +89,41 @@ public class VotingSubjectEnricherTest {
     assertThat(votingQuestion.getWinners(), hasItem(votingChoice2));
   }
 
-
   @Test
   public void testQuestionEnhancingDraw() {
     VotingQuestion votingQuestion = new VotingQuestion();
+    votingQuestion.setId(1);
     votingQuestion.setAlternativeQuestion(true);
     votingQuestion.setQuestionKey("abc");
     VotingSubject votingSubject = new VotingSubject();
+    votingSubject.setId(1);
     votingSubject.setEndOfVoteTime(OffsetDateTime.MIN);
     votingSubject.setRevealWinner(true);
     votingQuestion.setVotingSubject(votingSubject);
 
-    Vote vote1 = new Vote();
-    Player player1 = new Player();
+    Vote vote1 = (Vote) new Vote().setId(1);
+    Player player1 = (Player) new Player().setId(1);
     vote1.setPlayer(player1);
 
-    Vote vote2 = new Vote();
-    Player player2 = new Player();
+    Vote vote2 = (Vote) new Vote().setId(2);
+    Player player2 = (Player) new Player().setId(2);
     vote2.setPlayer(player2);
 
-    Vote vote3 = new Vote();
-    Player player3 = new Player();
-    vote1.setPlayer(player3);
+    Vote vote3 = (Vote) new Vote().setId(3);
+    Player player3 = (Player) new Player().setId(3);
+    vote3.setPlayer(player3);
 
-    Vote vote4 = new Vote();
-    Player player4 = new Player();
-    vote1.setPlayer(player4);
+    Vote vote4 = (Vote) new Vote().setId(4);
+    Player player4 = (Player) new Player().setId(4);
+    vote4.setPlayer(player4);
 
-    Vote vote5 = new Vote();
-    Player player5 = new Player();
-    vote1.setPlayer(player5);
+    Vote vote5 = (Vote) new Vote().setId(5);
+    Player player5 = (Player) new Player().setId(5);
+    vote5.setPlayer(player5);
 
-    Vote vote6 = new Vote();
-    Player player6 = new Player();
-    vote1.setPlayer(player6);
+    Vote vote6 = (Vote) new Vote().setId(6);
+    Player player6 = (Player) new Player().setId(6);
+    vote6.setPlayer(player6);
 
 
     VotingChoice votingChoice = new VotingChoice();
@@ -146,7 +147,7 @@ public class VotingSubjectEnricherTest {
     votingChoice3.setId(3);
     votingChoice3.setVotingQuestion(votingQuestion);
 
-    addAnswerToChoice(votingChoice2, votingQuestion, vote5, 0);
+    addAnswerToChoice(votingChoice3, votingQuestion, vote5, 0);
 
     instance.calculateWinners(votingQuestion);
 

@@ -274,42 +274,4 @@ public class VotingServiceTest {
     }
     verify(voteRepository, never()).save(vote);
   }
-
-  @Test
-  public void notSaveOnVoteTwiceInOneOption() {
-    VotingSubject votingSubject = new VotingSubject();
-    votingSubject.setId(1);
-    votingSubject.setBeginOfVoteTime(OffsetDateTime.now());
-    votingSubject.setEndOfVoteTime(OffsetDateTime.MAX);
-
-    VotingQuestion votingQuestion = new VotingQuestion();
-    votingQuestion.setAlternativeQuestion(true);
-    votingSubject.setVotingQuestions(Collections.singleton(votingQuestion));
-    votingQuestion.setMaxAnswers(2);
-
-    Vote vote = new Vote();
-
-    VotingAnswer votingAnswer = new VotingAnswer();
-    VotingChoice votingChoice = new VotingChoice();
-    votingChoice.setId(1);
-    votingChoice.setVotingQuestion(votingQuestion);
-    votingAnswer.setVotingChoice(votingChoice);
-    VotingAnswer votingAnswer2 = new VotingAnswer();
-    votingAnswer2.setVotingChoice(votingChoice);
-
-    vote.setVotingAnswers(new HashSet<>(Arrays.asList(votingAnswer, votingAnswer2)));
-
-    vote.setVotingSubject(votingSubject);
-    Player player = new Player();
-
-    when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
-    when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
-    when(votingChoiceRepository.findById(votingChoice.getId())).thenReturn(Optional.of(votingChoice));
-    try {
-      instance.saveVote(vote, player);
-    } catch (ApiException e) {
-      assertTrue(Arrays.stream(e.getErrors()).anyMatch(error -> error.getErrorCode().equals(ErrorCode.VOTED_TWICE_ON_ONE_OPTION)));
-    }
-    verify(voteRepository, never()).save(vote);
-  }
 }

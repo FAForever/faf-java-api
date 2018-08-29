@@ -12,7 +12,6 @@ import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
-import lombok.EqualsAndHashCode;
 import lombok.Setter;
 
 import javax.persistence.CascadeType;
@@ -42,7 +41,6 @@ import java.util.Set;
 @Audit(action = Action.UPDATE, logStatement = "Updated voting question with id:{0}", logExpressions = {"${votingQuestion.id}"})
 @Include(rootLevel = true, type = VotingQuestion.TYPE_NAME)
 @Setter
-@EqualsAndHashCode(of = {}, callSuper = true)
 @EntityListeners(VotingQuestionEnricher.class)
 public class VotingQuestion extends AbstractEntity {
   public static final String TYPE_NAME = "votingQuestion";

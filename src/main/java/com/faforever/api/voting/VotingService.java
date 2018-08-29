@@ -57,15 +57,6 @@ public class VotingService {
       votingAnswer.setVote(vote);
     });
 
-    vote.getVotingAnswers().forEach(votingAnswer -> {
-      long count = vote.getVotingAnswers().stream()
-        .filter(votingAnswer1 -> votingAnswer1.getVotingChoice().equals(votingAnswer.getVotingChoice()))
-        .count();
-      if (count > 1) {
-        errors.add(new Error(ErrorCode.VOTED_TWICE_ON_ONE_OPTION, votingAnswer.getVotingChoice().getId()));
-      }
-    });
-
     subject.getVotingQuestions().forEach(votingQuestion -> {
       List<VotingAnswer> votingAnswers = vote.getVotingAnswers().stream()
         .filter(votingAnswer -> votingAnswer.getVotingChoice().getVotingQuestion().equals(votingQuestion))

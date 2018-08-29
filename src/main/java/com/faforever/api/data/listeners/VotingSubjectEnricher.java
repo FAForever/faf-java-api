@@ -55,7 +55,7 @@ public class VotingSubjectEnricher {
   }
 
   @VisibleForTesting
-  protected void calculateWinners(VotingQuestion votingQuestion) {
+  void calculateWinners(VotingQuestion votingQuestion) {
     VotingSubject votingSubject = votingQuestion.getVotingSubject();
     boolean ended = votingSubject.getEndOfVoteTime().isBefore(OffsetDateTime.now());
     List<VotingChoice> winners = votingQuestion.getWinners();
