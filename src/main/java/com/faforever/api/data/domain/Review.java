@@ -2,7 +2,6 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsEntityOwner;
 import com.yahoo.elide.annotation.UpdatePermission;
-import lombok.EqualsAndHashCode;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -15,7 +14,6 @@ import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 
 @Setter
-@EqualsAndHashCode(of = {}, callSuper = true)
 @MappedSuperclass
 public class Review extends AbstractEntity implements OwnableEntity {
   private String text;

@@ -34,4 +34,11 @@ public abstract class AbstractEntity {
   public OffsetDateTime getUpdateTime() {
     return updateTime;
   }
+
+  /**
+   * Supplement method for @EqualsAndHashCode overriding the default lombok implementation
+   */
+  protected boolean canEqual(Object other) {
+    return other instanceof AbstractEntity && this.getClass() == other.getClass();
+  }
 }

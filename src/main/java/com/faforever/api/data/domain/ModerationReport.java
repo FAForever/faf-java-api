@@ -16,8 +16,8 @@ import com.yahoo.elide.annotation.OnUpdatePreSecurity;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import com.yahoo.elide.core.RequestScope;
-import lombok.EqualsAndHashCode;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -41,7 +41,7 @@ import java.util.Set;
 @Entity
 @Table(name = "moderation_report")
 @Setter
-@EqualsAndHashCode(of = {}, callSuper = true)
+@ToString(exclude = {"reportedUsers", "bans"})
 @Include(rootLevel = true, type = ModerationReport.TYPE_NAME)
 @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
 @DeletePermission(expression = Prefab.NONE)
@@ -175,19 +175,5 @@ public class ModerationReport extends AbstractEntity implements OwnableEntity {
         this.lastModerator = lastModerator;
       }
     }
-  }
-
-  @Override
-  public String toString() {
-    return "ModerationReport{" +
-      "id='" + id + '\'' +
-      ", reportDescription='" + reportDescription + '\'' +
-      ", reportStatus=" + reportStatus +
-      ", gameIncidentTimecode='" + gameIncidentTimecode + '\'' +
-      ", moderatorNotice='" + moderatorNotice + '\'' +
-      ", moderatorPrivateNote='" + moderatorPrivateNote + '\'' +
-      ", game=" + game +
-      ", reportedUsers=" + reportedUsers +
-      "}";
   }
 }

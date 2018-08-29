@@ -18,7 +18,7 @@ import java.util.Set;
 public class OAuthHelper {
 
   @Autowired
-  AuthorizationServerTokenServices tokenservice;
+  AuthorizationServerTokenServices tokenServices;
 
   @Autowired
   JwtAccessTokenConverter jwtAccessTokenConverter;
@@ -28,7 +28,7 @@ public class OAuthHelper {
       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
       OAuth2Request oauth2Request = createOAuth2Request(scope);
       OAuth2Authentication oauth2auth = new OAuth2Authentication(oauth2Request, authentication);
-      OAuth2AccessToken token = tokenservice.createAccessToken(oauth2auth);
+      OAuth2AccessToken token = tokenServices.createAccessToken(oauth2auth);
       token = jwtAccessTokenConverter.enhance(token, oauth2auth);
 
       // Set Authorization header to use Bearer
