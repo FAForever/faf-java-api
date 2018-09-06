@@ -82,7 +82,7 @@ public class VotingChoice extends AbstractEntity {
 
   @Transient
   @ComputedAttribute
-  public int getNumberOfAnswers() {
+  public Integer getNumberOfAnswers() {
     return numberOfAnswers;
   }
 

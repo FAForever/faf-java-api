@@ -6,6 +6,9 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.time.OffsetDateTime;
 
+/**
+ * Avoids that a VotingSubject's result is revealed before the vote on the subject ended
+ */
 public class VotingSubjectRevealWinnerValidator implements ConstraintValidator<VotingSubjectRevealWinnerCheck, VotingSubject> {
 
   @Override
@@ -15,6 +18,6 @@ public class VotingSubjectRevealWinnerValidator implements ConstraintValidator<V
 
   @Override
   public boolean isValid(VotingSubject votingSubject, ConstraintValidatorContext context) {
-    return votingSubject.getRevealWinner() && votingSubject.getEndOfVoteTime().isBefore(OffsetDateTime.now());
+    return votingSubject.getRevealWinner() != Boolean.TRUE || votingSubject.getEndOfVoteTime().isBefore(OffsetDateTime.now());
   }
 }
