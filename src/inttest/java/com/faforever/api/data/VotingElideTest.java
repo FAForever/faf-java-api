@@ -12,6 +12,8 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -48,6 +50,84 @@ public class VotingElideTest extends AbstractIntegrationTest {
     "        }\n" +
     "    }\n" +
     "}";
+
+  /*
+  {"data":
+    {"type":"votingSubject",
+      "attributes":{
+        "subjectKey":"bla",
+        "numberOfVotes":0,
+        "topicUrl":"test",
+        "beginOfVoteTime":"2018-09-09T11:00:00Z",
+        "endOfVoteTime":"2018-09-09T11:00:00Z",
+        "minGamesToVote":0,
+        "descriptionKey":"test",
+        "revealWinner":false},
+      "relationships":{
+        "votingQuestions":{
+          "data":[]
+        }
+      }
+    }
+  }
+  */
+  private static final String CREATE_VOTING_SUBJECT_REVEAL_WINNER_FALSE = "{\"data\":\n" +
+    "    {\"type\":\"votingSubject\",\n" +
+    "      \"attributes\":{\n" +
+    "        \"subjectKey\":\"bla\",\n" +
+    "        \"numberOfVotes\":0,\n" +
+    "        \"topicUrl\":\"test\",\n" +
+    "        \"beginOfVoteTime\":\"2018-09-09T11:00:00Z\",\n" +
+    "        \"endOfVoteTime\":\"2018-09-09T11:00:00Z\",\n" +
+    "        \"minGamesToVote\":0,\n" +
+    "        \"descriptionKey\":\"test\",\n" +
+    "        \"revealWinner\":false},\n" +
+    "      \"relationships\":{\n" +
+    "        \"votingQuestions\":{\n" +
+    "          \"data\":[]\n" +
+    "        }\n" +
+    "      }\n" +
+    "    }\n" +
+    "  }";
+
+  /*
+{"data":
+  {"type":"votingSubject",
+    "attributes":{
+      "subjectKey":"bla",
+      "numberOfVotes":0,
+      "topicUrl":"test",
+      "beginOfVoteTime":"2018-09-09T11:00:00Z",
+      "endOfVoteTime":"2018-09-09T11:00:00Z",
+      "minGamesToVote":0,
+      "descriptionKey":"test",
+      "revealWinner":true},
+    "relationships":{
+      "votingQuestions":{
+        "data":[]
+      }
+    }
+  }
+}
+*/
+  private static final String CREATE_VOTING_SUBJECT_REVEAL_WINNER_TRUE = "{\"data\":\n" +
+    "    {\"type\":\"votingSubject\",\n" +
+    "      \"attributes\":{\n" +
+    "        \"subjectKey\":\"bla\",\n" +
+    "        \"numberOfVotes\":0,\n" +
+    "        \"topicUrl\":\"test\",\n" +
+    "        \"beginOfVoteTime\":\"2018-09-09T11:00:00Z\",\n" +
+    "        \"endOfVoteTime\":\"{end-time}\",\n" +
+    "        \"minGamesToVote\":0,\n" +
+    "        \"descriptionKey\":\"test\",\n" +
+    "        \"revealWinner\":true},\n" +
+    "      \"relationships\":{\n" +
+    "        \"votingQuestions\":{\n" +
+    "          \"data\":[]\n" +
+    "        }\n" +
+    "      }\n" +
+    "    }\n" +
+    "  }";
 
   /*
   {
@@ -221,5 +301,20 @@ public class VotingElideTest extends AbstractIntegrationTest {
   public void postVoteOnEndedSubject() throws Exception {
     mockMvc.perform(post("/voting/vote").contentType(MediaType.APPLICATION_JSON).content(POST_VOTE_SUBJECT2).with(getOAuthToken(OAuthScope._VOTE)))
       .andExpect(status().is(422));
+  }
+
+  @Test
+  @WithUserDetails(AUTH_MODERATOR)
+  public void postVotingSubject() throws Exception {
+    mockMvc.perform(post("/data/votingSubject").contentType(MediaType.APPLICATION_JSON).content(CREATE_VOTING_SUBJECT_REVEAL_WINNER_FALSE))
+      .andExpect(status().is(201));
+  }
+
+  @Test
+  @WithUserDetails(AUTH_MODERATOR)
+  public void postVotingSubjectWithRevealWinnerTrueButVoteNotEnded() throws Exception {
+    String votingSubject = CREATE_VOTING_SUBJECT_REVEAL_WINNER_TRUE.replaceAll("\\{end-time}", OffsetDateTime.now().plusYears(1).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+    mockMvc.perform(post("/data/votingSubject").contentType(MediaType.APPLICATION_JSON).content(votingSubject))
+      .andExpect(status().is(400));
   }
 }
