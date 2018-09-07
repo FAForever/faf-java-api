@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -302,20 +302,28 @@ public class UserService {
   @SneakyThrows
   public SteamLinkResult linkToSteam(String token, String steamId) {
     log.debug("linkToSteam requested for steamId '{}' with token: {}", steamId, token);
+    List<Error> errors = new ArrayList<>();
     Map<String, String> attributes = fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, token);
 
     User user = userRepository.findById(Integer.parseInt(attributes.get(KEY_USER_ID)))
       .orElseThrow(() -> new ApiException(new Error(TOKEN_INVALID)));
 
-    String callbackUrl = attributes.get(KEY_STEAM_LINK_CALLBACK_URL);
     if (!steamService.ownsForgedAlliance(steamId)) {
-      return new SteamLinkResult(callbackUrl, Collections.singletonList(new Error(ErrorCode.STEAM_LINK_NO_FA_GAME)));
+      errors.add(new Error(ErrorCode.STEAM_LINK_NO_FA_GAME));
     }
 
-    user.setSteamId(steamId);
-    userRepository.save(user);
+    Optional<User> userWithSameSteamIdOptional = userRepository.findOneBySteamIdIgnoreCase(steamId);
+    userWithSameSteamIdOptional.ifPresent(userWithSameId ->
+      errors.add(new Error(ErrorCode.STEAM_ID_ALREADY_LINKED, userWithSameId.getLogin()))
+    );
 
-    return new SteamLinkResult(callbackUrl, Collections.emptyList());
+    if (errors.isEmpty()) {
+      user.setSteamId(steamId);
+      userRepository.save(user);
+    }
+
+    String callbackUrl = attributes.get(KEY_STEAM_LINK_CALLBACK_URL);
+    return new SteamLinkResult(callbackUrl, errors);
   }
 
   @Value
