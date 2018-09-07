@@ -58,6 +58,7 @@ public class VotingServiceTest {
     votingSubject.setEndOfVoteTime(OffsetDateTime.MAX);
     VotingQuestion votingQuestion = new VotingQuestion();
     votingQuestion.setAlternativeQuestion(false);
+    votingQuestion.setMaxAnswers(1);
     votingSubject.setVotingQuestions(Collections.singleton(votingQuestion));
 
     vote.setVotingSubject(votingSubject);
@@ -93,6 +94,7 @@ public class VotingServiceTest {
     votingSubject.setEndOfVoteTime(OffsetDateTime.MAX);
     VotingQuestion votingQuestion = new VotingQuestion();
     votingQuestion.setAlternativeQuestion(false);
+    votingQuestion.setMaxAnswers(1);
     votingSubject.setVotingQuestions(Collections.singleton(votingQuestion));
 
     vote.setVotingSubject(votingSubject);
