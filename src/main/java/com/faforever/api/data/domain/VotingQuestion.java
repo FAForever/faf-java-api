@@ -47,12 +47,13 @@ import java.util.Set;
 public class VotingQuestion extends AbstractEntity {
   public static final String TYPE_NAME = "votingQuestion";
 
-  private int numberOfAnswers;
+  private Integer numberOfAnswers;
   private String question;
   private String description;
   private String questionKey;
   private String descriptionKey;
-  private int maxAnswers;
+  private Integer maxAnswers;
+  private Integer ordinal;
   private Boolean alternativeQuestion;
   private VotingSubject votingSubject;
   private List<VotingChoice> winners;
@@ -62,6 +63,12 @@ public class VotingQuestion extends AbstractEntity {
   @Column(name = "alternative_voting")
   public Boolean isAlternativeQuestion() {
     return alternativeQuestion;
+  }
+
+  @Column(name = "ordinal")
+  @UpdatePermission(expression = IsModerator.EXPRESSION)
+  public Integer getOrdinal() {
+    return ordinal;
   }
 
   /**
@@ -109,13 +116,13 @@ public class VotingQuestion extends AbstractEntity {
 
   @UpdatePermission(expression = "Prefab.Common.UpdateOnCreate")
   @Column(name = "max_answers")
-  public int getMaxAnswers() {
+  public Integer getMaxAnswers() {
     return maxAnswers;
   }
 
   @Transient
   @ComputedAttribute
-  public int getNumberOfAnswers() {
+  public Integer getNumberOfAnswers() {
     return numberOfAnswers;
   }
 
