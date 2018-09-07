@@ -41,6 +41,7 @@ import static com.faforever.api.user.UserService.KEY_STEAM_LINK_CALLBACK_URL;
 import static com.faforever.api.user.UserService.KEY_USER_ID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasItemInArray;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -102,7 +103,7 @@ public class UserServiceTest {
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     properties = new FafApiProperties();
     properties.getJwt().setSecret(TEST_SECRET);
     properties.getLinkToSteam().setSteamRedirectUrlFormat("%s");
@@ -117,7 +118,7 @@ public class UserServiceTest {
 
   @Test
   @SuppressWarnings("unchecked")
-  public void register() throws Exception {
+  public void register() {
     properties.getRegistration().setActivationUrlFormat(ACTIVATION_URL_FORMAT);
 
     instance.register(TEST_USERNAME, TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
@@ -133,7 +134,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void registerEmailAlreadyRegistered() throws Exception {
+  public void registerEmailAlreadyRegistered() {
     when(userRepository.existsByEmailIgnoreCase(TEST_CURRENT_EMAIL)).thenReturn(true);
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.EMAIL_REGISTERED));
 
@@ -141,39 +142,39 @@ public class UserServiceTest {
   }
 
   @Test
-  public void registerInvalidUsernameWithComma() throws Exception {
+  public void registerInvalidUsernameWithComma() {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
     instance.register("junit,", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
   }
 
   @Test
-  public void registerInvalidUsernameStartsUnderscore() throws Exception {
+  public void registerInvalidUsernameStartsUnderscore() {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
     instance.register("_junit", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
   }
 
   @Test
-  public void registerInvalidUsernameTooShort() throws Exception {
+  public void registerInvalidUsernameTooShort() {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
     instance.register("ju", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
   }
 
   @Test
-  public void registerUsernameTaken() throws Exception {
+  public void registerUsernameTaken() {
     when(userRepository.existsByLoginIgnoreCase("junit")).thenReturn(true);
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_TAKEN));
     instance.register("junit", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
   }
 
   @Test
-  public void registerUsernameReserved() throws Exception {
+  public void registerUsernameReserved() {
     when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(1));
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_RESERVED));
     instance.register("junit", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
   }
 
   @Test
-  public void activate() throws Exception {
+  public void activate() {
     when(fafTokenService.resolveToken(FafTokenType.REGISTRATION, TOKEN_VALUE)).thenReturn(ImmutableMap.of(
       UserService.KEY_USERNAME, TEST_USERNAME,
       UserService.KEY_EMAIL, TEST_CURRENT_EMAIL,
@@ -300,7 +301,7 @@ public class UserServiceTest {
 
   @Test
   @SuppressWarnings("unchecked")
-  public void resetPasswordByLogin() throws Exception {
+  public void resetPasswordByLogin() {
     properties.getPasswordReset().setPasswordResetUrlFormat(PASSWORD_RESET_URL_FORMAT);
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
@@ -324,7 +325,7 @@ public class UserServiceTest {
 
   @Test
   @SuppressWarnings("unchecked")
-  public void resetPasswordByEmail() throws Exception {
+  public void resetPasswordByEmail() {
     properties.getPasswordReset().setPasswordResetUrlFormat(PASSWORD_RESET_URL_FORMAT);
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
@@ -347,7 +348,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void resetPasswordUnknownUsernameAndEmail() throws Exception {
+  public void resetPasswordUnknownUsernameAndEmail() {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.UNKNOWN_IDENTIFIER));
 
     when(userRepository.findOneByEmailIgnoreCase(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
@@ -356,7 +357,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void claimPasswordResetToken() throws Exception {
+  public void claimPasswordResetToken() {
     when(fafTokenService.resolveToken(FafTokenType.PASSWORD_RESET, TOKEN_VALUE))
       .thenReturn(ImmutableMap.of(KEY_USER_ID, "5",
         KEY_PASSWORD, TEST_NEW_PASSWORD));
@@ -375,7 +376,7 @@ public class UserServiceTest {
 
   @Test
   @SuppressWarnings("unchecked")
-  public void buildSteamLinkUrl() throws Exception {
+  public void buildSteamLinkUrl() {
     when(steamService.buildLoginUrl(any())).thenReturn("steamLoginUrl");
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
@@ -401,7 +402,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void buildSteamLinkUrlAlreadLinked() throws Exception {
+  public void buildSteamLinkUrlAlreadLinked() {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.STEAM_ID_UNCHANGEABLE));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
@@ -411,7 +412,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void linkToSteam() throws Exception {
+  public void linkToSteam() {
     when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE))
       .thenReturn(ImmutableMap.of(
         KEY_USER_ID, "5",
@@ -421,6 +422,7 @@ public class UserServiceTest {
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(userRepository.findById(5)).thenReturn(Optional.of(user));
+    when(userRepository.findOneBySteamIdIgnoreCase(STEAM_ID)).thenReturn(Optional.empty());
 
     SteamLinkResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
 
@@ -431,7 +433,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void linkToSteamUnknownUser() throws Exception {
+  public void linkToSteamUnknownUser() {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.TOKEN_INVALID));
 
     when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE)).thenReturn(ImmutableMap.of(KEY_USER_ID, "5"));
@@ -442,13 +444,14 @@ public class UserServiceTest {
   }
 
   @Test
-  public void linkToSteamNoGame() throws Exception {
+  public void linkToSteamNoGame() {
     when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE))
       .thenReturn(ImmutableMap.of(
         KEY_USER_ID, "5",
         KEY_STEAM_LINK_CALLBACK_URL, "callbackUrl"
       ));
     when(steamService.ownsForgedAlliance(any())).thenReturn(false);
+    when(userRepository.findOneBySteamIdIgnoreCase(STEAM_ID)).thenReturn(Optional.empty());
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(userRepository.findById(5)).thenReturn(Optional.of(user));
@@ -463,7 +466,31 @@ public class UserServiceTest {
   }
 
   @Test
-  public void mauticUpdateFailureDoesNotThrowException() throws Exception {
+  public void linkToSteamAlreadyLinked() {
+    when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE))
+      .thenReturn(ImmutableMap.of(
+        KEY_USER_ID, "6",
+        KEY_STEAM_LINK_CALLBACK_URL, "callbackUrl"
+      ));
+    when(steamService.ownsForgedAlliance(any())).thenReturn(true);
+    User otherUser = new User();
+    otherUser.setLogin("axel12");
+    when(userRepository.findOneBySteamIdIgnoreCase(STEAM_ID)).thenReturn(Optional.of(otherUser));
+
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
+    when(userRepository.findById(6)).thenReturn(Optional.of(user));
+
+    SteamLinkResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
+
+    assertThat(result.getCallbackUrl(), is("callbackUrl"));
+    assertThat(result.getErrors(), hasSize(1));
+    assertThat(result.getErrors().get(0).getErrorCode(), is(ErrorCode.STEAM_ID_ALREADY_LINKED));
+    assertThat(result.getErrors().get(0).getArgs(), hasItemInArray(otherUser.getLogin()));
+    verifyZeroInteractions(mauticService);
+  }
+
+  @Test
+  public void mauticUpdateFailureDoesNotThrowException() {
     when(mauticService.createOrUpdateContact(any(), any(), any(), any(), any()))
       .thenAnswer(invocation -> {
         CompletableFuture<Object> future = new CompletableFuture<>();
