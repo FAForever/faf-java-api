@@ -39,6 +39,8 @@ public class FafApiProperties {
   private Anope anope = new Anope();
   private Rating rating = new Rating();
   private Tutorial tutorial = new Tutorial();
+  private UsernameChange usernameChange = new UsernameChange();
+  private Ban ban = new Ban();
 
   @Data
   public static class OAuth2 {
@@ -249,5 +251,19 @@ public class FafApiProperties {
   @Data
   public static class Tutorial {
     private String thumbnailUrlFormat;
+  }
+
+  @Data
+  public class UsernameChange {
+    private String mailBody;
+    private String mailSubject;
+  }
+
+  @Data
+  public class Ban {
+    private String banMailBody;
+    private String banMailSubject;
+    private String banRevokeMailBody;
+    private String banRevokeMailSubject;
   }
 }

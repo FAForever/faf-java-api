@@ -49,6 +49,14 @@ faf-api:
     api-key: ${STEAM_API_KEY:banana}
   link-to-steam:
     steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL:http://localhost:8010/users/linkToSteam?token=%s}
+  username-change:
+    mail-body: ${USERNAME_CHANGE_EMAIL_BODY:Hello {0},| your username changed to {1}}
+    mail-subject: ${USERNAME_CHANGE_EMAIL_SUBJECT:Username changed}
+  ban:
+    ban-mail-body: ${BAN_EMAIL_BODY:Hello {0},|Your account was banned|Reason - {1}|Banner - {2}|Time - {3}|Type - {4}|Expires - {5}|Thank you for your fairness and acceptance.}
+    ban-mail-subject: ${BAN_EMAIL_SUBJECT:ban subject}
+    ban-revoke-mail-body: ${BAN_REVOKE_EMAIL_BODY:Hello {0},|Your account was been unbanned.|Moderator that unbanned you - {1}|Reason - {2}|Original reason of the ban - {3}|original banner - {4}|Time of original ban - {5}.|Thank you for your fairness and acceptance.}
+    ban-revoke-mail-subject: ${BAN_REVOKE_EMAIL_SUBJECT:email ban revoke subject}
 
 spring:
   datasource:

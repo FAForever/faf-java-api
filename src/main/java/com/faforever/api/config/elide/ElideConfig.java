@@ -8,10 +8,15 @@ import com.faforever.api.data.checks.permission.HasBanRead;
 import com.faforever.api.data.checks.permission.HasBanUpdate;
 import com.faforever.api.data.checks.permission.HasLadder1v1Update;
 import com.faforever.api.data.checks.permission.IsModerator;
+import com.faforever.api.data.domain.BanInfo;
+import com.faforever.api.data.domain.BanRevokeData;
+import com.faforever.api.data.listeners.BanInfoPostCreateListener;
+import com.faforever.api.data.listeners.BanRevokePostCreateListener;
 import com.faforever.api.security.ExtendedAuditLogger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yahoo.elide.Elide;
 import com.yahoo.elide.ElideSettingsBuilder;
+import com.yahoo.elide.annotation.OnCreatePostCommit;
 import com.yahoo.elide.core.EntityDictionary;
 import com.yahoo.elide.core.filter.dialect.RSQLFilterDialect;
 import com.yahoo.elide.jsonapi.JsonApiMapper;
@@ -37,18 +42,22 @@ public class ElideConfig {
   public static final String DEFAULT_CACHE_NAME = "Elide.defaultCache";
 
   @Bean
-  public Elide elide(SpringHibernateDataStore springHibernateDataStore, ObjectMapper objectMapper, EntityDictionary entityDictionary, ExtendedAuditLogger extendedAuditLogger) {
+  public Elide elide(SpringHibernateDataStore springHibernateDataStore, ObjectMapper objectMapper, EntityDictionary entityDictionary,
+                     ExtendedAuditLogger extendedAuditLogger, BanInfoPostCreateListener banInfoPostCreateListener, BanRevokePostCreateListener banRevokePostCreateListener) {
     RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary);
 
     registerAdditionalConverters();
 
-    return new Elide(new ElideSettingsBuilder(springHibernateDataStore)
+    Elide elide = new Elide(new ElideSettingsBuilder(springHibernateDataStore)
       .withJsonApiMapper(new JsonApiMapper(entityDictionary, objectMapper))
       .withAuditLogger(extendedAuditLogger)
       .withEntityDictionary(entityDictionary)
       .withJoinFilterDialect(rsqlFilterDialect)
       .withSubqueryFilterDialect(rsqlFilterDialect)
       .build());
+    entityDictionary.bindTrigger(BanInfo.class, OnCreatePostCommit.class, banInfoPostCreateListener);
+    entityDictionary.bindTrigger(BanRevokeData.class, OnCreatePostCommit.class, banRevokePostCreateListener);
+    return elide;
   }
 
   @Bean

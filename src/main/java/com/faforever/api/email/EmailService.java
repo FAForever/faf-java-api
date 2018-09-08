@@ -1,8 +1,10 @@
 package com.faforever.api.email;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.config.FafApiProperties.Ban;
 import com.faforever.api.config.FafApiProperties.PasswordReset;
 import com.faforever.api.config.FafApiProperties.Registration;
+import com.faforever.api.config.FafApiProperties.UsernameChange;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
@@ -50,6 +52,43 @@ public class EmailService {
       email,
       registration.getSubject(),
       MessageFormat.format(registration.getHtmlFormat(), username, activationUrl)
+    );
+  }
+
+  @SneakyThrows
+  public void sendUsernameChangeMail(String email, String oldUsername, String newUsername) {
+    UsernameChange usernameChange = properties.getUsernameChange();
+    emailSender.sendMail(
+      properties.getMail().getFromEmailAddress(),
+      properties.getMail().getFromEmailName(),
+      email,
+      usernameChange.getMailSubject(),
+      MessageFormat.format(usernameChange.getMailBody(), oldUsername, newUsername)
+    );
+  }
+
+
+  @SneakyThrows
+  public void sendBanMail(String email, String username, String reason, String banner, String createTime, String type, String expires) {
+    Ban ban = properties.getBan();
+    emailSender.sendMail(
+      properties.getMail().getFromEmailAddress(),
+      properties.getMail().getFromEmailName(),
+      email,
+      ban.getBanMailSubject(),
+      MessageFormat.format(ban.getBanMailBody(), username, reason, banner, createTime, type, expires)
+    );
+  }
+
+  @SneakyThrows
+  public void sendBanRevokeMail(String email, String username, String moderatorThatRevoked, String reasonForRevoke, String reasonForBan, String banner, String banCreateTime) {
+    Ban ban = properties.getBan();
+    emailSender.sendMail(
+      properties.getMail().getFromEmailAddress(),
+      properties.getMail().getFromEmailName(),
+      email,
+      ban.getBanRevokeMailSubject(),
+      MessageFormat.format(ban.getBanRevokeMailBody(), username, moderatorThatRevoked, reasonForRevoke, reasonForBan, banner, banCreateTime)
     );
   }
 

@@ -190,15 +190,15 @@ public class UserService {
           throw new ApiException(new Error(ErrorCode.USERNAME_RESERVED, newLogin, usernameReservationTimeInMonths));
         }
       });
-
+    String oldLogin = user.getLogin();
     log.debug("Changing username for user ''{}'' to ''{}''", user, newLogin);
     NameRecord nameRecord = new NameRecord()
-      .setName(user.getLogin())
+      .setName(oldLogin)
       .setPlayer(playerRepository.getOne(user.getId()));
     nameRecordRepository.save(nameRecord);
-
     user.setLogin(newLogin);
 
+    emailService.sendUsernameChangeMail(user.getEmail(), oldLogin, newLogin);
     createOrUpdateMauticContact(userRepository.save(user), ipAddress);
   }
 

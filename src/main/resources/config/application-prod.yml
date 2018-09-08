@@ -51,6 +51,14 @@ faf-api:
     api-key: ${STEAM_API_KEY}
   link-to-steam:
     steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL}
+  username-change:
+    mail-body: ${USERNAME_CHANGE_EMAIL_BODY}
+    mail-subject: ${USERNAME_CHANGE_EMAIL_SUBJECT}
+  ban:
+    ban-mail-body: ${BAN_EMAIL_BODY}
+    ban-mail-subject: ${BAN_EMAIL_SUBJECT}
+    ban-revoke-mail-body: ${BAN_REVOKE_EMAIL_BODY}
+    ban-revoke-mail-subject: ${BAN_REVOKE_EMAIL_SUBJECT}
 
 spring:
   datasource:
