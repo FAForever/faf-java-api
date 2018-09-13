@@ -11,6 +11,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientRegistrationException;
 
+import java.util.Optional;
+
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
@@ -30,7 +32,7 @@ public class OAuthClientDetailsServiceTest {
 
   @Test
   public void loadClientByClientId() throws Exception {
-    when(oAuthClientRepository.findOne("123")).thenReturn(new OAuthClient().setDefaultScope("").setRedirectUris(""));
+    when(oAuthClientRepository.findById("123")).thenReturn(Optional.of(new OAuthClient().setDefaultScope("").setRedirectUris("")));
 
     ClientDetails result = instance.loadClientByClientId("123");
 

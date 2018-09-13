@@ -1,0 +1,3 @@
+# Without this, travis fails with "error checking context: 'no permission to read from '/home/travis/build/FAForever/faf-java-server/faf-stack/data/faf-db/ca-key.pem''."
+# See also https://github.com/moby/moby/issues/6521
+faf-stack/

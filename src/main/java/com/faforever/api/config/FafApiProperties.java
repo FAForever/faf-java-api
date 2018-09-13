@@ -38,6 +38,7 @@ public class FafApiProperties {
   private Mautic mautic = new Mautic();
   private Anope anope = new Anope();
   private Rating rating = new Rating();
+  private Tutorial tutorial = new Tutorial();
 
   @Data
   public static class OAuth2 {
@@ -243,5 +244,10 @@ public class FafApiProperties {
   public class Rating {
     private int defaultMean;
     private int defaultDeviation;
+  }
+
+  @Data
+  public static class Tutorial {
+    private String thumbnailUrlFormat;
   }
 }

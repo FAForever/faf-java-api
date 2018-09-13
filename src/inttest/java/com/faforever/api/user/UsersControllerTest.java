@@ -317,7 +317,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   @Test
   @WithAnonymousUser
   public void linkToSteam() throws Exception {
-    assertThat(userRepository.findOne(1).getSteamId(), nullValue());
+    assertThat(userRepository.getOne(1).getSteamId(), nullValue());
 
     String steamId = "1234";
     String callbackUrl = "callbackUrl";
@@ -337,7 +337,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
       .andExpect(status().isFound())
       .andExpect(redirectedUrl(callbackUrl));
 
-    assertThat(userRepository.findOne(2).getSteamId(), is(steamId));
+    assertThat(userRepository.getOne(2).getSteamId(), is(steamId));
   }
 
   @Test
@@ -367,7 +367,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   @Test
   @WithUserDetails(AUTH_USER)
   public void changeUsernameSuccess() throws Exception {
-    assertThat(userRepository.findOne(1).getLogin(), is(AUTH_USER));
+    assertThat(userRepository.getOne(1).getLogin(), is(AUTH_USER));
 
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("newUsername", NEW_USER);
@@ -378,13 +378,13 @@ public class UsersControllerTest extends AbstractIntegrationTest {
         .params(params))
       .andExpect(status().isOk());
 
-    assertThat(userRepository.findOne(1).getLogin(), is(NEW_USER));
+    assertThat(userRepository.getOne(1).getLogin(), is(NEW_USER));
   }
 
   @Test
   @WithUserDetails(AUTH_MODERATOR)
   public void changeUsernameTooEarly() throws Exception {
-    assertThat(userRepository.findOne(2).getLogin(), is(AUTH_MODERATOR));
+    assertThat(userRepository.getOne(2).getLogin(), is(AUTH_MODERATOR));
 
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("newUsername", NEW_USER);
@@ -398,6 +398,6 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     assertApiError(result, ErrorCode.USERNAME_CHANGE_TOO_EARLY);
 
-    assertThat(userRepository.findOne(2).getLogin(), is(AUTH_MODERATOR));
+    assertThat(userRepository.getOne(2).getLogin(), is(AUTH_MODERATOR));
   }
 }

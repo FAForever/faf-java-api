@@ -194,7 +194,7 @@ public class UserService {
     log.debug("Changing username for user ''{}'' to ''{}''", user, newLogin);
     NameRecord nameRecord = new NameRecord()
       .setName(user.getLogin())
-      .setPlayer(playerRepository.findOne(user.getId()));
+      .setPlayer(playerRepository.getOne(user.getId()));
     nameRecordRepository.save(nameRecord);
 
     user.setLogin(newLogin);
@@ -257,11 +257,8 @@ public class UserService {
 
     int userId = Integer.parseInt(claims.get(KEY_USER_ID));
     String newPassword = claims.get(KEY_PASSWORD);
-    User user = userRepository.findOne(userId);
-
-    if (user == null) {
-      throw new ApiException(new Error(ErrorCode.TOKEN_INVALID));
-    }
+    User user = userRepository.findById(userId)
+      .orElseThrow(() -> new ApiException(new Error(TOKEN_INVALID)));
 
     setPassword(user, newPassword);
   }
@@ -278,7 +275,8 @@ public class UserService {
     if (authentication != null
       && authentication.getPrincipal() != null
       && authentication.getPrincipal() instanceof FafUserDetails) {
-      return userRepository.findOne(((FafUserDetails) authentication.getPrincipal()).getId());
+      return userRepository.findById(((FafUserDetails) authentication.getPrincipal()).getId())
+        .orElseThrow(() -> new ApiException(new Error(TOKEN_INVALID)));
     }
     throw new ApiException(new Error(TOKEN_INVALID));
   }
@@ -306,11 +304,8 @@ public class UserService {
     log.debug("linkToSteam requested for steamId '{}' with token: {}", steamId, token);
     Map<String, String> attributes = fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, token);
 
-    User user = userRepository.findOne(Integer.parseInt(attributes.get(KEY_USER_ID)));
-
-    if (user == null) {
-      throw new ApiException(new Error(ErrorCode.TOKEN_INVALID));
-    }
+    User user = userRepository.findById(Integer.parseInt(attributes.get(KEY_USER_ID)))
+      .orElseThrow(() -> new ApiException(new Error(TOKEN_INVALID)));
 
     String callbackUrl = attributes.get(KEY_STEAM_LINK_CALLBACK_URL);
     if (!steamService.ownsForgedAlliance(steamId)) {

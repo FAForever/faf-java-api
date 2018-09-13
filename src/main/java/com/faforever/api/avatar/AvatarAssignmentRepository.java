@@ -12,5 +12,7 @@ import java.util.Optional;
 public interface AvatarAssignmentRepository extends JpaRepository<AvatarAssignment, Integer> {
   Optional<AvatarAssignment> findOneByAvatarAndPlayer(Avatar avatar, Player player);
 
+  Optional<AvatarAssignment> findOneByAvatarIdAndPlayerId(int avatarId, int playerId);
+
   Optional<AvatarAssignment> findOneById(Integer i);
 }

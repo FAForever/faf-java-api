@@ -46,12 +46,12 @@ public class ClanElideTest extends AbstractIntegrationTest {
   @Test
   @WithUserDetails(AUTH_CLAN_LEADER)
   public void canDeleteMemberOfOwnClan() throws Exception {
-    assertNotNull(playerRepository.findOne(12).getClan());
+    assertNotNull(playerRepository.getOne(12).getClan());
 
     mockMvc.perform(
       delete("/data/clanMembership/2")) // magic value from prepClanData.sql
       .andExpect(status().isNoContent());
-    assertNull(playerRepository.findOne(12).getClan());
+    assertNull(playerRepository.getOne(12).getClan());
   }
 
   @Test
@@ -75,13 +75,13 @@ public class ClanElideTest extends AbstractIntegrationTest {
   @Test
   @WithUserDetails(AUTH_CLAN_MEMBER)
   public void canLeaveClan() throws Exception {
-    assertNotNull(playerRepository.findOne(12).getClan());
+    assertNotNull(playerRepository.getOne(12).getClan());
 
     mockMvc.perform(
       delete("/data/clanMembership/2")) // magic value from prepClanData.sql
       .andExpect(status().isNoContent());
 
-    assertNull(playerRepository.findOne(12).getClan());
+    assertNull(playerRepository.getOne(12).getClan());
   }
 
   @Test
@@ -105,20 +105,20 @@ public class ClanElideTest extends AbstractIntegrationTest {
   @Test
   @WithUserDetails(AUTH_CLAN_LEADER)
   public void canTransferLeadershipAsLeader() throws Exception {
-    assertThat(clanRepository.findOne(1).getLeader().getLogin(), is(AUTH_CLAN_LEADER));
+    assertThat(clanRepository.getOne(1).getLeader().getLogin(), is(AUTH_CLAN_LEADER));
 
     mockMvc.perform(
       patch("/data/clan/1")
         .content(generateTransferLeadershipContent(1, 12))) // magic value from prepClanData.sql
       .andExpect(status().isNoContent());
 
-    assertThat(clanRepository.findOne(1).getLeader().getLogin(), is(AUTH_CLAN_MEMBER));
+    assertThat(clanRepository.getOne(1).getLeader().getLogin(), is(AUTH_CLAN_MEMBER));
   }
 
   @Test
   @WithUserDetails(AUTH_CLAN_MEMBER)
   public void cannotTransferLeadershipAsMember() throws Exception {
-    assertThat(clanRepository.findOne(1).getLeader().getLogin(), is(AUTH_CLAN_LEADER));
+    assertThat(clanRepository.getOne(1).getLeader().getLogin(), is(AUTH_CLAN_LEADER));
 
     mockMvc.perform(
       patch("/data/clan/1")
@@ -126,7 +126,7 @@ public class ClanElideTest extends AbstractIntegrationTest {
       .andExpect(status().isForbidden())
       .andExpect(jsonPath("$.errors[0]", is("ForbiddenAccessException")));
 
-    assertThat(clanRepository.findOne(1).getLeader().getLogin(), is(AUTH_CLAN_LEADER));
+    assertThat(clanRepository.getOne(1).getLeader().getLogin(), is(AUTH_CLAN_LEADER));
   }
 
   @Test
@@ -135,7 +135,7 @@ public class ClanElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/clan/1")
         .content(generateTransferLeadershipContent(1, 1))) // magic value from prepClanData.sql
-      .andExpect(status().is5xxServerError()); // TODO: Catch javax.validation.ConstraintViolationException and wrap it into a regular ApiException
+      .andExpect(status().is4xxClientError()); // TODO: Catch javax.validation.ConstraintViolationException and wrap it into a regular ApiException
   }
 
   @SneakyThrows
@@ -174,7 +174,7 @@ public class ClanElideTest extends AbstractIntegrationTest {
       .andExpect(status().isNoContent()); // TODO: Catch javax.validation.ConstraintViolationException and wrap it into a regular ApiException
 
     assertFalse(clanRepository.findOneByName("Alpha Clan").isPresent());
-    clanMember.forEach(player -> assertNull(playerRepository.findOne(player.getId()).getClan()));
+    clanMember.forEach(player -> assertNull(playerRepository.getOne(player.getId()).getClan()));
   }
 
   @Test

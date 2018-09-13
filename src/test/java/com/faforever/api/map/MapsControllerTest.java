@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.actuate.endpoint.PublicMetrics;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -19,7 +18,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.inject.Inject;
 import java.io.InputStream;
-import java.util.Collection;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -43,8 +41,6 @@ public class MapsControllerTest {
   private PlayerService playerService;
   @MockBean
   private ObjectMapper objectMapper;
-  @MockBean
-  private Collection<PublicMetrics> publicMetrics;
 
   @Inject
   public void init(MockMvc mvc) {

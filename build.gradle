@@ -5,7 +5,6 @@ buildscript {
     maven { url 'http://repo.spring.io/plugins-release' }
   }
   dependencies {
-    classpath("com.bmuschko:gradle-docker-plugin:${gradleDockerVersion}")
     classpath("org.springframework.build.gradle:propdeps-plugin:${propdepsVersion}")
     classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
     classpath("org.kt3k.gradle.plugin:coveralls-gradle-plugin:${coverallsGradlePluginVersion}")
@@ -106,11 +105,12 @@ tasks.withType(Test) {
 
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
 apply plugin: 'propdeps'
 apply plugin: 'idea'
 
 group = 'faforever'
-version = '1.4.1'
+version = 'snapshot'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -194,73 +194,6 @@ task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
   args = ["report", "-l", "Java", "-r", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"]
 }
 
-// DOCKER
-
-apply plugin: 'com.bmuschko.docker-remote-api'
-apply plugin: 'application'
-
-import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
-import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-
-applicationName = rootProject.name
-docker {
-  if (project.hasProperty('dockerHost')) {
-    url = dockerHost
-  }
-
-  registryCredentials {
-    if (project.hasProperty('dockerUsername') && project.hasProperty('dockerPassword')) {
-      username = dockerUsername
-      password = dockerPassword
-    }
-  }
-}
-
-task dockerCopyDistResources(type: Copy, dependsOn: distTar) {
-  group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
-  description = "Copies the distribution resources to a temporary directory for image creation."
-
-  from { distTar.archivePath }
-  from 'src/main/docker/default-cmd.sh'
-  into { createDockerfile.destFile.parentFile }
-}
-
-task createDockerfile(type: Dockerfile, dependsOn: dockerCopyDistResources) {
-  group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
-  destFile = file("${buildDir}/docker/Dockerfile")
-  from 'frolvlad/alpine-oraclejdk8:slim'
-  maintainer 'Michel Jung "michel.jung89@gmail.com"'
-
-  environmentVariable 'user', 'root'
-
-  user '${user}'
-
-  volume '/tmp'
-  addFile 'default-cmd.sh', 'default-cmd.sh'
-  addFile({ distTar.archivePath.name }, { '/' })
-
-  runCommand 'chmod +x default-cmd.sh'
-
-  exposePort 8010
-
-  defaultCommand './default-cmd.sh', "/${project.name}-${project.version}/bin/${project.name}"
-}
-
-task buildDockerImage(type: DockerBuildImage, dependsOn: createDockerfile) {
-  inputDir file(createDockerfile.destFile.parentFile)
-  tag "${project.group}/${rootProject.name}:${project.version}"
-}
-
-task pushDockerImage(type: DockerPushImage, dependsOn: buildDockerImage) {
-  group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
-  description = "Publishes the created docker image tagged with the project's version."
-
-  imageName "${project.group}/${rootProject.name}"
-  tag project.version
-}
-
 configurations.all {
   // Cache -SNAPSHOT for 60 seconds only
   resolutionStrategy.cacheChangingModulesFor 60, 'seconds'
@@ -270,15 +203,13 @@ build.dependsOn inttest
 
 dependencyManagement {
   dependencies {
-    dependency("org.hibernate:hibernate-core:${hibernateVersion}")
-    dependency("org.hibernate:hibernate-entitymanager:${hibernateVersion}")
-    dependency("org.hibernate:hibernate-validator:${hibernateVersion}")
     dependency("org.mockito:mockito-core:${mockitoVersion}")
   }
 }
 
 dependencies {
-  compile("org.springframework.boot:spring-boot-starter-actuator")
+  runtime("io.micrometer:micrometer-registry-prometheus")
+
   compile("org.springframework.boot:spring-boot-starter-jdbc")
   compile("org.springframework.boot:spring-boot-starter-data-jpa")
   compile("org.springframework.boot:spring-boot-starter-web")
@@ -286,14 +217,14 @@ dependencies {
   compile("org.springframework.boot:spring-boot-starter-security")
   compile("org.springframework.boot:spring-boot-starter-thymeleaf")
   compile("org.springframework.boot:spring-boot-starter-mail")
-  compile("de.codecentric:spring-boot-admin-starter-client:${springBootAdminClientVersion}")
 
+  compile("com.github.ben-manes.caffeine:caffeine")
   compile("com.github.FAForever:faf-java-commons:${fafCommonsVersion}")
   compile("org.kohsuke:github-api:${githubApiVersion}")
   compile("org.jolokia:jolokia-core")
-  compile("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
+  compile("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springSecurityOauth2AutoConfigureVersion}")
   compile("org.springframework.security.oauth:spring-security-oauth2:${springSecurityOauth2Version}")
-  compile("org.springframework:spring-context-support:${springContextSupportVersion}")
+  compile("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
   compile("org.eclipse.jgit:org.eclipse.jgit:${jgitVersionn}")
   compile("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
   compile("com.google.guava:guava:${guavaVersion}")
@@ -301,10 +232,11 @@ dependencies {
   compile("io.springfox:springfox-swagger2:${swaggerVersion}")
   compile("io.swagger:swagger-core:${swaggerCoreVersion}")
   compile("javax.inject:javax.inject:${javaxInjectVersion}")
+  // When switching from Java 8 to 9, I got "class file for javax.interceptor.interceptorbinding not found". Adding this fixed it, but IDK what caused it.
+  compile("javax.interceptor:javax.interceptor-api:${javaxInterceptorApiVersion}")
   compile("com.yahoo.elide:elide-core:${elideVersion}")
   compile("com.yahoo.elide:elide-swagger:${elideVersion}")
   compile("com.yahoo.elide:elide-datastore-hibernate5:${elideVersion}")
-  compile("org.hibernate:hibernate-java8:${hibernateVersion}")
 //  compile("org.glassfish.jersey.core:jersey-common:2.26")
   compile("com.zaxxer:HikariCP:${hikariCpVersion}") {
     exclude(module: 'tools')
@@ -317,9 +249,7 @@ dependencies {
   compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonDatatypeJsr310Version}")
   compile("com.mandrillapp.wrapper.lutung:lutung:${lutungVersion}")
   compile("org.apache.commons:commons-compress:${commonsCompressVersion}")
-  compile("io.prometheus:simpleclient_hotspot:${prometheusVersion}")
-  compile("io.prometheus:simpleclient_servlet:${prometheusVersion}")
-  compile("io.prometheus:simpleclient_spring_boot:${prometheusVersion}")
+  compile("org.json:json:${jsonVersion}")
 
   compile("com.github.jasminb:jsonapi-converter:${jsonapiConverterVersion}")
   runtime("mysql:mysql-connector-java:${mysqlConnectorVersion}")

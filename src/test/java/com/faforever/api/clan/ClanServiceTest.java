@@ -25,7 +25,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.jwt.Jwt;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -68,7 +67,6 @@ public class ClanServiceTest {
     String description = "A cool clan for testing";
     Player creator = new Player();
     creator.setId(1);
-    creator.setClanMemberships(new ArrayList<>());
     creator.getClanMemberships().add(new ClanMembership());
     try {
       instance.create(clanName, tag, description, creator);
@@ -87,7 +85,6 @@ public class ClanServiceTest {
 
     Player creator = new Player();
     creator.setId(1);
-    creator.setClanMemberships(new ArrayList<>());
 
     when(clanRepository.findOneByName(clanName)).thenReturn(Optional.of(new Clan()));
     try {
@@ -109,7 +106,6 @@ public class ClanServiceTest {
 
     Player creator = new Player();
     creator.setId(1);
-    creator.setClanMemberships(new ArrayList<>());
 
     when(clanRepository.findOneByName(clanName)).thenReturn(Optional.empty());
     when(clanRepository.findOneByTag(tag)).thenReturn(Optional.of(new Clan()));
@@ -133,7 +129,6 @@ public class ClanServiceTest {
 
     Player creator = new Player();
     creator.setId(1);
-    creator.setClanMemberships(new ArrayList<>());
 
     when(clanRepository.findOneByName(clanName)).thenReturn(Optional.empty());
     when(clanRepository.findOneByTag(tag)).thenReturn(Optional.empty());
@@ -178,7 +173,7 @@ public class ClanServiceTest {
 
     Clan clan = ClanFactory.builder().leader(leader).build();
 
-    when(clanRepository.findOne(clan.getId())).thenReturn(clan);
+    when(clanRepository.findById(clan.getId())).thenReturn(Optional.of(clan));
 
     try {
       instance.generatePlayerInvitationToken(requester, newMember.getId(), clan.getId());
@@ -196,7 +191,7 @@ public class ClanServiceTest {
 
     Clan clan = ClanFactory.builder().leader(requester).build();
 
-    when(clanRepository.findOne(clan.getId())).thenReturn(clan);
+    when(clanRepository.findById(clan.getId())).thenReturn(Optional.of(clan));
 
     try {
       instance.generatePlayerInvitationToken(requester, 42, clan.getId());
@@ -219,8 +214,8 @@ public class ClanServiceTest {
 
     FafApiProperties props = new FafApiProperties();
 
-    when(clanRepository.findOne(clan.getId())).thenReturn(clan);
-    when(playerRepository.findOne(newMember.getId())).thenReturn(newMember);
+    when(clanRepository.findById(clan.getId())).thenReturn(Optional.of(clan));
+    when(playerRepository.findById(newMember.getId())).thenReturn(Optional.of(newMember));
     when(fafApiProperties.getClan()).thenReturn(props.getClan());
 
     instance.generatePlayerInvitationToken(requester, newMember.getId(), clan.getId());
@@ -288,7 +283,7 @@ public class ClanServiceTest {
         String.format("{\"expire\":%s,\"newMember\":{\"id\":2},\"clan\":{\"id\":%s}}",
             expire, clan.getId()));
     when(jwtService.decodeAndVerify(any())).thenReturn(jwtToken);
-    when(clanRepository.findOne(clan.getId())).thenReturn(clan);
+    when(clanRepository.findById(clan.getId())).thenReturn(Optional.of(clan));
 
     try {
       instance.acceptPlayerInvitationToken(stringToken, null);
@@ -318,8 +313,8 @@ public class ClanServiceTest {
         String.format("{\"expire\":%s,\"newMember\":{\"id\":%s},\"clan\":{\"id\":%s}}",
             expire, newMember.getId(), clan.getId()));
     when(jwtService.decodeAndVerify(any())).thenReturn(jwtToken);
-    when(clanRepository.findOne(clan.getId())).thenReturn(clan);
-    when(playerRepository.findOne(newMember.getId())).thenReturn(newMember);
+    when(clanRepository.findById(clan.getId())).thenReturn(Optional.of(clan));
+    when(playerRepository.findById(newMember.getId())).thenReturn(Optional.of(newMember));
     when(playerService.getPlayer(any())).thenReturn(otherPlayer);
 
     try {
@@ -340,7 +335,7 @@ public class ClanServiceTest {
     Player newMember = new Player();
     newMember.setId(2);
     newMember.setClanMemberships(
-        Collections.singletonList(new ClanMembership().setClan(clan).setPlayer(newMember)));
+      Collections.singleton(new ClanMembership().setClan(clan).setPlayer(newMember)));
 
     long expire = System.currentTimeMillis() + 1000 * 3;
     Jwt jwtToken = Mockito.mock(Jwt.class);
@@ -349,8 +344,8 @@ public class ClanServiceTest {
         String.format("{\"expire\":%s,\"newMember\":{\"id\":%s},\"clan\":{\"id\":%s}}",
             expire, newMember.getId(), clan.getId()));
     when(jwtService.decodeAndVerify(any())).thenReturn(jwtToken);
-    when(clanRepository.findOne(clan.getId())).thenReturn(clan);
-    when(playerRepository.findOne(newMember.getId())).thenReturn(newMember);
+    when(clanRepository.findById(clan.getId())).thenReturn(Optional.of(clan));
+    when(playerRepository.findById(newMember.getId())).thenReturn(Optional.of(newMember));
     when(playerService.getPlayer(any())).thenReturn(newMember);
 
     try {
@@ -375,8 +370,8 @@ public class ClanServiceTest {
         String.format("{\"expire\":%s,\"newMember\":{\"id\":%s},\"clan\":{\"id\":%s}}",
             expire, newMember.getId(), clan.getId()));
     when(jwtService.decodeAndVerify(any())).thenReturn(jwtToken);
-    when(clanRepository.findOne(clan.getId())).thenReturn(clan);
-    when(playerRepository.findOne(newMember.getId())).thenReturn(newMember);
+    when(clanRepository.findById(clan.getId())).thenReturn(Optional.of(clan));
+    when(playerRepository.findById(newMember.getId())).thenReturn(Optional.of(newMember));
     when(playerService.getPlayer(any())).thenReturn(newMember);
 
     instance.acceptPlayerInvitationToken(stringToken, null);

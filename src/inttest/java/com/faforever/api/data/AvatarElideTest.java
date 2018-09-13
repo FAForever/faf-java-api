@@ -39,7 +39,7 @@ public class AvatarElideTest extends AbstractIntegrationTest {
 
   @Test
   public void getUnusedAvatar() throws Exception {
-    Avatar avatar = avatarRepository.findOne(1);
+    Avatar avatar = avatarRepository.getOne(1);
 
     mockMvc.perform(get("/data/avatar/1"))
       .andExpect(status().isOk())
@@ -52,7 +52,7 @@ public class AvatarElideTest extends AbstractIntegrationTest {
 
   @Test
   public void getAvatarWithPlayer() throws Exception {
-    Avatar avatar = avatarRepository.findOne(2);
+    Avatar avatar = avatarRepository.getOne(2);
 
     mockMvc.perform(get("/data/avatar/2"))
       .andExpect(status().isOk())
@@ -80,7 +80,7 @@ public class AvatarElideTest extends AbstractIntegrationTest {
           )
         ))
     ).andExpect(status().isCreated());
-    final Optional<AvatarAssignment> createdAssignment = avatarAssignmentRepository.findOneByAvatarAndPlayer(avatar, player);
+    Optional<AvatarAssignment> createdAssignment = avatarAssignmentRepository.findOneByAvatarIdAndPlayerId(1, 1);
     assertThat(createdAssignment.isPresent(), is(true));
     assertThat(createdAssignment.get().getPlayer().getId(), is(player.getId()));
     assertThat(createdAssignment.get().getAvatar().getId(), is(avatar.getId()));

@@ -78,7 +78,17 @@ public enum ErrorCode {
   AVATAR_NAME_CONFLICT(168, "Invalid avatar file name", "Avatar file name ''{0}'' already exists."),
   AVATAR_IN_USE(169, "Avatar in use", "Could not delete avatar {0, number}. Avatar still in use."),
   ENTITY_NOT_FOUND(170, "Entity not found", "Entity with id: {0} not found."),
-  INVALID_AVATAR_DIMENSION(171, "Invalid avatar dimensions", "Avatar dimensions must be {0, number}x{1, number}, was: {2, number}x{3, number}.");
+  INVALID_AVATAR_DIMENSION(171, "Invalid avatar dimensions", "Avatar dimensions must be {0, number}x{1, number}, was: {2, number}x{3, number}."),
+  VOTED_TWICE(172, "You can not vote twice", "There was a vote found for your user and this subject"),
+  NOT_ENOUGH_GAMES(173, "You have not got enough games to vote", "You have ''{0}'' games but you need ''{1}''."),
+  TOO_MANY_ANSWERS(174, "You have to many answers selected in question", "You selected ''{0}'' but you can only select ''{1}''."),
+  VOTE_DID_NOT_START_YET(175, "Vote did not start yet.", "You can not vote if the voting has not started. Vote starts at ''{0}''."),
+  VOTE_ALREADY_ENDED(176, "Vote ended  already", "You can not vote if the voting has already finished. Vote ended at ''{0}''."),
+  MALFORMATTED_ALTERNATIVE_ORDINALS(177, "You have malformatted alternative ordinals", "Check your preference ordinals. You might have left out an option in between."),
+  VOTED_TWICE_ON_ONE_OPTION(178, "Selected one option twice", "You can not vote twice for one option. Voting Choice with id ''{0}'' was selected twice."),
+  CAN_NOT_REVEAL_RESULTS_WHEN_VOTING_IS_NOT_FINISHED(179, "Vote still ongoing", "You can reveal results when voting is ongoing. Please set reveal results only after voting finished."),
+  VOTING_SUBJECT_DOES_NOT_EXIST(180, "Voting subject does not exist", "There is no voting subject with the ID ''{0}''."),
+  VOTING_CHOICE_DOES_NOT_EXIST(181, "Invalid choice", "There is no voting choice with the ID ''{0}''.");
 
   private final int code;
   private final String title;
@@ -93,4 +103,5 @@ public enum ErrorCode {
   public String codeAsString() {
     return String.valueOf(code);
   }
+
 }
