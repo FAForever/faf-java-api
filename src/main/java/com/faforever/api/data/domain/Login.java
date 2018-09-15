@@ -13,6 +13,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
+import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
   private Set<UserNote> userNotes;
   private LobbyGroup lobbyGroup;
   private String recentIpAddress;
+  private OffsetDateTime lastLogin;
 
   public Login() {
     this.bans = new HashSet<>(0);
@@ -56,6 +58,12 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
   @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
   public String getRecentIpAddress() {
     return recentIpAddress;
+  }
+
+  @Column(name = "last_login")
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
+  public OffsetDateTime getLastLogin() {
+    return lastLogin;
   }
 
   @Column(name = "user_agent")

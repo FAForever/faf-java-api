@@ -175,13 +175,14 @@ public class UserServiceTest {
 
   @Test
   public void activate() {
+    final String TEST_IP_ADDRESS = "127.0.0.1";
     when(fafTokenService.resolveToken(FafTokenType.REGISTRATION, TOKEN_VALUE)).thenReturn(ImmutableMap.of(
       UserService.KEY_USERNAME, TEST_USERNAME,
       UserService.KEY_EMAIL, TEST_CURRENT_EMAIL,
       UserService.KEY_PASSWORD, fafPasswordEncoder.encode(TEST_NEW_PASSWORD)
     ));
 
-    instance.activate(TOKEN_VALUE, "127.0.0.1");
+    instance.activate(TOKEN_VALUE, TEST_IP_ADDRESS);
 
     ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
     verify(userRepository).save(captor.capture());
@@ -192,6 +193,7 @@ public class UserServiceTest {
     assertThat(user.getLogin(), is(TEST_USERNAME));
     assertThat(user.getEmail(), is(TEST_CURRENT_EMAIL));
     assertThat(user.getPassword(), is(fafPasswordEncoder.encode(TEST_NEW_PASSWORD)));
+    assertThat(user.getRecentIpAddress(), is(TEST_IP_ADDRESS));
 
     verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME), eq("127.0.0.1"), any(OffsetDateTime.class));
   }
