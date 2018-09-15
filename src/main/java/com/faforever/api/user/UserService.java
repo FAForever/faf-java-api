@@ -140,6 +140,7 @@ public class UserService {
     user.setPassword(password);
     user.setEmail(email);
     user.setLogin(username);
+    user.setRecentIpAddress(ipAddress);
 
     user = userRepository.save(user);
 
