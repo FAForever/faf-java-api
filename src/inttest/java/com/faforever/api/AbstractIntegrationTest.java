@@ -48,7 +48,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @Transactional
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultUser.sql")
 public abstract class AbstractIntegrationTest {
-  protected static final DateTimeFormatter OFFSET_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+  protected static final DateTimeFormatter OFFSET_DATE_TIME_FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
   protected final static String AUTH_WEBSITE = "WEBSITE";
   protected final static String AUTH_USER = "USER";
