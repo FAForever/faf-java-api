@@ -217,6 +217,7 @@ dependencies {
   compile("org.springframework.boot:spring-boot-starter-security")
   compile("org.springframework.boot:spring-boot-starter-thymeleaf")
   compile("org.springframework.boot:spring-boot-starter-mail")
+  compile("de.codecentric:spring-boot-admin-starter-client:${springBootAdminClientVersion}")
 
   compile("com.github.ben-manes.caffeine:caffeine")
   compile("com.github.FAForever:faf-java-commons:${fafCommonsVersion}")
@@ -238,9 +239,6 @@ dependencies {
   compile("com.yahoo.elide:elide-swagger:${elideVersion}")
   compile("com.yahoo.elide:elide-datastore-hibernate5:${elideVersion}")
 //  compile("org.glassfish.jersey.core:jersey-common:2.26")
-  compile("com.zaxxer:HikariCP:${hikariCpVersion}") {
-    exclude(module: 'tools')
-  }
 
   compile("org.luaj:luaj-jse:${luajVersion}")
   compile("com.github.micheljung:nocatch:${nocatchVersion}")
