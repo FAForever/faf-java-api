@@ -217,7 +217,6 @@ dependencies {
   compile("org.springframework.boot:spring-boot-starter-security")
   compile("org.springframework.boot:spring-boot-starter-thymeleaf")
   compile("org.springframework.boot:spring-boot-starter-mail")
-  compile("de.codecentric:spring-boot-admin-starter-client:1.5.7")
 
   compile("com.github.ben-manes.caffeine:caffeine")
   compile("com.github.FAForever:faf-java-commons:${fafCommonsVersion}")
