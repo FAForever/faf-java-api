@@ -1,5 +1,6 @@
 package com.faforever.api.data.domain;
 
+import lombok.EqualsAndHashCode;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -11,8 +12,8 @@ import java.time.OffsetDateTime;
 
 @MappedSuperclass
 @Setter
+@EqualsAndHashCode(of = "id")
 public abstract class AbstractEntity {
-  @com.github.jasminb.jsonapi.annotations.Id
   protected int id;
   protected OffsetDateTime createTime;
   protected OffsetDateTime updateTime;
@@ -32,5 +33,12 @@ public abstract class AbstractEntity {
   @Column(name = "update_time")
   public OffsetDateTime getUpdateTime() {
     return updateTime;
+  }
+
+  /**
+   * Supplement method for @EqualsAndHashCode overriding the default lombok implementation
+   */
+  protected boolean canEqual(Object other) {
+    return other instanceof AbstractEntity && this.getClass() == other.getClass();
   }
 }

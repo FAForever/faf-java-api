@@ -2,6 +2,7 @@ package com.faforever.api.data;
 
 import com.faforever.api.AbstractIntegrationTest;
 import org.junit.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
@@ -21,6 +22,7 @@ public class Ladder1v1MapTest extends AbstractIntegrationTest {
   public void cannotCreateLadderMapAsUser() throws Exception {
     mockMvc.perform(
       post("/data/ladder1v1Map")
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
         .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
       .andExpect(status().isForbidden());
   }
@@ -30,6 +32,7 @@ public class Ladder1v1MapTest extends AbstractIntegrationTest {
   public void canCreateLadderMapAsModerator() throws Exception {
     mockMvc.perform(
       post("/data/ladder1v1Map")
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
         .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
       .andExpect(status().isCreated());
   }

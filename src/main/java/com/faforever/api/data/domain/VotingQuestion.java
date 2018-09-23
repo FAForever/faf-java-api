@@ -12,7 +12,6 @@ import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
-import lombok.EqualsAndHashCode;
 import lombok.Setter;
 
 import javax.persistence.CascadeType;
@@ -31,7 +30,6 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
 
-@EqualsAndHashCode(of = "id", callSuper = false)
 @Entity
 @Table(name = "voting_question")
 @ReadPermission(expression = "Prefab.Role.All")

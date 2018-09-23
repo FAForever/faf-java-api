@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class UsersControllerTest extends AbstractIntegrationTest {
@@ -319,13 +320,13 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   public void linkToSteam() throws Exception {
     assertThat(userRepository.getOne(1).getSteamId(), nullValue());
 
-    String steamId = "1234";
-    String callbackUrl = "callbackUrl";
+    String steamId = "12345";
+    String callbackUrl = "http://faforever.com";
     String token = fafTokenService.createToken(
       FafTokenType.LINK_TO_STEAM,
       Duration.ofSeconds(100),
       ImmutableMap.of(
-        UserService.KEY_USER_ID, "2",
+        UserService.KEY_USER_ID, "1",
         UserService.KEY_STEAM_LINK_CALLBACK_URL, callbackUrl
       ));
 
@@ -337,7 +338,36 @@ public class UsersControllerTest extends AbstractIntegrationTest {
       .andExpect(status().isFound())
       .andExpect(redirectedUrl(callbackUrl));
 
-    assertThat(userRepository.getOne(2).getSteamId(), is(steamId));
+    assertThat(userRepository.getOne(1).getSteamId(), is(steamId));
+  }
+
+  @Test
+  @WithAnonymousUser
+  public void linkToSteamAlreadyLinkedAccount() throws Exception {
+    String steamId = "1234";
+    assertThat(userRepository.getOne(1).getSteamId(), nullValue());
+    User userThatOwnsSteamId = userRepository.getOne(2);
+    assertThat(userThatOwnsSteamId.getSteamId(), is(steamId));
+
+    String callbackUrl = "http://faforever.com";
+    String token = fafTokenService.createToken(
+      FafTokenType.LINK_TO_STEAM,
+      Duration.ofSeconds(100),
+      ImmutableMap.of(
+        UserService.KEY_USER_ID, "1",
+        UserService.KEY_STEAM_LINK_CALLBACK_URL, callbackUrl
+      ));
+
+    when(steamService.parseSteamIdFromLoginRedirect(any())).thenReturn(steamId);
+    when(steamService.ownsForgedAlliance(anyString())).thenReturn(true);
+
+    mockMvc.perform(
+      get(String.format("/users/linkToSteam?callbackUrl=%s&token=%s&openid.identity=http://steamcommunity.com/openid/id/%s", callbackUrl, token, steamId)))
+      .andExpect(status().isFound())
+      .andExpect(redirectedUrlPattern(callbackUrl+"?errors=*"+ErrorCode.STEAM_ID_ALREADY_LINKED.getCode()+"*"+userThatOwnsSteamId.getLogin()+"*"));
+    //We expect and error with code STEAM_ID_ALREADY_LINKED and that the error message contains the user that this steam account was linked to already which is MODERATOR with id 2
+
+    assertThat(userRepository.getOne(1).getSteamId(), nullValue());
   }
 
   @Test

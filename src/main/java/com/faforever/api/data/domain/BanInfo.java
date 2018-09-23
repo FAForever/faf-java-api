@@ -2,13 +2,16 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.permission.HasBanRead;
 import com.faforever.api.data.checks.permission.HasBanUpdate;
+import com.faforever.api.security.FafUserDetails;
 import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
+import com.yahoo.elide.annotation.OnCreatePreSecurity;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
+import com.yahoo.elide.core.RequestScope;
 import lombok.Setter;
 
 import javax.persistence.CascadeType;
@@ -42,6 +45,7 @@ public class BanInfo extends AbstractEntity {
   private OffsetDateTime expiresAt;
   private BanLevel level;
   private BanRevokeData banRevokeData;
+  private ModerationReport moderationReport;
 
   @ManyToOne
   @JoinColumn(name = "player_id")
@@ -81,6 +85,12 @@ public class BanInfo extends AbstractEntity {
     return banRevokeData;
   }
 
+  @ManyToOne
+  @JoinColumn(name = "report_id")
+  public ModerationReport getModerationReport() {
+    return moderationReport;
+  }
+
   @Transient
   public BanDurationType getDuration() {
     return expiresAt == null ? BanDurationType.PERMANENT : BanDurationType.TEMPORARY;
@@ -97,5 +107,16 @@ public class BanInfo extends AbstractEntity {
     return expiresAt.isAfter(OffsetDateTime.now())
       ? BanStatus.BANNED
       : BanStatus.EXPIRED;
+  }
+
+  @OnCreatePreSecurity
+  public void assignReporter(RequestScope scope) {
+    final Object caller = scope.getUser().getOpaqueUser();
+    if (caller instanceof FafUserDetails) {
+      final FafUserDetails fafUser = (FafUserDetails) caller;
+      final Player author = new Player();
+      author.setId(fafUser.getId());
+      this.author = author;
+    }
   }
 }
