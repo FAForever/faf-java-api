@@ -23,7 +23,7 @@ In order to run the application from source code:
 
 Given the number of required configuration values, it's easiest to run the API using `faf-stack`:
 
-    docker-compose up -d faf-api
+    docker-compose up -d faf-java-api
 
 ## Sample routes
 
