@@ -63,7 +63,7 @@ public class Map {
   }
 
   @Column(name = "display_name", unique = true)
-  @Size(max = 100)
+  @Size(min = 3, max = 100)
   @NotNull
   public String getDisplayName() {
     return displayName;
