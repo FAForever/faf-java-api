@@ -30,7 +30,7 @@ after_success:
   - ./gradlew jacocoTestReport coveralls
   - export IMAGE_TAG=faf-java-api;
   - export REPO=faforever/faf-java-api;
-  - if [ -n "${TRAVIS_TAG}" || "${TRAVIS_BRANCH}" == "develop" ]; then
+  - if [ -n "${TRAVIS_TAG}" -o "${TRAVIS_BRANCH}" == "develop" ]; then
     docker build -t ${IMAGE_TAG} . &&
     echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin &&
     docker tag ${IMAGE_TAG} ${REPO}:${VERSION} &&
