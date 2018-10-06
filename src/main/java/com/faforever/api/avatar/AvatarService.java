@@ -8,8 +8,8 @@ import com.faforever.api.error.ErrorCode;
 import com.faforever.api.error.NotFoundApiException;
 import com.faforever.api.error.ProgrammingError;
 import com.faforever.api.security.Audit;
-import com.faforever.api.utils.FileNameUtil;
 import com.faforever.api.utils.FilePermissionUtil;
+import com.faforever.api.utils.NameUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +46,7 @@ public class AvatarService {
   @Audit(messageTemplate = "Avatar [''{0}'' - ''{1}''] created.", expressions = {"${avatarMetadata.name}", "${originalFilename}"})
   public void createAvatar(AvatarMetadata avatarMetadata, String originalFilename, InputStream imageDataInputStream, long avatarImageFileSize) {
     final Avatar avatarToCreate = new Avatar();
-    final String normalizedAvatarFileName = FileNameUtil.normalizeFileName(originalFilename);
+    final String normalizedAvatarFileName = NameUtil.normalizeFileName(originalFilename);
     String url = String.format(properties.getAvatar().getDownloadUrlFormat(), normalizedAvatarFileName);
     avatarRepository.findOneByUrl(url).ifPresent(existingAvatar -> {
       throw new ApiException(new Error(ErrorCode.AVATAR_NAME_CONFLICT, normalizedAvatarFileName));

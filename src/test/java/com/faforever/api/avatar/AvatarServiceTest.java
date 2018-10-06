@@ -6,6 +6,7 @@ import com.faforever.api.data.domain.AvatarAssignment;
 import com.faforever.api.error.ApiExceptionWithCode;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.error.NotFoundApiException;
+import com.faforever.api.utils.NameUtil;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -93,14 +94,16 @@ public class AvatarServiceTest {
 
     final URL imageResource = loadResource(avatarFileName);
     try (final InputStream imageInputStream = imageResource.openStream()) {
-      avatarService.createAvatar(AVATAR_METADATA, "[./><" + avatarFileName, imageInputStream, VALID_FILE_SIZE);
+      String worstCasePrefix = "[./><";
+      avatarService.createAvatar(AVATAR_METADATA, worstCasePrefix + avatarFileName, imageInputStream, VALID_FILE_SIZE);
       ArgumentCaptor<Avatar> avatarCaptor = ArgumentCaptor.forClass(Avatar.class);
       verify(avatarRepository, times(1)).save(avatarCaptor.capture());
 
       final Avatar storedAvatar = avatarCaptor.getValue();
-      assertEquals(String.format(DOWNLOAD_URL_FORMAT, avatarFileName), storedAvatar.getUrl());
+      String expectedFilename = NameUtil.normalizeFileName(worstCasePrefix + avatarFileName);
+      assertEquals(String.format(DOWNLOAD_URL_FORMAT, expectedFilename), storedAvatar.getUrl());
       assertEquals(AVATAR_NAME, storedAvatar.getTooltip());
-      assertThat(avatarsPath.resolve(avatarFileName).toFile().length(), is(imageResource.openConnection().getContentLengthLong()));
+      assertThat(avatarsPath.resolve(expectedFilename).toFile().length(), is(imageResource.openConnection().getContentLengthLong()));
     }
   }
 
@@ -229,6 +232,7 @@ public class AvatarServiceTest {
     verify(avatarRepository, times(1)).delete(avatarToDelete);
     assertThat(avatarFilePath.toFile().exists(), is(false));
   }
+
   @Test
   public void deleteNotExistingAvatar() throws Exception {
     when(avatarRepository.findById(AVATAR_ID)).thenReturn(Optional.empty());

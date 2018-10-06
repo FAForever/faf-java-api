@@ -8,8 +8,8 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
-import com.faforever.api.utils.FileNameUtil;
 import com.faforever.api.utils.FilePermissionUtil;
+import com.faforever.api.utils.NameUtil;
 import com.faforever.commons.mod.ModReader;
 import com.google.common.primitives.Ints;
 import lombok.SneakyThrows;
@@ -145,8 +145,13 @@ public class ModService {
     String name = modInfo.getName();
     if (name == null) {
       errors.add(new Error(ErrorCode.MOD_NAME_MISSING));
-    } else if (name.length() > properties.getMod().getMaxNameLength()) {
-      errors.add(new Error(ErrorCode.MOD_NAME_TOO_LONG));
+    } else {
+      if (name.length() > properties.getMod().getMaxNameLength()) {
+        errors.add(new Error(ErrorCode.MOD_NAME_TOO_LONG, properties.getMod().getMaxNameLength(), name.length()));
+      }
+      if (!NameUtil.isPrintableAsciiString(name)) {
+        errors.add(new Error(ErrorCode.MOD_NAME_INVALID));
+      }
     }
     if (modInfo.getUid() == null) {
       errors.add(new Error(ErrorCode.MOD_UID_MISSING));
@@ -203,7 +208,7 @@ public class ModService {
   }
 
   private String generateFolderName(String displayName, short version) {
-    return String.format("%s.v%04d", FileNameUtil.normalizeFileName(displayName), version);
+    return String.format("%s.v%04d", NameUtil.normalizeFileName(displayName), version);
   }
 
   private void store(com.faforever.commons.mod.Mod modInfo, Optional<Path> thumbnailPath, Player uploader, String zipFileName) {

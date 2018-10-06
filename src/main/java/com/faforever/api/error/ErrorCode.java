@@ -89,7 +89,10 @@ public enum ErrorCode {
   CAN_NOT_REVEAL_RESULTS_WHEN_VOTING_IS_NOT_FINISHED(179, "Vote still ongoing", "You can reveal results when voting is ongoing. Please set reveal results only after voting finished."),
   VOTING_SUBJECT_DOES_NOT_EXIST(180, "Voting subject does not exist", "There is no voting subject with the ID ''{0}''."),
   VOTING_CHOICE_DOES_NOT_EXIST(181, "Invalid choice", "There is no voting choice with the ID ''{0}''."),
-  STEAM_ID_ALREADY_LINKED(182, " Steam account already linked to a FAF account", "You linked this account already to user with name ''{0}''.");
+  STEAM_ID_ALREADY_LINKED(182, " Steam account already linked to a FAF account", "You linked this account already to user with name ''{0}''."),
+  MAP_NAME_INVALID(183, "Map name invalid", "The name of the map in the scenario file can only contain printable ASCII characters and blanks."),
+  MOD_NAME_INVALID(184, "Mod name invalid", "The name of the mod in the scenario file can only contain printable ASCII characters and blanks.");
+
 
   private final int code;
   private final String title;
@@ -104,5 +107,4 @@ public enum ErrorCode {
   public String codeAsString() {
     return String.valueOf(code);
   }
-
 }
