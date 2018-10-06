@@ -9,8 +9,8 @@ import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.error.ProgrammingError;
-import com.faforever.api.utils.FileNameUtil;
 import com.faforever.api.utils.FilePermissionUtil;
+import com.faforever.api.utils.NameUtil;
 import com.faforever.commons.io.Unzipper;
 import com.faforever.commons.io.Zipper;
 import com.faforever.commons.lua.LuaLoader;
@@ -56,6 +56,7 @@ public class MapService {
     "_script.lua"};
   private static final Charset MAP_CHARSET = StandardCharsets.ISO_8859_1;
   private static final String STUPID_MAP_FOLDER_PREFIX = "maps/";
+  public static final int MAP_DISPLAY_NAME_MAX_LENGTH = 100;
   private final FafApiProperties fafApiProperties;
   private final MapRepository mapRepository;
   private final ContentService contentService;
@@ -74,7 +75,7 @@ public class MapService {
     Assert.notNull(author, "'author' must not be null");
     Assert.isTrue(mapData.length > 0, "'mapData' must not be empty");
 
-    mapFilename = FileNameUtil.normalizeFileName(mapFilename);
+    mapFilename = NameUtil.normalizeFileName(mapFilename);
 
     MapUploadData progressData = new MapUploadData()
       .setBaseDir(contentService.createTempDir())
@@ -85,20 +86,23 @@ public class MapService {
     progressData.setUploadedFile(progressData.getBaseDir().resolve(mapFilename));
     copyToTemporaryDirectory(mapData, progressData);
 
-    unzipFile(progressData);
-    postProcessZipFiles(progressData);
+    try {
+      unzipFile(progressData);
+      postProcessZipFiles(progressData);
 
-    parseScenarioLua(progressData);
-    checkLua(progressData);
-    postProcessLuaFile(progressData);
+      parseScenarioLua(progressData);
+      checkLua(progressData);
+      postProcessLuaFile(progressData);
 
-    updateMapEntities(progressData);
+      updateMapEntities(progressData);
 
-    renameFolderNameAndCorrectPathInLuaFiles(progressData);
-    generatePreview(progressData);
+      renameFolderNameAndCorrectPathInLuaFiles(progressData);
+      generatePreview(progressData);
 
-    zipMapData(progressData);
-    assert cleanup(progressData);
+      zipMapData(progressData);
+    } finally {
+      cleanup(progressData);
+    }
   }
 
   @SneakyThrows
@@ -167,6 +171,14 @@ public class MapService {
     if (scenarioInfo.get(ScenarioMapInfo.NAME) == LuaValue.NIL) {
       errors.add(new Error(ErrorCode.MAP_NAME_MISSING));
     }
+    String displayName = scenarioInfo.get(ScenarioMapInfo.NAME).tojstring();
+    if (displayName.length() > MAP_DISPLAY_NAME_MAX_LENGTH) {
+      throw new ApiException(new Error(ErrorCode.MAP_NAME_TOO_LONG, MAP_DISPLAY_NAME_MAX_LENGTH, displayName.length()));
+    }
+    if (!NameUtil.isPrintableAsciiString(displayName)) {
+      throw new ApiException(new Error(ErrorCode.MAP_NAME_INVALID));
+    }
+
     if (scenarioInfo.get(ScenarioMapInfo.DESCRIPTION) == LuaValue.NIL) {
       errors.add(new Error(ErrorCode.MAP_DESCRIPTION_MISSING));
     }
@@ -241,7 +253,10 @@ public class MapService {
     if (map == null) {
       map = new Map();
     }
-    String name = FileNameUtil.normalizeFileName(scenarioInfo.get(ScenarioMapInfo.NAME).toString());
+
+    String name = scenarioInfo.get(ScenarioMapInfo.NAME).toString();
+
+
     map.setDisplayName(name)
       .setMapType(scenarioInfo.get(ScenarioMapInfo.TYPE).tojstring())
       .setBattleType(scenarioInfo.get(ScenarioMapInfo.CONFIGURATIONS).get(ScenarioMapInfo.CONFIGURATION_STANDARD).get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS).get(1)
