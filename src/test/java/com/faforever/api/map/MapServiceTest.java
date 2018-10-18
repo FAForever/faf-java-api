@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipInputStream;
 
 import static com.faforever.api.error.ApiExceptionWithCode.apiExceptionWithCode;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -262,6 +263,7 @@ public class MapServiceTest {
       assertEquals(256, mapVersion.getHeight());
       assertEquals(256, mapVersion.getWidth());
       assertEquals(3, mapVersion.getMaxPlayers());
+      assertThat(mapVersion.isHidden(), is(true));
       assertEquals("maps/sludge_test.v0001.zip", mapVersion.getFilename());
 
       assertFalse(Files.exists(tmpDir));

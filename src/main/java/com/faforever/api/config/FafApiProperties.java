@@ -100,6 +100,10 @@ public class FafApiProperties {
      * Allowed file extensions of uploaded maps.
      */
     private Set<String> allowedExtensions = ImmutableSet.of("zip");
+    /**
+     * Should be maps hidden by default when uploaded
+     */
+    private boolean hiddenByDefault = true;
   }
 
   @Data

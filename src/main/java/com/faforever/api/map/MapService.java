@@ -268,7 +268,7 @@ public class MapService {
       .setDescription(scenarioInfo.get(ScenarioMapInfo.DESCRIPTION).tojstring().replaceAll("<LOC .*?>", ""))
       .setWidth(size.get(1).toint())
       .setHeight(size.get(2).toint())
-      .setHidden(false)
+      .setHidden(fafApiProperties.getMap().isHiddenByDefault())
       .setRanked(progressData.isRanked())
       .setMaxPlayers(scenarioInfo.get(ScenarioMapInfo.CONFIGURATIONS).get(ScenarioMapInfo.CONFIGURATION_STANDARD).get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS).get(1)
         .get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS_ARMIES).length())
