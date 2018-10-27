@@ -1,10 +1,18 @@
-# Spring Boot based FAF-API Prototype
+# FAF API
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/12eecd69a3cf4f6c96ffa043a7d70198)](https://www.codacy.com/app/micheljung/faf-java-api?utm_source=github.com&utm_medium=referral&utm_content=micheljung/faf-java-api&utm_campaign=badger)
 [![Build Status](https://travis-ci.org/FAForever/faf-java-api.svg?branch=master)](https://travis-ci.org/FAForever/faf-java-api)
 [![Coverage Status](https://coveralls.io/repos/github/FAForever/faf-java-api/badge.svg?branch=develop)](https://coveralls.io/github/FAForever/faf-java-api?branch=develop)
  
- This is a prototype of a Spring Boot based API application for Forged Alliance Forever.
+This is the official FAForever API. Amongst others, the API offers the following functionality:
+- OAuth 2.0 compliant authentication server
+- User management (registration, password reset, etc.)
+- JSON-API compliant REST API for lots of community data (i.e. map, mod & replay vault, game statistics, etc.)
+- Leaderboards
+- Clan management
+- Vault upload functionality
+- Internal FAF featured mod deployments
+- Challonge proxy
  
 ## How to run
 
@@ -21,7 +29,7 @@ In order to run the application from source code:
  
 ### From binary
 
-Given the number of required configuration values, it's easiest to run the API using `faf-stack`:
+Given the number of required configuration values, it's easiest to run the API using [faf-stack](https://github.com/FAForever/faf-stack):
 
     docker-compose up -d faf-java-api
 

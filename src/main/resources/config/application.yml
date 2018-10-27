@@ -26,7 +26,7 @@ faf-api:
 
 spring:
   application:
-    name: FAF Java API Prototype
+    name: FAF Java API
   mvc:
     favicon:
       enabled: false
