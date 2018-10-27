@@ -10,7 +10,7 @@
 
 ### From source
 
-In order to run the application from source code:
+In order to run the application from source code:-
 
 1. Clone the repository
 1. Import the project into IntelliJ. For some reason, IntelliJ deletes launch configurations after import. Please revert such deleted files first (Version Control (Alt+F9) -> Local Changes)
