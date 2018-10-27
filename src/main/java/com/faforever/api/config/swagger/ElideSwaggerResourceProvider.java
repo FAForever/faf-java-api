@@ -1,6 +1,7 @@
 package com.faforever.api.config.swagger;
 
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import springfox.documentation.spring.web.DocumentationCache;
 import springfox.documentation.swagger.web.InMemorySwaggerResourcesProvider;
@@ -11,8 +12,8 @@ import java.util.List;
 @Component
 @Primary
 public class ElideSwaggerResourceProvider extends InMemorySwaggerResourcesProvider {
-  public ElideSwaggerResourceProvider(DocumentationCache documentationCache) {
-    super(documentationCache);
+  public ElideSwaggerResourceProvider(Environment environment, DocumentationCache documentationCache) {
+    super(environment, documentationCache);
   }
 
   @Override
