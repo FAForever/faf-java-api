@@ -59,10 +59,8 @@ public class VotingSubjectEnricher {
     VotingSubject votingSubject = votingQuestion.getVotingSubject();
     boolean ended = votingSubject.getEndOfVoteTime().isBefore(OffsetDateTime.now());
     List<VotingChoice> winners = votingQuestion.getWinners();
-    if ((winners == null || winners.isEmpty()) && ended && votingSubject.getRevealWinner()) {
+    if (winners.isEmpty() && ended && votingSubject.getRevealWinner()) {
       votingQuestion.setWinners(getWinners(votingQuestion));
-    } else {
-      votingQuestion.setWinners(Collections.emptyList());
     }
   }
 
