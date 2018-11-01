@@ -176,23 +176,34 @@ public class UserService {
 
   @Transactional
   public void changeLogin(String newLogin, User user, String ipAddress) {
+    internalChangeLogin(newLogin, user, ipAddress, false);
+  }
+
+  @Transactional
+  public void changeLoginForced(String newLogin, User user, String ipAddress) {
+    internalChangeLogin(newLogin, user, ipAddress, true);
+  }
+
+  private void internalChangeLogin(String newLogin, User user, String ipAddress, boolean force) {
     validateUsername(newLogin);
 
-    int minDaysBetweenChange = properties.getUser().getMinimumDaysBetweenUsernameChange();
-    nameRecordRepository.getDaysSinceLastNewRecord(user.getId(), minDaysBetweenChange)
-      .ifPresent(daysSinceLastRecord -> {
-        throw new ApiException(new Error(ErrorCode.USERNAME_CHANGE_TOO_EARLY, minDaysBetweenChange - daysSinceLastRecord.intValue()));
-      });
+    if (!force) {
+      int minDaysBetweenChange = properties.getUser().getMinimumDaysBetweenUsernameChange();
+      nameRecordRepository.getDaysSinceLastNewRecord(user.getId(), minDaysBetweenChange)
+        .ifPresent(daysSinceLastRecord -> {
+          throw new ApiException(new Error(ErrorCode.USERNAME_CHANGE_TOO_EARLY, minDaysBetweenChange - daysSinceLastRecord.intValue()));
+        });
 
-    int usernameReservationTimeInMonths = properties.getUser().getUsernameReservationTimeInMonths();
-    nameRecordRepository.getLastUsernameOwnerWithinMonths(newLogin, usernameReservationTimeInMonths)
-      .ifPresent(reservedByUserId -> {
-        if (reservedByUserId != user.getId()) {
-          throw new ApiException(new Error(ErrorCode.USERNAME_RESERVED, newLogin, usernameReservationTimeInMonths));
-        }
-      });
+      int usernameReservationTimeInMonths = properties.getUser().getUsernameReservationTimeInMonths();
+      nameRecordRepository.getLastUsernameOwnerWithinMonths(newLogin, usernameReservationTimeInMonths)
+        .ifPresent(reservedByUserId -> {
+          if (reservedByUserId != user.getId()) {
+            throw new ApiException(new Error(ErrorCode.USERNAME_RESERVED, newLogin, usernameReservationTimeInMonths));
+          }
+        });
 
-    log.debug("Changing username for user ''{}'' to ''{}''", user, newLogin);
+    }
+    log.debug("Changing username for user ''{}'' to ''{}'', forced:''{}''", user, newLogin, force);
     NameRecord nameRecord = new NameRecord()
       .setName(user.getLogin())
       .setPlayer(playerRepository.getOne(user.getId()));
@@ -276,10 +287,13 @@ public class UserService {
     if (authentication != null
       && authentication.getPrincipal() != null
       && authentication.getPrincipal() instanceof FafUserDetails) {
-      return userRepository.findById(((FafUserDetails) authentication.getPrincipal()).getId())
-        .orElseThrow(() -> new ApiException(new Error(TOKEN_INVALID)));
+      return getUser(((FafUserDetails) authentication.getPrincipal()).getId());
     }
     throw new ApiException(new Error(TOKEN_INVALID));
+  }
+
+  public User getUser(int userId) {
+    return userRepository.findById(userId).orElseThrow(() -> new ApiException(new Error(TOKEN_INVALID)));
   }
 
   public String buildSteamLinkUrl(User user, String callbackUrl) {

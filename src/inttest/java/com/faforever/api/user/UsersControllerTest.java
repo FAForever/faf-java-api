@@ -23,6 +23,7 @@ import java.time.Duration;
 import static junitx.framework.Assert.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -412,6 +413,41 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
+  @WithUserDetails(AUTH_USER)
+  public void changeUsernameForcedByUser() throws Exception {
+    assertThat(userRepository.getOne(1).getLogin(), is(AUTH_USER));
+
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("newUsername", NEW_USER);
+
+    mockMvc.perform(
+      post("/users/1/forceChangeUsername")
+        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .params(params))
+      .andExpect(status().is4xxClientError())
+      .andReturn();
+
+    assertThat(userRepository.getOne(1).getLogin(), is(not(NEW_USER)));
+  }
+
+  @Test
+  @WithUserDetails(AUTH_MODERATOR)
+  public void changeUsernameForcedByModerator() throws Exception {
+    assertThat(userRepository.getOne(2).getLogin(), is(AUTH_MODERATOR));
+
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("newUsername", NEW_USER);
+
+    mockMvc.perform(
+      post("/users/2/forceChangeUsername")
+        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .params(params))
+      .andExpect(status().isOk());
+
+    assertThat(userRepository.getOne(2).getLogin(), is(NEW_USER));
+  }
+
+  @Test
   @WithUserDetails(AUTH_MODERATOR)
   public void changeUsernameTooEarly() throws Exception {
     assertThat(userRepository.getOne(2).getLogin(), is(AUTH_MODERATOR));
@@ -429,5 +465,23 @@ public class UsersControllerTest extends AbstractIntegrationTest {
     assertApiError(result, ErrorCode.USERNAME_CHANGE_TOO_EARLY);
 
     assertThat(userRepository.getOne(2).getLogin(), is(AUTH_MODERATOR));
+  }
+
+  @Test
+  @WithUserDetails(AUTH_MODERATOR)
+  public void changeUsernameTooEarlyButForced() throws Exception {
+    assertThat(userRepository.getOne(2).getLogin(), is(AUTH_MODERATOR));
+
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("newUsername", NEW_USER);
+
+    MvcResult result = mockMvc.perform(
+      post("/users/2/forceChangeUsername")
+        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .params(params))
+      .andExpect(status().isOk())
+      .andReturn();
+
+    assertThat(userRepository.getOne(2).getLogin(), is(NEW_USER));
   }
 }

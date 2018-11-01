@@ -266,11 +266,28 @@ public class UserServiceTest {
   }
 
   @Test
+  public void changeLoginWithUsernameInUseButForced() {
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_TAKEN));
+
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
+    when(userRepository.existsByLoginIgnoreCase(TEST_USERNAME_CHANGED)).thenReturn(true);
+    instance.changeLoginForced(TEST_USERNAME_CHANGED, user, "127.0.0.1");
+  }
+
+  @Test
   public void changeLoginWithInvalidUsername() {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     instance.changeLogin("$%&", user, "127.0.0.1");
+  }
+
+  @Test
+  public void changeLoginWithInvalidUsernameButForced() {
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
+
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
+    instance.changeLoginForced("$%&", user, "127.0.0.1");
   }
 
   @Test
@@ -283,12 +300,26 @@ public class UserServiceTest {
   }
 
   @Test
+  public void changeLoginTooEarlyButForce() {
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
+    instance.changeLoginForced(TEST_USERNAME_CHANGED, user, "127.0.0.1");
+    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME_CHANGED), eq("127.0.0.1"), any(OffsetDateTime.class));
+  }
+
+  @Test
   public void changeLoginUsernameReserved() {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_RESERVED));
     when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(TEST_USERID + 1));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     instance.changeLogin(TEST_USERNAME_CHANGED, user, "127.0.0.1");
+  }
+
+  @Test
+  public void changeLoginUsernameReservedButForced() {
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
+    instance.changeLoginForced(TEST_USERNAME_CHANGED, user, "127.0.0.1");
+    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME_CHANGED), eq("127.0.0.1"), any(OffsetDateTime.class));
   }
 
   @Test
