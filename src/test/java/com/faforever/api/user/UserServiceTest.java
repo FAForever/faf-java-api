@@ -54,6 +54,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceTest {
+  public static final String INVALID_PASSWORD = "invalid password";
   private static final String TEST_SECRET = "banana";
   private static final int TEST_USERID = 5;
   private static final String TEST_USERNAME = "Junit";
@@ -216,7 +217,7 @@ public class UserServiceTest {
   public void changePasswordInvalidPassword() {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.PASSWORD_CHANGE_FAILED_WRONG_PASSWORD));
 
-    User user = createUser(TEST_USERID, TEST_USERNAME, "invalid password", TEST_CURRENT_EMAIL);
+    User user = createUser(TEST_USERID, TEST_USERNAME, INVALID_PASSWORD, TEST_CURRENT_EMAIL);
     instance.changePassword(TEST_CURRENT_PASSWORD, TEST_NEW_PASSWORD, user);
   }
 
@@ -237,7 +238,7 @@ public class UserServiceTest {
   public void changeEmailInvalidPassword() {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.EMAIL_CHANGE_FAILED_WRONG_PASSWORD));
 
-    User user = createUser(TEST_USERID, TEST_USERNAME, "invalid password", TEST_CURRENT_EMAIL);
+    User user = createUser(TEST_USERID, TEST_USERNAME, INVALID_PASSWORD, TEST_CURRENT_EMAIL);
     instance.changeEmail(TEST_CURRENT_PASSWORD, TEST_NEW_PASSWORD, user, IP_ADDRESS);
   }
 
