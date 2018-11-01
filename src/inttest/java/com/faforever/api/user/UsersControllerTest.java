@@ -475,7 +475,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("newUsername", NEW_USER);
 
-    MvcResult result = mockMvc.perform(
+    mockMvc.perform(
       post("/users/2/forceChangeUsername")
         .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
