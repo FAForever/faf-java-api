@@ -24,7 +24,6 @@ DELETE FROM updates_faf;
 DELETE FROM updates_faf_files;
 DELETE FROM avatars;
 DELETE FROM avatars_list;
-DELETE FROM ban_revoke;
 DELETE FROM ban;
 DELETE FROM clan_membership;
 DELETE FROM clan;
