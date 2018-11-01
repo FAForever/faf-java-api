@@ -1,4 +1,3 @@
-DELETE FROM ban_revoke;
 DELETE FROM ban;
 
 INSERT INTO login (id, login, email, password) VALUES
