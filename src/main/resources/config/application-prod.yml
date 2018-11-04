@@ -60,6 +60,17 @@ spring:
     password: ${DATABASE_PASSWORD}
   jpa:
     show-sql: false
+  boot:
+    admin:
+      client:
+        url: ${ADMIN_SERVER_URL}
+        username: ${ADMIN_SERVER_USERNAME}
+        password: ${ADMIN_SERVER_PASSWORD}
+        instance:
+          metadata:
+            user:
+              name: ${ADMIN_CLIENT_USERNAME}
+              password: ${ADMIN_CLIENT_PASSWORD}
 
 logging:
   path: ${LOG_FILE_DIRECTORY:/tmp}
