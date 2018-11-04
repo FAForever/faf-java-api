@@ -26,9 +26,9 @@ public class FafUserDetailsService implements UserDetailsService {
   }
 
   @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    User user = userRepository.findOneByLoginIgnoreCase(username)
-      .orElseThrow(() -> new UsernameNotFoundException("User could not be found: " + username));
+  public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
+    User user = userRepository.findOneByLoginIgnoreCaseOrEmailIgnoreCase(usernameOrEmail, usernameOrEmail)
+      .orElseThrow(() -> new UsernameNotFoundException("User could not be found: " + usernameOrEmail));
 
     ArrayList<GrantedAuthority> authorities = new ArrayList<>();
     authorities.add(LegacyAccessLevel.ROLE_USER);
