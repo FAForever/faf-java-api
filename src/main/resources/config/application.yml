@@ -69,10 +69,14 @@ server:
     max-http-post-size: 314572800
 
 management:
-  port: 8011
-  security:
-    enabled: false
-
+  server:
+    port: ${MANAGEMENT_PORT:8011}
+    address: ${MANAGEMENT_ADDRESS:}
+  endpoints:
+    web:
+      base-path: ${MANAGEMENT_BASE_PATH:/manage}
+      exposure:
+        include: '*'
 logging:
   level:
     com.faforever: ${LOG_LEVEL:info}
