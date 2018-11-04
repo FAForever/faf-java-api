@@ -30,7 +30,15 @@ public class LoginTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void retrieveModeratorToken() throws Exception {
+  public void retrieveModeratorTokenByUsername() throws Exception {
+    performOAuthTokenRequest(params)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.access_token", is(notNullValue())));
+  }
+
+  @Test
+  public void retrieveModeratorTokenByEmail() throws Exception {
+    params.set("username", "moderator@faforever.com");
     performOAuthTokenRequest(params)
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.access_token", is(notNullValue())));
