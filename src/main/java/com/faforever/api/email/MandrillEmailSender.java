@@ -8,7 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -22,7 +24,7 @@ public class MandrillEmailSender implements EmailSender {
 
   @Override
   @SneakyThrows
-  public void sendMail(String fromEmail, String fromName, String toEmail, String subject, String content) {
+  public void sendMail(String fromEmail, String fromName, Set<String> toEmails, String subject, String content) {
     MandrillMessage message = new MandrillMessage();
     message.setFromEmail(fromEmail);
     message.setFromName(fromName);
@@ -30,11 +32,14 @@ public class MandrillEmailSender implements EmailSender {
     message.setHtml(content);
     message.setAutoText(true);
 
-    Recipient recipient = new Recipient();
-    recipient.setEmail(toEmail);
-    message.setTo(Collections.singletonList(recipient));
+    final List<Recipient> recipients = toEmails.stream().map(toEmail -> {
+      final Recipient recipient = new Recipient();
+      recipient.setEmail(toEmail);
+      return recipient;
+    }).collect(Collectors.toList());
+    message.setTo(recipients);
 
-    log.debug("Sending activation email to: {}", toEmail);
+    log.debug("Sending activation email to: {}", toEmails);
     mandrillApi.messages().send(message, false);
   }
 }

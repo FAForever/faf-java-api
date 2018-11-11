@@ -4,6 +4,7 @@ import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.IsInAwaitingState;
 import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.checks.permission.IsModerator;
+import com.faforever.api.data.listeners.ModerationReportListener;
 import com.faforever.api.security.FafUserDetails;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yahoo.elide.annotation.Audit;
@@ -22,6 +23,7 @@ import lombok.ToString;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
@@ -48,6 +50,7 @@ import java.util.Set;
 @CreatePermission(expression = Prefab.ALL)
 @Audit(action = Action.CREATE, logStatement = "Moderation report `{0}` has been reported", logExpressions = "${moderationReport}")
 @Audit(action = Action.UPDATE, logStatement = "Moderation report `{0}` has been updated", logExpressions = "${moderationReport}")
+@EntityListeners(ModerationReportListener.class)
 public class ModerationReport extends AbstractEntity implements OwnableEntity {
   public static final String TYPE_NAME = "moderationReport";
   private ModerationReportStatus reportStatus;

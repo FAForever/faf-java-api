@@ -1,7 +1,9 @@
 package com.faforever.api.moderationreport;
 
 import com.faforever.api.AbstractIntegrationTest;
+import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.DataController;
+import com.faforever.api.email.EmailService;
 import com.faforever.commons.api.dto.Game;
 import com.faforever.commons.api.dto.ModerationReport;
 import com.faforever.commons.api.dto.ModerationReportStatus;
@@ -9,6 +11,8 @@ import com.faforever.commons.api.dto.Player;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -21,6 +25,9 @@ import java.util.Set;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -38,6 +45,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ModerationReportTest extends AbstractIntegrationTest {
   private ModerationReport validModerationReport;
   private Set<Player> reportedUsers;
+  @Autowired
+  private FafApiProperties properties;
+
+  @MockBean
+  private EmailService emailService;
 
   @Override
   @Before
@@ -83,6 +95,23 @@ public class ModerationReportTest extends AbstractIntegrationTest {
       .andExpect(jsonPath("$.data.relationships.reporter.data.id", is("1")))
       .andExpect(jsonPath("$.data.relationships.game.data.id", is("1")))
       .andExpect(jsonPath("$.data.relationships.reportedUsers.data", hasSize(2)));
+  }
+
+  @Test
+  @WithUserDetails(AUTH_USER)
+  public void newModerationReportNotifiesModerators() throws Exception {
+    properties.getModerationReport()
+      .setNotificationEmailSubject("Moderation Report notification")
+      .setNotificationEmailBodyTemplate("New moderation report has been reported by {0}.\nDescription: {1}\nIncident code: {2}\nReported Users: {3}");
+    mockMvc.perform(
+      post("/data/moderationReport")
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .content(createJsonApiContent(validModerationReport)))
+      .andExpect(status().isCreated());
+    verify(emailService, times(1)).sendMail(
+      eq(Sets.newHashSet("admin@faforever.com", "moderator@faforever.com")),
+      eq("Moderation Report notification"),
+      eq("New moderation report has been reported by null.\nDescription: Report description\nIncident code: Incident code\nReported Users: [ADMIN, MODERATOR]"));
   }
 
   @Test
@@ -242,7 +271,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
   @WithUserDetails(AUTH_MODERATOR)
   public void moderatorCanUpdateReportStatus() throws Exception {
     final ModerationReport updatedReportStatusModerationReport = (ModerationReport) new ModerationReport()
-      .setReportStatus(ModerationReportStatus.AWAITING)
+      .setReportStatus(ModerationReportStatus.COMPLETED)
       .setId("1");
     mockMvc.perform(
       patch("/data/moderationReport/1")
@@ -251,7 +280,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
       .andExpect(status().isNoContent());
     mockMvc.perform(
       get("/data/moderationReport/1"))
-      .andExpect(jsonPath("$.data.attributes.reportStatus", is(ModerationReportStatus.AWAITING.name())));
+      .andExpect(jsonPath("$.data.attributes.reportStatus", is(ModerationReportStatus.COMPLETED.name())));
   }
 
   @Test

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 @Service
@@ -62,6 +63,17 @@ public class EmailService {
       email,
       passwordReset.getSubject(),
       MessageFormat.format(passwordReset.getHtmlFormat(), username, passwordResetUrl)
+    );
+  }
+
+  @SneakyThrows
+  public void sendMail(Set<String> receiversEmails, String subject, String body) {
+    emailSender.sendMail(
+      properties.getMail().getFromEmailAddress(),
+      properties.getMail().getFromEmailName(),
+      receiversEmails,
+      subject,
+      body
     );
   }
 }

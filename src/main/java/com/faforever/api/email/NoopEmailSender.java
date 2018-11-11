@@ -7,14 +7,16 @@ import org.springframework.boot.autoconfigure.condition.NoneNestedConditions;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+
 @Component
 @Slf4j
 @Conditional(MailSenderCondition.class)
 public class NoopEmailSender implements EmailSender {
   @Override
-  public void sendMail(String fromEmail, String fromName, String toEmail, String subject, String content) {
+  public void sendMail(String fromEmail, String fromName, Set<String> toEmails, String subject, String content) {
     log.debug("Would send email from '{} <{}>' to '{}' with subject '{}' and text: {}",
-      fromName, fromEmail, toEmail, subject, content);
+      fromName, fromEmail, toEmails, subject, content);
   }
 
   static class MailSenderCondition extends NoneNestedConditions {

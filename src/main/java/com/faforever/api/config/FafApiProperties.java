@@ -39,6 +39,7 @@ public class FafApiProperties {
   private Anope anope = new Anope();
   private Rating rating = new Rating();
   private Tutorial tutorial = new Tutorial();
+  private ModerationReport moderationReport = new ModerationReport();
 
   @Data
   public static class OAuth2 {
@@ -249,5 +250,11 @@ public class FafApiProperties {
   @Data
   public static class Tutorial {
     private String thumbnailUrlFormat;
+  }
+
+  @Data
+  public static class ModerationReport {
+    private String notificationEmailSubject = "";
+    private String notificationEmailBodyTemplate = "";
   }
 }

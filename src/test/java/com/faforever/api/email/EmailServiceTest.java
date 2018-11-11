@@ -5,6 +5,7 @@ import com.faforever.api.config.FafApiProperties.PasswordReset;
 import com.faforever.api.config.FafApiProperties.Registration;
 import com.faforever.api.error.ApiExceptionWithCode;
 import com.faforever.api.error.ErrorCode;
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -12,6 +13,8 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.HashSet;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -84,5 +87,12 @@ public class EmailServiceTest {
     instance.sendPasswordResetMail("junit", "junit@example.com", "http://example.com");
 
     verify(emailSender).sendMail("foo@bar.com", "foobar", "junit@example.com", "Hello", "Hello junit, bla: http://example.com");
+  }
+
+  @Test
+  public void sendMail() {
+    final HashSet<String> receiversEmails = Sets.newHashSet("mail@example.com", "mail@test.com");
+    instance.sendMail(receiversEmails, "subject", "body");
+    verify(emailSender).sendMail("foo@bar.com", "foobar", receiversEmails, "subject", "body");
   }
 }
