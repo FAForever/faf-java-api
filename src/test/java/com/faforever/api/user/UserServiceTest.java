@@ -54,6 +54,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceTest {
+  public static final String INVALID_PASSWORD = "invalid password";
   private static final String TEST_SECRET = "banana";
   private static final int TEST_USERID = 5;
   private static final String TEST_USERNAME = "Junit";
@@ -66,6 +67,7 @@ public class UserServiceTest {
   private static final String PASSWORD_RESET_URL_FORMAT = "http://www.example.com/resetPassword/%s";
   private static final String ACTIVATION_URL_FORMAT = "http://www.example.com/%s";
   private static final String STEAM_ID = "someSteamId";
+  private static final String IP_ADDRESS = "127.0.0.1";
   private static FafPasswordEncoder fafPasswordEncoder = new FafPasswordEncoder();
 
   @Rule
@@ -175,7 +177,7 @@ public class UserServiceTest {
 
   @Test
   public void activate() {
-    final String TEST_IP_ADDRESS = "127.0.0.1";
+    final String TEST_IP_ADDRESS = IP_ADDRESS;
     when(fafTokenService.resolveToken(FafTokenType.REGISTRATION, TOKEN_VALUE)).thenReturn(ImmutableMap.of(
       UserService.KEY_USERNAME, TEST_USERNAME,
       UserService.KEY_EMAIL, TEST_CURRENT_EMAIL,
@@ -195,7 +197,7 @@ public class UserServiceTest {
     assertThat(user.getPassword(), is(fafPasswordEncoder.encode(TEST_NEW_PASSWORD)));
     assertThat(user.getRecentIpAddress(), is(TEST_IP_ADDRESS));
 
-    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME), eq("127.0.0.1"), any(OffsetDateTime.class));
+    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME), eq(IP_ADDRESS), any(OffsetDateTime.class));
   }
 
   @Test
@@ -215,7 +217,7 @@ public class UserServiceTest {
   public void changePasswordInvalidPassword() {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.PASSWORD_CHANGE_FAILED_WRONG_PASSWORD));
 
-    User user = createUser(TEST_USERID, TEST_USERNAME, "invalid password", TEST_CURRENT_EMAIL);
+    User user = createUser(TEST_USERID, TEST_USERNAME, INVALID_PASSWORD, TEST_CURRENT_EMAIL);
     instance.changePassword(TEST_CURRENT_PASSWORD, TEST_NEW_PASSWORD, user);
   }
 
@@ -223,21 +225,21 @@ public class UserServiceTest {
   public void changeEmail() {
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
 
-    instance.changeEmail(TEST_CURRENT_PASSWORD, TEST_NEW_EMAIL, user, "127.0.0.1");
+    instance.changeEmail(TEST_CURRENT_PASSWORD, TEST_NEW_EMAIL, user, IP_ADDRESS);
     verify(emailService).validateEmailAddress(TEST_NEW_EMAIL);
     ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
     verify(userRepository).save(captor.capture());
     assertEquals(captor.getValue().getEmail(), TEST_NEW_EMAIL);
 
-    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME), eq("127.0.0.1"), any(OffsetDateTime.class));
+    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME), eq(IP_ADDRESS), any(OffsetDateTime.class));
   }
 
   @Test
   public void changeEmailInvalidPassword() {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.EMAIL_CHANGE_FAILED_WRONG_PASSWORD));
 
-    User user = createUser(TEST_USERID, TEST_USERNAME, "invalid password", TEST_CURRENT_EMAIL);
-    instance.changeEmail(TEST_CURRENT_PASSWORD, TEST_NEW_PASSWORD, user, "127.0.0.1");
+    User user = createUser(TEST_USERID, TEST_USERNAME, INVALID_PASSWORD, TEST_CURRENT_EMAIL);
+    instance.changeEmail(TEST_CURRENT_PASSWORD, TEST_NEW_PASSWORD, user, IP_ADDRESS);
   }
 
   @Test
@@ -245,7 +247,7 @@ public class UserServiceTest {
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(nameRecordRepository.getDaysSinceLastNewRecord(anyInt(), anyInt())).thenReturn(Optional.empty());
 
-    instance.changeLogin(TEST_USERNAME_CHANGED, user, "127.0.0.1");
+    instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
     ArgumentCaptor<User> captorUser = ArgumentCaptor.forClass(User.class);
     verify(userRepository).save(captorUser.capture());
     assertEquals(captorUser.getValue().getLogin(), TEST_USERNAME_CHANGED);
@@ -253,7 +255,7 @@ public class UserServiceTest {
     verify(nameRecordRepository).save(captorNameRecord.capture());
     assertEquals(captorNameRecord.getValue().getName(), TEST_USERNAME);
 
-    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME_CHANGED), eq("127.0.0.1"), any(OffsetDateTime.class));
+    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME_CHANGED), eq(IP_ADDRESS), any(OffsetDateTime.class));
   }
 
   @Test
@@ -262,7 +264,16 @@ public class UserServiceTest {
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(userRepository.existsByLoginIgnoreCase(TEST_USERNAME_CHANGED)).thenReturn(true);
-    instance.changeLogin(TEST_USERNAME_CHANGED, user, "127.0.0.1");
+    instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
+  }
+
+  @Test
+  public void changeLoginWithUsernameInUseButForced() {
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_TAKEN));
+
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
+    when(userRepository.existsByLoginIgnoreCase(TEST_USERNAME_CHANGED)).thenReturn(true);
+    instance.changeLoginForced(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
   }
 
   @Test
@@ -270,7 +281,15 @@ public class UserServiceTest {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    instance.changeLogin("$%&", user, "127.0.0.1");
+    instance.changeLogin("$%&", user, IP_ADDRESS);
+  }
+
+  @Test
+  public void changeLoginWithInvalidUsernameButForced() {
+    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
+
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
+    instance.changeLoginForced("$%&", user, IP_ADDRESS);
   }
 
   @Test
@@ -279,7 +298,14 @@ public class UserServiceTest {
     when(nameRecordRepository.getDaysSinceLastNewRecord(anyInt(), anyInt())).thenReturn(Optional.of(BigInteger.valueOf(5)));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    instance.changeLogin(TEST_USERNAME_CHANGED, user, "127.0.0.1");
+    instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
+  }
+
+  @Test
+  public void changeLoginTooEarlyButForce() {
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
+    instance.changeLoginForced(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
+    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME_CHANGED), eq(IP_ADDRESS), any(OffsetDateTime.class));
   }
 
   @Test
@@ -288,7 +314,14 @@ public class UserServiceTest {
     when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(TEST_USERID + 1));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    instance.changeLogin(TEST_USERNAME_CHANGED, user, "127.0.0.1");
+    instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
+  }
+
+  @Test
+  public void changeLoginUsernameReservedButForced() {
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
+    instance.changeLoginForced(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
+    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME_CHANGED), eq(IP_ADDRESS), any(OffsetDateTime.class));
   }
 
   @Test
@@ -296,9 +329,9 @@ public class UserServiceTest {
     when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(TEST_USERID));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    instance.changeLogin(TEST_USERNAME_CHANGED, user, "127.0.0.1");
+    instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
 
-    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME_CHANGED), eq("127.0.0.1"), any(OffsetDateTime.class));
+    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME_CHANGED), eq(IP_ADDRESS), any(OffsetDateTime.class));
   }
 
   @Test
@@ -502,6 +535,6 @@ public class UserServiceTest {
 
     activate();
 
-    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME), eq("127.0.0.1"), any(OffsetDateTime.class));
+    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME), eq(IP_ADDRESS), any(OffsetDateTime.class));
   }
 }

@@ -9,7 +9,7 @@ faf-api:
   challonge:
     key: ${CHALLONGE_KEY:}
   database:
-    schema-version: ${DATABASE_SCHEMA_VERSION:59}
+    schema-version: ${DATABASE_SCHEMA_VERSION:61}
   mautic:
     base-url: ${MAUTIC_BASE_URL:false}
     client-id: ${MAUTIC_CLIENT_ID:false}
@@ -26,7 +26,7 @@ faf-api:
 
 spring:
   application:
-    name: FAF Java API Prototype
+    name: FAF Java API
   mvc:
     favicon:
       enabled: false
@@ -69,10 +69,14 @@ server:
     max-http-post-size: 314572800
 
 management:
-  port: 8011
-  security:
-    enabled: false
-
+  server:
+    port: ${MANAGEMENT_PORT:8011}
+    address: ${MANAGEMENT_ADDRESS:}
+  endpoints:
+    web:
+      base-path: ${MANAGEMENT_BASE_PATH:/manage}
+      exposure:
+        include: '*'
 logging:
   level:
     com.faforever: ${LOG_LEVEL:info}

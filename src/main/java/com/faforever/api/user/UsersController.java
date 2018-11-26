@@ -1,6 +1,7 @@
 package com.faforever.api.user;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.data.domain.User;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
@@ -13,6 +14,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -76,6 +78,13 @@ public class UsersController {
     userService.changeLogin(newUsername, userService.getUser(authentication), RemoteAddressUtil.getRemoteAddress(request));
   }
 
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasAnyRole('ROLE_MODERATOR', 'ROLE_ADMINISTRATOR')")
+  @ApiOperation("Force the change of the login of a user with the given userId.")
+  @RequestMapping(path = "/{userId}/forceChangeUsername", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+  public void forceChangeLogin(HttpServletRequest request, @RequestParam("newUsername") String newUsername, @PathVariable("userId") String userId) {
+    User user = userService.getUser(Integer.valueOf(userId));
+    userService.changeLoginForced(newUsername, user, RemoteAddressUtil.getRemoteAddress(request));
+  }
 
   @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
   @ApiOperation("Changes the email of a previously registered account.")
