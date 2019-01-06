@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class PlayerEventsControllerTest {
+public class PlayerAchievementsControllerTest {
 
   private AchievementsController instance;
 

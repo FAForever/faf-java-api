@@ -36,7 +36,7 @@ public class PlayerEvent extends AbstractEntity {
   }
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "event_id", updatable = false, insertable = false)
+  @JoinColumn(name = "event_id", updatable = false)
   public Event getEvent() {
     return event;
   }

@@ -3,6 +3,7 @@ package com.faforever.api.player;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
+import com.faforever.api.error.ErrorCode;
 import com.faforever.api.security.FafUserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -29,5 +30,10 @@ public class PlayerService {
         .orElseThrow(() -> new ApiException(new Error(TOKEN_INVALID)));
     }
     throw new ApiException(new Error(TOKEN_INVALID));
+  }
+
+  public Player getById(Integer playerId) {
+    return playerRepository.findById(playerId)
+      .orElseThrow(() -> new ApiException(new Error(ErrorCode.ENTITY_NOT_FOUND, playerId)));
   }
 }
