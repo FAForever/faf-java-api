@@ -9,19 +9,18 @@ import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.OnCreatePreSecurity;
+import com.yahoo.elide.annotation.OnUpdatePreSecurity;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import com.yahoo.elide.core.RequestScope;
 import lombok.Setter;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
@@ -44,8 +43,10 @@ public class BanInfo extends AbstractEntity {
   private String reason;
   private OffsetDateTime expiresAt;
   private BanLevel level;
-  private BanRevokeData banRevokeData;
   private ModerationReport moderationReport;
+  private String revokeReason;
+  private Player revokeAuthor;
+  private OffsetDateTime revokeTime;
 
   @ManyToOne
   @JoinColumn(name = "player_id")
@@ -55,6 +56,7 @@ public class BanInfo extends AbstractEntity {
   }
 
   @ManyToOne
+  @UpdatePermission(expression = "Prefab.Role.None")
   @JoinColumn(name = "author_id")
   @NotNull
   public Player getAuthor() {
@@ -78,13 +80,6 @@ public class BanInfo extends AbstractEntity {
     return level;
   }
 
-  // Cascading is needed for Create & Delete
-  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-  @JoinColumn(name = "id")
-  public BanRevokeData getBanRevokeData() {
-    return banRevokeData;
-  }
-
   @ManyToOne
   @JoinColumn(name = "report_id")
   public ModerationReport getModerationReport() {
@@ -96,9 +91,26 @@ public class BanInfo extends AbstractEntity {
     return expiresAt == null ? BanDurationType.PERMANENT : BanDurationType.TEMPORARY;
   }
 
+  @Column(name = "revoke_reason")
+  public String getRevokeReason() {
+    return revokeReason;
+  }
+
+  @ManyToOne
+  @UpdatePermission(expression = "Prefab.Role.None")
+  @JoinColumn(name = "revoke_author_id")
+  public Player getRevokeAuthor() {
+    return revokeAuthor;
+  }
+
+  @Column(name = "revoke_time")
+  public OffsetDateTime getRevokeTime() {
+    return revokeTime;
+  }
+
   @Transient
   public BanStatus getBanStatus() {
-    if (banRevokeData != null) {
+    if (revokeTime != null && revokeTime.isBefore(OffsetDateTime.now())) {
       return BanStatus.DISABLED;
     }
     if (getDuration() == BanDurationType.PERMANENT) {
@@ -117,6 +129,26 @@ public class BanInfo extends AbstractEntity {
       final Player author = new Player();
       author.setId(fafUser.getId());
       this.author = author;
+    }
+  }
+
+  @OnUpdatePreSecurity("revokeTime")
+  public void revokeTimeUpdated(RequestScope scope) {
+    assignRevokeAuthor(scope);
+  }
+
+  @OnUpdatePreSecurity("revokeReason")
+  public void revokeReasonUpdated(RequestScope scope) {
+    assignRevokeAuthor(scope);
+  }
+
+  private void assignRevokeAuthor(RequestScope scope) {
+    final Object caller = scope.getUser().getOpaqueUser();
+    if (caller instanceof FafUserDetails) {
+      final FafUserDetails fafUser = (FafUserDetails) caller;
+      final Player author = new Player();
+      author.setId(fafUser.getId());
+      this.revokeAuthor = author;
     }
   }
 }

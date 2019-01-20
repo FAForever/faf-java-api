@@ -11,7 +11,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -43,13 +42,13 @@ public class PlayerAchievement extends AbstractEntity {
     return playerId;
   }
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "player_id", insertable = false, updatable = false)
   public Player getPlayer() {
     return player;
   }
 
-  @OneToOne
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "achievement_id")
   public Achievement getAchievement() {
     return achievement;
