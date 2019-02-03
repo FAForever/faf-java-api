@@ -50,6 +50,7 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
 
   @Column(name = "steamid")
   @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
+  @UpdatePermission(expression = IsModerator.EXPRESSION)
   public String getSteamId() {
     return steamId;
   }
