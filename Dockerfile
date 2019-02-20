@@ -1,4 +1,4 @@
-FROM frolvlad/alpine-oraclejdk8:slim
+FROM frolvlad/alpine-java:jdk8-slim
 
 MAINTAINER Michel Jung <michel.jung89@gmail.com>
 
