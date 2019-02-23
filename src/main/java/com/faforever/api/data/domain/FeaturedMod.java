@@ -30,6 +30,7 @@ public class FeaturedMod {
   private Boolean allowOverride;
   private String fileExtension;
   private String bireusUrl;
+  private String deploymentWebhook;
 
   @Id
   @Column(name = "id")
@@ -80,6 +81,11 @@ public class FeaturedMod {
   @Column(name = "file_extension")
   public String getFileExtension() {
     return fileExtension;
+  }
+
+  @Column(name = "deployment_webhook ")
+  public String getDeploymentWebhook() {
+    return deploymentWebhook;
   }
 
   @Transient

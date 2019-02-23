@@ -19,6 +19,8 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
 import javax.transaction.Transactional.TxType;
@@ -62,6 +64,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   private final GitWrapper gitWrapper;
   private final FeaturedModService featuredModService;
   private final FafApiProperties apiProperties;
+  private final RestTemplate restTemplate;
 
   @Setter
   private FeaturedMod featuredMod;
@@ -69,10 +72,11 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   @Setter
   private Consumer<String> statusDescriptionListener;
 
-  public LegacyFeaturedModDeploymentTask(GitWrapper gitWrapper, FeaturedModService featuredModService, FafApiProperties apiProperties) {
+  public LegacyFeaturedModDeploymentTask(GitWrapper gitWrapper, FeaturedModService featuredModService, FafApiProperties apiProperties, RestTemplate restTemplate) {
     this.gitWrapper = gitWrapper;
     this.featuredModService = featuredModService;
     this.apiProperties = apiProperties;
+    this.restTemplate = restTemplate;
   }
 
   @Override
@@ -112,8 +116,23 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     files.forEach(this::finalizeFile);
 
     updateDatabase(files, version, modName);
+    invokeDeploymentWebhook(featuredMod);
 
     log.info("Deployment of '{}' version '{}' was successful", modName, version);
+  }
+
+  void invokeDeploymentWebhook(FeaturedMod featuredMod) {
+    if (featuredMod.getDeploymentWebhook() == null) {
+      log.debug("No deployment webhook configured.");
+      return;
+    }
+
+    log.debug("Invoking deployment webhook on: {}", featuredMod.getDeploymentWebhook());
+    try {
+      restTemplate.getForObject(featuredMod.getDeploymentWebhook(), String.class);
+    } catch (RestClientException e) {
+      log.error("Invoking webhook failed on: {}", featuredMod.getDeploymentWebhook(), e);
+    }
   }
 
   /**

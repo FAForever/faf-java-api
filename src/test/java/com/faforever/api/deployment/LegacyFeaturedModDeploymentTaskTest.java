@@ -16,6 +16,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -34,6 +36,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -48,6 +51,9 @@ public class LegacyFeaturedModDeploymentTaskTest {
   private GitWrapper gitWrapper;
   @Mock
   private FeaturedModService featuredModService;
+  @Mock
+  private RestTemplate restTemplate;
+
   private FafApiProperties properties;
 
   @Before
@@ -57,7 +63,7 @@ public class LegacyFeaturedModDeploymentTaskTest {
     deployment.setRepositoriesDirectory(repositoriesFolder.getRoot().getAbsolutePath());
     deployment.setFeaturedModsTargetDirectory(targetFolder.getRoot().getAbsolutePath());
 
-    instance = new LegacyFeaturedModDeploymentTask(gitWrapper, featuredModService, properties);
+    instance = new LegacyFeaturedModDeploymentTask(gitWrapper, featuredModService, properties, restTemplate);
   }
 
   @Test(expected = IllegalStateException.class)
@@ -106,7 +112,8 @@ public class LegacyFeaturedModDeploymentTaskTest {
       .setFileExtension("nx3")
       .setTechnicalName("faf")
       .setAllowOverride(true)
-      .setGitUrl("git@example.com/FAForever/faf"));
+      .setGitUrl("git@example.com/FAForever/faf")
+      .setDeploymentWebhook("someUrl"));
 
     Mockito.doAnswer(invocation -> {
       Path repoFolder = invocation.getArgument(0);
@@ -137,6 +144,7 @@ public class LegacyFeaturedModDeploymentTaskTest {
 
     ArgumentCaptor<List<FeaturedModFile>> filesCaptor = ArgumentCaptor.forClass(List.class);
     verify(featuredModService).save(eq("faf"), eq((short) 1337), filesCaptor.capture());
+    verify(restTemplate).getForObject("someUrl", String.class);
 
     List<FeaturedModFile> files = filesCaptor.getValue();
     files.sort(Comparator.comparing(FeaturedModFile::getFileId));
@@ -153,6 +161,33 @@ public class LegacyFeaturedModDeploymentTaskTest {
 
     assertThat(Files.exists(targetFolder.getRoot().toPath().resolve("updates_faf_files/someDir.1337.nx3")), is(true));
     assertThat(Files.exists(targetFolder.getRoot().toPath().resolve("updates_faf_files/ForgedAlliance.1337.exe")), is(true));
+  }
+
+  @Test
+  public void testInvokeDeploymentWebhookSkipped() {
+    instance.invokeDeploymentWebhook(new FeaturedMod());
+    verifyNoMoreInteractions(restTemplate);
+  }
+
+  @Test
+  public void testInvokeDeploymentWebhookInvokedSuccess() {
+    String someUrl = "someUrl";
+    instance.invokeDeploymentWebhook(new FeaturedMod().setDeploymentWebhook(someUrl));
+
+    verify(restTemplate).getForObject(someUrl, String.class);
+    verifyNoMoreInteractions(restTemplate);
+  }
+
+  @Test
+  public void testInvokeDeploymentWebhookResilience() {
+    String someUrl = "someUrl";
+
+    when(restTemplate.getForObject(anyString(), eq(String.class))).thenThrow(new RestClientException("error"));
+
+    instance.invokeDeploymentWebhook(new FeaturedMod().setDeploymentWebhook(someUrl));
+
+    verify(restTemplate).getForObject(someUrl, String.class);
+    verifyNoMoreInteractions(restTemplate);
   }
 
   private void createDummyExe(Path file) throws IOException {
