@@ -16,7 +16,8 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestClientException;
@@ -56,7 +57,7 @@ import static java.nio.file.Files.createDirectories;
  */
 @Slf4j
 @Component
-@Lazy
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class LegacyFeaturedModDeploymentTask implements Runnable {
 
   private static final String NON_WORD_CHARACTER_PATTERN = "[^\\w]";
