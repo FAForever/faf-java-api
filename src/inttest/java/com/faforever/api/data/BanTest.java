@@ -84,7 +84,7 @@ public class BanTest extends AbstractIntegrationTest {
   @WithUserDetails(AUTH_USER)
   public void cannotCreateBanInfoAsUser() throws Exception {
     mockMvc.perform(post("/data/banInfo")
-      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+      .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isForbidden());
   }
@@ -110,7 +110,7 @@ public class BanTest extends AbstractIntegrationTest {
     assertThat(playerRepository.getOne(3).getBans().size(), is(0));
 
     mockMvc.perform(post("/data/banInfo")
-      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+      .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isCreated());
 
@@ -126,7 +126,7 @@ public class BanTest extends AbstractIntegrationTest {
       .setPlayer((Player) new Player().setId("3"))
       .setModerationReport((ModerationReport) new ModerationReport().setId("1"));
     mockMvc.perform(post("/data/banInfo")
-      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+      .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
       .content(createJsonApiContent(banInfo)))
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.data.relationships.moderationReport.data.id", is("1")));
@@ -141,7 +141,7 @@ public class BanTest extends AbstractIntegrationTest {
     banInfo.setRevokeReason("revoke reason");
 
     mockMvc.perform(patch("/data/banInfo/3")
-      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+      .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
       .content(createJsonApiContent(banInfo)))
       .andExpect(status().isNoContent());
 
@@ -157,7 +157,7 @@ public class BanTest extends AbstractIntegrationTest {
     banInfo.setRevokeReason("new revoke reason");
 
     mockMvc.perform(patch("/data/banInfo/3")
-      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+      .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
       .content(createJsonApiContent(banInfo)))
       .andExpect(status().isForbidden());
   }

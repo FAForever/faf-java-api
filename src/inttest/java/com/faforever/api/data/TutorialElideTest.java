@@ -71,7 +71,7 @@ public class TutorialElideTest extends AbstractIntegrationTest {
   @WithUserDetails(AUTH_USER)
   public void cannotPostTutorialAsUser() throws Exception {
     mockMvc.perform(post("/data/tutorial")
-      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+      .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
       .content(createJsonApiContent(tutorial())))
       .andExpect(status().isForbidden());
   }
@@ -89,7 +89,7 @@ public class TutorialElideTest extends AbstractIntegrationTest {
   public void moderatorCanPostTutorial() throws Exception {
     MvcResult mvcResult = mockMvc.perform(
       post("/data/tutorial")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(tutorial())))
       .andExpect(status().isCreated())
       .andReturn();

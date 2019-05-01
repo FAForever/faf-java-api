@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +22,8 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
 
 @RestController
@@ -43,7 +44,7 @@ public class ClansController {
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "Success with JSON { player: {id: ?, login: ?}, clan: { id: ?, name: ?, tag: ?}}"),
       @ApiResponse(code = 400, message = "Bad Request")})
-  @RequestMapping(path = "/me", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+  @RequestMapping(path = "/me", method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
   public MeResult me(Authentication authentication) {
     Player player = playerService.getPlayer(authentication);
 
@@ -61,7 +62,7 @@ public class ClansController {
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "Success with JSON { id: ?, type: 'clan'}"),
       @ApiResponse(code = 400, message = "Bad Request")})
-  @RequestMapping(path = "/create", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+  @RequestMapping(path = "/create", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
   @PreAuthorize("hasRole('ROLE_USER')")
   @Transactional
   public Map<String, Serializable> createClan(@RequestParam(value = "name") String name,
@@ -79,7 +80,7 @@ public class ClansController {
       @ApiResponse(code = 400, message = "Bad Request")})
   @RequestMapping(path = "/generateInvitationLink",
       method = RequestMethod.GET,
-      produces = MediaType.APPLICATION_JSON_VALUE)
+    produces = APPLICATION_JSON_UTF8_VALUE)
   public Map<String, Serializable> generateInvitationLink(
       @RequestParam(value = "clanId") int clanId,
       @RequestParam(value = "playerId") int newMemberId,
@@ -92,7 +93,7 @@ public class ClansController {
   @ApiOperation("Check invitation link and add Member to Clan")
   @RequestMapping(path = "/joinClan",
       method = RequestMethod.POST,
-      produces = MediaType.APPLICATION_JSON_VALUE)
+    produces = APPLICATION_JSON_UTF8_VALUE)
   @Transactional
   public void joinClan(
       @RequestParam(value = "token") String stringToken,

@@ -21,6 +21,9 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
+import static com.faforever.api.data.JsonApiMediaType.JSON_API_PATCH_MEDIA_TYPE;
+
 /**
  * JSON-API compliant data API.
  */
@@ -29,8 +32,6 @@ import java.util.Map;
 public class DataController {
 
   public static final String PATH_PREFIX = "/data";
-  public static final String JSON_API_MEDIA_TYPE = "application/vnd.api+json";
-  public static final String JSON_API_PATCH_MEDIA_TYPE = "application/vnd.api+json;ext=jsonpatch";
 
   private final Elide elide;
 

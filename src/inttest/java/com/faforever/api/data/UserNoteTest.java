@@ -70,7 +70,7 @@ public class UserNoteTest extends AbstractIntegrationTest {
   @WithUserDetails(AUTH_USER)
   public void cannotCreateUserNoteAsUser() throws Exception {
     mockMvc.perform(post("/data/userNote")
-      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+      .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isForbidden());
   }
@@ -96,7 +96,7 @@ public class UserNoteTest extends AbstractIntegrationTest {
     assertThat(playerRepository.getOne(3).getUserNotes().size(), is(0));
 
     mockMvc.perform(post("/data/userNote")
-      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+      .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isCreated());
 

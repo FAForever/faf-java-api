@@ -57,7 +57,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
   public void cannotCreateDomainBlacklistAsUser() throws Exception {
     mockMvc.perform(
       post("/data/domainBlacklist")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(NEW_DOMAIN))
       .andExpect(status().isForbidden());
   }
@@ -67,7 +67,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
   public void canCreateDomainBlacklistAsModerator() throws Exception {
     mockMvc.perform(
       post("/data/domainBlacklist")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(NEW_DOMAIN))
       .andExpect(status().isCreated());
   }

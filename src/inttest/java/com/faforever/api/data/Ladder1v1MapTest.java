@@ -22,7 +22,7 @@ public class Ladder1v1MapTest extends AbstractIntegrationTest {
   public void cannotCreateLadderMapAsUser() throws Exception {
     mockMvc.perform(
       post("/data/ladder1v1Map")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
       .andExpect(status().isForbidden());
   }
@@ -32,7 +32,7 @@ public class Ladder1v1MapTest extends AbstractIntegrationTest {
   public void canCreateLadderMapAsModerator() throws Exception {
     mockMvc.perform(
       post("/data/ladder1v1Map")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
       .andExpect(status().isCreated());
   }

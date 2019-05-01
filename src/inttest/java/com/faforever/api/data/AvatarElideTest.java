@@ -59,7 +59,7 @@ public class AvatarElideTest extends AbstractIntegrationTest {
       .setSelected(false);
     mockMvc.perform(
       post("/data/player/{playerId}/avatarAssignments", player.getId())
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.data.relationships.player.data.id", is(player.getId())))
@@ -87,7 +87,7 @@ public class AvatarElideTest extends AbstractIntegrationTest {
       .setSelected(false);
     mockMvc.perform(
       post("/data/player/{playerId}/avatarAssignments", player.getId())
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment))
     ).andExpect(status().isForbidden());
   }
@@ -112,7 +112,7 @@ public class AvatarElideTest extends AbstractIntegrationTest {
       .setId("1");
     mockMvc.perform(
       patch("/data/avatarAssignment/{assignmentId}", 1)
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isNoContent());
     mockMvc.perform(
@@ -130,7 +130,7 @@ public class AvatarElideTest extends AbstractIntegrationTest {
       .setId("1");
     mockMvc.perform(
       patch("/data/avatarAssignment/{assignmentId}", 1)
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isForbidden());
   }
@@ -143,7 +143,7 @@ public class AvatarElideTest extends AbstractIntegrationTest {
       .setId("1");
     mockMvc.perform(
       patch("/data/avatarAssignment/{assignmentId}", 1)
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isNoContent());
     mockMvc.perform(
@@ -160,7 +160,7 @@ public class AvatarElideTest extends AbstractIntegrationTest {
       .setId("1");
     mockMvc.perform(
       patch("/data/avatarAssignment/{assignmentId}", 1)
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isForbidden());
   }
