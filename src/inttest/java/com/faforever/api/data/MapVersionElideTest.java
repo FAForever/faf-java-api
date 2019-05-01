@@ -58,7 +58,7 @@ public class MapVersionElideTest extends AbstractIntegrationTest {
   public void testUpdateHideToTrueDoesWork() throws Exception {
     mockMvc.perform(
       patch("/data/mapVersion/1")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(MAP_VERSION_HIDE_TRUE_ID_1))
       .andExpect(status().isNoContent());
   }
@@ -68,7 +68,7 @@ public class MapVersionElideTest extends AbstractIntegrationTest {
   public void testUpdateHideToFalseDoesNotWork() throws Exception {
     mockMvc.perform(
       patch("/data/mapVersion/1")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(MAP_VERSION_HIDE_FALSE_ID_1))
       .andExpect(status().isForbidden());
   }
@@ -79,7 +79,7 @@ public class MapVersionElideTest extends AbstractIntegrationTest {
   public void testUpdateRankedToFalseDoesWork() throws Exception {
     mockMvc.perform(
       patch("/data/mapVersion/1")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(MAP_VERSION_RANKED_FALSE_ID_1))
       .andExpect(status().isNoContent());
   }
@@ -89,7 +89,7 @@ public class MapVersionElideTest extends AbstractIntegrationTest {
   public void testUpdateRankedToTrueDoesNotWork() throws Exception {
     mockMvc.perform(
       patch("/data/mapVersion/1")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(MAP_VERSION_RANKED_TRUE_ID_1))
       .andExpect(status().isForbidden());
   }

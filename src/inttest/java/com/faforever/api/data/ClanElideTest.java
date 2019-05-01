@@ -110,7 +110,7 @@ public class ClanElideTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       patch("/data/clan/1")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(generateTransferLeadershipContent(1, 12))) // magic value from prepClanData.sql
       .andExpect(status().isNoContent());
 
@@ -124,7 +124,7 @@ public class ClanElideTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       patch("/data/clan/1")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(generateTransferLeadershipContent(1, 12))) // magic value from prepClanData.sql
       .andExpect(status().isForbidden())
       .andExpect(jsonPath("$.errors[0]", is("ForbiddenAccessException")));
@@ -137,7 +137,7 @@ public class ClanElideTest extends AbstractIntegrationTest {
   public void cannotTransferLeadershipToNonClanMember() throws Exception {
     mockMvc.perform(
       patch("/data/clan/1")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(generateTransferLeadershipContent(1, 1))) // magic value from prepClanData.sql
       .andExpect(status().is4xxClientError()); // TODO: Catch javax.validation.ConstraintViolationException and wrap it into a regular ApiException
   }

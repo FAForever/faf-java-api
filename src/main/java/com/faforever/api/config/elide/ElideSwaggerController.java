@@ -16,7 +16,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import springfox.documentation.spring.web.json.Json;
 import springfox.documentation.spring.web.json.JsonSerializer;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
 @Controller
 public class ElideSwaggerController {
@@ -32,7 +32,7 @@ public class ElideSwaggerController {
 
   @ApiIgnore
   @RequestMapping(value = "/elide/docs",
-    method = RequestMethod.GET, produces = {APPLICATION_JSON_VALUE})
+    method = RequestMethod.GET, produces = {APPLICATION_JSON_UTF8_VALUE})
   public
   @ResponseBody
   ResponseEntity<Json> getDocumentation() {

@@ -270,7 +270,7 @@ public class VotingElideTest extends AbstractIntegrationTest {
   public void testRevealWinnerOnEndedSubjectWorks() throws Exception {
     mockMvc.perform(
       patch("/data/votingSubject/2")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(PATCH_VOTING_SUBJECT_REVEAL_ID_2))
       .andExpect(status().isNoContent());
     VotingQuestion question = votingQuestionRepository.getOne(2);
@@ -284,7 +284,7 @@ public class VotingElideTest extends AbstractIntegrationTest {
   public void testRevealWinnerOnNoneEndedSubjectFails() throws Exception {
     mockMvc.perform(
       patch("/data/votingSubject/1")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(PATCH_VOTING_SUBJECT_REVEAL_ID_1))
       .andExpect(status().is4xxClientError());
   }

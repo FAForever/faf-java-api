@@ -1,5 +1,6 @@
 package com.faforever.api.voting;
 
+import com.faforever.api.data.JsonApiMediaType;
 import com.faforever.api.data.domain.Vote;
 import com.faforever.api.data.domain.VotingSubject;
 import com.faforever.api.player.PlayerService;
@@ -35,13 +36,13 @@ public class VotingController {
 
   @ApiOperation(value = "Post a vote")
   @PreAuthorize("#oauth2.hasScope('" + OAuthScope._VOTE + "')")
-  @RequestMapping(path = "/vote", method = RequestMethod.POST, produces = JSON_API_MEDIA_TYPE)
+  @RequestMapping(path = "/vote", method = RequestMethod.POST, produces = JsonApiMediaType.JSON_API_MEDIA_TYPE)
   public void postVote(@RequestBody Vote vote, Authentication authentication) {
     votingService.saveVote(vote, playerService.getPlayer(authentication));
   }
 
   @ApiOperation(value = "See if user can vote on a subject")
-  @RequestMapping(path = "/votingSubjectsAbleToVote", method = RequestMethod.GET, produces = JSON_API_MEDIA_TYPE)
+  @RequestMapping(path = "/votingSubjectsAbleToVote", method = RequestMethod.GET, produces = JsonApiMediaType.JSON_API_MEDIA_TYPE)
   public void votingSubjectsAbleTo(HttpServletResponse response, Authentication authentication, HttpServletRequest request) throws IOException {
     List<VotingSubject> votingSubjects = votingService.votingSubjectsAbleToVote(playerService.getPlayer(authentication));
     redirectToFilteredVotingSubjects(response, votingSubjects, request);

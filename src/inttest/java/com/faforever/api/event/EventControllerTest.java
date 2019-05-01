@@ -1,7 +1,7 @@
 package com.faforever.api.event;
 
 import com.faforever.api.AbstractIntegrationTest;
-import com.faforever.api.data.DataController;
+import com.faforever.api.data.JsonApiMediaType;
 import com.faforever.api.security.OAuthScope;
 import com.google.common.collect.Lists;
 import org.hamcrest.Matchers;
@@ -27,7 +27,7 @@ public class EventControllerTest extends AbstractIntegrationTest {
     List<EventUpdateRequest> updatedEvents = Lists.newArrayList(new EventUpdateRequest(1, "15b6c19a-6084-4e82-ada9-6c30e282191f", 10));
     mockMvc.perform(
       patch("/events/update")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(objectMapper.writeValueAsString(updatedEvents))
         .with(getOAuthToken(OAuthScope._WRITE_EVENTS)))
       .andExpect(status().isOk())
@@ -41,7 +41,7 @@ public class EventControllerTest extends AbstractIntegrationTest {
     List<EventUpdateRequest> updatedEvents = Lists.newArrayList(new EventUpdateRequest(1, "cc791f00-343c-48d4-b5b3-8900b83209c0", 10));
     mockMvc.perform(
       patch("/events/update")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(objectMapper.writeValueAsString(updatedEvents))
         .with(getOAuthToken(OAuthScope._WRITE_EVENTS)))
       .andExpect(status().isOk())
@@ -58,7 +58,7 @@ public class EventControllerTest extends AbstractIntegrationTest {
     );
     mockMvc.perform(
       patch("/events/update")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(objectMapper.writeValueAsString(updatedEvents))
         .with(getOAuthToken(OAuthScope._WRITE_EVENTS)))
       .andExpect(status().isOk())
@@ -72,7 +72,7 @@ public class EventControllerTest extends AbstractIntegrationTest {
     List<EventUpdateRequest> updatedEvents = Lists.newArrayList(new EventUpdateRequest(1, "15b6c19a-6084-4e82-ada9-6c30e282191f", 10));
     mockMvc.perform(
       patch("/events/update")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(objectMapper.writeValueAsString(updatedEvents)))
       .andExpect(status().isForbidden());
   }
@@ -82,7 +82,7 @@ public class EventControllerTest extends AbstractIntegrationTest {
     List<EventUpdateRequest> updatedEvents = Lists.newArrayList(new EventUpdateRequest(1, "non-existing-event-id", 10));
     mockMvc.perform(
       patch("/events/update")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(objectMapper.writeValueAsString(updatedEvents))
         .with(getOAuthToken(OAuthScope._WRITE_EVENTS)))
       .andExpect(status().isUnprocessableEntity());
@@ -93,7 +93,7 @@ public class EventControllerTest extends AbstractIntegrationTest {
     List<EventUpdateRequest> updatedEvents = Lists.newArrayList(new EventUpdateRequest(-1, "15b6c19a-6084-4e82-ada9-6c30e282191f", 10));
     mockMvc.perform(
       patch("/events/update")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(objectMapper.writeValueAsString(updatedEvents))
         .with(getOAuthToken(OAuthScope._WRITE_EVENTS)))
       .andExpect(status().isUnprocessableEntity());
@@ -104,7 +104,7 @@ public class EventControllerTest extends AbstractIntegrationTest {
     List<EventUpdateRequest> updatedEvents = Lists.newArrayList(new EventUpdateRequest(1, "15b6c19a-6084-4e82-ada9-6c30e282191f", -10));
     mockMvc.perform(
       patch("/events/update")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(objectMapper.writeValueAsString(updatedEvents))
         .with(getOAuthToken(OAuthScope._WRITE_EVENTS)))
       .andExpect(status().isUnprocessableEntity());

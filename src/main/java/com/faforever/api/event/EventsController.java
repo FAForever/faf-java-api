@@ -1,5 +1,6 @@
 package com.faforever.api.event;
 
+import com.faforever.api.data.JsonApiMediaType;
 import com.faforever.api.security.OAuthScope;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
@@ -34,7 +35,7 @@ public class EventsController {
 
   @ApiOperation(value = "Updates the state and progress of one or multiple events.")
   @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_EVENTS + "')")
-  @RequestMapping(value = "/update", method = RequestMethod.PATCH, produces = JSON_API_MEDIA_TYPE)
+  @RequestMapping(value = "/update", method = RequestMethod.PATCH, produces = JsonApiMediaType.JSON_API_MEDIA_TYPE)
   public JsonApiDocument update(@RequestBody List<@Valid EventUpdateRequest> updateRequests) {
     return new JsonApiDocument(new Data<>(updateRequests.stream()
       .map(request -> eventsService.increment(request.getPlayerId(), request.getEventId(), request.getCount()))
