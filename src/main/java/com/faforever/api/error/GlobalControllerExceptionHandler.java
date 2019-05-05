@@ -61,7 +61,7 @@ class GlobalControllerExceptionHandler {
   @ExceptionHandler(NotFoundApiException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   @ResponseBody
-  public ErrorResponse processValidationException(NotFoundApiException ex) {
+  public ErrorResponse processNotFoundException(NotFoundApiException ex) {
     log.debug("Entity could not be found", ex);
     return createResponseFromApiException(ex, HttpStatus.NOT_FOUND);
   }
