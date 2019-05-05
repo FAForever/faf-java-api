@@ -19,7 +19,7 @@ before_install:
 install:
   - git clone https://github.com/FAForever/faf-stack.git faf-stack
       && pushd faf-stack
-    && git checkout 572bef1c
+    && git checkout 0eb5b8f610e5d5ba6bccc6eebca31148414135bd
       && cp -r config.template config
       && ./scripts/init-db.sh
       && popd
