@@ -1,8 +1,10 @@
 package com.faforever.api.error;
 
+import com.faforever.api.logging.RequestIdFilter;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import org.slf4j.MDC;
 import org.springframework.boot.jackson.JsonComponent;
 
 import java.io.IOException;
@@ -16,6 +18,7 @@ public class ErrorJsonSerializer extends JsonSerializer<Error> {
 
     gen.writeStartObject();
     gen.writeNumberField("code", errorCode.getCode());
+    gen.writeStringField("requestId", MDC.get(RequestIdFilter.REQUEST_ID_KEY));
     gen.writeStringField("title", MessageFormat.format(errorCode.getTitle(), error.getArgs()));
     gen.writeStringField("detail", MessageFormat.format(errorCode.getDetail(), error.getArgs()));
     gen.writeObjectField("args", error.getArgs());
