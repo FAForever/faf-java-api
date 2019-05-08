@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.Function;
@@ -100,17 +101,9 @@ public class VotingSubjectEnricher {
 
       candidatesToEliminate.forEach(candidate -> {
         List<VotingAnswer> votingAnswersForCandidate = votersByChoice.get(candidate);
-
         //Lets distribute the answers of the candidate that is eliminated
         votingAnswersForCandidate.forEach(votingAnswer -> {
-          int newAlternativeOrdinal = votingAnswer.getAlternativeOrdinal() + 1;
-          votingAnswer.getVote().getVotingAnswers().stream()
-            .filter(votingAnswer1 -> votingAnswer1.getVotingChoice().getVotingQuestion().equals(votingAnswer.getVotingChoice().getVotingQuestion()) && votingAnswer1.getAlternativeOrdinal() == newAlternativeOrdinal)
-            .findFirst()
-            .ifPresent(votingAnswer1 -> {
-              VotingChoice votingChoice1 = votingAnswer1.getVotingChoice();
-              votersByChoice.get(votingChoice1).add(votingAnswer1);
-            });
+          moveOnToTheNextAnswer(votersByChoice, votingAnswer);
         });
 
         votersByChoice.remove(candidate);
@@ -119,5 +112,29 @@ public class VotingSubjectEnricher {
     Optional<Entry<VotingChoice, List<VotingAnswer>>> first = votersByChoice.entrySet().stream().findFirst();
 
     return first.map(votingChoiceListEntry -> Collections.singletonList(votingChoiceListEntry.getKey())).orElse(Collections.emptyList());
+  }
+
+  private void moveOnToTheNextAnswer(Map<VotingChoice, List<VotingAnswer>> votersByChoice, VotingAnswer votingAnswer) {
+    int newAlternativeOrdinal = votingAnswer.getAlternativeOrdinal() + 1;
+    votingAnswer.getVote().getVotingAnswers().stream()
+      .filter(votingAnswerFilter ->
+        votingAnswerFilter.getVotingChoice() != null &&
+          Objects.equals(votingAnswerFilter.getVotingChoice().getVotingQuestion(), votingAnswer.getVotingChoice().getVotingQuestion())
+          && votingAnswerFilter.getAlternativeOrdinal() == newAlternativeOrdinal)
+      .findFirst()
+      .ifPresent(newVotingAnswer -> {
+        VotingChoice votingChoiceToBeRedistributed = newVotingAnswer.getVotingChoice();
+        List<VotingAnswer> votingAnswersOfNewChoice = votersByChoice.get(votingChoiceToBeRedistributed);
+        if (votingAnswersOfNewChoice == null) {
+          /*
+          We eliminated two choices/candidates at once and this is the second one.
+          Apparently one voter voted the candidate we eliminated before as the next answer.
+          So we need to skip this answer and go straight to the next one.
+           */
+          moveOnToTheNextAnswer(votersByChoice, newVotingAnswer);
+          return;
+        }
+        votingAnswersOfNewChoice.add(newVotingAnswer);
+      });
   }
 }
