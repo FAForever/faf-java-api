@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-java-api.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-java-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-java-api_inttest.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-java-api_inttest.iml" group="faf-java-api" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-java-api_main.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-java-api_main.iml" group="faf-java-api" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-java-api_test.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-java-api_test.iml" group="faf-java-api" />

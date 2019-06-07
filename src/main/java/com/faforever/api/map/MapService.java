@@ -75,8 +75,6 @@ public class MapService {
     Assert.notNull(author, "'author' must not be null");
     Assert.isTrue(mapData.length > 0, "'mapData' must not be empty");
 
-    mapFilename = NameUtil.normalizeFileName(mapFilename);
-
     MapUploadData progressData = new MapUploadData()
       .setBaseDir(contentService.createTempDir())
       .setUploadFileName(mapFilename)
@@ -256,7 +254,6 @@ public class MapService {
 
     String name = scenarioInfo.get(ScenarioMapInfo.NAME).toString();
 
-
     map.setDisplayName(name)
       .setMapType(scenarioInfo.get(ScenarioMapInfo.TYPE).tojstring())
       .setBattleType(scenarioInfo.get(ScenarioMapInfo.CONFIGURATIONS).get(ScenarioMapInfo.CONFIGURATION_STANDARD).get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS).get(1)
@@ -393,17 +390,13 @@ public class MapService {
       return scenarioInfo;
     }
 
-    private String normalizeMapName(String mapName) {
-      return Paths.get(mapName.toLowerCase().replaceAll(" ", "_")).normalize().toString();
-    }
-
     private String getNewFolderName() {
       return generateNewMapNameWithVersion("");
     }
 
     private String generateNewMapNameWithVersion(String extension) {
       return Paths.get(String.format("%s.v%04d%s",
-        normalizeMapName(mapEntity.getDisplayName()),
+        NameUtil.normalizeFileName(mapEntity.getDisplayName()),
         mapVersionEntity.getVersion(),
         extension))
         .normalize().toString();

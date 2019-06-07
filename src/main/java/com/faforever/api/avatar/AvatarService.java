@@ -56,7 +56,7 @@ public class AvatarService {
 
     final InputStream markSupportedImageInputStream = getMarkSupportedInputStream(imageDataInputStream);
     validateImageFile(originalFilename, avatarImageFileSize);
-    checkImageDimensions(markSupportedImageInputStream, normalizedAvatarFileName);
+    checkImageDimensions(markSupportedImageInputStream, originalFilename);
     final Path imageTargetPath = properties.getAvatar().getTargetDirectory().resolve(normalizedAvatarFileName);
 
     avatarRepository.save(avatarToCreate);
