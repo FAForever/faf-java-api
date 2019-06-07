@@ -85,7 +85,7 @@ public class MapServiceTest {
 
   @Test
   public void zipFilenamealreadyExists() throws IOException {
-    Path clashedMap = finalDirectory.getRoot().toPath().resolve("sludge_test.v0001.zip");
+    Path clashedMap = finalDirectory.getRoot().toPath().resolve("sludge_test____.___..v0001.zip");
     assertTrue(clashedMap.toFile().createNewFile());
     String zipFilename = "scmp_037.zip";
     when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
@@ -251,7 +251,7 @@ public class MapServiceTest {
 
       ArgumentCaptor<com.faforever.api.data.domain.Map> mapCaptor = ArgumentCaptor.forClass(com.faforever.api.data.domain.Map.class);
       verify(mapRepository, Mockito.times(1)).save(mapCaptor.capture());
-      assertEquals("Sludge_Test", mapCaptor.getValue().getDisplayName());
+      assertEquals("Sludge_Test &!$.#+/.", mapCaptor.getValue().getDisplayName());
       assertEquals("skirmish", mapCaptor.getValue().getMapType());
       assertEquals("FFA", mapCaptor.getValue().getBattleType());
       assertEquals(1, mapCaptor.getValue().getVersions().size());
@@ -262,11 +262,11 @@ public class MapServiceTest {
       assertEquals(256, mapVersion.getHeight());
       assertEquals(256, mapVersion.getWidth());
       assertEquals(3, mapVersion.getMaxPlayers());
-      assertEquals("maps/sludge_test.v0001.zip", mapVersion.getFilename());
+      assertEquals("maps/sludge_test____.___..v0001.zip", mapVersion.getFilename());
 
       assertFalse(Files.exists(tmpDir));
 
-      Path generatedFile = finalDirectory.getRoot().toPath().resolve("sludge_test.v0001.zip");
+      Path generatedFile = finalDirectory.getRoot().toPath().resolve("sludge_test____.___..v0001.zip");
       assertTrue(Files.exists(generatedFile));
 
       Path generatedFiles = finalDirectory.getRoot().toPath().resolve("generated_files");
@@ -277,25 +277,25 @@ public class MapServiceTest {
 
       Path expectedFiles = finalDirectory.getRoot().toPath().resolve("expected_files");
       try (ZipInputStream inputStreamOfExpectedFile = new ZipInputStream(new BufferedInputStream(
-        loadMapResourceAsStream("sludge_test.v0001.zip")))) {
+        loadMapResourceAsStream("sludge_test____.___..v0001.zip")))) {
         Unzipper.from(inputStreamOfExpectedFile).to(expectedFiles).unzip();
       }
 
-      expectedFiles = expectedFiles.resolve("sludge_test.v0001");
+      expectedFiles = expectedFiles.resolve("sludge_test____.___..v0001");
       try (Stream<Path> fileStream = Files.list(expectedFiles)) {
         assertEquals(fileStream.count(), (long) 4);
       }
 
       try (Stream<Path> fileStream = Files.list(expectedFiles)) {
-        Path finalGeneratedFile = generatedFiles.resolve("sludge_test.v0001");
+        Path finalGeneratedFile = generatedFiles.resolve("sludge_test____.___..v0001");
         fileStream.forEach(expectedFile ->
           FileAssert.assertEquals("Difference in " + expectedFile.getFileName().toString(),
             expectedFile.toFile(),
             finalGeneratedFile.resolve(expectedFile.getFileName().toString()).toFile())
         );
 
-        assertTrue(Files.exists(mapProperties.getDirectoryPreviewPathLarge().resolve("sludge_test.v0001.png")));
-        assertTrue(Files.exists(mapProperties.getDirectoryPreviewPathSmall().resolve("sludge_test.v0001.png")));
+        assertTrue(Files.exists(mapProperties.getDirectoryPreviewPathLarge().resolve("sludge_test____.___..v0001.png")));
+        assertTrue(Files.exists(mapProperties.getDirectoryPreviewPathSmall().resolve("sludge_test____.___..v0001.png")));
       }
     }
   }
