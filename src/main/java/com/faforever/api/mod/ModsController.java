@@ -32,7 +32,7 @@ public class ModsController {
     this.modService = modService;
     this.fafApiProperties = fafApiProperties;
   }
-
+/*
   @ApiOperation("Upload a mod")
   @RequestMapping(path = "/upload", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
   public void uploadMod(@RequestParam("file") MultipartFile file, Authentication authentication) throws IOException {
@@ -49,5 +49,5 @@ public class ModsController {
     file.transferTo(tempFile.getFileName().toFile());
 
     modService.processUploadedMod(tempFile, playerService.getPlayer(authentication));
-  }
+  }*/
 }

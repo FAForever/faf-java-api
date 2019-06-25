@@ -41,7 +41,7 @@ public class MapsController {
     this.objectMapper = objectMapper;
     this.playerService = playerService;
   }
-
+/*
   @ApiOperation("Upload a map")
   @ApiResponses(value = {
     @ApiResponse(code = 200, message = "Success"),
@@ -71,5 +71,5 @@ public class MapsController {
 
     Player player = playerService.getPlayer(authentication);
     mapService.uploadMap(file.getBytes(), file.getOriginalFilename(), player, ranked);
-  }
+  }*/
 }
