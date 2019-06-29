@@ -18,14 +18,14 @@ before_install:
 
 install:
   - git clone https://github.com/FAForever/faf-stack.git faf-stack
-      && pushd faf-stack
-    && git checkout 912de439292dd7903ce76507256a3f8a77c77845
-      && cp -r config.template config
-      && ./scripts/init-db.sh
-      && popd
+    && pushd faf-stack
+    && git checkout 8e9e3bd
+    && cp -r config.template config
+    && ./scripts/init-db.sh
+    && popd
 
 script:
-- chmod +x gradlew && ./gradlew build -Pversion=${APP_VERSION} --info
+  - chmod +x gradlew && ./gradlew build -Pversion=${APP_VERSION} --info
 
 after_success:
   - ./gradlew jacocoTestReport coveralls
