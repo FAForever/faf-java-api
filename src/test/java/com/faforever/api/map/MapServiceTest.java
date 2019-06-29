@@ -240,7 +240,7 @@ public class MapServiceTest {
   }
 
   @Test
-  public void positiveUploadTest() throws IOException {
+  public void positiveUploadTest() throws Exception {
     String zipFilename = "scmp_037.zip";
     when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
@@ -270,16 +270,12 @@ public class MapServiceTest {
       assertTrue(Files.exists(generatedFile));
 
       Path generatedFiles = finalDirectory.getRoot().toPath().resolve("generated_files");
-      try (ZipInputStream inputStreamOfExpectedFile = new ZipInputStream(
-        new BufferedInputStream(new FileInputStream(generatedFile.toFile())))) {
-        Unzipper.from(inputStreamOfExpectedFile).to(generatedFiles).unzip();
-      }
+      Unzipper.from(generatedFile).to(generatedFiles).unzip();
 
       Path expectedFiles = finalDirectory.getRoot().toPath().resolve("expected_files");
-      try (ZipInputStream inputStreamOfExpectedFile = new ZipInputStream(new BufferedInputStream(
-        loadMapResourceAsStream("sludge_test____.___..v0001.zip")))) {
-        Unzipper.from(inputStreamOfExpectedFile).to(expectedFiles).unzip();
-      }
+        Unzipper.from(generatedFile)
+          .to(expectedFiles)
+          .unzip();
 
       expectedFiles = expectedFiles.resolve("sludge_test____.___..v0001");
       try (Stream<Path> fileStream = Files.list(expectedFiles)) {
