@@ -10,10 +10,12 @@ import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.utils.FilePermissionUtil;
 import com.faforever.api.utils.NameUtil;
+import com.faforever.commons.io.Unzipper;
 import com.faforever.commons.mod.ModReader;
 import com.google.common.primitives.Ints;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -54,6 +56,9 @@ public class ModService {
   @CacheEvict(value = {Mod.TYPE_NAME, ModVersion.TYPE_NAME}, allEntries = true)
   public void processUploadedMod(Path uploadedFile, Player uploader) {
     log.debug("Player '{}' uploaded a mod", uploader);
+
+    validateZipFileSafety(uploadedFile);
+
     ModReader modReader = new ModReader();
     com.faforever.commons.mod.Mod modInfo = modReader.readZip(uploadedFile);
     validateModInfo(modInfo);
@@ -101,6 +106,25 @@ public class ModService {
         log.warn("Could not delete file " + targetPath, ioException);
       }
       throw exception;
+    }
+  }
+
+  /**
+   * Make sure that the zip file does not contain a zip bomb or zip slip attacks
+   */
+  @SneakyThrows
+  private void validateZipFileSafety(Path uploadedFile) {
+    log.debug("Validating file safety of uploaded file {}", uploadedFile);
+    Path tempDirectory = Files.createTempDirectory("validate_zip");
+
+    try {
+      // Unzipping directory already invokes the checks we want to perform
+      Unzipper.from(uploadedFile)
+        .to(tempDirectory);
+
+    } finally {
+      log.debug("Delete unzipped files in folder {}", tempDirectory);
+      FileUtils.deleteDirectory(tempDirectory.toFile());
     }
   }
 
