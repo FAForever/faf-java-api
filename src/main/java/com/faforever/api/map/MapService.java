@@ -110,10 +110,9 @@ public class MapService {
 
   @SneakyThrows
   private void unzipFile(MapUploadData mapData) {
-    try (ZipInputStream zipInputStream = new ZipInputStream(new BufferedInputStream(
-      Files.newInputStream(mapData.getUploadedFile())))) {
-      Unzipper.from(zipInputStream).to(mapData.getBaseDir()).unzip();
-    }
+      Unzipper.from(mapData.getUploadedFile())
+        .to(mapData.getBaseDir())
+        .unzip();
   }
 
   @SneakyThrows
@@ -332,10 +331,10 @@ public class MapService {
     cleanupBaseDir(progressData);
     Path finalZipFile = progressData.getFinalZipFile();
     Files.createDirectories(finalZipFile.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
-    try (ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(
-      Files.newOutputStream(finalZipFile)))) {
-      Zipper.contentOf(progressData.getBaseDir()).to(zipOutputStream).zip();
-    }
+    Zipper
+      .contentOf(progressData.getBaseDir())
+      .to(finalZipFile)
+      .zip();
     // TODO if possible, this should be done using umask instead
     FilePermissionUtil.setDefaultFilePermission(finalZipFile);
   }
