@@ -37,7 +37,8 @@ public class OAuthJwtConfig {
   @Bean
   protected JwtAccessTokenConverter jwtAccessTokenConverter() {
     JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
-    jwtAccessTokenConverter.setSigningKey(fafApiProperties.getJwt().getSecret());
+    jwtAccessTokenConverter.setSigningKey(fafApiProperties.getJwt().getSecretKey());
+    jwtAccessTokenConverter.setVerifierKey(fafApiProperties.getJwt().getPublicKey());
     ((DefaultAccessTokenConverter) jwtAccessTokenConverter.getAccessTokenConverter()).setUserTokenConverter(new FafUserAuthenticationConverter());
     return jwtAccessTokenConverter;
   }
