@@ -10,7 +10,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.jwt.JwtHelper;
-import org.springframework.security.jwt.crypto.sign.MacSigner;
+import org.springframework.security.jwt.crypto.sign.RsaSigner;
+import org.springframework.security.jwt.crypto.sign.RsaVerifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -28,11 +29,13 @@ public class FafTokenService {
   static final String KEY_LIFETIME = "lifetime";
 
   private final ObjectMapper objectMapper;
-  private final MacSigner macSigner;
+  private final RsaSigner rsaSigner;
+  private final RsaVerifier rsaVerifier;
 
   public FafTokenService(ObjectMapper objectMapper, FafApiProperties properties) {
     this.objectMapper = objectMapper;
-    this.macSigner = new MacSigner(properties.getJwt().getSecret());
+    this.rsaSigner = new RsaSigner(properties.getJwt().getSecretKey());
+    this.rsaVerifier = new RsaVerifier(properties.getJwt().getPublicKey());
   }
 
   /**
@@ -53,7 +56,7 @@ public class FafTokenService {
 
     log.debug("Creating token of type '{}' expiring at '{}' with attributes: {}", type, expiresAt, attributes);
 
-    return JwtHelper.encode(objectMapper.writeValueAsString(claims), macSigner).getEncoded();
+    return JwtHelper.encode(objectMapper.writeValueAsString(claims), rsaSigner).getEncoded();
   }
 
   /**
@@ -67,7 +70,7 @@ public class FafTokenService {
     Map<String, String> claims;
 
     try {
-      claims = objectMapper.readValue(JwtHelper.decodeAndVerify(token, macSigner).getClaims(), new TypeReference<Map<String, String>>() {
+      claims = objectMapper.readValue(JwtHelper.decodeAndVerify(token, rsaVerifier).getClaims(), new TypeReference<Map<String, String>>() {
       });
     } catch (JsonProcessingException | IllegalArgumentException e) {
       log.warn("Unparseable token: {}", token);
