@@ -7,6 +7,10 @@ sudo: required
 git:
   depth: 3
 
+env:
+  global:
+    - GRADLE_CLI_OPTS="--console=plain --stacktrace --quiet"
+
 before_install:
   - sudo /etc/init.d/mysql stop
   - sudo rm /usr/local/bin/docker-compose
@@ -25,10 +29,10 @@ install:
     && popd
 
 script:
-  - chmod +x gradlew && ./gradlew build -Pversion=${APP_VERSION} --info
+  - chmod +x gradlew && ./gradlew ${GRADLE_CLI_OPTS} build -Pversion=${APP_VERSION}
 
 after_success:
-  - ./gradlew jacocoTestReport coveralls
+  - ./gradlew ${GRADLE_CLI_OPTS} jacocoTestReport coveralls
   - export IMAGE_TAG=faf-java-api;
   - export REPO=faforever/faf-java-api;
   - if [ -n "${TRAVIS_TAG}" -o "${TRAVIS_BRANCH}" == "develop" ]; then

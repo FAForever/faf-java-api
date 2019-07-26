@@ -123,9 +123,6 @@ repositories {
 }
 
 compileJava.dependsOn(processResources)
-task wrapper(type: Wrapper) {
-  gradleVersion = '4.2.1'
-}
 
 configurations {
   compile.exclude module: "spring-boot-starter-tomcat"
@@ -166,7 +163,7 @@ task inttest(type: Test) {
   group = LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Runs the integration tests."
 
-  testClassesDir = sourceSets.inttest.output.classesDir
+  setTestClassesDirs(files(sourceSets.inttest.output))
   classpath = sourceSets.inttest.runtimeClasspath
   mustRunAfter test
 }
@@ -176,7 +173,7 @@ task inttest(type: Test) {
 apply plugin: 'jacoco'
 apply plugin: 'com.github.kt3k.coveralls'
 jacocoTestReport {
-  executionData = files(["$buildDir/jacoco/test.exec", "$buildDir/jacoco/inttest.exec"])
+  executionData.from = files(["$buildDir/jacoco/test.exec", "$buildDir/jacoco/inttest.exec"])
   reports {
     xml.enabled = true
   }
@@ -208,6 +205,17 @@ dependencyManagement {
 }
 
 dependencies {
+  compileOnly("org.projectlombok:lombok:${lombokVersion}")
+  annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+  testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+  annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+  testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+  //This is needed, because something in regards prometheus adds this annotationProcessor to the classpath
+  //See https://github.com/jenkinsci/prometheus-plugin/issues/35
+  annotationProcessor("org.jvnet.hudson:annotation-indexer:1.2")
+  testAnnotationProcessor("org.jvnet.hudson:annotation-indexer:1.2")
+
   runtime("io.micrometer:micrometer-registry-prometheus")
 
   compile("org.springframework.boot:spring-boot-starter-jdbc")
