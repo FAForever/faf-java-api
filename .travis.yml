@@ -9,7 +9,7 @@ git:
 
 env:
   global:
-    - GRADLE_CLI_OPTS="--console=plain --stacktrace --quiet"
+    - GRADLE_CLI_OPTS="--console=plain --stacktrace --full-stacktrace"
 
 before_install:
   - sudo /etc/init.d/mysql stop

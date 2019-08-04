@@ -8,5 +8,7 @@ VALUES
   (25, 'coop', 'Coop', 'Multiplayer campaign games', 1, 'https://github.com/FAForever/fa-coop.git', 'master', 'cop',
    TRUE);
 
+-- INSERT INTO `game_validity` (`id`, `message`) VALUES (0, 'Valid') ON DUPLICATE KEY UPDATE `id` = VALUES(id);
+
 INSERT INTO game_stats (id, startTime, gameName, gameType, gameMod, `host`, mapId, validity) VALUES
   (1, NOW(), 'Test game', '0', 6, 1, 1, 0);
