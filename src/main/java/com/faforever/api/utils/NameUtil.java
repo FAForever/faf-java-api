@@ -24,7 +24,7 @@ public final class NameUtil {
     return StringUtils.strip(
       Normalizer.normalize(
         Paths.get(originalFileName
-          .replaceAll("[^\\w\\d.]", "_")
+          .replaceAll("[^\\w\\d.-]", "_")
           .toLowerCase(Locale.US))
           .getFileName()
           .toString(),
