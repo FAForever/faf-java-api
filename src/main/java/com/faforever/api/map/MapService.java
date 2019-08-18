@@ -15,6 +15,8 @@ import com.faforever.commons.io.Unzipper;
 import com.faforever.commons.io.Zipper;
 import com.faforever.commons.lua.LuaLoader;
 import com.faforever.commons.map.PreviewGenerator;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.SneakyThrows;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.FileSystemUtils;
+import org.springframework.util.StringUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -37,28 +40,96 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.nocatch.NoCatch.noCatch;
+import static java.text.MessageFormat.format;
 
 @Service
 @Slf4j
 @AllArgsConstructor
 public class MapService {
+  private static final Pattern MAP_NAME_VALIDATION_PATTERN = Pattern.compile("[a-zA-Z0-9\\- ]+");
+  private static final Pattern ADAPTIVE_MAP_PATTERN = Pattern.compile("AdaptiveMap\\w=\\wtrue");
+  private static final int MAP_NAME_MINUS_MAX_OCCURENCE = 3;
+
   private static final String[] REQUIRED_FILES = new String[]{
     ".scmap",
     "_save.lua",
     "_scenario.lua",
-    "_script.lua"};
+    "_script.lua",
+  };
+
+  private static final String[] ADAPTIVE_REQUIRED_FILES = new String[]{
+    "_options.lua",
+    "_tables.lua",
+  };
+
   private static final Charset MAP_CHARSET = StandardCharsets.ISO_8859_1;
   private static final String STUPID_MAP_FOLDER_PREFIX = "maps/";
   private static final int MAP_DISPLAY_NAME_MAX_LENGTH = 100;
   private final FafApiProperties fafApiProperties;
   private final MapRepository mapRepository;
   private final ContentService contentService;
+
+  @VisibleForTesting
+  void validate(MapValidationRequest mapValidationRequest) {
+    String mapName = mapValidationRequest.getName();
+    Assert.notNull(mapName, "The map name is mandatory.");
+    String scenarioLua = mapValidationRequest.getScenarioLua();
+
+    Collection<Error> mapNameErrors = validateMapName(mapName);
+    if (!mapNameErrors.isEmpty()) {
+      throw new ApiException(mapNameErrors.toArray(new Error[0]));
+    }
+
+    if (scenarioLua != null) {
+      Collection<Error> scenarioLuaErrors = validateScenarioLua(mapName, scenarioLua);
+      if (!scenarioLuaErrors.isEmpty()) {
+        throw new ApiException(scenarioLuaErrors.toArray(new Error[0]));
+      }
+    }
+  }
+
+  private Collection<Error> validateMapName(String mapName) {
+    List<Error> errors = new ArrayList<>();
+
+    if (!MAP_NAME_VALIDATION_PATTERN.matcher(mapName).matches()) {
+      errors.add(new Error(ErrorCode.MAP_NAME_INVALID_CHARACTER));
+    }
+
+    if (StringUtils.countOccurrencesOf(mapName, "-") > MAP_NAME_MINUS_MAX_OCCURENCE) {
+      errors.add(new Error(ErrorCode.MAP_NAME_INVALID_MINUS_OCCURENCE, MAP_NAME_MINUS_MAX_OCCURENCE));
+    }
+
+    return errors;
+  }
+
+  private Collection<Error> validateScenarioLua(String validMapName, String scenarioLua) {
+    List<Error> errors = new ArrayList<>();
+
+    java.util.Map<String, String> declarations = ImmutableMap.<String, String>builder()
+      .put("map", ".scmap")
+      .put("save", "_save.lua")
+      .put("script", "_script.lua")
+      .build();
+
+    for (Entry entry : declarations.entrySet()) {
+      if (!scenarioLua.matches(format("{0}\\w=\\w'\\/maps\\/{0}(\\.v\\d{4})?/{0}{1}'", entry.getKey(), entry.getValue()))) {
+        errors.add(new Error(ErrorCode.MAP_SCRIPT_LINE_MISSING, format(
+          "{0} = ''/maps/{2}/{2}{1}'',", entry.getKey(), entry.getValue(), validMapName
+        )));
+      }
+    }
+
+    return errors;
+  }
 
   @Transactional
   @SneakyThrows
@@ -100,9 +171,9 @@ public class MapService {
   }
 
   private void unzipFile(MapUploadData mapData) throws IOException, ArchiveException {
-      Unzipper.from(mapData.getUploadedFile())
-        .to(mapData.getBaseDir())
-        .unzip();
+    Unzipper.from(mapData.getUploadedFile())
+      .to(mapData.getBaseDir())
+      .unzip();
   }
 
   private void postProcessZipFiles(MapUploadData mapUploadData) throws IOException {
@@ -161,7 +232,7 @@ public class MapService {
       throw new ApiException(new Error(ErrorCode.MAP_NAME_TOO_LONG, MAP_DISPLAY_NAME_MAX_LENGTH, displayName.length()));
     }
     if (!NameUtil.isPrintableAsciiString(displayName)) {
-      throw new ApiException(new Error(ErrorCode.MAP_NAME_INVALID));
+      throw new ApiException(new Error(ErrorCode.MAP_NAME_INVALID_CHARACTER));
     }
 
     if (scenarioInfo.get(ScenarioMapInfo.DESCRIPTION) == LuaValue.NIL) {

@@ -90,9 +90,10 @@ public enum ErrorCode {
   VOTING_SUBJECT_DOES_NOT_EXIST(180, "Voting subject does not exist", "There is no voting subject with the ID ''{0}''."),
   VOTING_CHOICE_DOES_NOT_EXIST(181, "Invalid choice", "There is no voting choice with the ID ''{0}''."),
   STEAM_ID_ALREADY_LINKED(182, " Steam account already linked to a FAF account", "You linked this account already to user with name ''{0}''."),
-  MAP_NAME_INVALID(183, "Map name invalid", "The name of the map in the scenario file can only contain printable ASCII characters and blanks."),
-  MOD_NAME_INVALID(184, "Mod name invalid", "The name of the mod in the scenario file can only contain printable ASCII characters and blanks.");
-
+  MAP_NAME_INVALID_CHARACTER(183, "Map name invalid", "Only latin characters, numbers, blanks and the minus are allowed."),
+  MOD_NAME_INVALID(184, "Mod name invalid", "The name of the mod in the scenario file can only contain printable ASCII characters and blanks."),
+  MAP_NAME_INVALID_MINUS_OCCURENCE(185, "Map name invalid", "Only a maximum of {0} minus characters are allowed."),
+  MAP_SCRIPT_LINE_MISSING(186, "Missing scenario.lua line", "The scenario.lua has to contain the following line: {0}");
 
   private final int code;
   private final String title;
