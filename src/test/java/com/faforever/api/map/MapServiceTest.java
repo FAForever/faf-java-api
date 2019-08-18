@@ -10,8 +10,6 @@ import com.faforever.api.error.ApiExceptionWithMultipleCodes;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.commons.io.Unzipper;
 import com.google.common.io.ByteStreams;
-import com.googlecode.zohhak.api.TestWith;
-import com.googlecode.zohhak.api.runners.ZohhakRunner;
 import junitx.framework.FileAssert;
 import org.junit.After;
 import org.junit.Before;
@@ -22,10 +20,9 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.util.FileSystemUtils;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -33,7 +30,6 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Stream;
-import java.util.zip.ZipInputStream;
 
 import static com.faforever.api.error.ApiExceptionWithCode.apiExceptionWithCode;
 import static org.junit.Assert.assertEquals;
@@ -47,7 +43,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(ZohhakRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class MapServiceTest {
   @Rule
   public final TemporaryFolder temporaryDirectory = new TemporaryFolder();
@@ -163,7 +159,27 @@ public class MapServiceTest {
     }
   }
 
-  @TestWith({"without_savelua.zip", "without_scenariolua.zip", "without_scmap.zip", "without_scriptlua.zip"})
+  // TODO: Replace tests 1-4 with parameterized test after migration to JUnit 5
+  @Test
+  public void testFileIsMissingInsideZip_1() throws IOException {
+    fileIsMissingInsideZip("without_savelua.zip");
+  }
+
+  @Test
+  public void testFileIsMissingInsideZip_2() throws IOException {
+    fileIsMissingInsideZip("without_scenariolua.zip");
+  }
+
+  @Test
+  public void testFileIsMissingInsideZip_3() throws IOException {
+    fileIsMissingInsideZip("without_scmap.zip");
+  }
+
+  @Test
+  public void testFileIsMissingInsideZip_4() throws IOException {
+    fileIsMissingInsideZip("without_scriptlua.zip");
+  }
+
   public void fileIsMissingInsideZip(String zipFilename) throws IOException {
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       try {
@@ -180,7 +196,6 @@ public class MapServiceTest {
   @Test
   public void battleTypeNotFFA() throws IOException {
     String zipFilename = "wrong_team_name.zip";
-    when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
       expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_FIRST_TEAM_FFA));
@@ -192,7 +207,6 @@ public class MapServiceTest {
   @Test
   public void invalidScenario() throws IOException {
     String zipFilename = "invalid_scenario.zip";
-    when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
       expectedException.expect(ApiExceptionWithMultipleCodes.apiExceptionWithCode(
@@ -210,7 +224,6 @@ public class MapServiceTest {
   @Test
   public void mapWithMoreRootFoldersInZip() throws IOException {
     String zipFilename = "scmp_037_invalid.zip";
-    when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
       try {
@@ -224,11 +237,9 @@ public class MapServiceTest {
   @Test
   public void uploadMapWithInvalidCharactersName() throws IOException {
     String zipFilename = "scmp_037_no_ascii.zip";
-    when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
 
-      Path tmpDir = temporaryDirectory.getRoot().toPath();
       try {
         instance.uploadMap(mapData, zipFilename, author, true);
       } catch (ApiException e) {
@@ -273,9 +284,9 @@ public class MapServiceTest {
       Unzipper.from(generatedFile).to(generatedFiles).unzip();
 
       Path expectedFiles = finalDirectory.getRoot().toPath().resolve("expected_files");
-        Unzipper.from(generatedFile)
-          .to(expectedFiles)
-          .unzip();
+      Unzipper.from(generatedFile)
+        .to(expectedFiles)
+        .unzip();
 
       expectedFiles = expectedFiles.resolve("sludge_test____.___..v0001");
       try (Stream<Path> fileStream = Files.list(expectedFiles)) {
