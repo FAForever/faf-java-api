@@ -251,7 +251,6 @@ dependencies {
   compile("org.luaj:luaj-jse:${luajVersion}")
   compile("com.github.micheljung:nocatch:${nocatchVersion}")
   compile("junit-addons:junit-addons:${junitAddonsVersion}")
-  compile("com.googlecode.zohhak:zohhak:${zohhakVersion}")
   compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonDatatypeJsr310Version}")
   compile("com.mandrillapp.wrapper.lutung:lutung:${lutungVersion}")
   compile("org.apache.commons:commons-compress:${commonsCompressVersion}")

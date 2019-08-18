@@ -15,9 +15,11 @@ import com.faforever.commons.io.Unzipper;
 import com.faforever.commons.io.Zipper;
 import com.faforever.commons.lua.LuaLoader;
 import com.faforever.commons.map.PreviewGenerator;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.archivers.ArchiveException;
 import org.luaj.vm2.LuaValue;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -26,10 +28,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.FileSystemUtils;
 
 import javax.imageio.ImageIO;
-import javax.inject.Inject;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -41,13 +41,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 import static com.github.nocatch.NoCatch.noCatch;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class MapService {
   private static final String[] REQUIRED_FILES = new String[]{
     ".scmap",
@@ -56,17 +55,10 @@ public class MapService {
     "_script.lua"};
   private static final Charset MAP_CHARSET = StandardCharsets.ISO_8859_1;
   private static final String STUPID_MAP_FOLDER_PREFIX = "maps/";
-  public static final int MAP_DISPLAY_NAME_MAX_LENGTH = 100;
+  private static final int MAP_DISPLAY_NAME_MAX_LENGTH = 100;
   private final FafApiProperties fafApiProperties;
   private final MapRepository mapRepository;
   private final ContentService contentService;
-
-  @Inject
-  public MapService(FafApiProperties fafApiProperties, MapRepository mapRepository, ContentService contentService) {
-    this.fafApiProperties = fafApiProperties;
-    this.mapRepository = mapRepository;
-    this.contentService = contentService;
-  }
 
   @Transactional
   @SneakyThrows
@@ -103,20 +95,17 @@ public class MapService {
     }
   }
 
-  @SneakyThrows
-  private Path copyToTemporaryDirectory(byte[] mapData, MapUploadData progressData) {
+  private Path copyToTemporaryDirectory(byte[] mapData, MapUploadData progressData) throws IOException {
     return Files.write(progressData.getUploadedFile(), mapData);
   }
 
-  @SneakyThrows
-  private void unzipFile(MapUploadData mapData) {
+  private void unzipFile(MapUploadData mapData) throws IOException, ArchiveException {
       Unzipper.from(mapData.getUploadedFile())
         .to(mapData.getBaseDir())
         .unzip();
   }
 
-  @SneakyThrows
-  private void postProcessZipFiles(MapUploadData mapUploadData) {
+  private void postProcessZipFiles(MapUploadData mapUploadData) throws IOException {
     Optional<Path> mapFolder;
     try (Stream<Path> mapFolderStream = Files.list(mapUploadData.getBaseDir())) {
       mapFolder = mapFolderStream
@@ -150,8 +139,7 @@ public class MapService {
     }
   }
 
-  @SneakyThrows
-  private void parseScenarioLua(MapUploadData progressData) {
+  private void parseScenarioLua(MapUploadData progressData) throws IOException {
     try (Stream<Path> mapFilesStream = Files.list(progressData.getOriginalMapFolder())) {
       Path scenarioLuaPath = noCatch(() -> mapFilesStream)
         .filter(myFile -> myFile.toString().endsWith("_scenario.lua"))
@@ -288,15 +276,13 @@ public class MapService {
     mapRepository.save(map);
   }
 
-  @SneakyThrows
-  private void renameFolderNameAndCorrectPathInLuaFiles(MapUploadData progressData) {
+  private void renameFolderNameAndCorrectPathInLuaFiles(MapUploadData progressData) throws IOException {
     progressData.setNewMapFolder(progressData.getBaseDir().resolve(progressData.getNewFolderName()));
     Files.move(progressData.getOriginalMapFolder(), progressData.getNewMapFolder());
     updateLuaFiles(progressData);
   }
 
-  @SneakyThrows
-  private void updateLuaFiles(MapUploadData mapData) {
+  private void updateLuaFiles(MapUploadData mapData) throws IOException {
     String oldNameFolder = "/maps/" + mapData.getUploadFolderName();
     String newNameFolder = "/maps/" + mapData.getNewFolderName();
     try (Stream<Path> mapFileStream = Files.list(mapData.getNewMapFolder())) {
@@ -311,9 +297,7 @@ public class MapService {
     }
   }
 
-
-  @SneakyThrows
-  private void generatePreview(MapUploadData mapData) {
+  private void generatePreview(MapUploadData mapData) throws IOException {
     String previewFilename = mapData.getNewFolderName() + ".png";
     generateImage(
       fafApiProperties.getMap().getDirectoryPreviewPathSmall().resolve(previewFilename),
@@ -326,8 +310,7 @@ public class MapService {
       fafApiProperties.getMap().getPreviewSizeLarge());
   }
 
-  @SneakyThrows
-  private void zipMapData(MapUploadData progressData) {
+  private void zipMapData(MapUploadData progressData) throws IOException, ArchiveException {
     cleanupBaseDir(progressData);
     Path finalZipFile = progressData.getFinalZipFile();
     Files.createDirectories(finalZipFile.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
@@ -339,8 +322,7 @@ public class MapService {
     FilePermissionUtil.setDefaultFilePermission(finalZipFile);
   }
 
-  @SneakyThrows
-  private void cleanupBaseDir(MapUploadData progressData) {
+  private void cleanupBaseDir(MapUploadData progressData) throws IOException {
     Files.delete(progressData.getUploadedFile());
     try (Stream<Path> stream = Files.list(progressData.getBaseDir())) {
       if (stream.count() != 1) {
@@ -349,8 +331,7 @@ public class MapService {
     }
   }
 
-  @SneakyThrows
-  private void generateImage(Path target, Path baseDir, int size) {
+  private void generateImage(Path target, Path baseDir, int size) throws IOException {
     BufferedImage image = PreviewGenerator.generatePreview(baseDir, size, size);
     if (target.getNameCount() > 0) {
       Files.createDirectories(target.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
