@@ -204,6 +204,14 @@ dependencyManagement {
   }
 }
 
+test {
+  useJUnitPlatform {
+  }
+  testLogging {
+    events("passed", "skipped", "failed")
+  }
+}
+
 dependencies {
   compileOnly("org.projectlombok:lombok:${lombokVersion}")
   annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
@@ -264,9 +272,17 @@ dependencies {
   testCompile("org.springframework.boot:spring-boot-starter-test")
   testCompile("org.springframework.restdocs:spring-restdocs-mockmvc")
   testCompile("org.springframework.security:spring-security-test")
+  testImplementation("junit:junit")
+  testImplementation("org.junit.jupiter:junit-jupiter:${jUnit5Version}")
+  testImplementation("org.junit.jupiter:junit-jupiter-params:${jUnit5Version}")
+  testImplementation("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
+  testRuntimeOnly("org.junit.vintage:junit-vintage-engine:${jUnit5Version}")
   testCompile("com.h2database:h2:${h2Version}")
   testCompile("com.jayway.jsonpath:json-path:${jsonPath}")
   testCompile("com.jayway.jsonpath:json-path-assert:${jsonPathAssert}")
 
   codacy("com.github.codacy:codacy-coverage-reporter:${codacyCoverageReporterVersion}")
 }
+
+ext["mockito.version"] = "${mockitoVersion}"
+ext["junit-jupiter.version"] = "${jUnit5Version}"
