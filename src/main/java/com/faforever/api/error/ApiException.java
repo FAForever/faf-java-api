@@ -15,8 +15,12 @@ public class ApiException extends RuntimeException {
     this(new Error[]{error});
   }
 
-  public ApiException(Error[] errors) {
+  public ApiException(Error... errors) {
     super(Arrays.toString(errors));
     this.errors = errors;
+  }
+
+  public static ApiException of(ErrorCode errorCode, Object... args) {
+    return new ApiException(new Error(errorCode, args));
   }
 }

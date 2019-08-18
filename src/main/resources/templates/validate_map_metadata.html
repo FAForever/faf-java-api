@@ -1,9 +1,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8"/>
-  <title>Log-in</title>
+  <title>Validate map metadata</title>
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js" type="text/javascript"></script>
   <style type="text/css">
     body {
       center: fixed;
@@ -16,7 +16,7 @@
 
     .login-card {
       padding: 40px;
-      width: 274px;
+      width: 800px;
       background-color: #F7F7F7;
       margin: 0 auto 10px;
       border-radius: 2px;
@@ -103,31 +103,82 @@
       color: darkred;
     }
   </style>
+  <script type="text/javascript">
+    $(document).ready(function () {
+
+      $('#validate').click(function () {
+        $("#results").empty()
+
+        let mapname = $('#mapname').val();
+        let scenarioLua = $('#scenario_lua').val();
+        var data = {"name": mapname, "scenarioLua": scenarioLua.length == 0 ? null : scenarioLua};
+
+        $.ajax(
+          {
+            url: "/maps/validate",
+            type: "POST",
+            data: JSON.stringify(data),
+            contentType: 'application/json;charset=utf-8',
+            success: function (msg) {
+              $("#results").append(
+                $('<li>').text("Map name was accepted")
+              );
+
+              if (scenarioLua.length == 0) {
+                $("#results").append(
+                  $('<li>').text("scenario.lua was not validated")
+                );
+              } else {
+                $("#results").append(
+                  $('<li>').text("scenario.lua was accepted")
+                );
+              }
+            },
+            error: function (data) {
+              let result = JSON.parse(data.responseText)
+
+              result.errors.forEach(function (nextError) {
+                $("#results").append(
+                  $('<li>').text(nextError.detail)
+                );
+              });
+            }
+          }
+        );
+      })
+    });
+  </script>
 </head>
 <body>
 <div class="login-card">
-  <h1>Log-in</h1>
+  <h1>Validate map metadata</h1>
 
-  <form name="f" th:action="@{/login}" method="post">
-    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null }"/>
-    <div th:switch="${param.error[0]}" th:unless="${param.error == null}" class="alert alert-error">
-      <p th:case="'serverError'">A server error occurred. Please contact an administrator.</p>
-      <p th:case="'badCredentials'">Invalid username or password.</p>
-      <p th:case="'locked'">Your account is currently locked. If you are unsure why or for how long, please contact a
-        moderator.</p>
-      <p th:case="'unknown'">Login failed for unknown reason, please contact an administrator.</p>
-    </div>
-    <div th:if="${param.logout}" class="alert alert-success">
-      <p>You have been logged out.</p>
-    </div>
-    <input type="text" id="username" name="username" placeholder="Username"/>
-    <input type="password" id="password" name="password" placeholder="Password"/>
-    <input type="submit" name="login" class="login login-submit" value="Log in"/>
-  </form>
-
-  <div class="login-help">
-    <a href="https://www.faforever.com/account/password/reset">Forgot Password</a>
-  </div>
+  <table>
+    <form action="#" method="post" name="f">
+      <input th:if="${_csrf != null }" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+      <tr>
+        <td><label for="mapname">Map name</label></td>
+        <td><input id="mapname" name="mapname" placeholder="Map name" size="80" type="text"/></td>
+      </tr>
+      <tr>
+        <td><label for="scenario_lua">scenario.lua</label></td>
+        <td><textarea cols="80" id="scenario_lua" name="scenario_lua"
+                      placeholder="Put your scenario.lua content here (optional)"
+                      rows="10"></textarea></td>
+      </tr>
+      <tr>
+        <td colspan="2"><input class="login login-submit" id="validate" name="validate" type="button" value="validate"/>
+          <p/></td>
+      </tr>
+    </form>
+    <tr>
+      <td>Results</td>
+      <td>
+        <ul id="results">
+        </ul>
+      </td>
+    </tr>
+  </table>
 </div>
 </body>
 </html>

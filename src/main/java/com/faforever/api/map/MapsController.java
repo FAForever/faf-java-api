@@ -12,34 +12,51 @@ import com.google.common.io.Files;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
-import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
 @RestController
 @RequestMapping(path = "/maps")
 @Slf4j
+@AllArgsConstructor
 public class MapsController {
   private final MapService mapService;
   private final FafApiProperties fafApiProperties;
   private final ObjectMapper objectMapper;
   private final PlayerService playerService;
 
-  @Inject
-  public MapsController(MapService mapService, FafApiProperties fafApiProperties, ObjectMapper objectMapper, PlayerService playerService) {
-    this.mapService = mapService;
-    this.fafApiProperties = fafApiProperties;
-    this.objectMapper = objectMapper;
-    this.playerService = playerService;
+
+  @RequestMapping(path = "/validate", method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
+  public ModelAndView showValidationForm(Map<String, Object> model) {
+    return new ModelAndView("validate_map_metadata.html");
+  }
+
+  @ApiOperation("Validate map metadata")
+  @ApiResponses(value = {
+    @ApiResponse(code = 200, message = "Success"),
+    @ApiResponse(code = 422, message = "Containing information about the errors in the payload")})
+  @RequestMapping(
+    path = "/validate",
+    method = RequestMethod.POST,
+    produces = APPLICATION_JSON_UTF8_VALUE,
+    consumes = MediaType.APPLICATION_JSON_VALUE
+  )
+  public void validateMapMetadata(@RequestBody MapValidationRequest mapValidationRequest) {
+    mapService.validate(mapValidationRequest);
   }
 
   @ApiOperation("Upload a map")

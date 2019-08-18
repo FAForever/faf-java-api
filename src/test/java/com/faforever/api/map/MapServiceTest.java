@@ -80,7 +80,7 @@ public class MapServiceTest {
     "MAP_MISSING_MAP_FOLDER_INSIDE_ZIP,empty.zip",
     "MAP_FIRST_TEAM_FFA,wrong_team_name.zip",
     "MAP_INVALID_ZIP,scmp_037_invalid.zip", // map with more than 1 root folders in zip
-    "MAP_NAME_INVALID,scmp_037_no_ascii.zip",
+    "MAP_NAME_INVALID_CHARACTER,scmp_037_no_ascii.zip",
     "MAP_FILE_INSIDE_ZIP_MISSING,without_savelua.zip",
     "MAP_FILE_INSIDE_ZIP_MISSING,without_scenariolua.zip",
     "MAP_FILE_INSIDE_ZIP_MISSING,without_scmap.zip",
