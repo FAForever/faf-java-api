@@ -11,16 +11,17 @@ import com.faforever.api.error.ErrorCode;
 import com.faforever.commons.io.Unzipper;
 import com.google.common.io.ByteStreams;
 import junitx.framework.FileAssert;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.IOException;
@@ -32,88 +33,88 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.faforever.api.error.ApiExceptionWithCode.apiExceptionWithCode;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MapServiceTest {
-  @Rule
-  public final TemporaryFolder temporaryDirectory = new TemporaryFolder();
-  @Rule
-  public final TemporaryFolder finalDirectory = new TemporaryFolder();
-  @Rule
-  public final ExpectedException expectedException = ExpectedException.none();
-  private final MapRepository mapRepository = mock(MapRepository.class);
-  private final FafApiProperties fafApiProperties = mock(FafApiProperties.class);
-  private final ContentService contentService = mock(ContentService.class);
-  private final Player author = mock(Player.class);
+  @TempDir
+  Path baseTemporaryDirectory;
+
+  private Path temporaryDirectory;
+  private Path finalDirectory;
+
+  @Mock
+  private MapRepository mapRepository;
+  @Mock
+  private FafApiProperties fafApiProperties;
+  @Mock
+  private ContentService contentService;
+  @Mock
+  private Player author;
+
   private MapService instance;
   private Map mapProperties;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() throws Exception {
+    temporaryDirectory = Files.createDirectory(baseTemporaryDirectory.resolve("temp"));
+    finalDirectory = Files.createDirectory(baseTemporaryDirectory.resolve("final"));
+
     instance = new MapService(fafApiProperties, mapRepository, contentService);
     mapProperties = new Map()
-      .setTargetDirectory(finalDirectory.getRoot().toPath())
-      .setDirectoryPreviewPathLarge(finalDirectory.getRoot().toPath().resolve("large"))
-      .setDirectoryPreviewPathSmall(finalDirectory.getRoot().toPath().resolve("small"));
-    when(fafApiProperties.getMap()).thenReturn(mapProperties);
-    when(contentService.createTempDir()).thenReturn(temporaryDirectory.getRoot().toPath());
+      .setTargetDirectory(finalDirectory)
+      .setDirectoryPreviewPathLarge(finalDirectory.resolve("large"))
+      .setDirectoryPreviewPathSmall(finalDirectory.resolve("small"));
+    when(contentService.createTempDir()).thenReturn(temporaryDirectory);
   }
 
-  @After
-  public void shutDown() {
-    if (Files.exists(temporaryDirectory.getRoot().toPath())) {
-      FileSystemUtils.deleteRecursively(temporaryDirectory.getRoot());
+  @AfterEach
+  void shutDown() throws Exception {
+    if (Files.exists(temporaryDirectory)) {
+      FileSystemUtils.deleteRecursively(temporaryDirectory);
     }
-    if (Files.exists(temporaryDirectory.getRoot().toPath())) {
-      FileSystemUtils.deleteRecursively(finalDirectory.getRoot());
+    if (Files.exists(temporaryDirectory)) {
+      FileSystemUtils.deleteRecursively(finalDirectory);
     }
   }
 
   @Test
-  public void zipFilenamealreadyExists() throws IOException {
-    Path clashedMap = finalDirectory.getRoot().toPath().resolve("sludge_test____.___..v0001.zip");
+  void zipFilenameAlreadyExists() throws IOException {
+    Path clashedMap = finalDirectory.resolve("sludge_test____.___..v0001.zip");
     assertTrue(clashedMap.toFile().createNewFile());
     String zipFilename = "scmp_037.zip";
+    when(fafApiProperties.getMap()).thenReturn(mapProperties);
     when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
-      try {
-        byte[] mapData = ByteStreams.toByteArray(inputStream);
-        instance.uploadMap(mapData, zipFilename, author, true);
-        fail();
-      } catch (ApiException e) {
-        assertThat(e, apiExceptionWithCode(ErrorCode.MAP_NAME_CONFLICT));
-      }
+      byte[] mapData = ByteStreams.toByteArray(inputStream);
+      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true));
+      assertThat(result, apiExceptionWithCode(ErrorCode.MAP_NAME_CONFLICT));
       verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
 
   @Test
-  public void emptyZip() throws IOException {
+  void emptyZip() throws IOException {
     String zipFilename = "empty.zip";
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
-      try {
-        byte[] mapData = ByteStreams.toByteArray(inputStream);
-        instance.uploadMap(mapData, zipFilename, author, true);
-        fail();
-      } catch (ApiException e) {
-        assertThat(e, apiExceptionWithCode(ErrorCode.MAP_MISSING_MAP_FOLDER_INSIDE_ZIP));
-      }
+      byte[] mapData = ByteStreams.toByteArray(inputStream);
+      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true));
+      assertThat(result, apiExceptionWithCode(ErrorCode.MAP_MISSING_MAP_FOLDER_INSIDE_ZIP));
       verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
 
   @Test
-  public void notCorrectAuthor() throws IOException {
+  void notCorrectAuthor() throws IOException {
     String zipFilename = "scmp_037.zip";
 
     Player me = new Player();
@@ -124,19 +125,15 @@ public class MapServiceTest {
     com.faforever.api.data.domain.Map map = new com.faforever.api.data.domain.Map().setAuthor(bob);
     when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.of(map));
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
-      try {
-        byte[] mapData = ByteStreams.toByteArray(inputStream);
-        instance.uploadMap(mapData, zipFilename, me, true);
-        fail();
-      } catch (ApiException e) {
-        assertThat(e, apiExceptionWithCode(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR));
-      }
+      byte[] mapData = ByteStreams.toByteArray(inputStream);
+      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, me, true));
+      assertThat(result, apiExceptionWithCode(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR));
       verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
 
   @Test
-  public void versionExistsAlready() throws IOException {
+  void versionExistsAlready() throws IOException {
     String zipFilename = "scmp_037.zip";
 
     Player me = new Player();
@@ -148,81 +145,56 @@ public class MapServiceTest {
 
     when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.of(map));
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
-      try {
-        byte[] mapData = ByteStreams.toByteArray(inputStream);
-        instance.uploadMap(mapData, zipFilename, me, true);
-        fail();
-      } catch (ApiException e) {
-        assertThat(e, apiExceptionWithCode(ErrorCode.MAP_VERSION_EXISTS));
-      }
+      byte[] mapData = ByteStreams.toByteArray(inputStream);
+      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, me, true));
+      assertThat(result, apiExceptionWithCode(ErrorCode.MAP_VERSION_EXISTS));
       verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
+
   }
 
-  // TODO: Replace tests 1-4 with parameterized test after migration to JUnit 5
-  @Test
-  public void testFileIsMissingInsideZip_1() throws IOException {
-    fileIsMissingInsideZip("without_savelua.zip");
-  }
-
-  @Test
-  public void testFileIsMissingInsideZip_2() throws IOException {
-    fileIsMissingInsideZip("without_scenariolua.zip");
-  }
-
-  @Test
-  public void testFileIsMissingInsideZip_3() throws IOException {
-    fileIsMissingInsideZip("without_scmap.zip");
-  }
-
-  @Test
-  public void testFileIsMissingInsideZip_4() throws IOException {
-    fileIsMissingInsideZip("without_scriptlua.zip");
-  }
-
-  public void fileIsMissingInsideZip(String zipFilename) throws IOException {
+  @ParameterizedTest
+  @ValueSource(strings = {"without_savelua.zip", "without_scenariolua.zip", "without_scmap.zip", "without_scriptlua.zip"})
+  void fileIsMissingInsideZip(String zipFilename) throws IOException {
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
-      try {
-        byte[] mapData = ByteStreams.toByteArray(inputStream);
-        instance.uploadMap(mapData, zipFilename, author, true);
-        fail();
-      } catch (ApiException e) {
-        assertThat(e, apiExceptionWithCode(ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING));
-      }
+      byte[] mapData = ByteStreams.toByteArray(inputStream);
+      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true));
+      assertThat(result, apiExceptionWithCode(ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING));
       verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
 
   @Test
-  public void battleTypeNotFFA() throws IOException {
+  void battleTypeNotFFA() throws IOException {
     String zipFilename = "wrong_team_name.zip";
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
-      expectedException.expect(apiExceptionWithCode(ErrorCode.MAP_FIRST_TEAM_FFA));
-      instance.uploadMap(mapData, zipFilename, author, true);
+
+      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true));
+      assertThat(result, is(apiExceptionWithCode(ErrorCode.MAP_FIRST_TEAM_FFA)));
     }
     verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
   }
 
   @Test
-  public void invalidScenario() throws IOException {
+  void invalidScenario() throws IOException {
     String zipFilename = "invalid_scenario.zip";
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
-      expectedException.expect(ApiExceptionWithMultipleCodes.apiExceptionWithCode(
+      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true));
+      assertThat(result, is(ApiExceptionWithMultipleCodes.apiExceptionWithCode(
         ErrorCode.MAP_NAME_MISSING,
         ErrorCode.MAP_DESCRIPTION_MISSING,
         ErrorCode.MAP_FIRST_TEAM_FFA,
         ErrorCode.MAP_TYPE_MISSING,
         ErrorCode.MAP_SIZE_MISSING,
-        ErrorCode.MAP_VERSION_MISSING));
-      instance.uploadMap(mapData, zipFilename, author, true);
+        ErrorCode.MAP_VERSION_MISSING)));
     }
     verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
   }
 
   @Test
-  public void mapWithMoreRootFoldersInZip() throws IOException {
+  void mapWithMoreRootFoldersInZip() throws IOException {
     String zipFilename = "scmp_037_invalid.zip";
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
@@ -235,7 +207,7 @@ public class MapServiceTest {
   }
 
   @Test
-  public void uploadMapWithInvalidCharactersName() throws IOException {
+  void uploadMapWithInvalidCharactersName() throws IOException {
     String zipFilename = "scmp_037_no_ascii.zip";
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
@@ -251,13 +223,14 @@ public class MapServiceTest {
   }
 
   @Test
-  public void positiveUploadTest() throws Exception {
+  void positiveUploadTest() throws Exception {
     String zipFilename = "scmp_037.zip";
+    when(fafApiProperties.getMap()).thenReturn(mapProperties);
     when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
     try (InputStream inputStream = loadMapResourceAsStream(zipFilename)) {
       byte[] mapData = ByteStreams.toByteArray(inputStream);
 
-      Path tmpDir = temporaryDirectory.getRoot().toPath();
+      Path tmpDir = temporaryDirectory;
       instance.uploadMap(mapData, zipFilename, author, true);
 
       ArgumentCaptor<com.faforever.api.data.domain.Map> mapCaptor = ArgumentCaptor.forClass(com.faforever.api.data.domain.Map.class);
@@ -277,13 +250,13 @@ public class MapServiceTest {
 
       assertFalse(Files.exists(tmpDir));
 
-      Path generatedFile = finalDirectory.getRoot().toPath().resolve("sludge_test____.___..v0001.zip");
+      Path generatedFile = finalDirectory.resolve("sludge_test____.___..v0001.zip");
       assertTrue(Files.exists(generatedFile));
 
-      Path generatedFiles = finalDirectory.getRoot().toPath().resolve("generated_files");
+      Path generatedFiles = finalDirectory.resolve("generated_files");
       Unzipper.from(generatedFile).to(generatedFiles).unzip();
 
-      Path expectedFiles = finalDirectory.getRoot().toPath().resolve("expected_files");
+      Path expectedFiles = finalDirectory.resolve("expected_files");
       Unzipper.from(generatedFile)
         .to(expectedFiles)
         .unzip();
