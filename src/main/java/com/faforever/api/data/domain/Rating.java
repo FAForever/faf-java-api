@@ -2,7 +2,6 @@ package com.faforever.api.data.domain;
 
 
 import lombok.Setter;
-import org.hibernate.annotations.Formula;
 
 import javax.persistence.Column;
 import javax.persistence.FetchType;
@@ -46,7 +45,7 @@ public abstract class Rating {
     return player;
   }
 
-  @Formula("mean - 3 * deviation")
+  @Column(name = "rating", updatable = false)
   public double getRating() {
     return rating;
   }
