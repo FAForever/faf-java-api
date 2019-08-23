@@ -7,9 +7,7 @@ import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -58,8 +56,7 @@ public class GameReviewsSummary {
     return lowerBound;
   }
 
-  @OneToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "game_id", insertable = false, updatable = false)
+  @OneToOne(mappedBy = "reviewsSummary")
   @BatchSize(size = 1000)
   public Game getGame() {
     return game;

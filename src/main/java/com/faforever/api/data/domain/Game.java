@@ -5,6 +5,7 @@ import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,6 +20,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.time.OffsetDateTime;
@@ -114,8 +116,10 @@ public class Game {
     return reviews;
   }
 
-  @OneToOne(mappedBy = "game")
+  @OneToOne(fetch = FetchType.LAZY)
+  @PrimaryKeyJoinColumn
   @UpdatePermission(expression = "Prefab.Role.All")
+  @BatchSize(size = 1000)
   public GameReviewsSummary getReviewsSummary() {
     return reviewsSummary;
   }
