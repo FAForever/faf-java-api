@@ -55,9 +55,12 @@ import static java.text.MessageFormat.format;
 @Slf4j
 @AllArgsConstructor
 public class MapService {
-  private static final Pattern MAP_NAME_VALIDATION_PATTERN = Pattern.compile("[a-zA-Z0-9\\- ]+");
+  private static final Pattern MAP_NAME_INVALID_CHARACTER_PATTERN = Pattern.compile("[a-zA-Z0-9\\- ]+");
+  private static final Pattern MAP_NAME_DOES_NOT_START_WITH_LETTER_PATTERN = Pattern.compile("^[^a-zA-Z]+");
   private static final Pattern ADAPTIVE_MAP_PATTERN = Pattern.compile("AdaptiveMap\\w=\\wtrue");
   private static final int MAP_NAME_MINUS_MAX_OCCURENCE = 3;
+  private static final int MAP_NAME_MIN_LENGTH = 4;
+  private static final int MAP_NAME_MAX_LENGTH = 50;
 
   private static final String[] REQUIRED_FILES = new String[]{
     ".scmap",
@@ -100,12 +103,24 @@ public class MapService {
   private Collection<Error> validateMapName(String mapName) {
     List<Error> errors = new ArrayList<>();
 
-    if (!MAP_NAME_VALIDATION_PATTERN.matcher(mapName).matches()) {
+    if (!MAP_NAME_INVALID_CHARACTER_PATTERN.matcher(mapName).matches()) {
       errors.add(new Error(ErrorCode.MAP_NAME_INVALID_CHARACTER));
+    }
+
+    if (mapName.length() < MAP_NAME_MIN_LENGTH) {
+      errors.add(new Error(ErrorCode.MAP_NAME_TOO_SHORT, MAP_NAME_MIN_LENGTH, mapName.length()));
+    }
+
+    if (mapName.length() > MAP_NAME_MAX_LENGTH) {
+      errors.add(new Error(ErrorCode.MAP_NAME_TOO_LONG, MAP_NAME_MAX_LENGTH, mapName.length()));
     }
 
     if (StringUtils.countOccurrencesOf(mapName, "-") > MAP_NAME_MINUS_MAX_OCCURENCE) {
       errors.add(new Error(ErrorCode.MAP_NAME_INVALID_MINUS_OCCURENCE, MAP_NAME_MINUS_MAX_OCCURENCE));
+    }
+
+    if (MAP_NAME_DOES_NOT_START_WITH_LETTER_PATTERN.matcher(mapName).find()) {
+      errors.add(new Error(ErrorCode.MAP_NAME_DOES_NOT_START_WITH_LETTER));
     }
 
     return errors;
