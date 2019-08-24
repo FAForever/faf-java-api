@@ -2,6 +2,8 @@ package com.faforever.api.data.domain;
 
 
 import lombok.Setter;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 
 import javax.persistence.Column;
 import javax.persistence.FetchType;
@@ -46,6 +48,7 @@ public abstract class Rating {
   }
 
   @Column(name = "rating", updatable = false)
+  @Generated(GenerationTime.ALWAYS)
   public double getRating() {
     return rating;
   }
