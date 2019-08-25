@@ -136,7 +136,8 @@ public class MapService {
       .build();
 
     for (Entry entry : declarations.entrySet()) {
-      if (!scenarioLua.matches(format("{0}\\w=\\w'\\/maps\\/{0}(\\.v\\d{4})?/{0}{1}'", entry.getKey(), entry.getValue()))) {
+      Pattern pattern = Pattern.compile(format("{0}\\s=\\s''\\/maps\\/{2}(\\.v\\d{4})?\\/{2}{1}'',", entry.getKey(), entry.getValue(), validMapName));
+      if (!pattern.matcher(scenarioLua).find()) {
         errors.add(new Error(ErrorCode.MAP_SCRIPT_LINE_MISSING, format(
           "{0} = ''/maps/{2}/{2}{1}'',", entry.getKey(), entry.getValue(), validMapName
         )));

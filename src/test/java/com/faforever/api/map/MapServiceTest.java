@@ -153,10 +153,78 @@ public class MapServiceTest {
     }
 
     @Test
+    void testScenarioLuaSuccessWithoutVersion() {
+      MapValidationRequest request = new MapValidationRequest("name",
+        "map = '/maps/name/name.scmap', " +
+          "save = '/maps/name/name_save.lua', " +
+          "script = '/maps/name/name_script.lua', "
+      );
+
+      instance.validate(request);
+    }
+
+    @Test
+    void testScenarioLuaSuccessWithVersion() {
+      // of course the version number should be the same every time but we don't validate this
+      MapValidationRequest request = new MapValidationRequest("name",
+        "map = '/maps/name.v0001/name.scmap', " +
+          "save = '/maps/name.v0002/name_save.lua', " +
+          "script = '/maps/name.v0003/name_script.lua', "
+      );
+
+      instance.validate(request);
+    }
+
+    @Test
     void testScenarioLuaMissingAllLines() {
       MapValidationRequest request = new MapValidationRequest("name", "");
       ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
       assertThat(result.getErrors().length, is(3));
+    }
+
+    @Test
+    void testScenarioLuaWrongMapLine() {
+      MapValidationRequest request = new MapValidationRequest("name",
+        "map = '/maps/name.vINVALID_VERSION/name.scmap', " +
+          "save = '/maps/name.v0002/name_save.lua', " +
+          "script = '/maps/name.v0003/name_script.lua', "
+      );
+
+      ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
+
+      assertThat(result.getErrors().length, is(1));
+      assertThat(result.getErrors()[0].getArgs().length, is(1));
+      assertThat(result.getErrors()[0].getArgs()[0], is("map = '/maps/name/name.scmap',"));
+    }
+
+    @Test
+    void testScenarioLuaWrongSaveLine() {
+      MapValidationRequest request = new MapValidationRequest("name",
+        "map = '/maps/name.v0001/name.scmap', " +
+          "save = '/maps/name.vINVALID_VERSION/name_save.lua', " +
+          "script = '/maps/name.v0003/name_script.lua', "
+      );
+
+      ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
+
+      assertThat(result.getErrors().length, is(1));
+      assertThat(result.getErrors()[0].getArgs().length, is(1));
+      assertThat(result.getErrors()[0].getArgs()[0], is("save = '/maps/name/name_save.lua',"));
+    }
+
+    @Test
+    void testScenarioLuaWrongScriptLine() {
+      MapValidationRequest request = new MapValidationRequest("name",
+        "map = '/maps/name.v0001/name.scmap', " +
+          "save = '/maps/name.v0002/name_save.lua', " +
+          "script = '/maps/name.vINVALID_VERSION/name_script.lua', "
+      );
+
+      ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
+
+      assertThat(result.getErrors().length, is(1));
+      assertThat(result.getErrors()[0].getArgs().length, is(1));
+      assertThat(result.getErrors()[0].getArgs()[0], is("script = '/maps/name/name_script.lua',"));
     }
   }
 
