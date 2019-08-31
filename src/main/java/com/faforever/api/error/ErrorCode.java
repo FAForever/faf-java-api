@@ -95,7 +95,8 @@ public enum ErrorCode {
   MAP_NAME_INVALID_MINUS_OCCURENCE(185, "Map name invalid", "Only a maximum of {0} minus characters are allowed."),
   MAP_SCRIPT_LINE_MISSING(186, "Missing scenario.lua line", "The scenario.lua has to contain the following line: {0}"),
   MAP_NAME_TOO_SHORT(187, "Map name invalid", "The map name must have at least {0, number} characters, was: {1, number}"),
-  MAP_NAME_DOES_NOT_START_WITH_LETTER(188, "Map name invalid", "The map name has to begin with a letter");
+  MAP_NAME_DOES_NOT_START_WITH_LETTER(188, "Map name invalid", "The map name has to begin with a letter"),
+  PARSING_LUA_FILE_FAILED(189, "Parsing lua files failed", "During the parsing of the lua file an error occured: {0}");
 
   private final int code;
   private final String title;

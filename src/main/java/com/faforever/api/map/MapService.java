@@ -8,20 +8,18 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
-import com.faforever.api.error.ProgrammingError;
 import com.faforever.api.utils.FilePermissionUtil;
 import com.faforever.api.utils.NameUtil;
 import com.faforever.commons.io.Unzipper;
 import com.faforever.commons.io.Zipper;
-import com.faforever.commons.lua.LuaLoader;
 import com.faforever.commons.map.PreviewGenerator;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.archivers.ArchiveException;
+import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -33,21 +31,30 @@ import org.springframework.util.StringUtils;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.faforever.api.map.MapService.ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS_ARMIES;
+import static com.faforever.api.map.MapService.ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS_NAME;
+import static com.faforever.api.map.MapService.ScenarioMapInfo.FILE_DECLARATION_MAP;
+import static com.faforever.api.map.MapService.ScenarioMapInfo.FILE_DECLARATION_SAVE;
+import static com.faforever.api.map.MapService.ScenarioMapInfo.FILE_DECLARATION_SCRIPT;
+import static com.faforever.api.map.MapService.ScenarioMapInfo.FILE_ENDING_MAP;
+import static com.faforever.api.map.MapService.ScenarioMapInfo.FILE_ENDING_SAVE;
+import static com.faforever.api.map.MapService.ScenarioMapInfo.FILE_ENDING_SCENARIO;
+import static com.faforever.api.map.MapService.ScenarioMapInfo.FILE_ENDING_SCRIPT;
+import static com.faforever.api.map.MapService.ScenarioMapInfo.REQUIRED_FILES;
 import static com.github.nocatch.NoCatch.noCatch;
 import static java.text.MessageFormat.format;
 
@@ -62,21 +69,13 @@ public class MapService {
   private static final int MAP_NAME_MIN_LENGTH = 4;
   private static final int MAP_NAME_MAX_LENGTH = 50;
 
-  private static final String[] REQUIRED_FILES = new String[]{
-    ".scmap",
-    "_save.lua",
-    "_scenario.lua",
-    "_script.lua",
-  };
-
   private static final String[] ADAPTIVE_REQUIRED_FILES = new String[]{
     "_options.lua",
     "_tables.lua",
   };
 
   private static final Charset MAP_CHARSET = StandardCharsets.ISO_8859_1;
-  private static final String STUPID_MAP_FOLDER_PREFIX = "maps/";
-  private static final int MAP_DISPLAY_NAME_MAX_LENGTH = 100;
+  private static final String LEGACY_FOLDER_PREFIX = "maps/";
   private final FafApiProperties fafApiProperties;
   private final MapRepository mapRepository;
   private final ContentService contentService;
@@ -87,20 +86,14 @@ public class MapService {
     Assert.notNull(mapName, "The map name is mandatory.");
     String scenarioLua = mapValidationRequest.getScenarioLua();
 
-    Collection<Error> mapNameErrors = validateMapName(mapName);
-    if (!mapNameErrors.isEmpty()) {
-      throw new ApiException(mapNameErrors.toArray(new Error[0]));
-    }
+    validateMapName(mapName);
 
     if (scenarioLua != null) {
-      Collection<Error> scenarioLuaErrors = validateScenarioLua(mapName, scenarioLua);
-      if (!scenarioLuaErrors.isEmpty()) {
-        throw new ApiException(scenarioLuaErrors.toArray(new Error[0]));
-      }
+      validateScenarioLua(scenarioLua);
     }
   }
 
-  private Collection<Error> validateMapName(String mapName) {
+  private void validateMapName(String mapName) {
     List<Error> errors = new ArrayList<>();
 
     if (!MAP_NAME_INVALID_CHARACTER_PATTERN.matcher(mapName).matches()) {
@@ -123,256 +116,239 @@ public class MapService {
       errors.add(new Error(ErrorCode.MAP_NAME_DOES_NOT_START_WITH_LETTER));
     }
 
-    return errors;
+    if (!errors.isEmpty()) {
+      throw new ApiException(errors.toArray(new Error[0]));
+    }
   }
 
-  private Collection<Error> validateScenarioLua(String validMapName, String scenarioLua) {
-    List<Error> errors = new ArrayList<>();
-
-    java.util.Map<String, String> declarations = ImmutableMap.<String, String>builder()
-      .put("map", ".scmap")
-      .put("save", "_save.lua")
-      .put("script", "_script.lua")
-      .build();
-
-    for (Entry entry : declarations.entrySet()) {
-      Pattern pattern = Pattern.compile(format("{0}\\s=\\s''\\/maps\\/{2}(\\.v\\d{4})?\\/{2}{1}'',", entry.getKey(), entry.getValue(), validMapName));
-      if (!pattern.matcher(scenarioLua).find()) {
-        errors.add(new Error(ErrorCode.MAP_SCRIPT_LINE_MISSING, format(
-          "{0} = ''/maps/{2}/{2}{1}'',", entry.getKey(), entry.getValue(), validMapName
-        )));
-      }
+  private void validateScenarioLua(String scenarioLua) {
+    try {
+      MapLuaAccessor mapLua = MapLuaAccessor.of(scenarioLua);
+      MapNameBuilder mapNameBuilder = new MapNameBuilder(mapLua.getName()
+        .orElseThrow(() -> ApiException.of(ErrorCode.MAP_NAME_MISSING)));
+      validateScenarioLua(mapLua, mapNameBuilder);
+    } catch (IOException | LuaException | LuaError e) {
+      throw ApiException.of(ErrorCode.PARSING_LUA_FILE_FAILED, e.getMessage());
     }
-
-    return errors;
   }
 
   @Transactional
   @SneakyThrows
   @CacheEvict(value = {Map.TYPE_NAME, MapVersion.TYPE_NAME}, allEntries = true)
-  public void uploadMap(byte[] mapData, String mapFilename, Player author, boolean isRanked) {
+  public void uploadMap(InputStream mapDataInputStream, String mapFilename, Player author, boolean isRanked) {
     Assert.notNull(author, "'author' must not be null");
-    Assert.isTrue(mapData.length > 0, "'mapData' must not be empty");
+    Assert.isTrue(mapDataInputStream.available() > 0, "'mapData' must not be empty");
 
-    MapUploadData progressData = new MapUploadData()
-      .setBaseDir(contentService.createTempDir())
-      .setUploadFileName(mapFilename)
-      .setAuthorEntity(author)
-      .setRanked(isRanked);
-
-    progressData.setUploadedFile(progressData.getBaseDir().resolve(mapFilename));
-    copyToTemporaryDirectory(mapData, progressData);
+    Path rootTempFolder = contentService.createTempDir();
 
     try {
-      unzipFile(progressData);
-      postProcessZipFiles(progressData);
+      Path unzippedFileFolder = unzipToTemporaryDirectory(mapDataInputStream, mapFilename, rootTempFolder);
+      Path mapFolder = validateMapFolderStructure(unzippedFileFolder);
+      validateMandatoryFiles(mapFolder);
 
-      parseScenarioLua(progressData);
-      checkLua(progressData);
-      postProcessLuaFile(progressData);
+      MapLuaAccessor mapLua = parseScenarioLua(mapFolder);
+      MapNameBuilder mapNameBuilder = new MapNameBuilder(mapLua.getName()
+        .orElseThrow(() -> ApiException.of(ErrorCode.MAP_NAME_MISSING)));
 
-      updateMapEntities(progressData);
+      validateScenarioLua(mapLua, mapNameBuilder);
 
-      renameFolderNameAndCorrectPathInLuaFiles(progressData);
-      generatePreview(progressData);
+      Optional<Map> existingMapOptional = validateMapMetadata(mapLua, mapNameBuilder, author);
 
-      zipMapData(progressData);
+      updateHibernateMapEntities(mapLua, existingMapOptional, author, isRanked, mapNameBuilder);
+
+      Path mapFolderAfterRenaming = unzippedFileFolder.resolveSibling(
+        mapNameBuilder.buildFolderName(mapLua.getMapVersion$()));
+      Files.move(mapFolder, mapFolderAfterRenaming);
+
+      updateLuaFiles(mapFolder, mapFolderAfterRenaming);
+      generatePreview(mapFolderAfterRenaming);
+
+      zipMapData(mapFolderAfterRenaming, mapNameBuilder.buildFinalZipPath(mapLua.getMapVersion$()));
     } finally {
-      cleanup(progressData);
+      mapDataInputStream.close();
+      FileSystemUtils.deleteRecursively(rootTempFolder);
     }
   }
 
-  private Path copyToTemporaryDirectory(byte[] mapData, MapUploadData progressData) throws IOException {
-    return Files.write(progressData.getUploadedFile(), mapData);
-  }
+  private Path unzipToTemporaryDirectory(InputStream mapDataInputStream, String mapFilename, Path rootTempFolder)
+    throws IOException, ArchiveException {
+    Path unzippedDirectory = Files.createDirectories(rootTempFolder.resolve("unzipped-content"));
+    log.debug("Unzipping uploaded file ''{}'' to: {}", mapDataInputStream, unzippedDirectory);
 
-  private void unzipFile(MapUploadData mapData) throws IOException, ArchiveException {
-    Unzipper.from(mapData.getUploadedFile())
-      .to(mapData.getBaseDir())
+    Unzipper.from(mapDataInputStream)
+      .to(unzippedDirectory)
       .unzip();
+
+    return unzippedDirectory;
   }
 
-  private void postProcessZipFiles(MapUploadData mapUploadData) throws IOException {
-    Optional<Path> mapFolder;
-    try (Stream<Path> mapFolderStream = Files.list(mapUploadData.getBaseDir())) {
+  /**
+   * @param zipContentFolder The folder containing the content of the zipped map file
+   * @return the root folder of the map
+   */
+  private Path validateMapFolderStructure(Path zipContentFolder) throws IOException {
+    Path mapFolder;
+
+    try (Stream<Path> mapFolderStream = Files.list(zipContentFolder)) {
       mapFolder = mapFolderStream
         .filter(path -> Files.isDirectory(path))
-        .findFirst();
+        .findFirst()
+        .orElseThrow(() -> ApiException.of(ErrorCode.MAP_MISSING_MAP_FOLDER_INSIDE_ZIP));
     }
 
-    if (!mapFolder.isPresent()) {
-      throw new ApiException(new Error(ErrorCode.MAP_MISSING_MAP_FOLDER_INSIDE_ZIP));
-    }
-
-    try (Stream<Path> mapFolderStream = Files.list(mapUploadData.getBaseDir())) {
-      if (mapFolderStream.count() != 2) {
-        throw new ApiException(new Error(ErrorCode.MAP_INVALID_ZIP));
+    try (Stream<Path> mapFolderStream = Files.list(zipContentFolder)) {
+      if (mapFolderStream.count() != 1) {
+        throw ApiException.of(ErrorCode.MAP_INVALID_ZIP);
       }
     }
 
-    mapUploadData.setOriginalMapFolder(mapFolder.get());
-    mapUploadData.setUploadFolderName(mapUploadData.getOriginalMapFolder().getFileName().toString());
+    return mapFolder;
+  }
 
-    List<Path> filePaths = new ArrayList<>();
-    try (Stream<Path> mapFileStream = Files.list(mapUploadData.getOriginalMapFolder())) {
-      mapFileStream.forEach(filePaths::add);
-      Arrays.stream(REQUIRED_FILES)
-        .forEach(filePattern -> {
-          if (filePaths.stream()
-            .noneMatch(filePath -> filePath.toString().endsWith(filePattern))) {
-            throw new ApiException(new Error(ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING, filePattern));
-          }
-        });
+  private void validateMandatoryFiles(Path mapFolder) throws IOException {
+    try (Stream<Path> mapFileStream = Files.list(mapFolder)) {
+      List<String> fileNames = mapFileStream
+        .map(Path::toString)
+        .collect(Collectors.toList());
+
+      List<Error> errors = Arrays.stream(REQUIRED_FILES)
+        .filter(requiredEnding -> fileNames.stream().noneMatch(fileName -> fileName.endsWith(requiredEnding)))
+        .map(requiredEnding -> new Error(ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING, requiredEnding))
+        .collect(Collectors.toList());
+
+      if (!errors.isEmpty()) {
+        throw ApiException.of(errors);
+      }
     }
   }
 
-  private void parseScenarioLua(MapUploadData progressData) throws IOException {
-    try (Stream<Path> mapFilesStream = Files.list(progressData.getOriginalMapFolder())) {
-      Path scenarioLuaPath = noCatch(() -> mapFilesStream)
-        .filter(myFile -> myFile.toString().endsWith("_scenario.lua"))
+  private MapLuaAccessor parseScenarioLua(Path mapFolder) throws IOException {
+    try (Stream<Path> mapFilesStream = Files.list(mapFolder)) {
+      Path scenarioLuaPath = mapFilesStream
+        .filter(myFile -> myFile.toString().endsWith(FILE_ENDING_SCENARIO))
         .findFirst()
-        .orElseThrow(() -> new ApiException(new Error(ErrorCode.MAP_SCENARIO_LUA_MISSING)));
-      LuaValue root = noCatch(() -> LuaLoader.loadFile(scenarioLuaPath), IllegalStateException.class);
-      progressData.setLuaRoot(root);
+        .orElseThrow(() -> ApiException.of(ErrorCode.MAP_SCENARIO_LUA_MISSING));
+      return MapLuaAccessor.of(scenarioLuaPath);
+    } catch (LuaException e) {
+      throw ApiException.of(ErrorCode.PARSING_LUA_FILE_FAILED, e.getMessage());
     }
   }
 
-  private void checkLua(MapUploadData progressData) {
+  private void validateScenarioLua(MapLuaAccessor mapLua, MapNameBuilder mapNameBuilder) {
     List<Error> errors = new ArrayList<>();
-    LuaValue scenarioInfo = progressData.getLuaScenarioInfo();
-    if (scenarioInfo.get(ScenarioMapInfo.NAME) == LuaValue.NIL) {
-      errors.add(new Error(ErrorCode.MAP_NAME_MISSING));
-    }
-    String displayName = scenarioInfo.get(ScenarioMapInfo.NAME).tojstring();
-    if (displayName.length() > MAP_DISPLAY_NAME_MAX_LENGTH) {
-      throw new ApiException(new Error(ErrorCode.MAP_NAME_TOO_LONG, MAP_DISPLAY_NAME_MAX_LENGTH, displayName.length()));
-    }
-    if (!NameUtil.isPrintableAsciiString(displayName)) {
-      throw new ApiException(new Error(ErrorCode.MAP_NAME_INVALID_CHARACTER));
-    }
 
-    if (scenarioInfo.get(ScenarioMapInfo.DESCRIPTION) == LuaValue.NIL) {
+    validateLuaPathVariable(mapLua, FILE_DECLARATION_MAP, mapNameBuilder, FILE_ENDING_MAP).ifPresent(errors::add);
+    validateLuaPathVariable(mapLua, FILE_DECLARATION_SAVE, mapNameBuilder, FILE_ENDING_SAVE).ifPresent(errors::add);
+    validateLuaPathVariable(mapLua, FILE_DECLARATION_SCRIPT, mapNameBuilder, FILE_ENDING_SCRIPT).ifPresent(errors::add);
+
+    if (!mapLua.getDescription().isPresent()) {
       errors.add(new Error(ErrorCode.MAP_DESCRIPTION_MISSING));
     }
-    if (invalidTeam(scenarioInfo)) {
+    if (mapLua.hasInvalidTeam()) {
       errors.add(new Error(ErrorCode.MAP_FIRST_TEAM_FFA));
     }
-    if (scenarioInfo.get(ScenarioMapInfo.TYPE) == LuaValue.NIL) {
+    if (!mapLua.getType().isPresent()) {
       errors.add(new Error(ErrorCode.MAP_TYPE_MISSING));
     }
-    if (scenarioInfo.get(ScenarioMapInfo.SIZE) == LuaValue.NIL) {
+    if (!mapLua.getSize().isPresent()) {
       errors.add(new Error(ErrorCode.MAP_SIZE_MISSING));
     }
-    if (scenarioInfo.get(ScenarioMapInfo.MAP_VERSION) == LuaValue.NIL) {
+
+    if (!mapLua.getMapVersion().isPresent()) {
       errors.add(new Error(ErrorCode.MAP_VERSION_MISSING));
     }
+
     if (!errors.isEmpty()) {
-      throw new ApiException(errors.toArray(new Error[errors.size()]));
+      throw ApiException.of(errors);
     }
   }
 
-  private boolean invalidTeam(LuaValue scenarioInfo) {
-    LuaValue scenario = scenarioInfo.get(ScenarioMapInfo.CONFIGURATIONS);
-    if (scenario == LuaValue.NIL) {
-      return true;
-    }
-    LuaValue standard = scenario.get(ScenarioMapInfo.CONFIGURATION_STANDARD);
-    if (standard == LuaValue.NIL) {
-      return true;
-    }
-    LuaValue teams = standard.get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS);
-    if (teams == LuaValue.NIL) {
-      return true;
-    }
-    LuaValue firstTeam = teams.get(1);
-    if (firstTeam == LuaValue.NIL) {
-      return true;
-    }
-    LuaValue teamName = firstTeam.get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS_NAME);
-    if (teamName == LuaValue.NIL) {
-      return true;
-    }
-    LuaValue armies = firstTeam.get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS_ARMIES);
-    return armies == LuaValue.NIL || !teamName.tojstring().equals("FFA");
+  private Optional<Error> validateLuaPathVariable(MapLuaAccessor mapLua, String variableName, MapNameBuilder mapNameBuilder, String fileEnding) {
+    String mapFileName = mapNameBuilder.buildFileName(fileEnding);
+    String mapFolderNameWithoutVersion = mapNameBuilder.buildFolderNameWithoutVersion();
 
+    String regex = format("\\/maps\\/{0}(\\.v\\d{4})?\\/{1}",
+      mapFolderNameWithoutVersion, mapFileName);
+
+    if (!mapLua.hasVariableMatching(regex, variableName)) {
+      return Optional.of(new Error(ErrorCode.MAP_SCRIPT_LINE_MISSING,
+        format("{0} = ''/maps/{1}/{2}''", variableName, mapFolderNameWithoutVersion, mapFileName)));
+    }
+
+    return Optional.empty();
   }
 
-  private void postProcessLuaFile(MapUploadData progressData) {
-    LuaValue scenarioInfo = progressData.getLuaScenarioInfo();
-    Optional<Map> mapEntity = mapRepository.findOneByDisplayName(
-      scenarioInfo.get(ScenarioMapInfo.NAME).toString());
-    if (!mapEntity.isPresent()) {
-      return;
+  private Optional<Map> validateMapMetadata(MapLuaAccessor mapLua, MapNameBuilder mapNameBuilder, Player author) {
+    String displayName = mapNameBuilder.getDisplayName();
+
+    validateMapName(displayName);
+
+    int newVersion = mapLua.getMapVersion()
+      .orElseThrow(() -> ApiException.of(ErrorCode.MAP_VERSION_MISSING));
+
+    if (Files.exists(mapNameBuilder.buildFinalZipPath(newVersion))) {
+      throw ApiException.of(ErrorCode.MAP_NAME_CONFLICT, mapNameBuilder.buildFinalZipName(newVersion));
     }
-    Player author = mapEntity.get().getAuthor();
-    if (author == null) {
-      return;
-    }
-    if (author.getId() != progressData.getAuthorEntity().getId()) {
-      throw new ApiException(new Error(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR, mapEntity.get().getDisplayName()));
-    }
-    int newVersion = scenarioInfo.get(ScenarioMapInfo.MAP_VERSION).toint();
-    if (mapEntity.get().getVersions().stream()
-      .anyMatch(mapVersion -> mapVersion.getVersion() == newVersion)) {
-      throw new ApiException(new Error(ErrorCode.MAP_VERSION_EXISTS, mapEntity.get().getDisplayName(), newVersion));
-    }
-    progressData.setMapEntity(mapEntity.get());
+
+    Optional<Map> existingMapOptional = mapRepository.findOneByDisplayName(displayName);
+    existingMapOptional
+      .ifPresent(existingMap -> {
+        Optional.ofNullable(existingMap.getAuthor())
+          .filter(existingMapAuthor -> !Objects.equals(existingMapAuthor, author))
+          .ifPresent(existingMapAuthor -> {
+            throw ApiException.of(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR, existingMap.getDisplayName());
+          });
+
+        if (existingMap.getVersions().stream()
+          .anyMatch(mapVersion -> mapVersion.getVersion() == newVersion)) {
+          throw ApiException.of(ErrorCode.MAP_VERSION_EXISTS, existingMap.getDisplayName(), newVersion);
+        }
+      });
+
+    return existingMapOptional;
   }
 
-  private void updateMapEntities(MapUploadData progressData) {
-    LuaValue scenarioInfo = progressData.getLuaScenarioInfo();
-    Map map = progressData.getMapEntity();
-    if (map == null) {
-      map = new Map();
-    }
+  private Map updateHibernateMapEntities(MapLuaAccessor mapLua, Optional<Map> existingMapOptional, Player author, boolean isRanked, MapNameBuilder mapNameBuilder) {
+    // the scenario lua is supposed to be validate already, thus we call the unwrapping $-methods
+    String mapName = mapNameBuilder.getDisplayName();
 
-    String name = scenarioInfo.get(ScenarioMapInfo.NAME).toString();
+    Map map = existingMapOptional
+      .orElseGet(() ->
+        new Map()
+          .setDisplayName(mapName)
+          .setAuthor(author)
+      );
 
-    map.setDisplayName(name)
-      .setMapType(scenarioInfo.get(ScenarioMapInfo.TYPE).tojstring())
-      .setBattleType(scenarioInfo.get(ScenarioMapInfo.CONFIGURATIONS).get(ScenarioMapInfo.CONFIGURATION_STANDARD).get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS).get(1)
-        .get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS_NAME).tojstring())
-      .setAuthor(progressData.getAuthorEntity());
+    LuaValue standardTeamsConfig = mapLua.getFirstTeam$();
 
-    LuaValue size = scenarioInfo.get(ScenarioMapInfo.SIZE);
+    map
+      .setMapType(mapLua.getType$())
+      .setBattleType(standardTeamsConfig.get(CONFIGURATION_STANDARD_TEAMS_NAME).tojstring());
+
+    LuaValue size = mapLua.getSize$();
     MapVersion version = new MapVersion()
-      .setDescription(scenarioInfo.get(ScenarioMapInfo.DESCRIPTION).tojstring().replaceAll("<LOC .*?>", ""))
+      .setDescription(mapLua.getDescription$().replaceAll("<LOC .*?>", ""))
       .setWidth(size.get(1).toint())
       .setHeight(size.get(2).toint())
       .setHidden(false)
-      .setRanked(progressData.isRanked())
-      .setMaxPlayers(scenarioInfo.get(ScenarioMapInfo.CONFIGURATIONS).get(ScenarioMapInfo.CONFIGURATION_STANDARD).get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS).get(1)
-        .get(ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS_ARMIES).length())
-      .setVersion(scenarioInfo.get(ScenarioMapInfo.MAP_VERSION).toint());
+      .setRanked(isRanked)
+      .setMaxPlayers(standardTeamsConfig.get(CONFIGURATION_STANDARD_TEAMS_ARMIES).length())
+      .setVersion(mapLua.getMapVersion$())
+      .setMap(map)
+      .setFilename(LEGACY_FOLDER_PREFIX + mapNameBuilder.buildFinalZipName(mapLua.getMapVersion$()));
+
     map.getVersions().add(version);
-    version.setMap(map);
-
-    progressData.setMapEntity(map);
-    progressData.setMapVersionEntity(version);
-
-    version.setFilename(STUPID_MAP_FOLDER_PREFIX + progressData.getFinalZipName());
-    progressData.setFinalZipFile(
-      this.fafApiProperties.getMap().getTargetDirectory()
-        .resolve(progressData.getFinalZipName()));
-
-    if (Files.exists(progressData.getFinalZipFile())) {
-      throw new ApiException(new Error(ErrorCode.MAP_NAME_CONFLICT, progressData.getFinalZipName()));
-    }
 
     // this triggers validation
     mapRepository.save(map);
+
+    return map;
   }
 
-  private void renameFolderNameAndCorrectPathInLuaFiles(MapUploadData progressData) throws IOException {
-    progressData.setNewMapFolder(progressData.getBaseDir().resolve(progressData.getNewFolderName()));
-    Files.move(progressData.getOriginalMapFolder(), progressData.getNewMapFolder());
-    updateLuaFiles(progressData);
-  }
-
-  private void updateLuaFiles(MapUploadData mapData) throws IOException {
-    String oldNameFolder = "/maps/" + mapData.getUploadFolderName();
-    String newNameFolder = "/maps/" + mapData.getNewFolderName();
-    try (Stream<Path> mapFileStream = Files.list(mapData.getNewMapFolder())) {
+  private void updateLuaFiles(Path oldFolderPath, Path newFolderPath) throws IOException {
+    String oldNameFolder = "/maps/" + oldFolderPath.getFileName();
+    String newNameFolder = "/maps/" + newFolderPath.getFileName();
+    try (Stream<Path> mapFileStream = Files.list(newFolderPath)) {
       mapFileStream
         .filter(path -> path.toString().toLowerCase().endsWith(".lua"))
         .forEach(path -> noCatch(() -> {
@@ -384,38 +360,27 @@ public class MapService {
     }
   }
 
-  private void generatePreview(MapUploadData mapData) throws IOException {
-    String previewFilename = mapData.getNewFolderName() + ".png";
+  private void generatePreview(Path newMapFolder) throws IOException {
+    String previewFilename = newMapFolder.getFileName() + ".png";
     generateImage(
       fafApiProperties.getMap().getDirectoryPreviewPathSmall().resolve(previewFilename),
-      mapData.getNewMapFolder(),
+      newMapFolder,
       fafApiProperties.getMap().getPreviewSizeSmall());
 
     generateImage(
       fafApiProperties.getMap().getDirectoryPreviewPathLarge().resolve(previewFilename),
-      mapData.getNewMapFolder(),
+      newMapFolder,
       fafApiProperties.getMap().getPreviewSizeLarge());
   }
 
-  private void zipMapData(MapUploadData progressData) throws IOException, ArchiveException {
-    cleanupBaseDir(progressData);
-    Path finalZipFile = progressData.getFinalZipFile();
-    Files.createDirectories(finalZipFile.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
+  private void zipMapData(Path newMapFolder, Path finalZipPath) throws IOException, ArchiveException {
+    Files.createDirectories(finalZipPath.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
     Zipper
-      .contentOf(progressData.getBaseDir())
-      .to(finalZipFile)
+      .of(newMapFolder)
+      .to(finalZipPath)
       .zip();
     // TODO if possible, this should be done using umask instead
-    FilePermissionUtil.setDefaultFilePermission(finalZipFile);
-  }
-
-  private void cleanupBaseDir(MapUploadData progressData) throws IOException {
-    Files.delete(progressData.getUploadedFile());
-    try (Stream<Path> stream = Files.list(progressData.getBaseDir())) {
-      if (stream.count() != 1) {
-        throw new ProgrammingError("Folder containing unknown data: " + progressData.getBaseDir());
-      }
-    }
+    FilePermissionUtil.setDefaultFilePermission(finalZipPath);
   }
 
   private void generateImage(Path target, Path baseDir, int size) throws IOException {
@@ -426,64 +391,58 @@ public class MapService {
     ImageIO.write(image, "png", target.toFile());
   }
 
-  private boolean cleanup(MapUploadData mapData) {
-    return FileSystemUtils.deleteRecursively(mapData.getBaseDir().toFile());
+  static class ScenarioMapInfo {
+    static final String CONFIGURATION_STANDARD_TEAMS_NAME = "name";
+    static final String CONFIGURATION_STANDARD_TEAMS_ARMIES = "armies";
+    static final String FILE_DECLARATION_MAP = "map";
+    static final String FILE_ENDING_SCENARIO = "_scenario.lua";
+    static final String FILE_ENDING_MAP = ".scmap";
+    static final String FILE_DECLARATION_SAVE = "save";
+    static final String FILE_ENDING_SAVE = "_save.lua";
+    static final String FILE_DECLARATION_SCRIPT = "script";
+    static final String FILE_ENDING_SCRIPT = "_script.lua";
+
+    static final String[] REQUIRED_FILES = new String[]{
+      FILE_ENDING_SCENARIO,
+      FILE_ENDING_MAP,
+      FILE_ENDING_SAVE,
+      FILE_ENDING_SCRIPT,
+    };
   }
 
-  @Data
-  private class MapUploadData {
-    private String uploadFileName;
-    private String uploadFolderName;
-    private String newFolderName;
-    private Path uploadedFile;
-    private Path baseDir;
-    private Path originalMapFolder;
-    private Path newMapFolder;
-    private Path finalZipFile;
-    private LuaValue luaRoot;
-    private Map mapEntity;
-    private MapVersion mapVersionEntity;
-    private Player authorEntity;
-    private boolean isRanked;
-    private LuaValue scenarioInfo;
+  private class MapNameBuilder {
+    @Getter
+    private final String displayName;
+    private final String normalizedDisplayName;
+    private String folderName;
 
-    private LuaValue getLuaScenarioInfo() {
-      if (getLuaRoot() == null) {
-        throw new IllegalStateException("*_scenario.lua parse result not available");
+    private MapNameBuilder(String displayName) {
+      this.displayName = displayName;
+      this.normalizedDisplayName = NameUtil.normalizeWhitespaces(displayName.toLowerCase());
+    }
+
+    String buildFolderNameWithoutVersion() {
+      return normalizedDisplayName;
+    }
+
+    String buildFolderName(int version) {
+      if (folderName == null) {
+        folderName = String.format("%s.v%04d", normalizedDisplayName, version);
       }
-      if (scenarioInfo == null) {
-        scenarioInfo = getLuaRoot().get("ScenarioInfo");
-      }
-      return scenarioInfo;
+
+      return folderName;
     }
 
-    private String getNewFolderName() {
-      return generateNewMapNameWithVersion("");
+    String buildFileName(String fileEnding) {
+      return normalizedDisplayName + fileEnding;
     }
 
-    private String generateNewMapNameWithVersion(String extension) {
-      return Paths.get(String.format("%s.v%04d%s",
-        NameUtil.normalizeFileName(mapEntity.getDisplayName()),
-        mapVersionEntity.getVersion(),
-        extension))
-        .normalize().toString();
+    String buildFinalZipName(int version) {
+      return buildFolderName(version) + ".zip";
     }
 
-    private String getFinalZipName() {
-      return generateNewMapNameWithVersion(".zip");
+    Path buildFinalZipPath(int version) {
+      return fafApiProperties.getMap().getTargetDirectory().resolve(buildFinalZipName(version));
     }
-  }
-
-  private class ScenarioMapInfo {
-    private static final String CONFIGURATIONS = "Configurations";
-    private static final String NAME = "name";
-    private static final String DESCRIPTION = "description";
-    private static final String TYPE = "type";
-    private static final String SIZE = "size";
-    private static final String MAP_VERSION = "map_version";
-    private static final String CONFIGURATION_STANDARD = "standard";
-    private static final String CONFIGURATION_STANDARD_TEAMS = "teams";
-    private static final String CONFIGURATION_STANDARD_TEAMS_NAME = "name";
-    private static final String CONFIGURATION_STANDARD_TEAMS_ARMIES = "armies";
   }
 }

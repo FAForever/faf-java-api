@@ -6,7 +6,6 @@ import com.faforever.api.content.ContentService;
 import com.faforever.api.data.domain.MapVersion;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
-import com.faforever.api.error.ApiExceptionWithMultipleCodes;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.commons.io.Unzipper;
@@ -22,12 +21,12 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.thymeleaf.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -38,6 +37,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.faforever.api.error.ApiExceptionWithCode.apiExceptionWithCode;
+import static com.faforever.api.error.ApiExceptionWithMultipleCodes.hasErrorCodes;
 import static com.faforever.api.error.ErrorCode.MAP_NAME_DOES_NOT_START_WITH_LETTER;
 import static com.faforever.api.error.ErrorCode.MAP_NAME_INVALID_CHARACTER;
 import static com.faforever.api.error.ErrorCode.MAP_NAME_INVALID_MINUS_OCCURENCE;
@@ -78,6 +78,20 @@ public class MapServiceTest {
   @BeforeEach
   void beforeEach() {
     instance = new MapService(fafApiProperties, mapRepository, contentService);
+  }
+
+  private String loadMapAsString(String filename) throws IOException {
+    return new String(loadMapAsBytes(filename), StandardCharsets.UTF_8);
+  }
+
+  private InputStream loadMapAsInputSteam(String filename) {
+    return MapServiceTest.class.getResourceAsStream("/maps/" + filename);
+  }
+
+  private byte[] loadMapAsBytes(String filename) throws IOException {
+    try (InputStream inputStream = MapServiceTest.class.getResourceAsStream("/maps/" + filename)) {
+      return ByteStreams.toByteArray(inputStream);
+    }
   }
 
   @Nested
@@ -153,78 +167,59 @@ public class MapServiceTest {
     }
 
     @Test
-    void testScenarioLuaSuccessWithoutVersion() {
+    void testScenarioLuaSuccessWithoutVersion() throws Exception {
       MapValidationRequest request = new MapValidationRequest("name",
-        "map = '/maps/name/name.scmap', " +
-          "save = '/maps/name/name_save.lua', " +
-          "script = '/maps/name/name_script.lua', "
+        loadMapAsString("scenario/valid_without_version_scenario.lua")
       );
 
       instance.validate(request);
     }
 
     @Test
-    void testScenarioLuaSuccessWithVersion() {
+    void testScenarioLuaSuccessWithVersion() throws Exception {
       // of course the version number should be the same every time but we don't validate this
       MapValidationRequest request = new MapValidationRequest("name",
-        "map = '/maps/name.v0001/name.scmap', " +
-          "save = '/maps/name.v0002/name_save.lua', " +
-          "script = '/maps/name.v0003/name_script.lua', "
+        loadMapAsString("scenario/valid_with_version_scenario.lua")
       );
 
       instance.validate(request);
     }
 
     @Test
-    void testScenarioLuaMissingAllLines() {
+    void testScenarioLuaEmptyScenarioLua() {
       MapValidationRequest request = new MapValidationRequest("name", "");
       ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
-      assertThat(result.getErrors().length, is(3));
+      assertThat(result, hasErrorCodes(
+        ErrorCode.PARSING_LUA_FILE_FAILED
+      ));
     }
 
     @Test
-    void testScenarioLuaWrongMapLine() {
+    void testScenarioLuaMissingAllLines() throws Exception {
+      MapValidationRequest request = new MapValidationRequest("name", loadMapAsString("scenario/valid_empty.lua"));
+      ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
+      assertThat(result, hasErrorCodes(ErrorCode.MAP_NAME_MISSING));
+    }
+
+    @Test
+    void testScenarioLuaWrongMapLine() throws Exception {
       MapValidationRequest request = new MapValidationRequest("name",
-        "map = '/maps/name.vINVALID_VERSION/name.scmap', " +
-          "save = '/maps/name.v0002/name_save.lua', " +
-          "script = '/maps/name.v0003/name_script.lua', "
+        loadMapAsString("scenario/missing_map_variable_scenario.lua")
       );
 
       ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
 
-      assertThat(result.getErrors().length, is(1));
-      assertThat(result.getErrors()[0].getArgs().length, is(1));
-      assertThat(result.getErrors()[0].getArgs()[0], is("map = '/maps/name/name.scmap',"));
-    }
-
-    @Test
-    void testScenarioLuaWrongSaveLine() {
-      MapValidationRequest request = new MapValidationRequest("name",
-        "map = '/maps/name.v0001/name.scmap', " +
-          "save = '/maps/name.vINVALID_VERSION/name_save.lua', " +
-          "script = '/maps/name.v0003/name_script.lua', "
-      );
-
-      ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
+      assertThat(result, hasErrorCodes(
+        ErrorCode.MAP_SCRIPT_LINE_MISSING
+      ));
 
       assertThat(result.getErrors().length, is(1));
-      assertThat(result.getErrors()[0].getArgs().length, is(1));
-      assertThat(result.getErrors()[0].getArgs()[0], is("save = '/maps/name/name_save.lua',"));
-    }
+      Error mapLineError = Arrays.stream(result.getErrors())
+        .filter(error -> error.getErrorCode() == MAP_SCRIPT_LINE_MISSING)
+        .findFirst().get();
 
-    @Test
-    void testScenarioLuaWrongScriptLine() {
-      MapValidationRequest request = new MapValidationRequest("name",
-        "map = '/maps/name.v0001/name.scmap', " +
-          "save = '/maps/name.v0002/name_save.lua', " +
-          "script = '/maps/name.vINVALID_VERSION/name_script.lua', "
-      );
-
-      ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
-
-      assertThat(result.getErrors().length, is(1));
-      assertThat(result.getErrors()[0].getArgs().length, is(1));
-      assertThat(result.getErrors()[0].getArgs()[0], is("script = '/maps/name/name_script.lua',"));
+      assertThat(mapLineError.getArgs().length, is(1));
+      assertThat(mapLineError.getArgs()[0], is("map = '/maps/mirage/mirage.scmap'"));
     }
   }
 
@@ -249,8 +244,8 @@ public class MapServiceTest {
     @CsvSource(value = {
       "MAP_MISSING_MAP_FOLDER_INSIDE_ZIP,empty.zip",
       "MAP_FIRST_TEAM_FFA,wrong_team_name.zip",
-      "MAP_INVALID_ZIP,scmp_037_invalid.zip", // map with more than 1 root folders in zip
-      "MAP_NAME_INVALID_CHARACTER,scmp_037_no_ascii.zip",
+      "MAP_INVALID_ZIP,invalid_zip.zip", // map with more than 1 root folders in zip
+      "MAP_NAME_INVALID_CHARACTER,map_name_invalid_character.zip",
       "MAP_FILE_INSIDE_ZIP_MISSING,without_savelua.zip",
       "MAP_FILE_INSIDE_ZIP_MISSING,without_scenariolua.zip",
       "MAP_FILE_INSIDE_ZIP_MISSING,without_scmap.zip",
@@ -261,25 +256,25 @@ public class MapServiceTest {
     }
 
     void uploadFails(ErrorCode expectedErrorCode, String fileName) throws IOException {
-      byte[] mapData = loadMapAsBytes(fileName);
+      InputStream mapData = loadMapAsInputSteam(fileName);
       ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, fileName, author, true));
       assertThat(result, apiExceptionWithCode(expectedErrorCode));
       verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
 
-
     @Test
     void zipFilenameAlreadyExists() throws IOException {
-      Path clashedMap = finalDirectory.resolve("sludge_test____.___..v0001.zip");
-      assertTrue(clashedMap.toFile().createNewFile());
       when(fafApiProperties.getMap()).thenReturn(mapProperties);
-      when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
+      Path clashedMap = finalDirectory.resolve("command_conquer_rush.v0007.zip");
+      assertTrue(clashedMap.toFile().createNewFile());
 
-      uploadFails(ErrorCode.MAP_NAME_CONFLICT, "scmp_037.zip");
+      uploadFails(ErrorCode.MAP_NAME_CONFLICT, "command_conquer_rush.v0007.zip");
     }
 
     @Test
     void notCorrectAuthor() throws IOException {
+      when(fafApiProperties.getMap()).thenReturn(mapProperties);
+
       Player me = new Player();
       me.setId(1);
       Player bob = new Player();
@@ -288,64 +283,77 @@ public class MapServiceTest {
       com.faforever.api.data.domain.Map map = new com.faforever.api.data.domain.Map().setAuthor(bob);
       when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.of(map));
 
-      uploadFails(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR, "scmp_037.zip");
+      uploadFails(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR, "command_conquer_rush.v0007.zip");
     }
 
     @Test
     void versionExistsAlready() throws IOException {
+      when(fafApiProperties.getMap()).thenReturn(mapProperties);
+
       com.faforever.api.data.domain.Map map = new com.faforever.api.data.domain.Map()
+        .setDisplayName("someName")
         .setAuthor(author)
-        .setVersions(Collections.singletonList(new MapVersion().setVersion(1)));
+        .setVersions(Collections.singletonList(new MapVersion().setVersion(7)));
 
       when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.of(map));
-      when(author.getId()).thenReturn(1);
 
-      uploadFails(ErrorCode.MAP_VERSION_EXISTS, "scmp_037.zip");
+      uploadFails(ErrorCode.MAP_VERSION_EXISTS, "command_conquer_rush.v0007.zip");
     }
 
     @Test
-    void invalidScenario() throws IOException {
-      String zipFilename = "invalid_scenario.zip";
-      byte[] mapData = loadMapAsBytes(zipFilename);
+    void noMapName() {
+      String zipFilename = "no_map_name.zip";
+      InputStream mapData = loadMapAsInputSteam(zipFilename);
       ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true));
-      assertThat(result, is(ApiExceptionWithMultipleCodes.apiExceptionWithCode(
-        ErrorCode.MAP_NAME_MISSING,
+      assertThat(result, hasErrorCodes(ErrorCode.MAP_NAME_MISSING));
+      verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
+    }
+
+    @Test
+    void invalidScenario() {
+      String zipFilename = "invalid_scenario.zip";
+      InputStream mapData = loadMapAsInputSteam(zipFilename);
+      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true));
+      assertThat(result, hasErrorCodes(
+        ErrorCode.MAP_SCRIPT_LINE_MISSING,
+        ErrorCode.MAP_SCRIPT_LINE_MISSING,
+        ErrorCode.MAP_SCRIPT_LINE_MISSING,
         ErrorCode.MAP_DESCRIPTION_MISSING,
         ErrorCode.MAP_FIRST_TEAM_FFA,
         ErrorCode.MAP_TYPE_MISSING,
         ErrorCode.MAP_SIZE_MISSING,
-        ErrorCode.MAP_VERSION_MISSING)));
+        ErrorCode.MAP_VERSION_MISSING));
       verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
 
     @Test
     void positiveUploadTest() throws Exception {
-      String zipFilename = "scmp_037.zip";
+      String zipFilename = "command_conquer_rush.v0007.zip";
       when(fafApiProperties.getMap()).thenReturn(mapProperties);
       when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
-      byte[] mapData = loadMapAsBytes(zipFilename);
+      InputStream mapData = loadMapAsInputSteam(zipFilename);
 
       Path tmpDir = temporaryDirectory;
       instance.uploadMap(mapData, zipFilename, author, true);
 
       ArgumentCaptor<com.faforever.api.data.domain.Map> mapCaptor = ArgumentCaptor.forClass(com.faforever.api.data.domain.Map.class);
-      verify(mapRepository, Mockito.times(1)).save(mapCaptor.capture());
-      assertEquals("Sludge_Test &!$.#+/.", mapCaptor.getValue().getDisplayName());
+      verify(mapRepository).save(mapCaptor.capture());
+      assertEquals("Command Conquer Rush", mapCaptor.getValue().getDisplayName());
       assertEquals("skirmish", mapCaptor.getValue().getMapType());
       assertEquals("FFA", mapCaptor.getValue().getBattleType());
       assertEquals(1, mapCaptor.getValue().getVersions().size());
 
       MapVersion mapVersion = mapCaptor.getValue().getVersions().get(0);
-      assertEquals("The thick, brackish water clings to everything, staining anything it touches. If it weren't for this planet's proximity to the Quarantine Zone, no one would ever bother coming here.", mapVersion.getDescription());
-      assertEquals(1, mapVersion.getVersion());
+      assertEquals("For example on map crazyrush. Universal Command Conquer 3 modification by RuCommunity. Prealpha test", mapVersion.getDescription());
+      assertEquals(7, mapVersion.getVersion());
       assertEquals(256, mapVersion.getHeight());
       assertEquals(256, mapVersion.getWidth());
-      assertEquals(3, mapVersion.getMaxPlayers());
-      assertEquals("maps/sludge_test____.___..v0001.zip", mapVersion.getFilename());
+      assertEquals(8, mapVersion.getMaxPlayers());
+      assertEquals("maps/command_conquer_rush.v0007.zip", mapVersion.getFilename());
 
       assertFalse(Files.exists(tmpDir));
 
-      Path generatedFile = finalDirectory.resolve("sludge_test____.___..v0001.zip");
+      Path generatedFile = finalDirectory.resolve("command_conquer_rush.v0007.zip");
       assertTrue(Files.exists(generatedFile));
 
       Path generatedFiles = finalDirectory.resolve("generated_files");
@@ -356,27 +364,21 @@ public class MapServiceTest {
         .to(expectedFiles)
         .unzip();
 
-      expectedFiles = expectedFiles.resolve("sludge_test____.___..v0001");
+      expectedFiles = expectedFiles.resolve("command_conquer_rush.v0007");
       try (Stream<Path> fileStream = Files.list(expectedFiles)) {
         assertEquals(fileStream.count(), (long) 4);
       }
 
       try (Stream<Path> fileStream = Files.list(expectedFiles)) {
-        Path finalGeneratedFile = generatedFiles.resolve("sludge_test____.___..v0001");
+        Path finalGeneratedFile = generatedFiles.resolve("command_conquer_rush.v0007");
         fileStream.forEach(expectedFile ->
           FileAssert.assertEquals("Difference in " + expectedFile.getFileName().toString(),
             expectedFile.toFile(),
             finalGeneratedFile.resolve(expectedFile.getFileName().toString()).toFile())
         );
 
-        assertTrue(Files.exists(mapProperties.getDirectoryPreviewPathLarge().resolve("sludge_test____.___..v0001.png")));
-        assertTrue(Files.exists(mapProperties.getDirectoryPreviewPathSmall().resolve("sludge_test____.___..v0001.png")));
-      }
-    }
-
-    private byte[] loadMapAsBytes(String filename) throws IOException {
-      try (InputStream inputStream = MapServiceTest.class.getResourceAsStream("/maps/" + filename)) {
-        return ByteStreams.toByteArray(inputStream);
+        assertTrue(Files.exists(mapProperties.getDirectoryPreviewPathLarge().resolve("command_conquer_rush.v0007.png")));
+        assertTrue(Files.exists(mapProperties.getDirectoryPreviewPathSmall().resolve("command_conquer_rush.v0007.png")));
       }
     }
   }

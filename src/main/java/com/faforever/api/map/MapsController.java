@@ -87,6 +87,6 @@ public class MapsController {
     }
 
     Player player = playerService.getPlayer(authentication);
-    mapService.uploadMap(file.getBytes(), file.getOriginalFilename(), player, ranked);
+    mapService.uploadMap(file.getInputStream(), file.getOriginalFilename(), player, ranked);
   }
 }
