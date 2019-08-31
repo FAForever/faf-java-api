@@ -70,9 +70,9 @@ faf-api:
     featured-mods-target-directory: "build/cache/mods"
     repositories-directory: ""
     forged-alliance-exe-path: "build/exe/faf"
-    testing-exe-upload-key: "banana"
-    forged-alliance-beta-exe-path: "build/exe/beta"
-    forged-alliance-develop-exe-path: "build/exe/develop"
+    testing-exe-upload-key: banana
+    forged-alliance-beta-exe-path: build/exe/beta
+    forged-alliance-develop-exe-path: build/exe/develop
   featured-mod:
     file-url-format: "file://%s/%s"
 

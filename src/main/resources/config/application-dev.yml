@@ -30,8 +30,8 @@ faf-api:
     repositories-directory: ${REPOSITORIES_DIRECTORY:build/cache/repos}
     featured-mods-target-directory: ${FEATURED_MODS_TARGET_DIRECTORY:build/cache/deployment}
     testing-exe-upload-key: ${TESTING_EXE_UPLOAD_KEY:"banana"}
-    forged-alliance-beta-exe-path: ${EXE_UPLOAD_BETA_PATH:"build/exe/beta"}
-    forged-alliance-develop-exe-path: ${EXE_UPLOAD_DEVELOP_PATH:"build/exe/develop"}
+    forged-alliance-beta-exe-path: ${EXE_UPLOAD_BETA_PATH:build/exe/beta}
+    forged-alliance-develop-exe-path: ${EXE_UPLOAD_DEVELOP_PATH:build/exe/develop}
   clan:
     website-url-format: ${CLAN_WEBSITE_URL_FORMAT:http://clans.test.faforever.com/clan/%s}
   mail:
