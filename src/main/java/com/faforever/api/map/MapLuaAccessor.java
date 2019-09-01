@@ -1,5 +1,6 @@
 package com.faforever.api.map;
 
+import com.faforever.commons.lua.LuaAccessor;
 import org.luaj.vm2.LuaValue;
 
 import java.io.IOException;
@@ -27,11 +28,11 @@ public class MapLuaAccessor {
     this.luaAccessor = luaAccessor;
   }
 
-  public static MapLuaAccessor of(Path scenarioLuaPath) throws IOException, LuaException {
+  public static MapLuaAccessor of(Path scenarioLuaPath) throws IOException {
     return new MapLuaAccessor(LuaAccessor.of(scenarioLuaPath, ROOT_ELEMENT));
   }
 
-  public static MapLuaAccessor of(String scenarioLuaCode) throws IOException, LuaException {
+  public static MapLuaAccessor of(String scenarioLuaCode) throws IOException {
     return new MapLuaAccessor(LuaAccessor.of(scenarioLuaCode, ROOT_ELEMENT));
   }
 

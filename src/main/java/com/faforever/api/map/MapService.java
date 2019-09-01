@@ -127,7 +127,7 @@ public class MapService {
       MapNameBuilder mapNameBuilder = new MapNameBuilder(mapLua.getName()
         .orElseThrow(() -> ApiException.of(ErrorCode.MAP_NAME_MISSING)));
       validateScenarioLua(mapLua, mapNameBuilder);
-    } catch (IOException | LuaException | LuaError e) {
+    } catch (IOException | LuaError e) {
       throw ApiException.of(ErrorCode.PARSING_LUA_FILE_FAILED, e.getMessage());
     }
   }
@@ -229,7 +229,7 @@ public class MapService {
         .findFirst()
         .orElseThrow(() -> ApiException.of(ErrorCode.MAP_SCENARIO_LUA_MISSING));
       return MapLuaAccessor.of(scenarioLuaPath);
-    } catch (LuaException e) {
+    } catch (LuaError e) {
       throw ApiException.of(ErrorCode.PARSING_LUA_FILE_FAILED, e.getMessage());
     }
   }
