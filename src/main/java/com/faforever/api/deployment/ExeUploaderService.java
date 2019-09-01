@@ -67,7 +67,7 @@ public class ExeUploaderService {
     Path temporaryFile = tempDir.resolve(fileName);
     Files.write(temporaryFile, exeData);
 
-    Path copyTo = Paths.get(getCopyToPath(modName, fileName));
+    Path copyTo = getCopyToPath(modName, fileName);
     createDirectories(copyTo.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
     return Files.copy(
       temporaryFile,
