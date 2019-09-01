@@ -67,6 +67,7 @@ server:
     context-path: ${CONTEXT_PATH:/}
   jetty:
     max-http-post-size: 314572800
+  use-forward-headers: true
 
 management:
   server:
