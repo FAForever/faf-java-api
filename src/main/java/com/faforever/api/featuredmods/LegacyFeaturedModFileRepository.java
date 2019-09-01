@@ -30,7 +30,6 @@ public class LegacyFeaturedModFileRepository implements Repository<FeaturedModFi
 
   @SuppressWarnings("unchecked")
   public List<FeaturedModFile> getFiles(String modName, Integer version, String fileName) {
-    // Please shoot me. +1
     String innerModName = "ladder1v1".equals(modName) ? "faf" : modName;
     verifyModName(innerModName);
 

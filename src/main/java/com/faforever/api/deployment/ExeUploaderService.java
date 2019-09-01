@@ -25,9 +25,6 @@ import static com.google.common.hash.Hashing.md5;
 import static com.google.common.io.Files.hash;
 import static java.nio.file.Files.createDirectories;
 
-/**
- * remove this shit
- */
 @Service
 @Slf4j
 public class ExeUploaderService {
@@ -85,11 +82,11 @@ public class ExeUploaderService {
     }
   }
 
-  private String getCopyToPath(String modName, String fileName) {
+  private Path getCopyToPath(String modName, String fileName) {
     String copyTo = apiProperties.getDeployment().getForgedAllianceBetaExePath();
     if ("fafdevelop".equals(modName)) {
       copyTo = apiProperties.getDeployment().getForgedAllianceDevelopExePath();
     }
-    return copyTo + "/" + fileName;
+    return Paths.get(copyTo, fileName);
   }
 }

@@ -25,7 +25,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class) // Is this right?
+@RunWith(MockitoJUnitRunner.class)
 public class ExeUploaderServiceTest {
   private ExeUploaderService instance;
 
@@ -77,9 +77,7 @@ public class ExeUploaderServiceTest {
       featuredModFile);
     instance.processUpload(bytes, modName);
 
-    // File was created
     assertTrue(Files.exists(Paths.get(finalExeDestination)));
-    // File was updated in database
     ArgumentCaptor<List<FeaturedModFile>> modFilesCaptor = ArgumentCaptor.forClass(List.class);
     verify(featuredModService).save(eq(modName), eq((short) featuredModFile.getVersion()), modFilesCaptor.capture());
     assertThat(modFilesCaptor.getValue().size(), is(1));
@@ -102,9 +100,7 @@ public class ExeUploaderServiceTest {
       featuredModFile);
     instance.processUpload(bytes, modName);
 
-    // File was created
     assertTrue(Files.exists(Paths.get(finalExeDestination)));
-    // File was updated in database
     ArgumentCaptor<List<FeaturedModFile>> modFilesCaptor = ArgumentCaptor.forClass(List.class);
     verify(featuredModService).save(eq(modName), eq((short) featuredModFile.getVersion()), modFilesCaptor.capture());
     assertThat(modFilesCaptor.getValue().size(), is(1));
