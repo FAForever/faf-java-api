@@ -36,8 +36,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.faforever.api.error.ApiExceptionWithCode.apiExceptionWithCode;
-import static com.faforever.api.error.ApiExceptionWithMultipleCodes.hasErrorCodes;
+import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
+import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCodes;
 import static com.faforever.api.error.ErrorCode.MAP_NAME_DOES_NOT_START_WITH_LETTER;
 import static com.faforever.api.error.ErrorCode.MAP_NAME_INVALID_CHARACTER;
 import static com.faforever.api.error.ErrorCode.MAP_NAME_INVALID_MINUS_OCCURENCE;
@@ -135,35 +135,35 @@ public class MapServiceTest {
     void testMapNameInvalidChars(String name) {
       MapValidationRequest request = new MapValidationRequest(name, null);
       ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
-      assertThat(result, apiExceptionWithCode(MAP_NAME_INVALID_CHARACTER));
+      assertThat(result, hasErrorCode(MAP_NAME_INVALID_CHARACTER));
     }
 
     @Test
     void testMapNameTooManyDashes() {
       MapValidationRequest request = new MapValidationRequest("More-than-three-dashes-invalid", null);
       ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
-      assertThat(result, apiExceptionWithCode(MAP_NAME_INVALID_MINUS_OCCURENCE));
+      assertThat(result, hasErrorCode(MAP_NAME_INVALID_MINUS_OCCURENCE));
     }
 
     @Test
     void testMapNameToShort() {
       MapValidationRequest request = new MapValidationRequest("x", null);
       ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
-      assertThat(result, apiExceptionWithCode(MAP_NAME_TOO_SHORT));
+      assertThat(result, hasErrorCode(MAP_NAME_TOO_SHORT));
     }
 
     @Test
     void testMapNameToLong() {
       MapValidationRequest request = new MapValidationRequest(StringUtils.repeat("x", 51), null);
       ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
-      assertThat(result, apiExceptionWithCode(MAP_NAME_TOO_LONG));
+      assertThat(result, hasErrorCode(MAP_NAME_TOO_LONG));
     }
 
     @Test
     void testMapNameStartsInvalid() {
       MapValidationRequest request = new MapValidationRequest("123x", null);
       ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
-      assertThat(result, apiExceptionWithCode(MAP_NAME_DOES_NOT_START_WITH_LETTER));
+      assertThat(result, hasErrorCode(MAP_NAME_DOES_NOT_START_WITH_LETTER));
     }
 
     @Test
@@ -258,7 +258,7 @@ public class MapServiceTest {
     void uploadFails(ErrorCode expectedErrorCode, String fileName) throws IOException {
       InputStream mapData = loadMapAsInputSteam(fileName);
       ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, fileName, author, true));
-      assertThat(result, apiExceptionWithCode(expectedErrorCode));
+      assertThat(result, hasErrorCode(expectedErrorCode));
       verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
 

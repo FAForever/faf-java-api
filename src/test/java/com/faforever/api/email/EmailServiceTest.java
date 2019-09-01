@@ -3,7 +3,7 @@ package com.faforever.api.email;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.PasswordReset;
 import com.faforever.api.config.FafApiProperties.Registration;
-import com.faforever.api.error.ApiExceptionWithCode;
+import com.faforever.api.error.ApiExceptionMatcher;
 import com.faforever.api.error.ErrorCode;
 import org.junit.Before;
 import org.junit.Rule;
@@ -46,20 +46,20 @@ public class EmailServiceTest {
 
   @Test
   public void validateEmailAddressMissingAt() throws Exception {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.EMAIL_INVALID));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.EMAIL_INVALID));
     instance.validateEmailAddress("testexample.com");
   }
 
   @Test
   public void validateEmailAddressMissingTld() throws Exception {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.EMAIL_INVALID));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.EMAIL_INVALID));
     instance.validateEmailAddress("test@example");
   }
 
   @Test
   public void validateEmailAddressBlacklisted() throws Exception {
     when(domainBlacklistRepository.existsByDomain("example.com")).thenReturn(true);
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.EMAIL_BLACKLISTED));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.EMAIL_BLACKLISTED));
 
     instance.validateEmailAddress("test@example.com");
   }

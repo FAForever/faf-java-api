@@ -4,7 +4,7 @@ import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Mod;
 import com.faforever.api.data.domain.ModVersion;
 import com.faforever.api.data.domain.Player;
-import com.faforever.api.error.ApiExceptionWithCode;
+import com.faforever.api.error.ApiExceptionMatcher;
 import com.faforever.api.error.ErrorCode;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -103,7 +103,7 @@ public class ModServiceTest {
     Path uploadedFile = prepareMod(TEST_MOD);
 
     when(modVersionRepository.existsByUid("26778D4E-BA75-5CC2-CBA8-63795BDE74AA")).thenReturn(true);
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.MOD_UID_EXISTS));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.MOD_UID_EXISTS));
 
     instance.processUploadedMod(uploadedFile, new Player());
   }
@@ -116,7 +116,7 @@ public class ModServiceTest {
     when(modRepository.existsByDisplayNameIgnoreCaseAndUploaderIsNot("No Friendly Fire", uploader)).thenReturn(true);
     when(modRepository.findOneByDisplayName("No Friendly Fire")).thenReturn(Optional.of(new Mod()));
 
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.MOD_NOT_ORIGINAL_AUTHOR));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.MOD_NOT_ORIGINAL_AUTHOR));
 
     instance.processUploadedMod(uploadedFile, uploader);
   }
@@ -127,7 +127,7 @@ public class ModServiceTest {
 
     Player uploader = new Player();
 
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.MOD_STRUCTURE_INVALID));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.MOD_STRUCTURE_INVALID));
 
     instance.processUploadedMod(uploadedFile, uploader);
   }

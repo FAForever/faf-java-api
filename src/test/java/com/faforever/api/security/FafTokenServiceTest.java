@@ -1,7 +1,7 @@
 package com.faforever.api.security;
 
 import com.faforever.api.config.FafApiProperties;
-import com.faforever.api.error.ApiExceptionWithCode;
+import com.faforever.api.error.ApiExceptionMatcher;
 import com.faforever.api.error.ErrorCode;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -98,7 +98,7 @@ public class FafTokenServiceTest {
 
   @Test
   public void resolveTokenExpired() throws Exception {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.TOKEN_EXPIRED));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.TOKEN_EXPIRED));
 
     String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(-1), Collections.emptyMap());
     instance.resolveToken(FafTokenType.REGISTRATION, token);
@@ -106,7 +106,7 @@ public class FafTokenServiceTest {
 
   @Test
   public void resolveTokenInvalidType() throws Exception {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.TOKEN_INVALID));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.TOKEN_INVALID));
 
     String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(-1), Collections.emptyMap());
     instance.resolveToken(FafTokenType.PASSWORD_RESET, token);
@@ -114,7 +114,7 @@ public class FafTokenServiceTest {
 
   @Test
   public void resolveGibberishToken() throws Exception {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.TOKEN_INVALID));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.TOKEN_INVALID));
     instance.resolveToken(FafTokenType.PASSWORD_RESET, "gibberish token");
   }
 }
