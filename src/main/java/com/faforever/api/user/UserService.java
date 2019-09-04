@@ -83,7 +83,7 @@ public class UserService {
     validateUsername(username);
     emailService.validateEmailAddress(email);
 
-    if (userRepository.existsByEmailIgnoreCase(email)) {
+    if (userRepository.existsByEmail(email)) {
       throw new ApiException(new Error(ErrorCode.EMAIL_REGISTERED, email));
     }
 
@@ -110,7 +110,7 @@ public class UserService {
     if (!USERNAME_PATTERN.matcher(username).matches()) {
       throw new ApiException(new Error(ErrorCode.USERNAME_INVALID, username));
     }
-    if (userRepository.existsByLoginIgnoreCase(username)) {
+    if (userRepository.existsByLogin(username)) {
       throw new ApiException(new Error(ErrorCode.USERNAME_TAKEN, username));
     }
   }
@@ -248,8 +248,8 @@ public class UserService {
   void resetPassword(String identifier, String newPassword) {
     log.debug("Password reset requested for user-identifier: {}", identifier);
 
-    User user = userRepository.findOneByLoginIgnoreCase(identifier)
-      .orElseGet(() -> userRepository.findOneByEmailIgnoreCase(identifier)
+    User user = userRepository.findOneByLogin(identifier)
+      .orElseGet(() -> userRepository.findOneByEmail(identifier)
         .orElseThrow(() -> new ApiException(new Error(ErrorCode.UNKNOWN_IDENTIFIER))));
 
     String token = fafTokenService.createToken(FafTokenType.PASSWORD_RESET,
@@ -327,7 +327,7 @@ public class UserService {
       errors.add(new Error(ErrorCode.STEAM_LINK_NO_FA_GAME));
     }
 
-    Optional<User> userWithSameSteamIdOptional = userRepository.findOneBySteamIdIgnoreCase(steamId);
+    Optional<User> userWithSameSteamIdOptional = userRepository.findOneBySteamId(steamId);
     userWithSameSteamIdOptional.ifPresent(userWithSameId ->
       errors.add(new Error(ErrorCode.STEAM_ID_ALREADY_LINKED, userWithSameId.getLogin()))
     );

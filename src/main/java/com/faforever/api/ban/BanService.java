@@ -17,6 +17,6 @@ public class BanService {
   }
 
   public boolean hasActiveGlobalBan(String username) {
-    return hasActiveGlobalBan(playerRepository.findOneByLoginIgnoreCase(username));
+    return hasActiveGlobalBan(playerRepository.findOneByLogin(username));
   }
 }
