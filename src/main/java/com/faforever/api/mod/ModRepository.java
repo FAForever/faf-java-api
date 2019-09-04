@@ -20,7 +20,7 @@ public interface ModRepository extends JpaRepository<Mod, Integer> {
 //      "from Mod m where lower(m.displayName) = lower(:displayName) and m.uploader <> :uploader")
 //  boolean modExistsByDifferentUser(@Param("displayName") String displayName, @Param("uploader") User user);
 
-  boolean existsByDisplayNameIgnoreCaseAndUploaderIsNot(String displayName, Player uploader);
+  boolean existsByDisplayNameAndUploaderIsNot(String displayName, Player uploader);
 
   /**
    * @deprecated get rid of this as soon as proper review mechanisms are in place.

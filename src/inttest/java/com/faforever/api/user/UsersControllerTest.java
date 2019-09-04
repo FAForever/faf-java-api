@@ -132,7 +132,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
         .params(params))
       .andExpect(status().isOk());
 
-    User user = userRepository.findOneByLoginIgnoreCase(AUTH_USER).get();
+    User user = userRepository.findOneByLogin(AUTH_USER).get();
     assertEquals(user.getPassword(), "5c29a959abce4eda5f0e7a4e7ea53dce4fa0f0abbe8eaa63717e2fed5f193d31");
     verify(anopeUserRepository, times(1)).updatePassword(eq(AUTH_USER), anyString());
   }
@@ -180,7 +180,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
         .params(params))
       .andExpect(status().isOk());
 
-    User user = userRepository.findOneByLoginIgnoreCase(AUTH_USER).get();
+    User user = userRepository.findOneByLogin(AUTH_USER).get();
     assertEquals(user.getEmail(), NEW_EMAIL);
   }
 

@@ -126,7 +126,7 @@ public class UserServiceTest {
     instance.register(TEST_USERNAME, TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
 
     verify(emailService).validateEmailAddress(TEST_CURRENT_EMAIL);
-    verify(userRepository).existsByEmailIgnoreCase(TEST_CURRENT_EMAIL);
+    verify(userRepository).existsByEmail(TEST_CURRENT_EMAIL);
 
     ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
     verify(emailService).sendActivationMail(eq(TEST_USERNAME), eq(TEST_CURRENT_EMAIL), urlCaptor.capture());
@@ -137,7 +137,7 @@ public class UserServiceTest {
 
   @Test
   public void registerEmailAlreadyRegistered() {
-    when(userRepository.existsByEmailIgnoreCase(TEST_CURRENT_EMAIL)).thenReturn(true);
+    when(userRepository.existsByEmail(TEST_CURRENT_EMAIL)).thenReturn(true);
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.EMAIL_REGISTERED));
 
     instance.register("junit", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
@@ -163,7 +163,7 @@ public class UserServiceTest {
 
   @Test
   public void registerUsernameTaken() {
-    when(userRepository.existsByLoginIgnoreCase("junit")).thenReturn(true);
+    when(userRepository.existsByLogin("junit")).thenReturn(true);
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_TAKEN));
     instance.register("junit", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
   }
@@ -263,7 +263,7 @@ public class UserServiceTest {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_TAKEN));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    when(userRepository.existsByLoginIgnoreCase(TEST_USERNAME_CHANGED)).thenReturn(true);
+    when(userRepository.existsByLogin(TEST_USERNAME_CHANGED)).thenReturn(true);
     instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
   }
 
@@ -272,7 +272,7 @@ public class UserServiceTest {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_TAKEN));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    when(userRepository.existsByLoginIgnoreCase(TEST_USERNAME_CHANGED)).thenReturn(true);
+    when(userRepository.existsByLogin(TEST_USERNAME_CHANGED)).thenReturn(true);
     instance.changeLoginForced(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
   }
 
@@ -341,10 +341,10 @@ public class UserServiceTest {
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
 
-    when(userRepository.findOneByLoginIgnoreCase(TEST_USERNAME)).thenReturn(Optional.of(user));
+    when(userRepository.findOneByLogin(TEST_USERNAME)).thenReturn(Optional.of(user));
     instance.resetPassword(TEST_USERNAME, TEST_NEW_PASSWORD);
 
-    verify(userRepository).findOneByLoginIgnoreCase(TEST_USERNAME);
+    verify(userRepository).findOneByLogin(TEST_USERNAME);
 
     ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
     verify(emailService).sendPasswordResetMail(eq(TEST_USERNAME), eq(TEST_CURRENT_EMAIL), urlCaptor.capture());
@@ -365,10 +365,10 @@ public class UserServiceTest {
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
 
-    when(userRepository.findOneByEmailIgnoreCase(TEST_CURRENT_EMAIL)).thenReturn(Optional.of(user));
+    when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.of(user));
     instance.resetPassword(TEST_CURRENT_EMAIL, TEST_NEW_PASSWORD);
 
-    verify(userRepository).findOneByEmailIgnoreCase(TEST_CURRENT_EMAIL);
+    verify(userRepository).findOneByEmail(TEST_CURRENT_EMAIL);
 
     ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
     verify(emailService).sendPasswordResetMail(eq(TEST_USERNAME), eq(TEST_CURRENT_EMAIL), urlCaptor.capture());
@@ -386,8 +386,8 @@ public class UserServiceTest {
   public void resetPasswordUnknownUsernameAndEmail() {
     expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.UNKNOWN_IDENTIFIER));
 
-    when(userRepository.findOneByEmailIgnoreCase(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
-    when(userRepository.findOneByEmailIgnoreCase(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
+    when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
+    when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
     instance.resetPassword(TEST_CURRENT_EMAIL, TEST_NEW_PASSWORD);
   }
 
@@ -457,7 +457,7 @@ public class UserServiceTest {
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(userRepository.findById(5)).thenReturn(Optional.of(user));
-    when(userRepository.findOneBySteamIdIgnoreCase(STEAM_ID)).thenReturn(Optional.empty());
+    when(userRepository.findOneBySteamId(STEAM_ID)).thenReturn(Optional.empty());
 
     SteamLinkResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
 
@@ -486,7 +486,7 @@ public class UserServiceTest {
         KEY_STEAM_LINK_CALLBACK_URL, "callbackUrl"
       ));
     when(steamService.ownsForgedAlliance(any())).thenReturn(false);
-    when(userRepository.findOneBySteamIdIgnoreCase(STEAM_ID)).thenReturn(Optional.empty());
+    when(userRepository.findOneBySteamId(STEAM_ID)).thenReturn(Optional.empty());
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(userRepository.findById(5)).thenReturn(Optional.of(user));
@@ -510,7 +510,7 @@ public class UserServiceTest {
     when(steamService.ownsForgedAlliance(any())).thenReturn(true);
     User otherUser = new User();
     otherUser.setLogin("axel12");
-    when(userRepository.findOneBySteamIdIgnoreCase(STEAM_ID)).thenReturn(Optional.of(otherUser));
+    when(userRepository.findOneBySteamId(STEAM_ID)).thenReturn(Optional.of(otherUser));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(userRepository.findById(6)).thenReturn(Optional.of(user));
