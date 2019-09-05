@@ -113,7 +113,7 @@ public class ModServiceTest {
     Path uploadedFile = prepareMod(TEST_MOD);
 
     Player uploader = new Player();
-    when(modRepository.existsByDisplayNameIgnoreCaseAndUploaderIsNot("No Friendly Fire", uploader)).thenReturn(true);
+    when(modRepository.existsByDisplayNameAndUploaderIsNot("No Friendly Fire", uploader)).thenReturn(true);
     when(modRepository.findOneByDisplayName("No Friendly Fire")).thenReturn(Optional.of(new Mod()));
 
     expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.MOD_NOT_ORIGINAL_AUTHOR));

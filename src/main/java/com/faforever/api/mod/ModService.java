@@ -154,7 +154,7 @@ public class ModService {
         .setDisplayName(displayName)
       );
 
-    return modVersionRepository.exists(Example.of(probe, ExampleMatcher.matching().withIgnoreCase()));
+    return modVersionRepository.exists(Example.of(probe, ExampleMatcher.matching()));
   }
 
   private boolean modUidExists(String uuid) {
@@ -162,7 +162,7 @@ public class ModService {
   }
 
   private boolean canUploadMod(String displayName, Player uploader) {
-    return !modRepository.existsByDisplayNameIgnoreCaseAndUploaderIsNot(displayName, uploader);
+    return !modRepository.existsByDisplayNameAndUploaderIsNot(displayName, uploader);
   }
 
   private void validateModInfo(com.faforever.commons.mod.Mod modInfo) {
