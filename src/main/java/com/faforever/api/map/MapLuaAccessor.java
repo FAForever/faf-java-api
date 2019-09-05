@@ -15,6 +15,7 @@ public class MapLuaAccessor {
   private static final String DESCRIPTION = "description";
   private static final String TYPE = "type";
   private static final String SIZE = "size";
+  private static final String NO_RUSH_RADIUS = "norushradius";
   private static final String MAP_VERSION = "map_version";
   private static final String CONFIGURATION_STANDARD = "standard";
   private static final String CONFIGURATION_STANDARD_TEAMS = "teams";
@@ -54,6 +55,10 @@ public class MapLuaAccessor {
 
   public OptionalInt getMapVersion() {
     return luaAccessor.readVariableInt(MAP_VERSION);
+  }
+
+  public OptionalInt getNoRushRadius() {
+    return luaAccessor.readVariableInt(NO_RUSH_RADIUS);
   }
 
   public boolean hasVariableMatching(String regex, String... names) {

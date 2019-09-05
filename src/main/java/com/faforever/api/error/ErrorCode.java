@@ -96,7 +96,8 @@ public enum ErrorCode {
   MAP_SCRIPT_LINE_MISSING(186, "Missing scenario.lua line", "The scenario.lua has to contain the following line: {0}"),
   MAP_NAME_TOO_SHORT(187, "Map name invalid", "The map name must have at least {0, number} characters, was: {1, number}"),
   MAP_NAME_DOES_NOT_START_WITH_LETTER(188, "Map name invalid", "The map name has to begin with a letter"),
-  PARSING_LUA_FILE_FAILED(189, "Parsing lua files failed", "During the parsing of the lua file an error occured: {0}");
+  PARSING_LUA_FILE_FAILED(189, "Parsing lua files failed", "During the parsing of the lua file an error occured: {0}"),
+  NO_RUSH_RADIUS_MISSING(190, "No rush radius missing", "The scenario file must specify a no rush radius");
 
   private final int code;
   private final String title;

@@ -276,6 +276,11 @@ public class MapService {
       errors.add(new Error(ErrorCode.MAP_VERSION_MISSING));
     }
 
+    if (!mapLua.getNoRushRadius().isPresent()) {
+      // The game can start without it, but the GPG map editor will crash on opening such a map.
+      errors.add(new Error(ErrorCode.NO_RUSH_RADIUS_MISSING));
+    }
+
     if (!errors.isEmpty()) {
       throw ApiException.of(errors);
     }

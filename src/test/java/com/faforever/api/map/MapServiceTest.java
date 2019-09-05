@@ -303,7 +303,8 @@ public class MapServiceTest {
         ErrorCode.MAP_FIRST_TEAM_FFA,
         ErrorCode.MAP_TYPE_MISSING,
         ErrorCode.MAP_SIZE_MISSING,
-        ErrorCode.MAP_VERSION_MISSING));
+        ErrorCode.MAP_VERSION_MISSING,
+        ErrorCode.NO_RUSH_RADIUS_MISSING));
       verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
 
