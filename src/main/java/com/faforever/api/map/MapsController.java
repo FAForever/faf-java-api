@@ -14,9 +14,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,18 +43,31 @@ public class MapsController {
     return new ModelAndView("validate_map_metadata.html");
   }
 
-  @ApiOperation("Validate map metadata")
+  @ApiOperation("Validate map name")
   @ApiResponses(value = {
-    @ApiResponse(code = 200, message = "Success"),
-    @ApiResponse(code = 422, message = "Containing information about the errors in the payload")})
+    @ApiResponse(code = 200, message = "Information about derived names to be used in the scenario.lua"),
+    @ApiResponse(code = 422, message = "A list of reasons why the name is not valid.")
+  })
   @RequestMapping(
-    path = "/validate",
+    path = "/validateMapName",
     method = RequestMethod.POST,
-    produces = APPLICATION_JSON_UTF8_VALUE,
-    consumes = MediaType.APPLICATION_JSON_VALUE
+    produces = APPLICATION_JSON_UTF8_VALUE
   )
-  public void validateMapMetadata(@RequestBody MapValidationRequest mapValidationRequest) {
-    mapService.validate(mapValidationRequest);
+  public MapNameValidationResponse validateMapName(@RequestParam("mapName") String mapName) {
+    return mapService.requestMapNameValidation(mapName);
+  }
+
+  @ApiOperation("Validate scenario.lua")
+  @ApiResponses(value = {
+    @ApiResponse(code = 200, message = "Valid without further information"),
+    @ApiResponse(code = 422, message = "A list of errors in the scenario.lua")})
+  @RequestMapping(
+    path = "/validateScenarioLua",
+    method = RequestMethod.POST,
+    produces = APPLICATION_JSON_UTF8_VALUE
+  )
+  public void validateScenarioLua(@RequestParam(name = "scenarioLua") String scenarioLua) {
+    mapService.validateScenarioLua(scenarioLua);
   }
 
   @ApiOperation("Upload a map")

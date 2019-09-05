@@ -8,6 +8,7 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.map.MapNameValidationResponse.FileNames;
 import com.faforever.api.utils.FilePermissionUtil;
 import com.faforever.api.utils.NameUtil;
 import com.faforever.commons.io.Unzipper;
@@ -80,20 +81,36 @@ public class MapService {
   private final MapRepository mapRepository;
   private final ContentService contentService;
 
-  @VisibleForTesting
-  void validate(MapValidationRequest mapValidationRequest) {
-    String mapName = mapValidationRequest.getName();
+  public MapNameValidationResponse requestMapNameValidation(String mapName) {
     Assert.notNull(mapName, "The map name is mandatory.");
-    String scenarioLua = mapValidationRequest.getScenarioLua();
 
     validateMapName(mapName);
+    MapNameBuilder mapNameBuilder = new MapNameBuilder(mapName);
 
-    if (scenarioLua != null) {
-      validateScenarioLua(scenarioLua);
-    }
+    Integer nextVersion = mapRepository.findOneByDisplayName(mapNameBuilder.getDisplayName())
+      .map(map -> map.getVersions().stream()
+        .mapToInt(MapVersion::getVersion)
+        .max()
+        .orElse(1))
+      .orElse(1);
+
+    return MapNameValidationResponse.builder()
+      .displayName(mapNameBuilder.getDisplayName())
+      .nextVersion(nextVersion)
+      .folderName(mapNameBuilder.buildFolderName(nextVersion))
+      .fileNames(
+        FileNames.builder()
+          .scmap(mapNameBuilder.buildFileName(FILE_ENDING_MAP))
+          .scenarioLua(mapNameBuilder.buildFileName(FILE_ENDING_SCENARIO))
+          .scriptLua(mapNameBuilder.buildFileName(FILE_ENDING_SCRIPT))
+          .saveLua(mapNameBuilder.buildFileName(FILE_ENDING_SAVE))
+          .build()
+      )
+      .build();
   }
 
-  private void validateMapName(String mapName) {
+  @VisibleForTesting
+  void validateMapName(String mapName) {
     List<Error> errors = new ArrayList<>();
 
     if (!MAP_NAME_INVALID_CHARACTER_PATTERN.matcher(mapName).matches()) {
@@ -121,7 +138,8 @@ public class MapService {
     }
   }
 
-  private void validateScenarioLua(String scenarioLua) {
+  @VisibleForTesting
+  void validateScenarioLua(String scenarioLua) {
     try {
       MapLuaAccessor mapLua = MapLuaAccessor.of(scenarioLua);
       MapNameBuilder mapNameBuilder = new MapNameBuilder(mapLua.getName()
@@ -142,7 +160,7 @@ public class MapService {
     Path rootTempFolder = contentService.createTempDir();
 
     try {
-      Path unzippedFileFolder = unzipToTemporaryDirectory(mapDataInputStream, mapFilename, rootTempFolder);
+      Path unzippedFileFolder = unzipToTemporaryDirectory(mapDataInputStream, rootTempFolder);
       Path mapFolder = validateMapFolderStructure(unzippedFileFolder);
       validateMandatoryFiles(mapFolder);
 
@@ -170,7 +188,7 @@ public class MapService {
     }
   }
 
-  private Path unzipToTemporaryDirectory(InputStream mapDataInputStream, String mapFilename, Path rootTempFolder)
+  private Path unzipToTemporaryDirectory(InputStream mapDataInputStream, Path rootTempFolder)
     throws IOException, ArchiveException {
     Path unzippedDirectory = Files.createDirectories(rootTempFolder.resolve("unzipped-content"));
     log.debug("Unzipping uploaded file ''{}'' to: {}", mapDataInputStream, unzippedDirectory);

@@ -104,62 +104,97 @@
     }
   </style>
   <script type="text/javascript">
-    $(document).ready(function () {
+      $(document).ready(function () {
 
-      $('#validate').click(function () {
-        $("#results").empty()
+          $('#validateMapName').click(function () {
+              $("#mapNameTable .result").detach();
 
-        let mapname = $('#mapname').val();
-        let scenarioLua = $('#scenario_lua').val();
-        var data = {"name": mapname, "scenarioLua": scenarioLua.length == 0 ? null : scenarioLua};
+              let mapname = $('#mapname').val();
 
-        $.ajax(
-          {
-            url: "/maps/validate",
-            type: "POST",
-            data: JSON.stringify(data),
-            contentType: 'application/json;charset=utf-8',
-            success: function (msg) {
-              $("#results").append(
-                $('<li>').text("Map name was accepted")
+              $.post("/maps/validateMapName?mapName=" + mapname)
+                  .done(function (msg) {
+                      $("#mapNameTable").append('<tr class="result"><td>Map name</td><td>' + msg.displayName + '</td>');
+                      $("#mapNameTable").append('<tr class="result"><td>Next version</td><td>' + msg.nextVersion + '</td>');
+                      $("#mapNameTable").append('<tr class="result"><td>Folder name</td><td>' + msg.folderName + '</td>');
+                      $("#mapNameTable").append('<tr class="result"><td>File names</td><td>' + Object.entries(msg.fileNames).map(arr => arr[1]).join(', ') + '</td>');
+
+                  })
+                  .fail(function (xhr, status, error) {
+                      xhr.responseJSON.errors.forEach(function (nextError) {
+                          $("#mapNameTable").append('<tr class="result"><td>Error</td><td>' + nextError.detail + '</td>');
+                      });
+                  });
+          });
+
+          $('#validateMapScenario').click(function () {
+              $("#mapScenarioTable .result").detach();
+
+              let scenarioLua = {scenarioLua: $('#scenario_lua').val()};
+
+              $.post("/maps/validateScenarioLua", scenarioLua)
+                  .done(function (msg) {
+                      $("#mapScenarioTable").append('<tr class="result"><td>Result</td><td>No errors</td>');
+                  })
+                  .fail(function (xhr, status, error) {
+                      xhr.responseJSON.errors.forEach(function (nextError) {
+                          $("#mapScenarioTable").append('<tr class="result"><td>Error</td><td>' + nextError.detail + '</td>');
+                      });
+                  });
+          });
+
+          /*$('#validateMapScenario').click(function() {
+
+              let scenarioLua = $('#scenario_lua').val();
+              var data = {"name": mapname, "scenarioLua": scenarioLua.length == 0 ? null : scenarioLua};
+
+              $.ajax(
+                  {
+                      url: "/maps/validate",
+                      type: "POST",
+                      data: JSON.stringify(data),
+                      contentType: 'application/json;charset=utf-8',
+                      success: function (msg) {
+                          $("#mapNameResult").append('<tr><td>Map name</td><td>'+ msg.displayName +'</td>');
+                          $("#mapNameResult").append('<tr><td>Next version</td><td>'+ msg.nextVersion +'</td>');
+                          $("#mapNameResult").append('<tr><td>Folder name</td><td>'+ msg.folderName +'</td>');
+                          $("#mapNameResult").append('<tr><td>File names</td><td>'+ msg.fileNames +'</td>');
+                      },
+                      error: function (data) {
+                          let result = JSON.parse(data.responseText)
+
+                          result.errors.forEach(function (nextError) {
+                              $("#mapNameResult").append('<tr><td>Error</td><td>'+ nextError.detail +'</td>');
+                          });
+                      }
+                  }
               );
-
-              if (scenarioLua.length == 0) {
-                $("#results").append(
-                  $('<li>').text("scenario.lua was not validated")
-                );
-              } else {
-                $("#results").append(
-                  $('<li>').text("scenario.lua was accepted")
-                );
-              }
-            },
-            error: function (data) {
-              let result = JSON.parse(data.responseText)
-
-              result.errors.forEach(function (nextError) {
-                $("#results").append(
-                  $('<li>').text(nextError.detail)
-                );
-              });
-            }
-          }
-        );
-      })
-    });
+          })*/
+      });
   </script>
 </head>
 <body>
 <div class="login-card">
   <h1>Validate map metadata</h1>
 
-  <table>
-    <form action="#" method="post" name="f">
-      <input th:if="${_csrf != null }" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+  <form action="#" method="post" name="mapName">
+    <input th:if="${_csrf != null }" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+    <table id="mapNameTable">
       <tr>
         <td><label for="mapname">Map name</label></td>
         <td><input id="mapname" name="mapname" placeholder="Map name" size="80" type="text"/></td>
       </tr>
+      <tr>
+        <td colspan="2"><input class="login login-submit" id="validateMapName" name="validateMapName" type="button"
+                               value="validate name"/></td>
+      </tr>
+    </table>
+  </form>
+
+  <hr/>
+
+  <form action="#" method="post" name="mapScenario">
+    <input th:if="${_csrf != null }" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+    <table id="mapScenarioTable">
       <tr>
         <td><label for="scenario_lua">scenario.lua</label></td>
         <td><textarea cols="80" id="scenario_lua" name="scenario_lua"
@@ -167,18 +202,12 @@
                       rows="10"></textarea></td>
       </tr>
       <tr>
-        <td colspan="2"><input class="login login-submit" id="validate" name="validate" type="button" value="validate"/>
+        <td colspan="2"><input class="login login-submit" id="validateMapScenario" name="validateMapScenario"
+                               type="button" value="validate scenario.lua"/>
           <p/></td>
       </tr>
-    </form>
-    <tr>
-      <td>Results</td>
-      <td>
-        <ul id="results">
-        </ul>
-      </td>
-    </tr>
-  </table>
+    </table>
+  </form>
 </div>
 </body>
 </html>

@@ -105,14 +105,13 @@ public class MapServiceTest {
       "Three - dashes - are - allowed"
     })
     void testMapNameValid(String name) {
-      MapValidationRequest request = new MapValidationRequest(name, null);
-      instance.validate(request);
+      instance.validateMapName(name);
     }
 
     @Test
     void testMapNameMultiErrorsButNoScenarioValidation() {
-      MapValidationRequest request = new MapValidationRequest("123Invalid-in$-many-ways-atOnce" + StringUtils.repeat("x", 50), "");
-      ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
+      String mapName = "123Invalid-in$-many-ways-atOnce" + StringUtils.repeat("x", 50);
+      ApiException result = assertThrows(ApiException.class, () -> instance.validateMapName(mapName));
       List<ErrorCode> errorCodes = Arrays.stream(result.getErrors()).map(Error::getErrorCode).collect(Collectors.toList());
       assertThat(errorCodes, hasItems(MAP_NAME_INVALID_CHARACTER, MAP_NAME_TOO_LONG, MAP_NAME_INVALID_MINUS_OCCURENCE));
       assertThat(errorCodes, not(contains(MAP_SCRIPT_LINE_MISSING)));
@@ -133,81 +132,63 @@ public class MapServiceTest {
       "SomeMore$",
     })
     void testMapNameInvalidChars(String name) {
-      MapValidationRequest request = new MapValidationRequest(name, null);
-      ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
+      ApiException result = assertThrows(ApiException.class, () -> instance.validateMapName(name));
       assertThat(result, hasErrorCode(MAP_NAME_INVALID_CHARACTER));
     }
 
     @Test
     void testMapNameTooManyDashes() {
-      MapValidationRequest request = new MapValidationRequest("More-than-three-dashes-invalid", null);
-      ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
+      ApiException result = assertThrows(ApiException.class, () -> instance.validateMapName("More-than-three-dashes-invalid"));
       assertThat(result, hasErrorCode(MAP_NAME_INVALID_MINUS_OCCURENCE));
     }
 
     @Test
     void testMapNameToShort() {
-      MapValidationRequest request = new MapValidationRequest("x", null);
-      ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
+      ApiException result = assertThrows(ApiException.class, () -> instance.validateMapName("x"));
       assertThat(result, hasErrorCode(MAP_NAME_TOO_SHORT));
     }
 
     @Test
     void testMapNameToLong() {
-      MapValidationRequest request = new MapValidationRequest(StringUtils.repeat("x", 51), null);
-      ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
+      ApiException result = assertThrows(ApiException.class, () -> instance.validateMapName(StringUtils.repeat("x", 51)));
       assertThat(result, hasErrorCode(MAP_NAME_TOO_LONG));
     }
 
     @Test
     void testMapNameStartsInvalid() {
-      MapValidationRequest request = new MapValidationRequest("123x", null);
-      ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
+      ApiException result = assertThrows(ApiException.class, () -> instance.validateMapName("123x"));
       assertThat(result, hasErrorCode(MAP_NAME_DOES_NOT_START_WITH_LETTER));
     }
 
     @Test
     void testScenarioLuaSuccessWithoutVersion() throws Exception {
-      MapValidationRequest request = new MapValidationRequest("name",
-        loadMapAsString("scenario/valid_without_version_scenario.lua")
-      );
-
-      instance.validate(request);
+      instance.validateScenarioLua(loadMapAsString("scenario/valid_without_version_scenario.lua"));
     }
 
     @Test
     void testScenarioLuaSuccessWithVersion() throws Exception {
-      // of course the version number should be the same every time but we don't validate this
-      MapValidationRequest request = new MapValidationRequest("name",
-        loadMapAsString("scenario/valid_with_version_scenario.lua")
-      );
-
-      instance.validate(request);
+      instance.validateScenarioLua(loadMapAsString("scenario/valid_with_version_scenario.lua"));
     }
 
     @Test
     void testScenarioLuaEmptyScenarioLua() {
-      MapValidationRequest request = new MapValidationRequest("name", "");
-      ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
+      ApiException result = assertThrows(ApiException.class, () -> instance.validateScenarioLua(""));
       assertThat(result, hasErrorCodes(
         ErrorCode.PARSING_LUA_FILE_FAILED
       ));
     }
 
     @Test
-    void testScenarioLuaMissingAllLines() throws Exception {
-      MapValidationRequest request = new MapValidationRequest("name", loadMapAsString("scenario/valid_empty.lua"));
-      ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
+    void testScenarioLuaMissingAllLines() {
+      ApiException result = assertThrows(ApiException.class, () ->
+        instance.validateScenarioLua(loadMapAsString("scenario/valid_empty.lua")));
       assertThat(result, hasErrorCodes(ErrorCode.MAP_NAME_MISSING));
     }
 
     @Test
-    void testScenarioLuaWrongMapLine() throws Exception {
-      MapValidationRequest request = new MapValidationRequest("name",
-        loadMapAsString("scenario/missing_map_variable_scenario.lua")
-      );
-
-      ApiException result = assertThrows(ApiException.class, () -> instance.validate(request));
+    void testScenarioLuaWrongMapLine() {
+      ApiException result = assertThrows(ApiException.class, () ->
+        instance.validateScenarioLua(loadMapAsString("scenario/missing_map_variable_scenario.lua")));
 
       assertThat(result, hasErrorCodes(
         ErrorCode.MAP_SCRIPT_LINE_MISSING
@@ -251,11 +232,11 @@ public class MapServiceTest {
       "MAP_FILE_INSIDE_ZIP_MISSING,without_scmap.zip",
       "MAP_FILE_INSIDE_ZIP_MISSING,without_scriptlua.zip",
     })
-    void uploadFails(String errorCodeEnumValue, String fileName) throws IOException {
+    void uploadFails(String errorCodeEnumValue, String fileName) {
       uploadFails(ErrorCode.valueOf(errorCodeEnumValue), fileName);
     }
 
-    void uploadFails(ErrorCode expectedErrorCode, String fileName) throws IOException {
+    void uploadFails(ErrorCode expectedErrorCode, String fileName) {
       InputStream mapData = loadMapAsInputSteam(fileName);
       ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, fileName, author, true));
       assertThat(result, hasErrorCode(expectedErrorCode));
@@ -272,7 +253,7 @@ public class MapServiceTest {
     }
 
     @Test
-    void notCorrectAuthor() throws IOException {
+    void notCorrectAuthor() {
       when(fafApiProperties.getMap()).thenReturn(mapProperties);
 
       Player me = new Player();
@@ -287,7 +268,7 @@ public class MapServiceTest {
     }
 
     @Test
-    void versionExistsAlready() throws IOException {
+    void versionExistsAlready() {
       when(fafApiProperties.getMap()).thenReturn(mapProperties);
 
       com.faforever.api.data.domain.Map map = new com.faforever.api.data.domain.Map()
@@ -366,7 +347,7 @@ public class MapServiceTest {
 
       expectedFiles = expectedFiles.resolve("command_conquer_rush.v0007");
       try (Stream<Path> fileStream = Files.list(expectedFiles)) {
-        assertEquals(fileStream.count(), (long) 4);
+        assertEquals(fileStream.count(), 4);
       }
 
       try (Stream<Path> fileStream = Files.list(expectedFiles)) {
