@@ -291,6 +291,18 @@ public class MapServiceTest {
     }
 
     @Test
+    void adaptiveFilesMissing() {
+      String zipFilename = "adaptive_map_files_missing.zip";
+      InputStream mapData = loadMapAsInputSteam(zipFilename);
+      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true));
+      assertThat(result, hasErrorCodes(
+        ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING,
+        ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING
+      ));
+      verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
+    }
+
+    @Test
     void invalidScenario() {
       String zipFilename = "invalid_scenario.zip";
       InputStream mapData = loadMapAsInputSteam(zipFilename);

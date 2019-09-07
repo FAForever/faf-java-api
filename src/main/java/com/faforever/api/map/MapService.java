@@ -55,7 +55,7 @@ import static com.faforever.api.map.MapService.ScenarioMapInfo.FILE_ENDING_MAP;
 import static com.faforever.api.map.MapService.ScenarioMapInfo.FILE_ENDING_SAVE;
 import static com.faforever.api.map.MapService.ScenarioMapInfo.FILE_ENDING_SCENARIO;
 import static com.faforever.api.map.MapService.ScenarioMapInfo.FILE_ENDING_SCRIPT;
-import static com.faforever.api.map.MapService.ScenarioMapInfo.REQUIRED_FILES;
+import static com.faforever.api.map.MapService.ScenarioMapInfo.MANDATORY_FILES;
 import static com.github.nocatch.NoCatch.noCatch;
 import static java.text.MessageFormat.format;
 
@@ -162,11 +162,17 @@ public class MapService {
     try {
       Path unzippedFileFolder = unzipToTemporaryDirectory(mapDataInputStream, rootTempFolder);
       Path mapFolder = validateMapFolderStructure(unzippedFileFolder);
-      validateMandatoryFiles(mapFolder);
+      validateRequiredFiles(mapFolder, MANDATORY_FILES);
 
       MapLuaAccessor mapLua = parseScenarioLua(mapFolder);
       MapNameBuilder mapNameBuilder = new MapNameBuilder(mapLua.getName()
         .orElseThrow(() -> ApiException.of(ErrorCode.MAP_NAME_MISSING)));
+
+      mapLua.isAdaptive().ifPresent(isAdaptive -> {
+        if (isAdaptive) {
+          validateRequiredFiles(mapFolder, ADAPTIVE_REQUIRED_FILES);
+        }
+      });
 
       validateScenarioLua(mapLua, mapNameBuilder);
 
@@ -223,13 +229,14 @@ public class MapService {
     return mapFolder;
   }
 
-  private void validateMandatoryFiles(Path mapFolder) throws IOException {
+  @SneakyThrows
+  private void validateRequiredFiles(Path mapFolder, String[] requiredFiles) {
     try (Stream<Path> mapFileStream = Files.list(mapFolder)) {
       List<String> fileNames = mapFileStream
         .map(Path::toString)
         .collect(Collectors.toList());
 
-      List<Error> errors = Arrays.stream(REQUIRED_FILES)
+      List<Error> errors = Arrays.stream(requiredFiles)
         .filter(requiredEnding -> fileNames.stream().noneMatch(fileName -> fileName.endsWith(requiredEnding)))
         .map(requiredEnding -> new Error(ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING, requiredEnding))
         .collect(Collectors.toList());
@@ -293,7 +300,7 @@ public class MapService {
     String regex = format("\\/maps\\/{0}(\\.v\\d{4})?\\/{1}",
       mapFolderNameWithoutVersion, mapFileName);
 
-    if (!mapLua.hasVariableMatching(regex, variableName)) {
+    if (!mapLua.hasVariableMatchingIgnoreCase(regex, variableName)) {
       return Optional.of(new Error(ErrorCode.MAP_SCRIPT_LINE_MISSING,
         format("{0} = ''/maps/{1}/{2}''", variableName, mapFolderNameWithoutVersion, mapFileName)));
     }
@@ -425,7 +432,7 @@ public class MapService {
     static final String FILE_DECLARATION_SCRIPT = "script";
     static final String FILE_ENDING_SCRIPT = "_script.lua";
 
-    static final String[] REQUIRED_FILES = new String[]{
+    static final String[] MANDATORY_FILES = new String[]{
       FILE_ENDING_SCENARIO,
       FILE_ENDING_MAP,
       FILE_ENDING_SAVE,

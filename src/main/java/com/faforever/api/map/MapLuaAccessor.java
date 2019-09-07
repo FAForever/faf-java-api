@@ -21,7 +21,7 @@ public class MapLuaAccessor {
   private static final String CONFIGURATION_STANDARD_TEAMS = "teams";
   private static final String CONFIGURATION_STANDARD_TEAMS_NAME = "name";
   private static final String CONFIGURATION_STANDARD_TEAMS_ARMIES = "armies";
-
+  private static final String ADAPTIVE_MAP = "AdaptiveMap";
 
   private final LuaAccessor luaAccessor;
 
@@ -61,8 +61,12 @@ public class MapLuaAccessor {
     return luaAccessor.readVariableInt(NO_RUSH_RADIUS);
   }
 
-  public boolean hasVariableMatching(String regex, String... names) {
-    return luaAccessor.hasVariableMatching(regex, names);
+  public Optional<Boolean> isAdaptive() {
+    return luaAccessor.readVariableBool(ADAPTIVE_MAP);
+  }
+
+  public boolean hasVariableMatchingIgnoreCase(String regex, String... names) {
+    return luaAccessor.hasVariableMatchingIgnoreCase(regex, names);
   }
 
   public Optional<LuaValue> getFirstTeam() {
@@ -106,4 +110,7 @@ public class MapLuaAccessor {
     return getFirstTeam().get();
   }
 
+  public boolean isAdaptive$() {
+    return isAdaptive().get();
+  }
 }
