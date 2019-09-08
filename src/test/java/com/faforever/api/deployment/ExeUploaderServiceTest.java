@@ -15,6 +15,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -42,7 +44,7 @@ public class ExeUploaderServiceTest {
   private FafApiProperties.Deployment deployment;
   @Mock
   private FeaturedModService featuredModService;
-  private byte[] bytes;
+  private InputStream exeDataInputStream;
 
 
   private FeaturedModFile featuredModFile;
@@ -52,7 +54,7 @@ public class ExeUploaderServiceTest {
     instance = new ExeUploaderService(contentService, apiProperties, featuredModService);
 
     when(apiProperties.getDeployment()).thenReturn(deployment);
-    bytes = new byte[]{1, 2, 3, 4};
+    exeDataInputStream = new ByteArrayInputStream(new byte[] {1, 2, 3, 4});
     when(contentService.createTempDir()).thenReturn(temporaryDirectory.getRoot().toPath());
 
     featuredModFile = new FeaturedModFile();
@@ -75,7 +77,7 @@ public class ExeUploaderServiceTest {
 
     when(featuredModService.getFile(modName, null, "ForgedAlliance.exe")).thenReturn(
       featuredModFile);
-    instance.processUpload(bytes, modName);
+    instance.processUpload(exeDataInputStream, modName);
 
     assertTrue(Files.exists(Paths.get(finalExeDestination)));
     ArgumentCaptor<List<FeaturedModFile>> modFilesCaptor = ArgumentCaptor.forClass(List.class);
@@ -98,7 +100,7 @@ public class ExeUploaderServiceTest {
 
     when(featuredModService.getFile(modName, null, "ForgedAlliance.exe")).thenReturn(
       featuredModFile);
-    instance.processUpload(bytes, modName);
+    instance.processUpload(exeDataInputStream, modName);
 
     assertTrue(Files.exists(Paths.get(finalExeDestination)));
     ArgumentCaptor<List<FeaturedModFile>> modFilesCaptor = ArgumentCaptor.forClass(List.class);
@@ -108,7 +110,6 @@ public class ExeUploaderServiceTest {
 
     verify(contentService).createTempDir();
     verify(apiProperties, atLeastOnce()).getDeployment();
-    verify(deployment).getForgedAllianceBetaExePath();
     verify(deployment).getForgedAllianceDevelopExePath();
     verify(featuredModService).getFile(modName, null, "ForgedAlliance.exe");
   }
@@ -116,6 +117,6 @@ public class ExeUploaderServiceTest {
   @Test(expected = ApiException.class)
   public void testProcessUploadIsForbidden() {
     String modName = "faf";
-    instance.processUpload(bytes, modName);
+    instance.processUpload(exeDataInputStream, modName);
   }
 }

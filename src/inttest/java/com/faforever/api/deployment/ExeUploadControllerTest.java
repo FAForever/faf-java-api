@@ -78,4 +78,13 @@ public class ExeUploadControllerTest extends AbstractIntegrationTest {
       .param("modName", "fafbeta")
     ).andExpect(status().is4xxClientError());
   }
+
+  @Test
+  public void testBadRequestUploadWithWrongApiKey() throws Exception  {
+    this.mockMvc.perform(fileUpload("/exe/upload")
+      .file(file)
+      .param("modName", "fafbeta")
+      .param("apiKey", "not a banana")
+    ).andExpect(status().is4xxClientError());
+  }
 }

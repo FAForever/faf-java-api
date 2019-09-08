@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.io.File;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,6 +25,7 @@ import java.util.List;
 
 import static com.google.common.hash.Hashing.md5;
 import static com.google.common.io.Files.hash;
+import static java.nio.file.Files.copy;
 import static java.nio.file.Files.createDirectories;
 
 @Service
@@ -44,28 +47,28 @@ public class ExeUploaderService {
 
   @Transactional
   @SneakyThrows
-  public void processUpload(byte[] bytes, String modName) {
+  public void processUpload(InputStream exeDataInputStream, String modName) {
     checkAllowedBranchName(modName);
     FeaturedModFile featuredModFile = featuredModService.getFile(modName, null, "ForgedAlliance.exe");
     featuredModFile.setName(String.format("ForgedAlliance.%d.exe", featuredModFile.getVersion()));
     Path uploadedFile = this.upload(
-      bytes,
+      exeDataInputStream,
       featuredModFile.getName(),
       modName
     );
     featuredModFile.setMd5(hash(uploadedFile.toFile(), md5()).toString());
-
+    exeDataInputStream.close();
     List<FeaturedModFile> featuredModFiles = Collections.singletonList(featuredModFile);
     featuredModService.save(modName, (short) featuredModFile.getVersion(), featuredModFiles);
   }
 
   @SneakyThrows
-  public Path upload(byte[] exeData, String fileName, String modName) {
-    Assert.isTrue(exeData.length > 0, "data of 'ForgedAlliance.exe' must not be empty");
+  public Path upload(InputStream exeDataInputStream, String fileName, String modName) {
+    Assert.isTrue(exeDataInputStream.available() > 0, "data of 'ForgedAlliance.exe' must not be empty");
 
     Path tempDir = contentService.createTempDir();
     Path temporaryFile = tempDir.resolve(fileName);
-    Files.write(temporaryFile, exeData);
+    Files.copy(exeDataInputStream, temporaryFile);
 
     Path copyTo = getCopyToPath(modName, fileName);
     createDirectories(copyTo.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
@@ -83,10 +86,18 @@ public class ExeUploaderService {
   }
 
   private Path getCopyToPath(String modName, String fileName) {
-    String copyTo = apiProperties.getDeployment().getForgedAllianceBetaExePath();
-    if ("fafdevelop".equals(modName)) {
-      copyTo = apiProperties.getDeployment().getForgedAllianceDevelopExePath();
+    String copyTo = null;
+    switch (modName) {
+      case "fafbeta":
+        copyTo = apiProperties.getDeployment().getForgedAllianceBetaExePath();
+        break;
+      case "fafdevelop":
+        copyTo = apiProperties.getDeployment().getForgedAllianceDevelopExePath();
+        break;
+      default:
+        throw new ApiException(new Error(ErrorCode.INVALID_FEATURED_MOD, modName));
     }
+
     return Paths.get(copyTo, fileName);
   }
 }

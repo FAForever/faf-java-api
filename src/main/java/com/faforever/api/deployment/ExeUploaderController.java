@@ -54,6 +54,6 @@ public class ExeUploaderController {
 
     log.info("Uploading exe file '{}' to '{}' directory", file.getOriginalFilename(), modName);
 
-    exeUploaderService.processUpload(file.getBytes(), modName);
+    exeUploaderService.processUpload(file.getInputStream(), modName);
   }
 }
