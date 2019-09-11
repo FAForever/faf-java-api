@@ -142,33 +142,6 @@
                   });
           });
 
-          /*$('#validateMapScenario').click(function() {
-
-              let scenarioLua = $('#scenario_lua').val();
-              var data = {"name": mapname, "scenarioLua": scenarioLua.length == 0 ? null : scenarioLua};
-
-              $.ajax(
-                  {
-                      url: "/maps/validate",
-                      type: "POST",
-                      data: JSON.stringify(data),
-                      contentType: 'application/json;charset=utf-8',
-                      success: function (msg) {
-                          $("#mapNameResult").append('<tr><td>Map name</td><td>'+ msg.displayName +'</td>');
-                          $("#mapNameResult").append('<tr><td>Next version</td><td>'+ msg.nextVersion +'</td>');
-                          $("#mapNameResult").append('<tr><td>Folder name</td><td>'+ msg.folderName +'</td>');
-                          $("#mapNameResult").append('<tr><td>File names</td><td>'+ msg.fileNames +'</td>');
-                      },
-                      error: function (data) {
-                          let result = JSON.parse(data.responseText)
-
-                          result.errors.forEach(function (nextError) {
-                              $("#mapNameResult").append('<tr><td>Error</td><td>'+ nextError.detail +'</td>');
-                          });
-                      }
-                  }
-              );
-          })*/
       });
   </script>
 </head>
