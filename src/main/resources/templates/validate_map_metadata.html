@@ -111,7 +111,7 @@
 
               let mapname = $('#mapname').val();
 
-              $.post("/maps/validateMapName?mapName=" + mapname)
+              $.post("/maps/validateMapName?mapName=" + encodeURIComponent(mapname))
                   .done(function (msg) {
                       $("#mapNameTable").append('<tr class="result"><td>Map name</td><td>' + msg.displayName + '</td>');
                       $("#mapNameTable").append('<tr class="result"><td>Next version</td><td>' + msg.nextVersion + '</td>');
