@@ -1,7 +1,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8"/>
-  <title>Log-in</title>
+  <title>FAForever Login</title>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
   <link href="https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz" rel="stylesheet" type="text/css">
@@ -11,7 +11,7 @@
 <body>
 <div class="background hero"></div>
 <div class="card login-card">
-  <h1>Log-in</h1>
+  <h1>FAForever Login</h1>
 
   <form name="f" th:action="@{/login}" class="form-group" method="post">
     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null }"/>
