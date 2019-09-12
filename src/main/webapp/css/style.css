@@ -99,7 +99,7 @@ ul {
 .mapTable div{
     display: flex;
     justify-content:space-between;
-    flex-direction:row;    
+  flex-direction: row;
     flex-basis: 100%;
 }
 
@@ -110,5 +110,9 @@ ul {
 
 .mapTable div div:first-child{
     font-weight:bold;
-    align-items: center; 
+  align-items: center;
+}
+
+table.result tr th {
+  width: 30%;
 }

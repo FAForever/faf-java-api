@@ -23,6 +23,7 @@ public class MvcConfig implements WebMvcConfigurer {
   public void addResourceHandlers(ResourceHandlerRegistry registry) {
     registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
     registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+    registry.addResourceHandler("/css/style.css").addResourceLocations("/");
     registry.addResourceHandler("/favicon.ico").addResourceLocations("/");
     registry.addResourceHandler("/robots.txt").addResourceLocations("/");
   }
