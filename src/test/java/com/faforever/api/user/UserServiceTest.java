@@ -6,7 +6,7 @@ import com.faforever.api.data.domain.Ladder1v1Rating;
 import com.faforever.api.data.domain.NameRecord;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.email.EmailService;
-import com.faforever.api.error.ApiExceptionWithCode;
+import com.faforever.api.error.ApiExceptionMatcher;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.mautic.MauticService;
 import com.faforever.api.player.PlayerRepository;
@@ -138,40 +138,40 @@ public class UserServiceTest {
   @Test
   public void registerEmailAlreadyRegistered() {
     when(userRepository.existsByEmail(TEST_CURRENT_EMAIL)).thenReturn(true);
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.EMAIL_REGISTERED));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.EMAIL_REGISTERED));
 
     instance.register("junit", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
   }
 
   @Test
   public void registerInvalidUsernameWithComma() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_INVALID));
     instance.register("junit,", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
   }
 
   @Test
   public void registerInvalidUsernameStartsUnderscore() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_INVALID));
     instance.register("_junit", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
   }
 
   @Test
   public void registerInvalidUsernameTooShort() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_INVALID));
     instance.register("ju", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
   }
 
   @Test
   public void registerUsernameTaken() {
     when(userRepository.existsByLogin("junit")).thenReturn(true);
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_TAKEN));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_TAKEN));
     instance.register("junit", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
   }
 
   @Test
   public void registerUsernameReserved() {
     when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(1));
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_RESERVED));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_RESERVED));
     instance.register("junit", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
   }
 
@@ -215,7 +215,7 @@ public class UserServiceTest {
 
   @Test
   public void changePasswordInvalidPassword() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.PASSWORD_CHANGE_FAILED_WRONG_PASSWORD));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.PASSWORD_CHANGE_FAILED_WRONG_PASSWORD));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, INVALID_PASSWORD, TEST_CURRENT_EMAIL);
     instance.changePassword(TEST_CURRENT_PASSWORD, TEST_NEW_PASSWORD, user);
@@ -236,7 +236,7 @@ public class UserServiceTest {
 
   @Test
   public void changeEmailInvalidPassword() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.EMAIL_CHANGE_FAILED_WRONG_PASSWORD));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.EMAIL_CHANGE_FAILED_WRONG_PASSWORD));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, INVALID_PASSWORD, TEST_CURRENT_EMAIL);
     instance.changeEmail(TEST_CURRENT_PASSWORD, TEST_NEW_PASSWORD, user, IP_ADDRESS);
@@ -260,7 +260,7 @@ public class UserServiceTest {
 
   @Test
   public void changeLoginWithUsernameInUse() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_TAKEN));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_TAKEN));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(userRepository.existsByLogin(TEST_USERNAME_CHANGED)).thenReturn(true);
@@ -269,7 +269,7 @@ public class UserServiceTest {
 
   @Test
   public void changeLoginWithUsernameInUseButForced() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_TAKEN));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_TAKEN));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(userRepository.existsByLogin(TEST_USERNAME_CHANGED)).thenReturn(true);
@@ -278,7 +278,7 @@ public class UserServiceTest {
 
   @Test
   public void changeLoginWithInvalidUsername() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_INVALID));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     instance.changeLogin("$%&", user, IP_ADDRESS);
@@ -286,7 +286,7 @@ public class UserServiceTest {
 
   @Test
   public void changeLoginWithInvalidUsernameButForced() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_INVALID));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     instance.changeLoginForced("$%&", user, IP_ADDRESS);
@@ -294,7 +294,7 @@ public class UserServiceTest {
 
   @Test
   public void changeLoginTooEarly() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_CHANGE_TOO_EARLY));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_CHANGE_TOO_EARLY));
     when(nameRecordRepository.getDaysSinceLastNewRecord(anyInt(), anyInt())).thenReturn(Optional.of(BigInteger.valueOf(5)));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
@@ -310,7 +310,7 @@ public class UserServiceTest {
 
   @Test
   public void changeLoginUsernameReserved() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_RESERVED));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_RESERVED));
     when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(TEST_USERID + 1));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
@@ -384,7 +384,7 @@ public class UserServiceTest {
 
   @Test
   public void resetPasswordUnknownUsernameAndEmail() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.UNKNOWN_IDENTIFIER));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.UNKNOWN_IDENTIFIER));
 
     when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
     when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
@@ -438,7 +438,7 @@ public class UserServiceTest {
 
   @Test
   public void buildSteamLinkUrlAlreadLinked() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.STEAM_ID_UNCHANGEABLE));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.STEAM_ID_UNCHANGEABLE));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     user.setSteamId(STEAM_ID);
@@ -469,7 +469,7 @@ public class UserServiceTest {
 
   @Test
   public void linkToSteamUnknownUser() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.TOKEN_INVALID));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.TOKEN_INVALID));
 
     when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE)).thenReturn(ImmutableMap.of(KEY_USER_ID, "5"));
     when(userRepository.findById(5)).thenReturn(Optional.empty());

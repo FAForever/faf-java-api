@@ -71,4 +71,5 @@ spring:
               password: ${ADMIN_CLIENT_PASSWORD:banana}
 logging:
   level:
-    com.faforever.api: trace
+    com.faforever.api: debug
+

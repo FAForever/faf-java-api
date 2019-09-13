@@ -7,7 +7,7 @@ import com.faforever.api.data.domain.VotingChoice;
 import com.faforever.api.data.domain.VotingQuestion;
 import com.faforever.api.data.domain.VotingSubject;
 import com.faforever.api.error.ApiException;
-import com.faforever.api.error.ApiExceptionWithCode;
+import com.faforever.api.error.ApiExceptionMatcher;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.game.GamePlayerStatsRepository;
 import org.junit.Before;
@@ -79,7 +79,7 @@ public class VotingServiceTest {
 
     vote.setVotingSubject(votingSubject);
 
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.VOTING_SUBJECT_DOES_NOT_EXIST));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.VOTING_SUBJECT_DOES_NOT_EXIST));
 
     instance.saveVote(vote, new Player());
     verify(voteRepository, never()).save(vote);
@@ -181,7 +181,7 @@ public class VotingServiceTest {
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
 
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.VOTING_CHOICE_DOES_NOT_EXIST));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.VOTING_CHOICE_DOES_NOT_EXIST));
 
     instance.saveVote(vote, player);
     verify(voteRepository, never()).save(vote);

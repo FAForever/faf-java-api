@@ -20,6 +20,10 @@ public final class NameUtil {
     return !name.matches(".*[^\\x20-\\x7E]+.*");
   }
 
+  public static String normalizeWhitespaces(String anyName) {
+    return StringUtils.strip(anyName.replace(" ", "_"));
+  }
+
   public static String normalizeFileName(String originalFileName) {
     return StringUtils.strip(
       Normalizer.normalize(

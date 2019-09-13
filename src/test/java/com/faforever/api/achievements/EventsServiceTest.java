@@ -19,7 +19,7 @@ import java.util.Optional;
 
 import static com.faforever.api.data.domain.AchievementState.REVEALED;
 import static com.faforever.api.data.domain.AchievementState.UNLOCKED;
-import static com.faforever.api.error.ApiExceptionWithCode.apiExceptionWithCode;
+import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -108,7 +108,7 @@ public class EventsServiceTest {
   public void incrementNonIncremental() throws Exception {
     mockAchievement("111", AchievementType.STANDARD, null);
 
-    expectedException.expect(apiExceptionWithCode(ErrorCode.ACHIEVEMENT_NOT_INCREMENTAL));
+    expectedException.expect(hasErrorCode(ErrorCode.ACHIEVEMENT_NOT_INCREMENTAL));
 
     instance.increment(PLAYER_ID, "111", 3);
 
@@ -204,7 +204,7 @@ public class EventsServiceTest {
   public void unlockIncremental() throws Exception {
     mockAchievement("111", AchievementType.INCREMENTAL, 1);
 
-    expectedException.expect(apiExceptionWithCode(ErrorCode.ACHIEVEMENT_NOT_STANDARD));
+    expectedException.expect(hasErrorCode(ErrorCode.ACHIEVEMENT_NOT_STANDARD));
 
     instance.unlock(PLAYER_ID, "111");
 
