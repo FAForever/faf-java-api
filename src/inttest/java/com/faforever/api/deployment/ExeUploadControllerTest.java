@@ -27,7 +27,6 @@ public class ExeUploadControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Ignore("Waiting for faf-stack with faf-db-migrations:v76")
   public void testSuccessUploadBeta() throws Exception {
     this.mockMvc.perform(fileUpload("/exe/upload")
       .file(file)
@@ -38,7 +37,6 @@ public class ExeUploadControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Ignore("Waiting for faf-stack with faf-db-migrations:v76")
   public void testSuccessUploadDevelop() throws Exception {
     this.mockMvc.perform(fileUpload("/exe/upload")
       .file(file)
@@ -49,7 +47,6 @@ public class ExeUploadControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Ignore("Waiting for faf-stack with faf-db-migrations:v76")
   public void testBadRequestUploadNoModName() throws Exception  {
     this.mockMvc.perform(fileUpload("/exe/upload")
       .file(file)
@@ -58,7 +55,6 @@ public class ExeUploadControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Ignore("Waiting for faf-stack with faf-db-migrations:v76")
   public void testBadRequestUploadNoFile() throws Exception {
     this.mockMvc.perform(fileUpload("/exe/upload")
       .param("modName", "fafdevelop")
@@ -67,7 +63,6 @@ public class ExeUploadControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Ignore("Waiting for faf-stack with faf-db-migrations:v76")
   public void testBadRequestUploadFileWithWrongExeExtension() throws Exception  {
     MockMultipartFile file = new MockMultipartFile("file", "ForgedAlliance.zip", "application/octet-stream", new byte[]{ 1, 2 ,3, 4 });
     this.mockMvc.perform(fileUpload("/exe/upload")
@@ -78,7 +73,6 @@ public class ExeUploadControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Ignore("Waiting for faf-stack with faf-db-migrations:v76")
   public void testBadRequestUploadWithoutApiKey() throws Exception  {
     this.mockMvc.perform(fileUpload("/exe/upload")
       .file(file)
@@ -87,7 +81,6 @@ public class ExeUploadControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Ignore("Waiting for faf-stack with faf-db-migrations:v76")
   public void testBadRequestUploadWithWrongApiKey() throws Exception  {
     this.mockMvc.perform(fileUpload("/exe/upload")
       .file(file)

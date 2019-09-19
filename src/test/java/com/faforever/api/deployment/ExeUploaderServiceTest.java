@@ -9,6 +9,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -114,9 +115,11 @@ public class ExeUploaderServiceTest {
     verify(featuredModService).getFile(modName, null, "ForgedAlliance.exe");
   }
 
-  @Test(expected = ApiException.class)
+  @Test
   public void testProcessUploadIsForbidden() {
     String modName = "faf";
-    instance.processUpload(exeDataInputStream, modName);
+    Assertions.assertThrows(ApiException.class, () -> {
+      instance.processUpload(exeDataInputStream, modName);
+    });
   }
 }
