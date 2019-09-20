@@ -14,7 +14,7 @@ env:
 before_install:
   - sudo /etc/init.d/mysql stop
   - sudo rm /usr/local/bin/docker-compose
-  - curl -L https://github.com/docker/compose/releases/download/1.16.1/docker-compose-`uname -s`-`uname -m` > /tmp/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/1.24.0/docker-compose-`uname -s`-`uname -m` > /tmp/docker-compose
   - chmod +x /tmp/docker-compose
   - sudo mv /tmp/docker-compose /usr/local/bin
   - APP_VERSION=$([ -n "${TRAVIS_TAG}" ] && echo "${TRAVIS_TAG#*v}" || echo "${TRAVIS_BRANCH##*/}")
@@ -25,6 +25,7 @@ install:
     && pushd faf-stack
     && git checkout e33243c9
     && cp -r config.template config
+    && cp .env.template .env
     && ./scripts/init-db.sh
     && popd
 
