@@ -1,23 +1,23 @@
 body, html {
   margin: 0;
-  background-color:rgba(0,0,0,0) !important;
+  background-color: rgba(0, 0, 0, 0) !important;
 }
 
-.background{
-    background-color:black;
-    z-index:-100;
-    position:fixed !important;
-    left:0 ;
-    right:0 ;
-    bottom:0 ;
-    top:0;
-    height:auto !important;
-    filter:blur(10px);
+.background {
+  background-color: black;
+  z-index: -100;
+  position: fixed !important;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  height: auto !important;
+  filter: blur(10px);
 }
 
-a{
-    color: #008cba !important;
-    text-decoration: none;
+a {
+  color: #008cba !important;
+  text-decoration: none;
 }
 
 .card {
@@ -90,26 +90,26 @@ ul {
   padding-start: 0;
 }
 
-.mapTable{
-    display: flex;
-    justify-content:flex-start;
-    flex-direction:column;
+.mapTable {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
 }
 
-.mapTable div{
-    display: flex;
-    justify-content:space-between;
+.mapTable div {
+  display: flex;
+  justify-content: space-between;
   flex-direction: row;
-    flex-basis: 100%;
+  flex-basis: 100%;
 }
 
-.mapTable div:last-child input{
-    width:100%;
-    margin:20px;
+.mapTable div:last-child input {
+  width: 100%;
+  margin: 20px;
 }
 
-.mapTable div div:first-child{
-    font-weight:bold;
+.mapTable div div:first-child {
+  font-weight: bold;
   align-items: center;
 }
 
