@@ -47,7 +47,7 @@ public enum ErrorCode {
   PASSWORD_CHANGE_FAILED_WRONG_PASSWORD(138, "Password change failed", "Your current password did not match."),
   USERNAME_CHANGE_TOO_EARLY(139, "Username change not allowed", "Only one name change per 30 days is allowed. {0, number} more days to go."),
   EMAIL_CHANGE_FAILED(140, "Email change failed", "An unknown error happened while updating the database."),
-  STEAM_ID_UNCHANGEABLE(141, "Linking to Steam failed", "Your account is already bound to another Steam ID."),
+  STEAM_ID_UNCHANGEABLE(141, "Linking to Steam failed", "Your Account is already linked to Steam. Just login with our client and start playing."),
   FEATURED_MOD_UNKNOWN(142, "Unknown featured mod", "There is no featured mod with ID ''{0}''."),
   MAP_SCENARIO_LUA_MISSING(143, "Invalid Map File", "Zip file does not contain a *_scenario.lua"),
   MAP_MISSING_MAP_FOLDER_INSIDE_ZIP(144, "No folder inside Zip", "Zip file must contain a folder with all map data"),
