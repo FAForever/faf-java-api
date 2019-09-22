@@ -62,7 +62,7 @@ public class ClanService {
       throw new ApiException(new Error(ErrorCode.CLAN_NAME_EXISTS, name));
     }
     if (clanRepository.findOneByTag(tag).isPresent()) {
-      throw new ApiException(new Error(ErrorCode.CLAN_TAG_EXISTS, name));
+      throw new ApiException(new Error(ErrorCode.CLAN_TAG_EXISTS, tag));
     }
 
     Clan clan = new Clan();
