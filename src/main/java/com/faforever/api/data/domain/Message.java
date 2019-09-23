@@ -1,5 +1,6 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.checks.permission.IsModerator;
 import com.faforever.api.data.listeners.MessageReloadListener;
 import com.github.jasminb.jsonapi.annotations.Type;
@@ -29,7 +30,7 @@ import javax.persistence.Table;
 @CreatePermission(expression = IsModerator.EXPRESSION)
 @Audit(action = Action.DELETE, logStatement = "Message with key `{0}` , ID `{1}`, language `{2}` , region `{3}` and value `{4}` deleted", logExpressions = {"${message.key}", "${message.id}", "${message.language}", "${message.region}", "${message.value}"})
 @Audit(action = Action.CREATE, logStatement = "Message with key `{0}` and ID `{1}` created", logExpressions = {"${message.key}", "${message.id}"})
-@ReadPermission(expression = "Prefab.Role.All")
+@ReadPermission(expression = Prefab.ALL)
 @EntityListeners(MessageReloadListener.class)
 @Type(Message.TYPE_NAME)
 public class Message {

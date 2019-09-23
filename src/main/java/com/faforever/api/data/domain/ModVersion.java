@@ -1,5 +1,6 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.checks.permission.IsModerator;
 import com.faforever.api.data.listeners.ModVersionEnricher;
 import com.yahoo.elide.annotation.Audit;
@@ -137,13 +138,13 @@ public class ModVersion {
   }
 
   @OneToMany(mappedBy = "modVersion")
-  @UpdatePermission(expression = "Prefab.Role.All")
+  @UpdatePermission(expression = Prefab.ALL)
   public List<ModVersionReview> getReviews() {
     return reviews;
   }
 
   @OneToOne(mappedBy = "modVersion")
-  @UpdatePermission(expression = "Prefab.Role.All")
+  @UpdatePermission(expression = Prefab.ALL)
   public ModVersionReviewsSummary getReviewsSummary() {
     return reviewsSummary;
   }

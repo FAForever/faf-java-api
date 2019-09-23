@@ -2,6 +2,7 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.BooleanChange;
 import com.faforever.api.data.checks.IsEntityOwner;
+import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.checks.permission.IsModerator;
 import com.faforever.api.data.listeners.MapVersionEnricher;
 import com.yahoo.elide.annotation.Audit;
@@ -140,13 +141,13 @@ public class MapVersion extends AbstractEntity implements OwnableEntity {
   }
 
   @OneToMany(mappedBy = "mapVersion")
-  @UpdatePermission(expression = "Prefab.Role.All")
+  @UpdatePermission(expression = Prefab.ALL)
   public List<MapVersionReview> getReviews() {
     return reviews;
   }
 
   @OneToOne(mappedBy = "mapVersion")
-  @UpdatePermission(expression = "Prefab.Role.All")
+  @UpdatePermission(expression = Prefab.ALL)
   public MapVersionReviewsSummary getReviewsSummary() {
     return reviewsSummary;
   }

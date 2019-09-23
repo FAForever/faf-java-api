@@ -1,5 +1,6 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.checks.Prefab;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
@@ -18,8 +19,8 @@ import java.time.OffsetDateTime;
 @Entity
 @Table(name = "name_history")
 @Include(rootLevel = true, type = "nameRecord")
-@DeletePermission(expression = "Prefab.Role.None")
-@UpdatePermission(expression = "Prefab.Role.None")
+@DeletePermission(expression = Prefab.NONE)
+@UpdatePermission(expression = Prefab.NONE)
 @Setter
 public class NameRecord {
   private int id;
