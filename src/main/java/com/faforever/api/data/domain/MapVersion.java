@@ -3,8 +3,8 @@ package com.faforever.api.data.domain;
 import com.faforever.api.data.checks.BooleanChange;
 import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.Prefab;
-import com.faforever.api.data.checks.permission.IsModerator;
 import com.faforever.api.data.listeners.MapVersionEnricher;
+import com.faforever.api.security.elide.permission.AdminMapCheck;
 import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.ComputedAttribute;
@@ -53,7 +53,7 @@ public class MapVersion extends AbstractEntity implements OwnableEntity {
   private MapVersionReviewsSummary reviewsSummary;
   private Ladder1v1Map ladder1v1Map;
 
-  @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " or " + IsModerator.EXPRESSION)
+  @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " or " + AdminMapCheck.EXPRESSION)
   @Column(name = "description")
   public String getDescription() {
     return description;
@@ -89,14 +89,14 @@ public class MapVersion extends AbstractEntity implements OwnableEntity {
     return filename;
   }
 
-  @UpdatePermission(expression = IsModerator.EXPRESSION + " or (" + IsEntityOwner.EXPRESSION + " and " + BooleanChange.TO_FALSE_EXPRESSION + ")")
+  @UpdatePermission(expression = AdminMapCheck.EXPRESSION + " or (" + IsEntityOwner.EXPRESSION + " and " + BooleanChange.TO_FALSE_EXPRESSION + ")")
   @Audit(action = Action.UPDATE, logStatement = "Updated map version `{0}` attribute ranked to: {1}", logExpressions = {"${mapVersion.id}", "${mapVersion.ranked}"})
   @Column(name = "ranked")
   public boolean isRanked() {
     return ranked;
   }
 
-  @UpdatePermission(expression = IsModerator.EXPRESSION + " or (" + IsEntityOwner.EXPRESSION + " and " + BooleanChange.TO_TRUE_EXPRESSION + ")")
+  @UpdatePermission(expression = AdminMapCheck.EXPRESSION + " or (" + IsEntityOwner.EXPRESSION + " and " + BooleanChange.TO_TRUE_EXPRESSION + ")")
   @Audit(action = Action.UPDATE, logStatement = "Updated map version `{0}` attribute hidden to: {1}", logExpressions = {"${mapVersion.id}", "${mapVersion.hidden}"})
   @Column(name = "hidden")
   public boolean isHidden() {
@@ -155,6 +155,6 @@ public class MapVersion extends AbstractEntity implements OwnableEntity {
   @Transient
   @Override
   public Login getEntityOwner() {
-    return map.getAuthor();
+    return map.getEntityOwner();
   }
 }

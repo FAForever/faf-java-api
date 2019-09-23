@@ -1,8 +1,8 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.Prefab;
-import com.faforever.api.data.checks.permission.IsModerator;
 import com.faforever.api.data.listeners.ModVersionEnricher;
+import com.faforever.api.security.elide.permission.AdminModCheck;
 import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.ComputedAttribute;
@@ -17,16 +17,12 @@ import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.time.OffsetDateTime;
 import java.util.List;
 
 @Entity
@@ -34,11 +30,10 @@ import java.util.List;
 @Include(rootLevel = true, type = ModVersion.TYPE_NAME)
 @Setter
 @EntityListeners(ModVersionEnricher.class)
-public class ModVersion {
+public class ModVersion extends AbstractEntity implements OwnableEntity {
 
   public static final String TYPE_NAME = "modVersion";
 
-  private Integer id;
   private String uid;
   private ModType type;
   private String description;
@@ -47,20 +42,11 @@ public class ModVersion {
   private String icon;
   private boolean ranked;
   private boolean hidden;
-  private OffsetDateTime createTime;
-  private OffsetDateTime updateTime;
   private Mod mod;
   private String thumbnailUrl;
   private String downloadUrl;
   private List<ModVersionReview> reviews;
   private ModVersionReviewsSummary reviewsSummary;
-
-  @Id
-  @Column(name = "id")
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  public Integer getId() {
-    return id;
-  }
 
   @Column(name = "uid")
   public String getUid() {
@@ -95,28 +81,18 @@ public class ModVersion {
     return icon;
   }
 
-  @UpdatePermission(expression = IsModerator.EXPRESSION)
+  @UpdatePermission(expression = AdminModCheck.EXPRESSION)
   @Audit(action = Action.UPDATE, logStatement = "Updated mod version `{0}` attribute ranked to: {1}", logExpressions = {"${modVersion.id}", "${modVersion.ranked}"})
   @Column(name = "ranked")
   public boolean isRanked() {
     return ranked;
   }
 
-  @UpdatePermission(expression = IsModerator.EXPRESSION)
+  @UpdatePermission(expression = AdminModCheck.EXPRESSION)
   @Audit(action = Action.UPDATE, logStatement = "Updated mod version `{0}` attribute hidden to: {1}", logExpressions = {"${modVersion.id}", "${modVersion.hidden}"})
   @Column(name = "hidden")
   public boolean isHidden() {
     return hidden;
-  }
-
-  @Column(name = "create_time")
-  public OffsetDateTime getCreateTime() {
-    return createTime;
-  }
-
-  @Column(name = "update_time")
-  public OffsetDateTime getUpdateTime() {
-    return updateTime;
   }
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -147,5 +123,11 @@ public class ModVersion {
   @UpdatePermission(expression = Prefab.ALL)
   public ModVersionReviewsSummary getReviewsSummary() {
     return reviewsSummary;
+  }
+
+  @Transient
+  @Override
+  public Login getEntityOwner() {
+    return mod.getEntityOwner();
   }
 }

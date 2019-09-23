@@ -9,6 +9,8 @@ import com.faforever.api.data.checks.permission.IsModerator;
 import com.faforever.api.security.ExtendedAuditLogger;
 import com.faforever.api.security.elide.permission.AdminAccountBanCheck;
 import com.faforever.api.security.elide.permission.AdminAccountNoteCheck;
+import com.faforever.api.security.elide.permission.AdminMapCheck;
+import com.faforever.api.security.elide.permission.AdminModCheck;
 import com.faforever.api.security.elide.permission.AdminModerationReportCheck;
 import com.faforever.api.security.elide.permission.AdminVoteCheck;
 import com.faforever.api.security.elide.permission.ReadAccountPrivateDetailsCheck;
@@ -117,6 +119,8 @@ public class ElideConfig {
     checks.put(WriteTutorialCheck.EXPRESSION, WriteTutorialCheck.class);
     checks.put(WriteEmailDomainBanCheck.EXPRESSION, WriteEmailDomainBanCheck.class);
     checks.put(WriteAvatarCheck.EXPRESSION, WriteAvatarCheck.class);
+    checks.put(AdminMapCheck.EXPRESSION, AdminMapCheck.class);
+    checks.put(AdminModCheck.EXPRESSION, AdminModCheck.class);
 
     return new EntityDictionary(checks);
   }
