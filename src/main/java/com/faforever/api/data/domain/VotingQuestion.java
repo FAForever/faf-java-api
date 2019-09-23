@@ -1,7 +1,8 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.data.checks.permission.IsModerator;
+import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.listeners.VotingQuestionEnricher;
+import com.faforever.api.security.elide.permission.AdminVoteCheck;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.yahoo.elide.annotation.Audit;
@@ -32,10 +33,10 @@ import java.util.Set;
 
 @Entity
 @Table(name = "voting_question")
-@ReadPermission(expression = "Prefab.Role.All")
-@DeletePermission(expression = IsModerator.EXPRESSION)
-@UpdatePermission(expression = IsModerator.EXPRESSION)
-@CreatePermission(expression = IsModerator.EXPRESSION)
+@ReadPermission(expression = Prefab.ALL)
+@DeletePermission(expression = AdminVoteCheck.EXPRESSION)
+@UpdatePermission(expression = AdminVoteCheck.EXPRESSION)
+@CreatePermission(expression = AdminVoteCheck.EXPRESSION)
 @Audit(action = Action.CREATE, logStatement = "Created voting question with id:{0}", logExpressions = {"${votingQuestion.id}"})
 @Audit(action = Action.DELETE, logStatement = "Deleted voting question with id:{0}", logExpressions = {"${votingQuestion.id}"})
 @Audit(action = Action.UPDATE, logStatement = "Updated voting question with id:{0}", logExpressions = {"${votingQuestion.id}"})
@@ -57,14 +58,13 @@ public class VotingQuestion extends AbstractEntity {
   private List<VotingChoice> winners;
   private Set<VotingChoice> votingChoices;
 
-  @UpdatePermission(expression = "Prefab.Common.UpdateOnCreate")
+  @UpdatePermission(expression = Prefab.UPDATE_ON_CREATE)
   @Column(name = "alternative_voting")
   public Boolean isAlternativeQuestion() {
     return alternativeQuestion;
   }
 
   @Column(name = "ordinal")
-  @UpdatePermission(expression = IsModerator.EXPRESSION)
   public Integer getOrdinal() {
     return ordinal;
   }
@@ -72,7 +72,7 @@ public class VotingQuestion extends AbstractEntity {
   /**
    * Is evaluated when voting ended and revealVote is set to true
    */
-  @UpdatePermission(expression = "Prefab.Role.None")
+  @UpdatePermission(expression = Prefab.NONE)
   @JoinTable(name = "winner_for_voting_question",
     joinColumns = {@JoinColumn(name = "voting_question_id")},
     inverseJoinColumns = {@JoinColumn(name = "voting_choice_id")}

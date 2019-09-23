@@ -19,6 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
+import static com.faforever.api.data.domain.GroupPermission.ROLE_WRITE_AVATAR;
+
 @RestController
 @RequestMapping(path = "/avatars")
 public class AvatarController {
@@ -39,7 +41,7 @@ public class AvatarController {
     @ApiResponse(code = 500, message = "Failure", response = ErrorResponse.class)})
   @ResponseStatus(value = HttpStatus.CREATED)
   @RequestMapping(value = "/upload", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._UPLOAD_AVATAR + "') and hasAnyRole('ROLE_MODERATOR', 'ROLE_ADMINISTRATOR')")
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._UPLOAD_AVATAR + "') and hasAnyRole('" + ROLE_WRITE_AVATAR + "', 'ROLE_ADMINISTRATOR')")
   public void uploadAvatar(
     @ApiParam(name = "metadata") @RequestPart("metadata") AvatarMetadata avatarMetaData,
     @ApiParam(name = "file") @RequestPart("file") MultipartFile avatarImageFile) throws IOException {
@@ -56,7 +58,7 @@ public class AvatarController {
     @ApiResponse(code = 500, message = "Failure", response = ErrorResponse.class)})
   @ResponseStatus(value = HttpStatus.OK)
   @RequestMapping(value = "{avatarId}/upload", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._UPLOAD_AVATAR + "') and hasAnyRole('ROLE_MODERATOR', 'ROLE_ADMINISTRATOR')")
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._UPLOAD_AVATAR + "') and hasAnyRole('" + ROLE_WRITE_AVATAR + "', 'ROLE_ADMINISTRATOR')")
   public void reuploadAvatar(
     @ApiParam(name = "avatarId") @PathVariable("avatarId") Integer avatarId,
     @ApiParam(name = "metadata") @RequestPart(value = "metadata") AvatarMetadata avatarMetaData,
@@ -71,7 +73,7 @@ public class AvatarController {
     @ApiResponse(code = 500, message = "Failure", response = ErrorResponse.class)})
   @ResponseStatus(value = HttpStatus.NO_CONTENT)
   @RequestMapping(value = "/{avatarId}", method = RequestMethod.DELETE)
-  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._UPLOAD_AVATAR + "') and hasAnyRole('ROLE_MODERATOR', 'ROLE_ADMINISTRATOR')")
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._UPLOAD_AVATAR + "') and hasAnyRole('" + ROLE_WRITE_AVATAR + "', 'ROLE_ADMINISTRATOR')")
   public void deleteAvatar(
     @ApiParam(name = "avatarId") @PathVariable("avatarId") Integer avatarId) throws IOException {
     avatarService.deleteAvatar(avatarId);

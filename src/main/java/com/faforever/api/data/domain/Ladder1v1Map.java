@@ -1,6 +1,6 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.data.checks.permission.HasLadder1v1Update;
+import com.faforever.api.security.elide.permission.WriteMatchmakerMapCheck;
 import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.CreatePermission;
@@ -19,8 +19,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-@CreatePermission(expression = HasLadder1v1Update.EXPRESSION)
-@DeletePermission(expression = HasLadder1v1Update.EXPRESSION)
+@CreatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
+@DeletePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @Entity
 @Setter
 @Table(name = "ladder_map")
@@ -41,7 +41,7 @@ public class Ladder1v1Map {
 
   @OneToOne
   @JoinColumn(name = "idmap")
-  @UpdatePermission(expression = HasLadder1v1Update.EXPRESSION)
+  @UpdatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
   public MapVersion getMapVersion() {
     return mapVersion;
   }

@@ -1,8 +1,8 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.data.checks.permission.HasBanRead;
-import com.faforever.api.data.checks.permission.HasBanUpdate;
+import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.security.FafUserDetails;
+import com.faforever.api.security.elide.permission.AdminAccountBanCheck;
 import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.CreatePermission;
@@ -30,10 +30,10 @@ import java.time.OffsetDateTime;
 @Table(name = "ban")
 @Include(rootLevel = true, type = "banInfo")
 // Bans can never be deleted, only disabled over BanDisableData
-@DeletePermission(expression = "Prefab.Role.None")
-@ReadPermission(expression = HasBanRead.EXPRESSION)
-@CreatePermission(expression = HasBanUpdate.EXPRESSION)
-@UpdatePermission(expression = HasBanUpdate.EXPRESSION)
+@DeletePermission(expression = Prefab.NONE)
+@ReadPermission(expression = AdminAccountBanCheck.EXPRESSION)
+@CreatePermission(expression = AdminAccountBanCheck.EXPRESSION)
+@UpdatePermission(expression = AdminAccountBanCheck.EXPRESSION)
 @Audit(action = Action.CREATE, logStatement = "Applied ban with id `{0}` for player `{1}`", logExpressions = {"${banInfo.id}", "${banInfo.player}"})
 @Audit(action = Action.UPDATE, logStatement = "Updated ban with id `{0}` for player `{1}`", logExpressions = {"${banInfo.id}", "${banInfo.player}"})
 @Setter

@@ -1,11 +1,12 @@
 package com.faforever.api.data;
 
 import com.faforever.api.AbstractIntegrationTest;
+import com.faforever.api.data.domain.GroupPermission;
 import com.faforever.api.player.PlayerRepository;
+import com.faforever.api.security.OAuthScope;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
@@ -14,7 +15,6 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -52,51 +52,75 @@ public class UserNoteTest extends AbstractIntegrationTest {
   PlayerRepository playerRepository;
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void emptyResultUserNoteAsUser() throws Exception {
-    mockMvc.perform(get("/data/userNote"))
+  public void emptyResultWithoutScope() throws Exception {
+    mockMvc.perform(get("/data/userNote")
+      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE)))
       .andExpect(status().isOk())
-      .andExpect(content().string("{\"data\":[]}"));
+      .andExpect(jsonPath("$.data", hasSize(0)));
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void cannotReadSpecificUserNoteAsUser() throws Exception {
-    mockMvc.perform(get("/data/userNote/1"))
-      .andExpect(status().isForbidden());
+  public void emptyResultWithoutRole() throws Exception {
+    mockMvc.perform(get("/data/userNote")
+      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, NO_AUTHORITIES)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data", hasSize(0)));
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void cannotCreateUserNoteAsUser() throws Exception {
-    mockMvc.perform(post("/data/userNote")
-      .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
-      .content(testPost))
-      .andExpect(status().isForbidden());
-  }
-
-  @Test
-  @WithUserDetails(AUTH_MODERATOR)
-  public void canReadUserNoteAsModerator() throws Exception {
-    mockMvc.perform(get("/data/userNote"))
+  public void canReadUserNotesWithScopeAndRole() throws Exception {
+    mockMvc.perform(get("/data/userNote")
+      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(1)));
   }
 
   @Test
-  @WithUserDetails(AUTH_MODERATOR)
-  public void canReadSpecificUserNoteAsModerator() throws Exception {
-    mockMvc.perform(get("/data/userNote/1"))
+  public void cannotReadSpecificUserNoteWithoutScope() throws Exception {
+    mockMvc.perform(get("/data/userNote/1")
+      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE)))
+      .andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void cannotReadSpecificUserNoteWithoutRole() throws Exception {
+    mockMvc.perform(get("/data/userNote/1")
+      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, NO_AUTHORITIES)))
+      .andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void canReadSpecificUserNoteWithScopeAndRole() throws Exception {
+    mockMvc.perform(get("/data/userNote/1")
+      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE)))
       .andExpect(status().isOk());
   }
 
   @Test
-  @WithUserDetails(AUTH_MODERATOR)
-  public void canCreateUserNoteAsModerator() throws Exception {
+  public void cannotCreateUserNoteWithoutScope() throws Exception {
+    mockMvc.perform(post("/data/userNote")
+      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE))
+      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+      .content(testPost))
+      .andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void cannotCreateUserNoteWithoutRole() throws Exception {
+    mockMvc.perform(post("/data/userNote")
+      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, NO_AUTHORITIES))
+      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+      .content(testPost))
+      .andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void canCreateUserNoteWithScopeAndRole() throws Exception {
     assertThat(playerRepository.getOne(3).getUserNotes().size(), is(0));
 
     mockMvc.perform(post("/data/userNote")
-      .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
+      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE))
+      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isCreated());
 

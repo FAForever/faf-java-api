@@ -1,9 +1,10 @@
 package com.faforever.api.data;
 
 import com.faforever.api.AbstractIntegrationTest;
+import com.faforever.api.data.domain.GroupPermission;
+import com.faforever.api.security.OAuthScope;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
@@ -18,38 +19,56 @@ public class Ladder1v1MapTest extends AbstractIntegrationTest {
   private static final String NEW_LADDER_MAP_BODY = "{\"data\":{\"type\":\"ladder1v1Map\",\"relationships\":{\"mapVersion\":{\"data\":{\"type\":\"mapVersion\",\"id\":\"2\"}}}}}";
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void cannotCreateLadderMapAsUser() throws Exception {
+  public void cannotCreateLadderMapWithoutScope() throws Exception {
     mockMvc.perform(
       post("/data/ladder1v1Map")
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
       .andExpect(status().isForbidden());
   }
 
   @Test
-  @WithUserDetails(AUTH_MODERATOR)
-  public void canCreateLadderMapAsModerator() throws Exception {
+  public void cannotCreateLadderMapWithoutRole() throws Exception {
     mockMvc.perform(
       post("/data/ladder1v1Map")
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
+        .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
+      .andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void canCreateLadderMapWithScopeAndRole() throws Exception {
+    mockMvc.perform(
+      post("/data/ladder1v1Map")
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
       .andExpect(status().isCreated());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void cannotDeleteLadderMapAsUser() throws Exception {
+  public void canDeleteLadderMapWithScopeAndRole() throws Exception {
     mockMvc.perform(
-      delete("/data/ladder1v1Map/1")) // magic value from prepMapData.sql
+      delete("/data/ladder1v1Map/1")
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))) // magic value from prepMapData.sql
+      .andExpect(status().isNoContent());
+  }
+
+  @Test
+  public void cannotDeleteLadderMapWithoutScope() throws Exception {
+    mockMvc.perform(
+      delete("/data/ladder1v1Map/1")
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))) // magic value from prepMapData.sql
       .andExpect(status().isForbidden());
   }
 
   @Test
-  @WithUserDetails(AUTH_MODERATOR)
-  public void canDeleteLadderMapAsModerator() throws Exception {
+  public void cannotDeleteLadderMapWithoutRole() throws Exception {
     mockMvc.perform(
-      delete("/data/ladder1v1Map/1")) // magic value from prepMapData.sql
-      .andExpect(status().isNoContent());
+      delete("/data/ladder1v1Map/1")
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))) // magic value from prepMapData.sql
+      .andExpect(status().isForbidden());
   }
 }

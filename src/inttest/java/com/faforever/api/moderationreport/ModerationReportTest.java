@@ -1,7 +1,9 @@
 package com.faforever.api.moderationreport;
 
 import com.faforever.api.AbstractIntegrationTest;
-import com.faforever.api.data.JsonApiMediaType;
+import com.faforever.api.data.DataController;
+import com.faforever.api.data.domain.GroupPermission;
+import com.faforever.api.security.OAuthScope;
 import com.faforever.commons.api.dto.Game;
 import com.faforever.commons.api.dto.ModerationReport;
 import com.faforever.commons.api.dto.ModerationReportStatus;
@@ -11,7 +13,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
@@ -46,7 +47,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     Player reporter = (Player) new Player().setId("1");
     Player reportedUser1 = (Player) new Player().setId("3");
     Player reportedUser2 = (Player) new Player().setId("2");
-    Game game = new Game().setId("1");
+    Game game = (Game) new Game().setId("1");
     reportedUsers = Sets.newHashSet(reportedUser1, reportedUser2);
     validModerationReport = new ModerationReport()
       .setReportDescription("Report description")
@@ -63,250 +64,293 @@ public class ModerationReportTest extends AbstractIntegrationTest {
   public void anonymousUserCannotCreateValidModerationReport() throws Exception {
     mockMvc.perform(
       post("/data/moderationReport")
-        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(validModerationReport)))
       .andExpect(status().isForbidden());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void userCanCreateValidModerationReport() throws Exception {
+  public void canCreateValidModerationReportWithoutScopeAndRole() throws Exception {
+    mockMvc.perform(get("/data/account"));
     mockMvc.perform(
       post("/data/moderationReport")
-        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(validModerationReport)))
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.data.attributes.reportStatus", is(ModerationReportStatus.AWAITING.name())))
       .andExpect(jsonPath("$.data.attributes.reportDescription", is("Report description")))
       .andExpect(jsonPath("$.data.attributes.gameIncidentTimecode", is("Incident code")))
       .andExpect(jsonPath("$.data.attributes.reportStatus", is(ModerationReportStatus.AWAITING.name())))
-      .andExpect(jsonPath("$.data.relationships.reporter.data.id", is("1")))
+      .andExpect(jsonPath("$.data.relationships.reporter.data.id", is("5")))
       .andExpect(jsonPath("$.data.relationships.game.data.id", is("1")))
       .andExpect(jsonPath("$.data.relationships.reportedUsers.data", hasSize(2)));
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void userCannotCreateReportWithModeratorsData() throws Exception {
+  public void cannotCreateReportWithModeratorsDataWithoutScopeAndRole() throws Exception {
     validModerationReport
       .setModeratorNotice("Moderation notice")
       .setModeratorPrivateNote("Moderation private note");
     mockMvc.perform(
       post("/data/moderationReport")
-        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(validModerationReport)))
       .andExpect(status().isForbidden());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void userCannotCreateReportWithoutReportedUsers() throws Exception {
+  public void cannotCreateReportWithoutReportedUsers() throws Exception {
     validModerationReport
       .setReportedUsers(null);
     mockMvc.perform(
       post("/data/moderationReport")
-        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(validModerationReport)))
       .andExpect(status().isBadRequest());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void userCannotCreateReportWithoutReportDescription() throws Exception {
     validModerationReport
       .setReportDescription(null);
     mockMvc.perform(
       post("/data/moderationReport")
-        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(validModerationReport)))
       .andExpect(status().isBadRequest());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void moderationReportCannotBeDeletedByUser() throws Exception {
+  public void cannotDeleteReportWithoutScopeAndRole() throws Exception {
     mockMvc.perform(
-      delete("/data/moderationReport/1"))
+      delete("/data/moderationReport/1")
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isForbidden());
   }
 
   @Test
-  @WithUserDetails(AUTH_MODERATOR)
-  public void moderationReportCannotBeDeletedByModerator() throws Exception {
+  public void moderationReportCannotBeDeletedEvenWithScopeAndRole() throws Exception {
     mockMvc.perform(
-      delete("/data/moderationReport/1"))
+      delete("/data/moderationReport/1")
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE)))
       .andExpect(status().isForbidden());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void userCanUpdateDescription() throws Exception {
-    final ModerationReport updatedDescriptionModerationReport = (ModerationReport) new ModerationReport()
+  public void cannotUpdateSomeoneElsesReport() throws Exception {
+    reportedUsers.add((Player) new Player().setId("2"));
+
+    final ModerationReport updatedModerationReport = (ModerationReport) new ModerationReport()
       .setReportStatus(null)
       .setReportDescription("New report description")
-      .setId("1");
+      .setId("2");
     mockMvc.perform(
-      patch("/data/moderationReport/1")
-        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
-        .content(createJsonApiContent(updatedDescriptionModerationReport)))
-      .andExpect(status().isNoContent());
-    mockMvc.perform(
-      get("/data/moderationReport/1"))
-      .andExpect(jsonPath("$.data.attributes.reportDescription", is("New report description")));
+      patch("/data/moderationReport/2")
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .content(createJsonApiContent(updatedModerationReport)))
+      .andExpect(status().isForbidden());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void userCanUpdateTimecode() throws Exception {
-    final ModerationReport updatedTimecodeModerationReport = (ModerationReport) new ModerationReport()
-      .setReportStatus(null)
-      .setGameIncidentTimecode("New incident timecode")
-      .setId("1");
-    mockMvc.perform(
-      patch("/data/moderationReport/1")
-        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
-        .content(createJsonApiContent(updatedTimecodeModerationReport)))
-      .andExpect(status().isNoContent());
-    mockMvc.perform(
-      get("/data/moderationReport/1"))
-      .andExpect(jsonPath("$.data.attributes.gameIncidentTimecode", is("New incident timecode")));
-  }
-
-  @Test
-  @WithUserDetails(AUTH_USER)
-  public void userCanUpdateGameId() throws Exception {
-    final ModerationReport updatedGameIdModerationReport = (ModerationReport) new ModerationReport()
-      .setReportStatus(null)
-      .setGame(new Game().setId("1"))
-      .setId("1");
-    mockMvc.perform(
-      patch("/data/moderationReport/1")
-        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
-        .content(createJsonApiContent(updatedGameIdModerationReport)))
-      .andExpect(status().isNoContent());
-    mockMvc.perform(
-      get("/data/moderationReport/1"))
-      .andExpect(jsonPath("$.data.relationships.game.data.id", is("1")));
-  }
-
-  @Test
-  @WithUserDetails(AUTH_USER)
-  public void userCanUpdateReportedUsers() throws Exception {
+  public void canUpdateOwnReport() throws Exception {
     reportedUsers.add((Player) new Player().setId("1"));
-    final ModerationReport updatedReportedUsersModerationReport = (ModerationReport) new ModerationReport()
+
+    final ModerationReport updatedModerationReport = (ModerationReport) new ModerationReport()
       .setReportStatus(null)
+      .setReportDescription("New report description")
+      .setGameIncidentTimecode("New incident timecode")
+      .setGame((Game) new Game().setId("1"))
       .setReportedUsers(reportedUsers)
       .setId("1");
     mockMvc.perform(
       patch("/data/moderationReport/1")
-        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
-        .content(createJsonApiContent(updatedReportedUsersModerationReport)))
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .content(createJsonApiContent(updatedModerationReport)))
       .andExpect(status().isNoContent());
     mockMvc.perform(
-      get("/data/moderationReport/1"))
+      get("/data/moderationReport/1")
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
+      .andExpect(jsonPath("$.data.attributes.reportDescription", is("New report description")))
+      .andExpect(jsonPath("$.data.attributes.gameIncidentTimecode", is("New incident timecode")))
+      .andExpect(jsonPath("$.data.relationships.game.data.id", is("1")))
       .andExpect(jsonPath("$.data.relationships.reportedUsers.data", hasSize(3)));
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void userCannotUpdateReportInNonAwaitingState() throws Exception {
     reportedUsers.removeIf(player -> player.getId().equals("2"));
     final ModerationReport updatedGameIdModerationReport = (ModerationReport) new ModerationReport()
       .setReportStatus(null)
       .setReportDescription("New report description")
       .setGameIncidentTimecode("New incident timecode")
-      .setGame(new Game().setId("1"))
+      .setGame((Game) new Game().setId("1"))
       .setReportedUsers(reportedUsers)
       .setId("2");
     mockMvc.perform(
       patch("/data/moderationReport/2")
-        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(updatedGameIdModerationReport)))
       .andExpect(status().isForbidden());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void reporterCannotUpdateReportStatus() throws Exception {
+  public void cannotUpdateReportStatusWithoutScope() throws Exception {
     final ModerationReport updatedReportStatusModerationReport = (ModerationReport) new ModerationReport()
       .setReportStatus(ModerationReportStatus.AWAITING)
       .setId("1");
     mockMvc.perform(
       patch("/data/moderationReport/1")
-        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(updatedReportStatusModerationReport)))
       .andExpect(status().isForbidden());
   }
 
   @Test
-  @WithUserDetails(AUTH_MODERATOR)
-  public void moderatorCanUpdateReportStatus() throws Exception {
+  public void cannotUpdateReportStatusWithoutRole() throws Exception {
     final ModerationReport updatedReportStatusModerationReport = (ModerationReport) new ModerationReport()
       .setReportStatus(ModerationReportStatus.AWAITING)
       .setId("1");
     mockMvc.perform(
       patch("/data/moderationReport/1")
-        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .content(createJsonApiContent(updatedReportStatusModerationReport)))
+      .andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void canUpdateReportStatusWithScopeAndRole() throws Exception {
+    final ModerationReport updatedReportStatusModerationReport = (ModerationReport) new ModerationReport()
+      .setReportStatus(ModerationReportStatus.AWAITING)
+      .setId("1");
+    mockMvc.perform(
+      patch("/data/moderationReport/1")
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(updatedReportStatusModerationReport)))
       .andExpect(status().isNoContent());
     mockMvc.perform(
-      get("/data/moderationReport/1"))
+      get("/data/moderationReport/1")
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_MODERATION_REPORT)))
       .andExpect(jsonPath("$.data.attributes.reportStatus", is(ModerationReportStatus.AWAITING.name())));
   }
 
   @Test
-  @WithUserDetails(AUTH_MODERATOR)
-  public void moderatorCanUpdateNotice() throws Exception {
-    final ModerationReport updatedModeratorNoticeModerationReport = (ModerationReport) new ModerationReport()
+  public void canUpdateNoticeWithScopeAndRole() throws Exception {
+    final ModerationReport updatedPublicNoteModerationReport = (ModerationReport) new ModerationReport()
       .setModeratorNotice("New moderator notice")
       .setId("1");
     mockMvc.perform(
       patch("/data/moderationReport/1")
-        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
-        .content(createJsonApiContent(updatedModeratorNoticeModerationReport)))
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .content(createJsonApiContent(updatedPublicNoteModerationReport)))
       .andExpect(status().isNoContent());
     mockMvc.perform(
-      get("/data/moderationReport/1"))
+      get("/data/moderationReport/1")
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_MODERATION_REPORT)))
       .andExpect(jsonPath("$.data.attributes.moderatorNotice", is("New moderator notice")));
   }
 
   @Test
-  @WithUserDetails(AUTH_MODERATOR)
-  public void moderatorCanUpdatePrivateNote() throws Exception {
-    final ModerationReport updatedModeratorPrivateNoteModerationReport = (ModerationReport) new ModerationReport()
+  public void cannotUpdateNoticeWithoutScope() throws Exception {
+    final ModerationReport updatedPublicNoteModerationReport = (ModerationReport) new ModerationReport()
+      .setModeratorNotice("New moderator notice")
+      .setId("1");
+    mockMvc.perform(
+      patch("/data/moderationReport/1")
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .content(createJsonApiContent(updatedPublicNoteModerationReport)))
+      .andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void cannotUpdateNoticeWithoutRole() throws Exception {
+    final ModerationReport updatedPublicNoteModerationReport = (ModerationReport) new ModerationReport()
+      .setModeratorNotice("New moderator notice")
+      .setId("1");
+    mockMvc.perform(
+      patch("/data/moderationReport/1")
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .content(createJsonApiContent(updatedPublicNoteModerationReport)))
+      .andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void canUpdatePrivateNoteWithScopeAndRole() throws Exception {
+    final ModerationReport updatedPrivateNoteModerationReport = (ModerationReport) new ModerationReport()
       .setModeratorPrivateNote("New moderator private note")
       .setId("1");
     mockMvc.perform(
       patch("/data/moderationReport/1")
-        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
-        .content(createJsonApiContent(updatedModeratorPrivateNoteModerationReport)))
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .content(createJsonApiContent(updatedPrivateNoteModerationReport)))
       .andExpect(status().isNoContent());
     mockMvc.perform(
-      get("/data/moderationReport/1"))
+      get("/data/moderationReport/1")
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_MODERATION_REPORT)))
       .andExpect(jsonPath("$.data.attributes.moderatorPrivateNote", is("New moderator private note")));
   }
 
   @Test
-  @WithUserDetails(AUTH_MODERATOR)
-  public void lastModeratorIsUpdatedWhenCalledByModerator() throws Exception {
-    final ModerationReport updatedModeratorPrivateNoteModerationReport = (ModerationReport) new ModerationReport()
+  public void cannotUpdatePrivateNoteWithoutScope() throws Exception {
+    final ModerationReport updatedPrivateNoteModerationReport = (ModerationReport) new ModerationReport()
       .setModeratorPrivateNote("New moderator private note")
       .setId("1");
     mockMvc.perform(
       patch("/data/moderationReport/1")
-        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
-        .content(createJsonApiContent(updatedModeratorPrivateNoteModerationReport)))
-      .andExpect(status().isNoContent());
-    mockMvc.perform(
-      get("/data/moderationReport/1"))
-      .andExpect(jsonPath("$.data.relationships.lastModerator.data.id", is("2")));
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .content(createJsonApiContent(updatedPrivateNoteModerationReport)))
+      .andExpect(status().isForbidden());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void userCanSeeOwnFieldsAndReportStatusAndModeratorNotice() throws Exception {
+  public void cannotUpdatePrivateNoteWithoutRole() throws Exception {
+    final ModerationReport updatedPrivateNoteModerationReport = (ModerationReport) new ModerationReport()
+      .setModeratorPrivateNote("New moderator private note")
+      .setId("1");
     mockMvc.perform(
-      get("/data/moderationReport/2"))
+      patch("/data/moderationReport/1")
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .content(createJsonApiContent(updatedPrivateNoteModerationReport)))
+      .andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void lastModeratorIsUpdatedWhenCalledByModerator() throws Exception {
+    final ModerationReport updatedPrivateNoteModerationReport = (ModerationReport) new ModerationReport()
+      .setModeratorPrivateNote("New moderator private note")
+      .setId("1");
+    mockMvc.perform(
+      patch("/data/moderationReport/1")
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .content(createJsonApiContent(updatedPrivateNoteModerationReport)))
+      .andExpect(status().isNoContent());
+    mockMvc.perform(
+      get("/data/moderationReport/1")
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_MODERATION_REPORT)))
+      .andExpect(jsonPath("$.data.relationships.lastModerator.data.id", is("5")));
+  }
+
+  @Test
+  public void userCanSeeOwnFieldsAndReportStatusAndPublicNote() throws Exception {
+    mockMvc.perform(
+      get("/data/moderationReport/2")
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(jsonPath("$.data.attributes.reportDescription", is("Report description")))
       .andExpect(jsonPath("$.data.attributes.gameIncidentTimecode", is("Incident timecode")))
       .andExpect(jsonPath("$.data.attributes.reportStatus", is(ModerationReportStatus.PROCESSING.name())))
@@ -314,30 +358,30 @@ public class ModerationReportTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void userCannotSeeModeratorPrivateNote() throws Exception {
+  public void userCannotSeePrivateNote() throws Exception {
     mockMvc.perform(
-      get("/data/moderationReport/2"))
+      get("/data/moderationReport/2")
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(jsonPath("$.data.attributes.moderatorPrivateNote").doesNotExist());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void userCanSeeOnlyOwnReports() throws Exception {
     mockMvc.perform(
-      get("/data/moderationReport"))
-      .andExpect(jsonPath("$.data[*].relationships.reporter.data.id", everyItem(is("1"))));
+      get("/data/moderationReport")
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
+      .andExpect(jsonPath("$.data[*].relationships.reporter.data.id", everyItem(is("5"))));
   }
 
   @Test
-  @WithUserDetails(AUTH_MODERATOR)
-  public void moderatorCannotUpdateReportedUsers() throws Exception {
+  public void cannotUpdateReportedUsers() throws Exception {
     final ModerationReport updatedReportedUsersModerationReport = (ModerationReport) new ModerationReport()
       .setReportedUsers(Collections.emptySet())
-      .setId("1");
+      .setId("3");
     mockMvc.perform(
-      patch("/data/moderationReport/1")
-        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
+      patch("/data/moderationReport/3")
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
+        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(updatedReportedUsersModerationReport)))
       .andExpect(status().isForbidden());
   }

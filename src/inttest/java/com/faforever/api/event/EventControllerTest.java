@@ -29,7 +29,7 @@ public class EventControllerTest extends AbstractIntegrationTest {
       patch("/events/update")
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(objectMapper.writeValueAsString(updatedEvents))
-        .with(getOAuthToken(OAuthScope._WRITE_EVENTS)))
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_EVENTS)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(1)))
       .andExpect(jsonPath("$.data[0].attributes.currentCount", Matchers.is(31)))
@@ -43,7 +43,7 @@ public class EventControllerTest extends AbstractIntegrationTest {
       patch("/events/update")
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(objectMapper.writeValueAsString(updatedEvents))
-        .with(getOAuthToken(OAuthScope._WRITE_EVENTS)))
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_EVENTS)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(1)))
       .andExpect(jsonPath("$.data[0].attributes.currentCount", Matchers.is(10)))
@@ -60,7 +60,7 @@ public class EventControllerTest extends AbstractIntegrationTest {
       patch("/events/update")
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(objectMapper.writeValueAsString(updatedEvents))
-        .with(getOAuthToken(OAuthScope._WRITE_EVENTS)))
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_EVENTS)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(2)))
       .andExpect(jsonPath("$.data[*].attributes.currentCount", Matchers.containsInAnyOrder(31, 20)))
@@ -84,7 +84,7 @@ public class EventControllerTest extends AbstractIntegrationTest {
       patch("/events/update")
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(objectMapper.writeValueAsString(updatedEvents))
-        .with(getOAuthToken(OAuthScope._WRITE_EVENTS)))
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_EVENTS)))
       .andExpect(status().isUnprocessableEntity());
   }
 
@@ -95,7 +95,7 @@ public class EventControllerTest extends AbstractIntegrationTest {
       patch("/events/update")
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(objectMapper.writeValueAsString(updatedEvents))
-        .with(getOAuthToken(OAuthScope._WRITE_EVENTS)))
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_EVENTS)))
       .andExpect(status().isUnprocessableEntity());
   }
 
@@ -106,7 +106,7 @@ public class EventControllerTest extends AbstractIntegrationTest {
       patch("/events/update")
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(objectMapper.writeValueAsString(updatedEvents))
-        .with(getOAuthToken(OAuthScope._WRITE_EVENTS)))
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_EVENTS)))
       .andExpect(status().isUnprocessableEntity());
   }
 }

@@ -1,8 +1,9 @@
 package com.faforever.api.data.domain;
 
 
-import com.faforever.api.data.checks.permission.IsModerator;
+import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.listeners.TutorialCategoryEnricherListener;
+import com.faforever.api.security.elide.permission.WriteTutorialCheck;
 import com.github.jasminb.jsonapi.annotations.Type;
 import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Audit.Action;
@@ -31,12 +32,12 @@ import java.util.List;
 @Table(name = "tutorial_category")
 @Setter
 @Include(rootLevel = true, type = TutorialCategory.TYPE_NAME)
-@DeletePermission(expression = IsModerator.EXPRESSION)
-@UpdatePermission(expression = IsModerator.EXPRESSION)
-@CreatePermission(expression = IsModerator.EXPRESSION)
+@DeletePermission(expression = WriteTutorialCheck.EXPRESSION)
+@UpdatePermission(expression = WriteTutorialCheck.EXPRESSION)
+@CreatePermission(expression = WriteTutorialCheck.EXPRESSION)
 @Audit(action = Action.DELETE, logStatement = "Tutorial Category with title `{0}` and ID `{1}` deleted", logExpressions = {"${tutorialCategory.category}", "${tutorialCategory.id}"})
 @Audit(action = Action.CREATE, logStatement = "Tutorial Category with title `{0}` and ID `{1}` created", logExpressions = {"${tutorialCategory.category}", "${tutorialCategory.id}"})
-@ReadPermission(expression = "Prefab.Role.All")
+@ReadPermission(expression = Prefab.ALL)
 @EntityListeners(TutorialCategoryEnricherListener.class)
 @Type(TutorialCategory.TYPE_NAME)
 public class TutorialCategory {

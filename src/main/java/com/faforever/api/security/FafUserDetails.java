@@ -1,11 +1,11 @@
 package com.faforever.api.security;
 
-import com.faforever.api.data.domain.LegacyAccessLevel;
 import com.faforever.api.data.domain.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Getter
 public class FafUserDetails extends org.springframework.security.core.userdetails.User {
@@ -22,17 +22,10 @@ public class FafUserDetails extends org.springframework.security.core.userdetail
   }
 
   public boolean hasPermission(String permission) {
-    Collection<GrantedAuthority> authorities = this.getAuthorities();
+    Collection<String> authorities = this.getAuthorities().stream()
+      .map(GrantedAuthority::getAuthority)
+      .collect(Collectors.toList());
 
-    if (authorities.contains(LegacyAccessLevel.ROLE_ADMINISTRATOR)) {
-      return true;
-    }
-
-    if (authorities.contains(LegacyAccessLevel.ROLE_MODERATOR)) {
-      // We have no admin-only permissions yet
-      return true;
-    }
-
-    return false;
+    return authorities.contains(permission) || authorities.contains(UserRole.ADMINISTRATOR.getAuthority());
   }
 }
