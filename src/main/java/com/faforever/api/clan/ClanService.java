@@ -93,8 +93,9 @@ public class ClanService {
       throw new ApiException(new Error(ErrorCode.CLAN_NOT_LEADER, clanId));
     }
 
-    Player newMember = playerRepository.findById(newMemberId)
-      .orElseThrow(() -> new ApiException(new Error(ErrorCode.CLAN_GENERATE_LINK_PLAYER_NOT_FOUND, newMemberId)));
+    Player newMember = clan.getIsOpen() ? null :
+      playerRepository.findById(newMemberId)
+        .orElseThrow(() -> new ApiException(new Error(ErrorCode.CLAN_GENERATE_LINK_PLAYER_NOT_FOUND, newMemberId)));
 
     long expire = clan.getIsOpen() ? 0 : 
       Instant.now()
