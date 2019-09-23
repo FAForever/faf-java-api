@@ -144,6 +144,7 @@ public class ClanServiceTest {
     assertEquals(creator, clanCaptor.getValue().getFounder());
     assertEquals(1, clanCaptor.getValue().getMemberships().size());
     assertEquals(creator, clanCaptor.getValue().getMemberships().get(0).getPlayer());
+    assertEquals(false, clanCaptor.getValue().getIsOpen());
   }
 
   @Test
@@ -232,7 +233,56 @@ public class ClanServiceTest {
   }
 
   @Test
+  public void generatePlayerOpenInvitationToken() throws IOException {
+    Player requester = new Player();
+    requester.setId(1);
+
+    Clan clan = ClanFactory.builder().leader(requester).build().setIsOpen(false);
+
+    FafApiProperties props = new FafApiProperties();
+
+    when(clanRepository.findById(clan.getId())).thenReturn(Optional.of(clan));
+    when(fafApiProperties.getClan()).thenReturn(props.getClan());
+
+    instance.generatePlayerInvitationToken(requester, clan.getId());
+    
+    // What do i do with this??
+    // Invitation result should be modified to accept null players but i have no IDE here so navigating is a pain
+    /*
+    ArgumentCaptor<InvitationResult> captor = ArgumentCaptor.forClass(InvitationResult.class);
+    verify(jwtService, Mockito.times(1)).sign(captor.capture());
+    assertEquals(captor.getValue().getExpire(), 0);
+    assertEquals(null, captor.getValue().getNewMember());
+    */
+    assertEquals(clan.getId(), getValue().getClan().getId());
+    /*
+    assertEquals(clan.getTag(), captor.getValue().getClan().getTag());
+    assertEquals(clan.getName(), captor.getValue().getClan().getName());
+    */
+  }
+  
+  @Test
   public void acceptPlayerInvitationTokenExpire() throws IOException {
+    String stringToken = "1234";
+    long expire = System.currentTimeMillis();
+    Jwt jwtToken = Mockito.mock(Jwt.class);
+
+    when(jwtToken.getClaims()).thenReturn(
+        String.format("{\"expire\":%s}", expire));
+    when(jwtService.decodeAndVerify(any())).thenReturn(jwtToken);
+
+    try {
+      instance.acceptPlayerInvitationToken(stringToken, null);
+      fail();
+    } catch (ApiException e) {
+      assertThat(e, hasErrorCode(ErrorCode.CLAN_ACCEPT_TOKEN_EXPIRE));
+    }
+    verify(clanMembershipRepository, Mockito.never()).save(any(ClanMembership.class));
+  }
+  
+  @Test
+  public void acceptPlayerOpenInvitationCannotExpire() throws IOException {
+    // Why is the clan passed nowhere here?? How do I make it not expire if the clan is open since no clan is passed as part of the test?
     String stringToken = "1234";
     long expire = System.currentTimeMillis();
     Jwt jwtToken = Mockito.mock(Jwt.class);
