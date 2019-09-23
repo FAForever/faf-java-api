@@ -46,6 +46,7 @@ public class Clan extends AbstractEntity implements OwnableEntity {
   private String description;
   private String tagColor;
   private String websiteUrl;
+  private boolean isOpen; 
   private List<ClanMembership> memberships;
 
   @Column(name = "name")
@@ -106,5 +107,12 @@ public class Clan extends AbstractEntity implements OwnableEntity {
   @Transient
   public Login getEntityOwner() {
     return getLeader();
+  }
+  
+  @Column(name = "isOpen")
+  @NotNull
+  @UpdatePermission(expression = IsEntityOwner.EXPRESSION)
+  public bool getIsOpen() {
+    return isOpen;
   }
 }
