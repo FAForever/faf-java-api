@@ -46,6 +46,9 @@ faf-api:
   mail:
     from-email-name: "integration-test@faforever.com"
     from-email-address: "integration-test@faforever.com"
+  mod:
+    download-url-format: "http://localhost/mod/download-url/%s"
+    preview-url-format: "http://localhost/mod/preview-url/%s"
   password-reset:
     password-reset-url-format: "http://localhost:8010/users/claimPasswordResetToken/%s"
     success-redirect-url: "http://localhost/password_resetted"
