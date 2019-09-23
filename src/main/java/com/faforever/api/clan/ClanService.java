@@ -83,6 +83,12 @@ public class ClanService {
     clanRepository.save(clan);
     return clan;
   }
+  
+  @SneakyThrows
+  String generatePlayerInvitationToken(Player requester, int clanId) {
+    // Playerless invitation
+    return generatePlayerInvitationToken(requester, 0, int clanId);
+  }
 
   @SneakyThrows
   String generatePlayerInvitationToken(Player requester, int newMemberId, int clanId) {
