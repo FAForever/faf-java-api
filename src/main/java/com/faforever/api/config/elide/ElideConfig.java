@@ -5,11 +5,19 @@ import com.faforever.api.data.checks.IsAuthenticated;
 import com.faforever.api.data.checks.IsClanMembershipDeletable;
 import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.IsInAwaitingState;
-import com.faforever.api.data.checks.permission.HasBanRead;
-import com.faforever.api.data.checks.permission.HasBanUpdate;
-import com.faforever.api.data.checks.permission.HasLadder1v1Update;
 import com.faforever.api.data.checks.permission.IsModerator;
 import com.faforever.api.security.ExtendedAuditLogger;
+import com.faforever.api.security.elide.permission.AdminAccountBanCheck;
+import com.faforever.api.security.elide.permission.AdminAccountNoteCheck;
+import com.faforever.api.security.elide.permission.AdminModerationReportCheck;
+import com.faforever.api.security.elide.permission.AdminVoteCheck;
+import com.faforever.api.security.elide.permission.ReadAccountPrivateDetailsCheck;
+import com.faforever.api.security.elide.permission.ReadTeamkillReportCheck;
+import com.faforever.api.security.elide.permission.ReadUserGroupCheck;
+import com.faforever.api.security.elide.permission.WriteAvatarCheck;
+import com.faforever.api.security.elide.permission.WriteEmailDomainBanCheck;
+import com.faforever.api.security.elide.permission.WriteMatchmakerMapCheck;
+import com.faforever.api.security.elide.permission.WriteTutorialCheck;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yahoo.elide.Elide;
 import com.yahoo.elide.ElideSettingsBuilder;
@@ -95,12 +103,21 @@ public class ElideConfig {
     checks.put(IsModerator.EXPRESSION, IsModerator.Inline.class);
     checks.put(IsEntityOwner.EXPRESSION, IsEntityOwner.Inline.class);
     checks.put(IsClanMembershipDeletable.EXPRESSION, IsClanMembershipDeletable.Inline.class);
-    checks.put(HasBanRead.EXPRESSION, HasBanRead.Inline.class);
-    checks.put(HasBanUpdate.EXPRESSION, HasBanUpdate.Inline.class);
-    checks.put(HasLadder1v1Update.EXPRESSION, HasLadder1v1Update.Inline.class);
     checks.put(BooleanChange.TO_FALSE_EXPRESSION, BooleanChange.ToFalse.class);
     checks.put(BooleanChange.TO_TRUE_EXPRESSION, BooleanChange.ToTrue.class);
     checks.put(IsInAwaitingState.EXPRESSION, IsInAwaitingState.Inline.class);
+    checks.put(AdminAccountBanCheck.EXPRESSION, AdminAccountBanCheck.class);
+    checks.put(AdminAccountNoteCheck.EXPRESSION, AdminAccountNoteCheck.class);
+    checks.put(AdminModerationReportCheck.EXPRESSION, AdminModerationReportCheck.class);
+    checks.put(ReadAccountPrivateDetailsCheck.EXPRESSION, ReadAccountPrivateDetailsCheck.class);
+    checks.put(ReadTeamkillReportCheck.EXPRESSION, ReadTeamkillReportCheck.class);
+    checks.put(ReadUserGroupCheck.EXPRESSION, ReadUserGroupCheck.class);
+    checks.put(AdminVoteCheck.EXPRESSION, AdminVoteCheck.class);
+    checks.put(WriteMatchmakerMapCheck.EXPRESSION, WriteMatchmakerMapCheck.class);
+    checks.put(WriteTutorialCheck.EXPRESSION, WriteTutorialCheck.class);
+    checks.put(WriteEmailDomainBanCheck.EXPRESSION, WriteEmailDomainBanCheck.class);
+    checks.put(WriteAvatarCheck.EXPRESSION, WriteAvatarCheck.class);
+
     return new EntityDictionary(checks);
   }
 }

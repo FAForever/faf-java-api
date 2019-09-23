@@ -1,7 +1,11 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsEntityOwner;
+import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.checks.permission.IsModerator;
+import com.faforever.api.security.elide.permission.AdminAccountBanCheck;
+import com.faforever.api.security.elide.permission.AdminAccountNoteCheck;
+import com.faforever.api.security.elide.permission.ReadUserGroupCheck;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
@@ -9,9 +13,9 @@ import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.FetchType;
+import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
@@ -28,7 +32,7 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
   private String userAgent;
   private Set<BanInfo> bans;
   private Set<UserNote> userNotes;
-  private LobbyGroup lobbyGroup;
+  private Set<UserGroup> userGroups;
   private String recentIpAddress;
   private OffsetDateTime lastLogin;
 
@@ -73,13 +77,13 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
 
   @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
   // Permission is managed by BanInfo class
-  @UpdatePermission(expression = IsModerator.EXPRESSION)
+  @UpdatePermission(expression = AdminAccountBanCheck.EXPRESSION)
   public Set<BanInfo> getBans() {
     return this.bans;
   }
 
   @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
-  @UpdatePermission(expression = IsModerator.EXPRESSION)
+  @UpdatePermission(expression = AdminAccountNoteCheck.EXPRESSION)
   public Set<UserNote> getUserNotes() {
     return this.userNotes;
   }
@@ -94,9 +98,11 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
     return getActiveBans().stream().anyMatch(ban -> ban.getLevel() == BanLevel.GLOBAL);
   }
 
-  @OneToOne(mappedBy = "user")
-  public LobbyGroup getLobbyGroup() {
-    return lobbyGroup;
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadUserGroupCheck.EXPRESSION)
+  @UpdatePermission(expression = Prefab.ALL)
+  @ManyToMany(mappedBy = "members")
+  public Set<UserGroup> getUserGroups() {
+    return userGroups;
   }
 
   @Override

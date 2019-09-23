@@ -53,11 +53,17 @@ VALUES
 INSERT INTO login (id, login, email, password, steamid)
 VALUES (1, 'USER', 'user@faforever.com', '92b7b421992ef490f3b75898ec0e511f1a5c02422819d89719b20362b023ee4f', NULL),
   (2, 'MODERATOR', 'moderator@faforever.com', '778ac5b81fa251b450f827846378739caee510c31b01cfa9d31822b88bed8441', 1234),
-  (3, 'ADMIN', 'admin@faforever.com', '835d6dc88b708bc646d6db82c853ef4182fabbd4a8de59c213f2b5ab3ae7d9be', NULL);
+       (3, 'ADMIN', 'admin@faforever.com', '835d6dc88b708bc646d6db82c853ef4182fabbd4a8de59c213f2b5ab3ae7d9be', NULL),
+       (4, 'BANNED', 'banned@faforever.com', '', NULL),
+       (5, 'ACTIVE_USER', 'active-user@faforever.com', '', true);
 
-INSERT INTO lobby_admin (user_id, `group`) VALUES
-  (2, 1),
-  (3, 2);
+INSERT INTO user_group (id, technical_name, name_key, parent_group_id, public)
+VALUES (1, 'ADMINISTRATOR', 'administrator', null, true),
+       (2, 'MODERATOR', 'moderator', null, true);
+
+INSERT INTO user_group_assignment (user_id, group_id)
+VALUES (2, 2),
+       (3, 1);
 
 INSERT INTO name_history (change_time, user_id, previous_name) VALUES
   (NOW(), 2, 'OLD_MODERATOR');

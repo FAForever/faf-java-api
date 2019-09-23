@@ -7,6 +7,7 @@ import com.faforever.commons.api.dto.AbstractEntity;
 import com.faforever.commons.api.dto.Avatar;
 import com.faforever.commons.api.dto.AvatarAssignment;
 import com.faforever.commons.api.dto.BanInfo;
+import com.faforever.commons.api.dto.DomainBlacklist;
 import com.faforever.commons.api.dto.ModerationReport;
 import com.faforever.commons.api.dto.Player;
 import com.faforever.commons.api.dto.Tutorial;
@@ -38,6 +39,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.transaction.Transactional;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.Set;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
@@ -48,6 +51,8 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @Transactional
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultUser.sql")
 public abstract class AbstractIntegrationTest {
+  protected static final String NO_SCOPE = "no_scope";
+  protected static final String NO_AUTHORITIES = "NO_AUTHORITIES";
   protected static final DateTimeFormatter OFFSET_DATE_TIME_FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
   protected final static String AUTH_WEBSITE = "WEBSITE";
@@ -82,12 +87,21 @@ public abstract class AbstractIntegrationTest {
       Tutorial.class,
       Avatar.class,
       AvatarAssignment.class,
-      BanInfo.class
+      BanInfo.class,
+      DomainBlacklist.class
     );
   }
 
-  protected RequestPostProcessor getOAuthToken(String... scope) {
-    return oAuthHelper.addBearerToken(Sets.newSet(scope));
+  protected RequestPostProcessor getOAuthTokenWithoutUser(String... scope) {
+    return oAuthHelper.addBearerToken(Sets.newSet(scope), null);
+  }
+
+  protected RequestPostProcessor getOAuthTokenWithTestUser(String scope, String authority) {
+    return getOAuthTokenWithTestUser(Collections.singleton(scope), Collections.singleton(authority));
+  }
+
+  protected RequestPostProcessor getOAuthTokenWithTestUser(Set<String> scope, Set<String> authorities) {
+    return oAuthHelper.addBearerToken(5, "ACTIVE_USER", scope, authorities);
   }
 
   protected void assertApiError(MvcResult mvcResult, ErrorCode errorCode) throws Exception {
