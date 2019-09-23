@@ -1,5 +1,6 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.listeners.GameEnricher;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
@@ -111,14 +112,14 @@ public class Game {
   }
 
   @OneToMany(mappedBy = "game")
-  @UpdatePermission(expression = "Prefab.Role.All")
+  @UpdatePermission(expression = Prefab.ALL)
   public List<GameReview> getReviews() {
     return reviews;
   }
 
   @OneToOne(fetch = FetchType.LAZY)
   @PrimaryKeyJoinColumn
-  @UpdatePermission(expression = "Prefab.Role.All")
+  @UpdatePermission(expression = Prefab.ALL)
   @BatchSize(size = 1000)
   public GameReviewsSummary getReviewsSummary() {
     return reviewsSummary;

@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsEntityOwner;
+import com.faforever.api.data.checks.Prefab;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 
@@ -36,7 +37,7 @@ public class Review extends AbstractEntity implements OwnableEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
-  @UpdatePermission(expression = "Prefab.Role.All and Prefab.Common.UpdateOnCreate")
+  @UpdatePermission(expression = Prefab.ALL_AND_UPDATE_ON_CREATE)
   public Player getPlayer() {
     return player;
   }

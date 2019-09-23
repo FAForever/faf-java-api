@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsEntityOwner;
+import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.listeners.ClanEnricherListener;
 import com.faforever.api.data.validation.IsLeaderInClan;
 import com.yahoo.elide.annotation.ComputedAttribute;
@@ -10,7 +11,6 @@ import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -22,6 +22,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
@@ -31,7 +32,7 @@ import java.util.List;
 @Include(rootLevel = true, type = Clan.TYPE_NAME)
 @SharePermission
 @DeletePermission(expression = IsEntityOwner.EXPRESSION)
-@CreatePermission(expression = "Prefab.Role.All")
+@CreatePermission(expression = Prefab.ALL)
 @Setter
 @IsLeaderInClan
 @EntityListeners(ClanEnricherListener.class)
@@ -90,7 +91,7 @@ public class Clan extends AbstractEntity implements OwnableEntity {
   // Cascading is needed for Create & Delete
   @OneToMany(mappedBy = "clan", cascade = CascadeType.ALL, orphanRemoval = true)
   // Permission is managed by ClanMembership class
-  @UpdatePermission(expression = "Prefab.Role.All")
+  @UpdatePermission(expression = Prefab.ALL)
   @NotEmpty(message = "At least the leader should be in the clan")
   public List<ClanMembership> getMemberships() {
     return this.memberships;

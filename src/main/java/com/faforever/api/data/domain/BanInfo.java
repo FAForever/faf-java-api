@@ -56,7 +56,7 @@ public class BanInfo extends AbstractEntity {
   }
 
   @ManyToOne
-  @UpdatePermission(expression = "Prefab.Role.None")
+  @UpdatePermission(expression = Prefab.NONE)
   @JoinColumn(name = "author_id")
   @NotNull
   public Player getAuthor() {
@@ -97,7 +97,7 @@ public class BanInfo extends AbstractEntity {
   }
 
   @ManyToOne
-  @UpdatePermission(expression = "Prefab.Role.None")
+  @UpdatePermission(expression = Prefab.NONE)
   @JoinColumn(name = "revoke_author_id")
   public Player getRevokeAuthor() {
     return revokeAuthor;
