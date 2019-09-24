@@ -54,7 +54,7 @@ public class ExeUploaderServiceTest {
   private FeaturedModFile featuredModFile;
 
   @BeforeEach
-  public void setUp() throws IOException {
+  public void setUp() {
     instance = new ExeUploaderService(contentService, apiProperties, featuredModService);
     exeDataInputStream = new ByteArrayInputStream(new byte[]{1, 2, 3, 4});
 
@@ -64,6 +64,10 @@ public class ExeUploaderServiceTest {
     featuredModFile.setFileId((short) 1);
   }
 
+  @AfterEach
+  public void after() {
+    verifyNoMoreInteractions(contentService, apiProperties, deployment, featuredModService);
+  }
 
   @Nested
   class WithTempDir {
@@ -77,11 +81,6 @@ public class ExeUploaderServiceTest {
 
       when(apiProperties.getDeployment()).thenReturn(deployment);
       when(contentService.createTempDir()).thenReturn(temporaryDirectory);
-    }
-
-    @AfterEach
-    public void after() {
-      verifyNoMoreInteractions(contentService, apiProperties, deployment, featuredModService);
     }
 
     @Test
