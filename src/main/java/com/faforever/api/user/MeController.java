@@ -1,37 +1,91 @@
 package com.faforever.api.user;
 
+import com.faforever.api.data.domain.Player;
+import com.faforever.api.data.domain.UserGroup;
+import com.faforever.api.player.PlayerService;
 import com.faforever.api.security.FafUserDetails;
+import com.faforever.api.web.JsonApiSingleResource;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import lombok.Builder;
+import lombok.Value;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Provides the route {@code /me} which returns the currently logged in user's information.
  */
 @RestController
 public class MeController {
+  private final PlayerService playerService;
+
+  public MeController(PlayerService playerService) {
+    this.playerService = playerService;
+  }
 
   @RequestMapping(method = RequestMethod.GET, value = "/me")
-  @ApiOperation(value = "Returns the authentication object of the current user")
-  @ApiResponses(value = {
-    @ApiResponse(code = 200, message = "Success with JSON { id: ?, type: 'player'}"),
-    @ApiResponse(code = 400, message = "Bad Request")})
-  @Secured({"ROLE_USER"})
-  public void me(HttpServletRequest request,
-                 HttpServletResponse response,
-                 @AuthenticationPrincipal FafUserDetails authentication) throws IOException {
-    // TODO: Find a better way to call elide player route
+  @ApiOperation("Returns the authentication object of the current user")
+  @ApiResponse(code = 200, message = "Success with JsonApi compliant MeResult")
+  @Secured("ROLE_USER")
+  public JsonApiSingleResource<MeResult> me(@AuthenticationPrincipal FafUserDetails authentication) {
 
-    response.sendRedirect(String.format("/data/player/%d?%s", authentication.getId(), Objects.toString(request.getQueryString(), "")));
+    Player player = playerService.getById(authentication.getId());
+    Set<String> grantedAuthorities = authentication.getAuthorities().stream()
+      .map(GrantedAuthority::getAuthority)
+      .collect(Collectors.toSet());
+
+    Set<String> groups = player.getUserGroups().stream()
+      .map(UserGroup::getTechnicalName)
+      .collect(Collectors.toSet());
+
+    return MeResult.builder()
+      .userId(player.getId())
+      .userName(player.getLogin())
+      .email(player.getEmail())
+      .clan(player.getClan() == null ? null : Clan.builder()
+        .id(player.getClan().getId())
+        .tag(player.getClan().getTag())
+        .name(player.getClan().getName())
+        .build()
+      )
+      .groups(groups)
+      .permissions(grantedAuthorities)
+      .build()
+      .asJsonApi();
+  }
+
+  @Value
+  @Builder
+  public static class MeResult {
+    Integer userId;
+    String userName;
+    String email;
+    Clan clan;
+    Set<String> groups;
+    Set<String> permissions;
+
+    @SuppressWarnings("unchecked")
+    JsonApiSingleResource<MeResult> asJsonApi() {
+      return JsonApiSingleResource.ofProxy(
+        () -> "me",
+        () -> "me",
+        () -> this
+      );
+    }
+  }
+
+  @Value
+  @Builder
+  public static class Clan {
+    Integer id;
+    String tag;
+    String name;
   }
 }
