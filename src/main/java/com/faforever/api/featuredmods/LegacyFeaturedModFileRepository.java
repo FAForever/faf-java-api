@@ -21,7 +21,10 @@ public class LegacyFeaturedModFileRepository implements Repository<FeaturedModFi
 
   public FeaturedModFile getFile(String modName, Integer version, String fileName) {
     List<FeaturedModFile> files = getFiles(modName, version, fileName);
-    Assert.state(files.size() > 0);
+    Assert.isTrue(
+      files.size() == 1,
+      String.format("Unexpected result size %d for modName: %s, version: %d, filename: %s", files.size(), modName, version, fileName)
+    );
     return files.get(0);
   }
 

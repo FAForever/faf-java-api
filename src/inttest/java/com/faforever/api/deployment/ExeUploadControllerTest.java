@@ -2,7 +2,6 @@ package com.faforever.api.deployment;
 
 import com.faforever.api.AbstractIntegrationTest;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;

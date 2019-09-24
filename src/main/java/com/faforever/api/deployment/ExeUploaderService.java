@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,8 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.hash.Hashing.md5;
-import static com.google.common.io.Files.hash;
-import static java.nio.file.Files.copy;
+import static com.google.common.io.Files.asByteSource;
 import static java.nio.file.Files.createDirectories;
 
 @Service
@@ -56,14 +55,13 @@ public class ExeUploaderService {
       featuredModFile.getName(),
       modName
     );
-    featuredModFile.setMd5(hash(uploadedFile.toFile(), md5()).toString());
+    featuredModFile.setMd5(asByteSource(uploadedFile.toFile()).hash(md5()).toString());
     exeDataInputStream.close();
     List<FeaturedModFile> featuredModFiles = Collections.singletonList(featuredModFile);
     featuredModService.save(modName, (short) featuredModFile.getVersion(), featuredModFiles);
   }
 
-  @SneakyThrows
-  public Path upload(InputStream exeDataInputStream, String fileName, String modName) {
+  private Path upload(InputStream exeDataInputStream, String fileName, String modName) throws IOException {
     Assert.isTrue(exeDataInputStream.available() > 0, "data of 'ForgedAlliance.exe' must not be empty");
 
     Path tempDir = contentService.createTempDir();
