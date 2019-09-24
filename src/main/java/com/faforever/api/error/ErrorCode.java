@@ -97,7 +97,9 @@ public enum ErrorCode {
   MAP_NAME_TOO_SHORT(187, "Map name invalid", "The map name must have at least {0, number} characters, was: {1, number}"),
   MAP_NAME_DOES_NOT_START_WITH_LETTER(188, "Map name invalid", "The map name has to begin with a letter"),
   PARSING_LUA_FILE_FAILED(189, "Parsing lua files failed", "During the parsing of the lua file an error occured: {0}"),
-  NO_RUSH_RADIUS_MISSING(190, "No rush radius missing", "The scenario file must specify a no rush radius");
+  NO_RUSH_RADIUS_MISSING(190, "No rush radius missing", "The scenario file must specify a no rush radius"),
+  INVALID_FEATURED_MOD(191, "Invalid featured mod name", "The featured mod name ''{0}'' is not allowed in this context."),
+  API_KEY_INVALID(192, "Api key is invalid", "The api key is invalid.");
 
   private final int code;
   private final String title;

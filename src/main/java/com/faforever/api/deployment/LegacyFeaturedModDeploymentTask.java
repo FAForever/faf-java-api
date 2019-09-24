@@ -29,18 +29,9 @@ import javax.validation.ValidationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -108,7 +99,10 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     Deployment deployment = apiProperties.getDeployment();
     Path targetFolder = Paths.get(deployment.getFeaturedModsTargetDirectory(), String.format(deployment.getFilesDirectoryFormat(), modName));
     List<StagedFile> files = packageDirectories(repositoryDirectory, version, fileIds, targetFolder);
-    createPatchedExe(version, fileIds, targetFolder).ifPresent(files::add);
+
+    if ("faf".equals(modName)) {
+      createPatchedExe(version, fileIds, targetFolder).ifPresent(files::add);
+    }
 
     if (files.isEmpty()) {
       log.warn("Could not find any files to deploy. Is the configuration correct?");
@@ -161,7 +155,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   }
 
   private short readModVersion(Path modPath) {
-    return (short) Integer.parseInt(new ModReader().readDirectory(modPath).getVersion().toString());
+    return Short.parseShort(new ModReader().readDirectory(modPath).getVersion().toString());
   }
 
   private void verifyVersion(int version, boolean allowOverride, String modName) {

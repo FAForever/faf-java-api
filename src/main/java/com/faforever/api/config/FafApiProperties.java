@@ -157,6 +157,10 @@ public class FafApiProperties {
     private String repositoriesDirectory;
     private String filesDirectoryFormat = "updates_%s_files";
     private String forgedAllianceExePath;
+    private String testingExeUploadKey;
+    private String allowedExeExtension = "exe";
+    private String forgedAllianceBetaExePath;
+    private String forgedAllianceDevelopExePath;
   }
 
   @Data
