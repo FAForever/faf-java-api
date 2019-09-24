@@ -14,8 +14,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
 
 @RestController
 @RequestMapping(path = "/exe")
@@ -30,6 +34,11 @@ public class ExeUploaderController {
   ) {
     this.apiProperties = apiProperties;
     this.exeUploaderService = exeUploaderService;
+  }
+
+  @RequestMapping(path = "/exe_upload", method = RequestMethod.GET, produces = TEXT_HTML_VALUE)
+  public ModelAndView showValidationForm(Map<String, Object> model) {
+    return new ModelAndView("upload_exe_form.html");
   }
 
   @ApiOperation("Upload an exe file and override the existing one for the current version")
