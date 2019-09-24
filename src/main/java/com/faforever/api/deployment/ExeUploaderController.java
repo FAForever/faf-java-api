@@ -32,7 +32,7 @@ public class ExeUploaderController {
     this.exeUploaderService = exeUploaderService;
   }
 
-  @ApiOperation("Upload an exe file")
+  @ApiOperation("Upload an exe file and override the existing one for the current version")
   @ApiResponses(value = {
     @ApiResponse(code = 200, message = "Success"),
     @ApiResponse(code = 401, message = "Unauthorized"),
