@@ -13,7 +13,7 @@
 <div class="card">
   <h1>Upload exe for Beta or Develop</h1>
   <div id="info-block"></div>
-  <form id="upload-form" class="form-group" action="#" method="post" enctype="multipart/form-data">
+  <form id="upload-form" class="form-group" action="#">
     <input th:if="${_csrf != null }" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
     <div>
       <div>
@@ -46,7 +46,7 @@
         data.append("modName", $("#modName").val());
         data.append("apiKey", $("#apiKey").val());
         $.ajax({
-          url: 'http://localhost:8010/exe/upload',
+          url: '/exe/upload',
           type: 'POST',
           data: data,
           contentType: 'multipart/form-data',
