@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class ClanResult {
-  private final int id;
+  private final Integer id;
   private final String tag;
   private final String name;
 
