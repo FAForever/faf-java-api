@@ -17,6 +17,7 @@ import javax.inject.Inject;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -96,5 +97,10 @@ public class ExeUploaderControllerTest {
       .file(file)
       .param("modName", "fafbeta")
     ).andExpect(status().isBadRequest());
+  }
+
+  @Test
+  public void testWeGetHtmlForUpload() throws Exception {
+    this.mvc.perform(get("/exe/upload_form")).andExpect(status().is2xxSuccessful());
   }
 }
