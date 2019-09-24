@@ -2,15 +2,15 @@ package com.faforever.api.deployment;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.TestWebSecurityConfig;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.inject.Inject;
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @WebMvcTest(ExeUploaderController.class)
 @Import(TestWebSecurityConfig.class)
 public class ExeUploaderControllerTest {
@@ -41,7 +41,7 @@ public class ExeUploaderControllerTest {
     this.mvc = mvc;
   }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     when(fafApiProperties.getDeployment()).thenReturn(deployment);
     when(deployment.getAllowedExeExtension()).thenReturn("exe");

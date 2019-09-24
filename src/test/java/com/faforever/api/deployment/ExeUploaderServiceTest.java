@@ -5,20 +5,22 @@ import com.faforever.api.content.ContentService;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.featuredmods.FeaturedModFile;
 import com.faforever.api.featuredmods.FeaturedModService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -26,16 +28,18 @@ import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ExeUploaderServiceTest {
   private ExeUploaderService instance;
 
-  @Rule
-  public final TemporaryFolder temporaryDirectory = new TemporaryFolder();
-  @Rule
-  public final TemporaryFolder finalDirectory = new TemporaryFolder();
+  private Path temporaryDirectory;
+  private Path finalDirectory;
 
   @Mock
   private ContentService contentService;
@@ -47,16 +51,12 @@ public class ExeUploaderServiceTest {
   private FeaturedModService featuredModService;
   private InputStream exeDataInputStream;
 
-
   private FeaturedModFile featuredModFile;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  public void setUp() throws IOException {
     instance = new ExeUploaderService(contentService, apiProperties, featuredModService);
-
-    when(apiProperties.getDeployment()).thenReturn(deployment);
-    exeDataInputStream = new ByteArrayInputStream(new byte[] {1, 2, 3, 4});
-    when(contentService.createTempDir()).thenReturn(temporaryDirectory.getRoot().toPath());
+    exeDataInputStream = new ByteArrayInputStream(new byte[]{1, 2, 3, 4});
 
     featuredModFile = new FeaturedModFile();
     featuredModFile.setName("ForgedAlliance.exe");
@@ -64,55 +64,71 @@ public class ExeUploaderServiceTest {
     featuredModFile.setFileId((short) 1);
   }
 
-  @After
-  public void after() {
-    verifyNoMoreInteractions(contentService, apiProperties, deployment, featuredModService);
-  }
 
-  @Test
-  public void testProcessUploadBeta() {
-    String modName = "fafbeta";
+  @Nested
+  class WithTempDir {
+    @TempDir
+    public Path baseTemporaryDirectory;
 
-    String finalExeDestination = finalDirectory.getRoot().getAbsolutePath() + "/ForgedAlliance.1.exe";
-    when(deployment.getForgedAllianceBetaExePath()).thenReturn(finalExeDestination);
+    @BeforeEach
+    public void setUp() throws IOException {
+      temporaryDirectory = Files.createDirectory(baseTemporaryDirectory.resolve("temp"));
+      finalDirectory = Files.createDirectory(baseTemporaryDirectory.resolve("final"));
 
-    when(featuredModService.getFile(modName, null, "ForgedAlliance.exe")).thenReturn(
-      featuredModFile);
-    instance.processUpload(exeDataInputStream, modName);
+      when(apiProperties.getDeployment()).thenReturn(deployment);
+      when(contentService.createTempDir()).thenReturn(temporaryDirectory);
+    }
 
-    assertTrue(Files.exists(Paths.get(finalExeDestination)));
-    ArgumentCaptor<List<FeaturedModFile>> modFilesCaptor = ArgumentCaptor.forClass(List.class);
-    verify(featuredModService).save(eq(modName), eq((short) featuredModFile.getVersion()), modFilesCaptor.capture());
-    assertThat(modFilesCaptor.getValue().size(), is(1));
-    assertThat(modFilesCaptor.getValue(), hasItem(featuredModFile));
+    @AfterEach
+    public void after() {
+      verifyNoMoreInteractions(contentService, apiProperties, deployment, featuredModService);
+    }
 
-    verify(contentService).createTempDir();
-    verify(apiProperties, atLeastOnce()).getDeployment();
-    verify(deployment).getForgedAllianceBetaExePath();
-    verify(featuredModService).getFile(modName, null, "ForgedAlliance.exe");
-  }
+    @Test
+    public void testProcessUploadBeta() {
+      String modName = "fafbeta";
 
-  @Test
-  public void testProcessUploadDevelop() {
-    String modName = "fafdevelop";
+      String finalExeDestination = finalDirectory.toAbsolutePath() + "/ForgedAlliance.1.exe";
+      when(deployment.getForgedAllianceBetaExePath()).thenReturn(finalExeDestination);
 
-    String finalExeDestination = finalDirectory.getRoot().getAbsolutePath() + "/ForgedAlliance.1.exe";
-    when(deployment.getForgedAllianceDevelopExePath()).thenReturn(finalExeDestination);
+      when(featuredModService.getFile(modName, null, "ForgedAlliance.exe")).thenReturn(
+        featuredModFile);
+      instance.processUpload(exeDataInputStream, modName);
 
-    when(featuredModService.getFile(modName, null, "ForgedAlliance.exe")).thenReturn(
-      featuredModFile);
-    instance.processUpload(exeDataInputStream, modName);
+      assertTrue(Files.exists(Paths.get(finalExeDestination)));
+      ArgumentCaptor<List<FeaturedModFile>> modFilesCaptor = ArgumentCaptor.forClass(List.class);
+      verify(featuredModService).save(eq(modName), eq((short) featuredModFile.getVersion()), modFilesCaptor.capture());
+      assertThat(modFilesCaptor.getValue().size(), is(1));
+      assertThat(modFilesCaptor.getValue(), hasItem(featuredModFile));
 
-    assertTrue(Files.exists(Paths.get(finalExeDestination)));
-    ArgumentCaptor<List<FeaturedModFile>> modFilesCaptor = ArgumentCaptor.forClass(List.class);
-    verify(featuredModService).save(eq(modName), eq((short) featuredModFile.getVersion()), modFilesCaptor.capture());
-    assertThat(modFilesCaptor.getValue().size(), is(1));
-    assertThat(modFilesCaptor.getValue(), hasItem(featuredModFile));
+      verify(contentService).createTempDir();
+      verify(apiProperties, atLeastOnce()).getDeployment();
+      verify(deployment).getForgedAllianceBetaExePath();
+      verify(featuredModService).getFile(modName, null, "ForgedAlliance.exe");
+    }
 
-    verify(contentService).createTempDir();
-    verify(apiProperties, atLeastOnce()).getDeployment();
-    verify(deployment).getForgedAllianceDevelopExePath();
-    verify(featuredModService).getFile(modName, null, "ForgedAlliance.exe");
+    @Test
+    public void testProcessUploadDevelop() {
+      String modName = "fafdevelop";
+
+      String finalExeDestination = finalDirectory.toAbsolutePath() + "/ForgedAlliance.1.exe";
+      when(deployment.getForgedAllianceDevelopExePath()).thenReturn(finalExeDestination);
+
+      when(featuredModService.getFile(modName, null, "ForgedAlliance.exe")).thenReturn(
+        featuredModFile);
+      instance.processUpload(exeDataInputStream, modName);
+
+      assertTrue(Files.exists(Paths.get(finalExeDestination)));
+      ArgumentCaptor<List<FeaturedModFile>> modFilesCaptor = ArgumentCaptor.forClass(List.class);
+      verify(featuredModService).save(eq(modName), eq((short) featuredModFile.getVersion()), modFilesCaptor.capture());
+      assertThat(modFilesCaptor.getValue().size(), is(1));
+      assertThat(modFilesCaptor.getValue(), hasItem(featuredModFile));
+
+      verify(contentService).createTempDir();
+      verify(apiProperties, atLeastOnce()).getDeployment();
+      verify(deployment).getForgedAllianceDevelopExePath();
+      verify(featuredModService).getFile(modName, null, "ForgedAlliance.exe");
+    }
   }
 
   @Test
