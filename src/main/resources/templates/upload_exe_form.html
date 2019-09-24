@@ -34,41 +34,40 @@
 </div>
 
 <script type="text/javascript">
-    $(document).ready(function () {
-      $("#upload-form").submit(function (e) {
-        e.preventDefault();
-        var formData = new FormData($(this)[0]);
-        var data = new FormData();
-        var files = $('#file')[0].files;
-        if (files.length == 1) {
-          data.append("file", files[0], files[0].name);
+  $(document).ready(function () {
+    $("#upload-form").submit(function (e) {
+      e.preventDefault();
+      var data = new FormData();
+      var files = $('#file')[0].files;
+      if (files.length == 1) {
+        data.append("file", files[0], files[0].name);
+      }
+      data.append("modName", $("#modName").val());
+      data.append("apiKey", $("#apiKey").val());
+      $.ajax({
+        url: '/exe/upload',
+        type: 'POST',
+        data: data,
+        contentType: 'multipart/form-data',
+        cache: false,
+        contentType: false,
+        processData: false,
+      }).done(
+        function (msg) {
+          $("#info-block").empty();
+          $("#info-block").append('<div class="alert alert-success"> Ok </div>');
+          $("#upload-form")[0].reset();
         }
-        data.append("modName", $("#modName").val());
-        data.append("apiKey", $("#apiKey").val());
-        $.ajax({
-          url: '/exe/upload',
-          type: 'POST',
-          data: data,
-          contentType: 'multipart/form-data',
-          cache: false,
-          contentType: false,
-          processData: false,
-        }).done(
-          function (msg) {
+      ).fail(
+        function (xhr, status, error) {
+          xhr.responseJSON.errors.forEach(function (nextError) {
             $("#info-block").empty();
-            $("#info-block").append('<div class="alert alert-success"> Ok </div>');
-            $("#upload-form")[0].reset();
-          }
-        ).fail(
-          function (xhr, status, error) {
-            xhr.responseJSON.errors.forEach(function (nextError) {
-              $("#info-block").empty();
-              $("#info-block").append('<div class="alert alert-danger">' + nextError.detail + '</div>');
-            });
-          }
-        );
-      });
+            $("#info-block").append('<div class="alert alert-danger">' + nextError.detail + '</div>');
+          });
+        }
+      );
     });
-  </script>
+  });
+</script>
 </body>
 </html>
