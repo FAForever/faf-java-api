@@ -51,6 +51,7 @@ public class MeController {
       .email(player.getEmail())
       .clan(player.getClan() == null ? null : Clan.builder()
         .id(player.getClan().getId())
+        .membershipId(player.getClanMembership().getId())
         .tag(player.getClan().getTag())
         .name(player.getClan().getName())
         .build()
@@ -85,6 +86,7 @@ public class MeController {
   @Builder
   public static class Clan {
     Integer id;
+    Integer membershipId;
     String tag;
     String name;
   }
