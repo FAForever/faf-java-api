@@ -101,6 +101,6 @@ public class ExeUploaderControllerTest {
 
   @Test
   public void testWeGetHtmlForUpload() throws Exception {
-    this.mvc.perform(get("/exe/upload_form")).andExpect(status().is2xxSuccessful());
+    this.mvc.perform(get("/exe/upload")).andExpect(status().is2xxSuccessful());
   }
 }

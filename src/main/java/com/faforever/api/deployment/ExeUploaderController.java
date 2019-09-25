@@ -36,7 +36,7 @@ public class ExeUploaderController {
     this.exeUploaderService = exeUploaderService;
   }
 
-  @RequestMapping(path = "/upload_form", method = RequestMethod.GET, produces = TEXT_HTML_VALUE)
+  @RequestMapping(path = "/upload", method = RequestMethod.GET, produces = TEXT_HTML_VALUE)
   public ModelAndView showValidationForm(Map<String, Object> model) {
     return new ModelAndView("upload_exe_form.html");
   }
