@@ -28,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.jwt.Jwt;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Optional;
 
 import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
@@ -68,7 +67,7 @@ public class ClanServiceTest {
     String description = "A cool clan for testing";
     Player creator = new Player();
     creator.setId(1);
-    creator.getClanMemberships().add(new ClanMembership());
+    creator.setClanMembership(new ClanMembership());
     try {
       instance.create(clanName, tag, description, creator);
       fail();
@@ -335,8 +334,7 @@ public class ClanServiceTest {
 
     Player newMember = new Player();
     newMember.setId(2);
-    newMember.setClanMemberships(
-      Collections.singleton(new ClanMembership().setClan(clan).setPlayer(newMember)));
+    newMember.setClanMembership(new ClanMembership().setClan(clan).setPlayer(newMember));
 
     long expire = System.currentTimeMillis() + 1000 * 3;
     Jwt jwtToken = Mockito.mock(Jwt.class);

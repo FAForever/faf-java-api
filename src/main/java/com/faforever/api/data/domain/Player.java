@@ -18,7 +18,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -33,7 +32,7 @@ public class Player extends Login {
   public static final String TYPE_NAME = "player";
   private Ladder1v1Rating ladder1v1Rating;
   private GlobalRating globalRating;
-  private Set<ClanMembership> clanMemberships = new HashSet<>();
+  private ClanMembership clanMembership;
   private Set<NameRecord> names;
   private Set<AvatarAssignment> avatarAssignments;
   private Set<ModerationReport> reporterOnModerationReports;
@@ -53,18 +52,14 @@ public class Player extends Login {
 
   // Permission is managed by ClanMembership class
   @UpdatePermission(expression = Prefab.ALL)
-  @OneToMany(mappedBy = "player")
-  @BatchSize(size = 1000)
-  public Set<ClanMembership> getClanMemberships() {
-    return this.clanMemberships;
+  @OneToOne(mappedBy = "player")
+  public ClanMembership getClanMembership() {
+    return this.clanMembership;
   }
 
   @Transient
   public Clan getClan() {
-    return getClanMemberships().stream()
-      .findFirst()
-      .map(ClanMembership::getClan)
-      .orElse(null);
+    return clanMembership == null ? null : clanMembership.getClan();
   }
 
   // Permission is managed by NameRecord class
