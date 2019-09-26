@@ -1,0 +1,73 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Upload exe for Beta or Develop</title>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js" type="text/javascript"></script>
+  <link href="https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz" rel="stylesheet" type="text/css"/>
+  <link href="https://faforever.com/styles/css/site.min.css" rel="stylesheet" type="text/css"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}" type="text/css"/>
+</head>
+<body>
+<div class="background hero"></div>
+<div class="card">
+  <h1>Upload exe for Beta or Develop</h1>
+  <div id="info-block"></div>
+  <form id="upload-form" class="form-group" action="#">
+    <input th:if="${_csrf != null }" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+    <div>
+      <div>
+        <input class="form-control" id="file" name="file" type="file"/>
+      </div>
+      <select  class="form-control" id="modName" name="modName">
+        <option value="fafdevelop">Develop</option>
+        <option value="fafbeta">Beta</option>
+      </select>
+      <div>
+        <input class="form-control" id="apiKey" name="apiKey" placeholder="Api Key" size="80" type="text"/>
+      </div>
+    </div>
+    <div>
+      <input class="btn btn-danger" id="upload" name="upload" type="submit" value="Upload exe" />
+    </div>
+  </form>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    $("#upload-form").submit(function (e) {
+      e.preventDefault();
+      var data = new FormData();
+      var files = $('#file')[0].files;
+      if (files.length == 1) {
+        data.append("file", files[0], files[0].name);
+      }
+      data.append("modName", $("#modName").val());
+      data.append("apiKey", $("#apiKey").val());
+      $.ajax({
+        url: '/exe/upload',
+        type: 'POST',
+        data: data,
+        contentType: 'multipart/form-data',
+        cache: false,
+        contentType: false,
+        processData: false,
+      }).done(
+        function (msg) {
+          $("#info-block").empty();
+          $("#info-block").append('<div class="alert alert-success"> Ok </div>');
+          $("#upload-form")[0].reset();
+        }
+      ).fail(
+        function (xhr, status, error) {
+          xhr.responseJSON.errors.forEach(function (nextError) {
+            $("#info-block").empty();
+            $("#info-block").append('<div class="alert alert-danger">' + nextError.detail + '</div>');
+          });
+        }
+      );
+    });
+  });
+</script>
+</body>
+</html>
