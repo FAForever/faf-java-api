@@ -8,6 +8,7 @@ import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
+import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 
@@ -26,38 +27,49 @@ import java.util.Set;
 @Include(rootLevel = true, type = Player.TYPE_NAME)
 // Needed to change leader of a clan
 @SharePermission
+@Getter
 @Setter
 @Type(Player.TYPE_NAME)
 public class Player extends Login {
-
   public static final String TYPE_NAME = "player";
+
+  @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
+  @BatchSize(size = 1000)
   private Ladder1v1Rating ladder1v1Rating;
+
+  @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
+  @BatchSize(size = 1000)
   private GlobalRating globalRating;
-  private Set<ClanMembership> clanMemberships = new HashSet<>();
-  private Set<NameRecord> names;
-  private Set<AvatarAssignment> avatarAssignments;
-  private Set<ModerationReport> reporterOnModerationReports;
-  private Set<ModerationReport> reportedOnModerationReports;
-
-  @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
-  @BatchSize(size = 1000)
-  public Ladder1v1Rating getLadder1v1Rating() {
-    return ladder1v1Rating;
-  }
-
-  @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
-  @BatchSize(size = 1000)
-  public GlobalRating getGlobalRating() {
-    return globalRating;
-  }
 
   // Permission is managed by ClanMembership class
   @UpdatePermission(expression = Prefab.ALL)
   @OneToMany(mappedBy = "player")
   @BatchSize(size = 1000)
-  public Set<ClanMembership> getClanMemberships() {
-    return this.clanMemberships;
-  }
+  private Set<ClanMembership> clanMemberships = new HashSet<>();
+
+  // Permission is managed by NameRecord class
+  @UpdatePermission(expression = Prefab.ALL)
+  @OneToMany(mappedBy = "player")
+  private Set<NameRecord> names;
+
+  // Permission is managed by AvatarAssignment class
+  @UpdatePermission(expression = Prefab.ALL)
+  @OneToMany(mappedBy = "player")
+  @BatchSize(size = 1000)
+  private Set<AvatarAssignment> avatarAssignments;
+
+  @ReadPermission(expression = IsModerator.EXPRESSION + " OR " + IsEntityOwner.EXPRESSION)
+  // Permission is managed by Moderation reports class
+  @UpdatePermission(expression = Prefab.ALL)
+  @OneToMany(mappedBy = "reporter")
+  @BatchSize(size = 1000)
+  private Set<ModerationReport> reporterOnModerationReports;
+
+  // Permission is managed by Moderation reports class
+  @ReadPermission(expression = IsModerator.EXPRESSION)
+  @UpdatePermission(expression = Prefab.ALL)
+  @ManyToMany(mappedBy = "reportedUsers")
+  private Set<ModerationReport> reportedOnModerationReports;
 
   @Transient
   public Clan getClan() {
@@ -65,38 +77,6 @@ public class Player extends Login {
       .findFirst()
       .map(ClanMembership::getClan)
       .orElse(null);
-  }
-
-  // Permission is managed by NameRecord class
-  @UpdatePermission(expression = Prefab.ALL)
-  @OneToMany(mappedBy = "player")
-  public Set<NameRecord> getNames() {
-    return this.names;
-  }
-
-  // Permission is managed by AvatarAssignment class
-  @UpdatePermission(expression = Prefab.ALL)
-  @OneToMany(mappedBy = "player")
-  @BatchSize(size = 1000)
-  public Set<AvatarAssignment> getAvatarAssignments() {
-    return avatarAssignments;
-  }
-
-  @ReadPermission(expression = IsModerator.EXPRESSION + " OR " + IsEntityOwner.EXPRESSION)
-  // Permission is managed by Moderation reports class
-  @UpdatePermission(expression = Prefab.ALL)
-  @OneToMany(mappedBy = "reporter")
-  @BatchSize(size = 1000)
-  public Set<ModerationReport> getReporterOnModerationReports() {
-    return reporterOnModerationReports;
-  }
-
-  // Permission is managed by Moderation reports class
-  @ReadPermission(expression = IsModerator.EXPRESSION)
-  @UpdatePermission(expression = Prefab.ALL)
-  @ManyToMany(mappedBy = "reportedUsers")
-  public Set<ModerationReport> getReportedOnModerationReports() {
-    return reportedOnModerationReports;
   }
 
   @Override

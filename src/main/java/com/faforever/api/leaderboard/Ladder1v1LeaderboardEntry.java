@@ -1,5 +1,6 @@
 package com.faforever.api.leaderboard;
 
+import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -7,51 +8,31 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+@Getter
 @Setter
 @Entity
 @Table(name = "ladder1v1_rating")
 public class Ladder1v1LeaderboardEntry {
-  private int id;
-  private String playerName;
-  private Float mean;
-  private Float deviation;
-  private short numGames;
-  private short wonGames;
-  private int rank;
 
   @Id
   @Column(name = "id")
-  public int getId() {
-    return id;
-  }
+  private int id;
 
   @Column(name = "login")
-  public String getPlayerName() {
-    return playerName;
-  }
+  private String playerName;
 
   @Column(name = "mean")
-  public Float getMean() {
-    return mean;
-  }
+  private Float mean;
 
   @Column(name = "deviation")
-  public Float getDeviation() {
-    return deviation;
-  }
+  private Float deviation;
 
   @Column(name = "numGames")
-  public short getNumGames() {
-    return numGames;
-  }
+  private short numGames;
 
   @Column(name = "winGames")
-  public short getWonGames() {
-    return wonGames;
-  }
+  private short wonGames;
 
   @Column(name = "rank")
-  public int getRank() {
-    return rank;
-  }
+  private int rank;
 }

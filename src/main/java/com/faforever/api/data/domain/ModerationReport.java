@@ -16,6 +16,7 @@ import com.yahoo.elide.annotation.OnUpdatePreSecurity;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import com.yahoo.elide.core.RequestScope;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -40,6 +41,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "moderation_report")
+@Getter
 @Setter
 @ToString(exclude = {"reportedUsers", "bans"})
 @Include(rootLevel = true, type = ModerationReport.TYPE_NAME)
@@ -50,76 +52,50 @@ import java.util.Set;
 @Audit(action = Action.UPDATE, logStatement = "Moderation report `{0}` has been updated", logExpressions = "${moderationReport}")
 public class ModerationReport extends AbstractEntity implements OwnableEntity {
   public static final String TYPE_NAME = "moderationReport";
-  private ModerationReportStatus reportStatus;
-  private Player reporter;
-  private String reportDescription;
-  private String gameIncidentTimecode;
-  private Game game;
-  private String moderatorNotice;
-  private String moderatorPrivateNote;
-  private Player lastModerator;
-  private Set<Player> reportedUsers;
-  private Collection<BanInfo> bans;
 
   @NotNull
   @Column(name = "report_status")
   @Enumerated(EnumType.STRING)
   @CreatePermission(expression = Prefab.NONE)
   @UpdatePermission(expression = IsModerator.EXPRESSION)
-  public ModerationReportStatus getReportStatus() {
-    return reportStatus;
-  }
+  private ModerationReportStatus reportStatus;
 
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "reporter_id", referencedColumnName = "id")
   @CreatePermission(expression = Prefab.ALL_AND_UPDATE_ON_CREATE)
-  public Player getReporter() {
-    return reporter;
-  }
+  private Player reporter;
 
   @NotNull
   @Column(name = "report_description")
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " and " + IsInAwaitingState.EXPRESSION)
-  public String getReportDescription() {
-    return reportDescription;
-  }
+  private String reportDescription;
 
   @Column(name = "game_incident_timecode")
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " and " + IsInAwaitingState.EXPRESSION)
-  public String getGameIncidentTimecode() {
-    return gameIncidentTimecode;
-  }
+  private String gameIncidentTimecode;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "game_id", referencedColumnName = "id")
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " and " + IsInAwaitingState.EXPRESSION)
-  public Game getGame() {
-    return game;
-  }
+  private Game game;
 
   @Column(name = "moderator_notice")
   @CreatePermission(expression = Prefab.NONE)
   @UpdatePermission(expression = IsModerator.EXPRESSION)
-  public String getModeratorNotice() {
-    return moderatorNotice;
-  }
+  private String moderatorNotice;
 
   @Column(name = "moderator_private_note")
   @ReadPermission(expression = IsModerator.EXPRESSION)
   @CreatePermission(expression = Prefab.NONE)
   @UpdatePermission(expression = IsModerator.EXPRESSION)
-  public String getModeratorPrivateNote() {
-    return moderatorPrivateNote;
-  }
+  private String moderatorPrivateNote;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "last_moderator", referencedColumnName = "id")
   @CreatePermission(expression = Prefab.NONE)
   @UpdatePermission(expression = IsModerator.EXPRESSION)
-  public Player getLastModerator() {
-    return lastModerator;
-  }
+  private Player lastModerator;
 
   @Size(min = 1)
   @NotNull
@@ -133,17 +109,13 @@ public class ModerationReport extends AbstractEntity implements OwnableEntity {
     inverseJoinColumns = @JoinColumn(name = "player_id")
   )
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " and " + IsInAwaitingState.EXPRESSION + " or " + Prefab.UPDATE_ON_CREATE)
-  public Set<Player> getReportedUsers() {
-    return reportedUsers;
-  }
+  private Set<Player> reportedUsers;
 
   @OneToMany(mappedBy = "moderationReport")
   @ReadPermission(expression = IsModerator.EXPRESSION)
   // Permission is managed by BanInfo class
   @UpdatePermission(expression = Prefab.ALL)
-  public Collection<BanInfo> getBans() {
-    return bans;
-  }
+  private Collection<BanInfo> bans;
 
   @Override
   @Transient

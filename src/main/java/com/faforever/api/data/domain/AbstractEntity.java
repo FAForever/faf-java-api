@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -11,29 +12,21 @@ import javax.persistence.MappedSuperclass;
 import java.time.OffsetDateTime;
 
 @MappedSuperclass
+@Getter
 @Setter
 @EqualsAndHashCode(of = "id")
 public abstract class AbstractEntity {
-  protected int id;
-  protected OffsetDateTime createTime;
-  protected OffsetDateTime updateTime;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  public int getId() {
-    return id;
-  }
+  protected int id;
 
   @Column(name = "create_time")
-  public OffsetDateTime getCreateTime() {
-    return createTime;
-  }
+  protected OffsetDateTime createTime;
 
   @Column(name = "update_time")
-  public OffsetDateTime getUpdateTime() {
-    return updateTime;
-  }
+  protected OffsetDateTime updateTime;
 
   /**
    * Supplement method for @EqualsAndHashCode overriding the default lombok implementation

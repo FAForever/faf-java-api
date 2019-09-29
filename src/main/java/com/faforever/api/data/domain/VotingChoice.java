@@ -13,6 +13,7 @@ import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
+import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.CascadeType;
@@ -37,66 +38,42 @@ import java.util.Set;
 @Audit(action = Action.DELETE, logStatement = "Deleted voting choice with id: {0} ", logExpressions = {"${votingChoice.id}"})
 @Audit(action = Action.UPDATE, logStatement = "Updated voting choice with id: {0} ", logExpressions = {"${votingChoice.id}"})
 @Include(rootLevel = true, type = VotingChoice.TYPE_NAME)
+@Getter
 @Setter
 @EntityListeners(VotingChoiceEnricher.class)
 public class VotingChoice extends AbstractEntity {
   public static final String TYPE_NAME = "votingChoice";
 
-  private String choiceTextKey;
-  private String choiceText;
-  private String descriptionKey;
-  private String description;
-  private Integer numberOfAnswers;
-  private Integer ordinal;
-  private VotingQuestion votingQuestion;
-  private Set<VotingAnswer> votingAnswers;
-
   @Column(name = "choice_text_key")
   @NotNull
-  public String getChoiceTextKey() {
-    return choiceTextKey;
-  }
+  private String choiceTextKey;
 
   @ComputedAttribute
   @Transient
-  public String getChoiceText() {
-    return choiceText;
-  }
+  private String choiceText;
 
   @Column(name = "description_key")
-  public String getDescriptionKey() {
-    return descriptionKey;
-  }
+  private String descriptionKey;
 
   @ComputedAttribute
   @Transient
-  public String getDescription() {
-    return description;
-  }
+  private String description;
 
   @Column(name = "ordinal")
   @NotNull
-  public Integer getOrdinal() {
-    return ordinal;
-  }
+  private Integer ordinal;
 
   @Transient
   @ComputedAttribute
-  public Integer getNumberOfAnswers() {
-    return numberOfAnswers;
-  }
+  private Integer numberOfAnswers;
 
   @JsonBackReference
   @JoinColumn(name = "voting_question_id")
   @ManyToOne()
-  public VotingQuestion getVotingQuestion() {
-    return votingQuestion;
-  }
+  private VotingQuestion votingQuestion;
 
   @JsonIgnore
   @Exclude
   @OneToMany(mappedBy = "votingChoice", cascade = CascadeType.ALL, orphanRemoval = true)
-  public Set<VotingAnswer> getVotingAnswers() {
-    return votingAnswers;
-  }
+  private Set<VotingAnswer> votingAnswers;
 }

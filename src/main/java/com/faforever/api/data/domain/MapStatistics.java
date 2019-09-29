@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
+import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Immutable;
 
@@ -13,6 +14,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
+@Getter
 @Setter
 @Table(name = "map_statistics")
 @Include(rootLevel = true, type = MapStatistics.TYPE_NAME)
@@ -20,36 +22,20 @@ import javax.persistence.Table;
 public class MapStatistics {
   public static final String TYPE_NAME = "mapStatistics";
 
-  private int id;
-  private int downloads;
-  private int plays;
-  private int draws;
-  private Map map;
-
   @Id
   @Column(name = "map_id")
-  public int getId() {
-    return id;
-  }
+  private int id;
 
   @Column(name = "downloads")
-  public int getDownloads() {
-    return downloads;
-  }
+  private int downloads;
 
   @Column(name = "plays")
-  public int getPlays() {
-    return plays;
-  }
+  private int plays;
 
   @Column(name = "draws")
-  public int getDraws() {
-    return draws;
-  }
+  private int draws;
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "map_id", insertable = false, updatable = false)
-  public Map getMap() {
-    return map;
-  }
+  private Map map;
 }

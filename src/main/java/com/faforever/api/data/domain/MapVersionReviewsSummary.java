@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
+import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
@@ -14,54 +15,34 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
+@Getter
 @Setter
 @Table(name = "map_version_reviews_summary")
 @Include(type = "mapVersionReviewsSummary")
 @Immutable
 public class MapVersionReviewsSummary {
-  private int id;
-  private float positive;
-  private float negative;
-  private float score;
-  private int reviews;
-  private float lowerBound;
-  private MapVersion mapVersion;
 
   @Id
   @Column(name = "map_version_id")
-  public int getId() {
-    return id;
-  }
+  private int id;
 
   @Column(name = "positive")
-  public float getPositive() {
-    return positive;
-  }
+  private float positive;
 
   @Column(name = "negative")
-  public float getNegative() {
-    return negative;
-  }
+  private float negative;
 
   @Column(name = "score")
-  public float getScore() {
-    return score;
-  }
+  private float score;
 
   @Column(name = "reviews")
-  public int getReviews() {
-    return reviews;
-  }
+  private int reviews;
 
   @Column(name = "lower_bound")
-  public float getLowerBound() {
-    return lowerBound;
-  }
+  private float lowerBound;
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "map_version_id", insertable = false, updatable = false)
   @BatchSize(size = 1000)
-  public MapVersion getMapVersion() {
-    return mapVersion;
-  }
+  private MapVersion mapVersion;
 }

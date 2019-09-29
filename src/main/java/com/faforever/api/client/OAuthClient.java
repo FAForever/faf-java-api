@@ -1,5 +1,7 @@
 package com.faforever.api.client;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.util.Assert;
@@ -12,70 +14,47 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-
 @Entity
 @Table(name = "oauth_clients")
+@Getter
 @Setter
 public class OAuthClient {
 
-  private String id;
-  private String name;
-  private String clientSecret;
-  private ClientType clientType;
-  private String redirectUris;
-  private String defaultRedirectUri;
-  private String defaultScope;
-  private String iconUrl;
-  private Boolean autoApproveScopes;
-
   @Id
   @Column(name = "id")
-  public String getId() {
-    return id;
-  }
+  private String id;
 
   @NotNull
   @Column(name = "name")
-  public String getName() {
-    return name;
-  }
+  private String name;
 
   @NotNull
   @Column(name = "client_secret")
-  public String getClientSecret() {
-    return clientSecret;
-  }
+  private String clientSecret;
 
   @NotNull
   @Column(name = "client_type")
-  public ClientType getClientType() {
-    return clientType;
-  }
+  private ClientType clientType;
 
   @NotNull
   @Column(name = "redirect_uris")
-  public String getRedirectUris() {
-    return redirectUris;
-  }
+  private String redirectUris;
 
   @NotNull
   @Column(name = "default_redirect_uri")
-  public String getDefaultRedirectUri() {
-    return defaultRedirectUri;
-  }
+  private String defaultRedirectUri;
 
   @NotNull
   @Column(name = "default_scope")
-  public String getDefaultScope() {
-    return defaultScope;
-  }
+  private String defaultScope;
 
   @Column(name = "icon_url")
-  public String getIconUrl() {
-    return iconUrl;
-  }
+  private String iconUrl;
 
+  @Getter(AccessLevel.NONE) // for type Boolean Lombok generates get* method, not is*
   @Column(name = "auto_approve_scopes")
+  private Boolean autoApproveScopes;
+
   @Nullable
   public Boolean isAutoApproveScopes() {
     return autoApproveScopes;

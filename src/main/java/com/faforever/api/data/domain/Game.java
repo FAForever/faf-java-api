@@ -4,6 +4,7 @@ import com.faforever.api.data.listeners.GameEnricher;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
+import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
@@ -30,97 +31,58 @@ import java.util.List;
 @Table(name = "game_stats")
 @Include(rootLevel = true, type = "game")
 @Immutable
+@Getter
 @Setter
 @EntityListeners(GameEnricher.class)
 public class Game {
 
-  private int id;
-  private OffsetDateTime startTime;
-  private OffsetDateTime endTime;
-  private VictoryCondition victoryCondition;
-  private FeaturedMod featuredMod;
-  private Player host;
-  private MapVersion mapVersion;
-  private String name;
-  private Validity validity;
-  private List<GamePlayerStats> playerStats;
-  private String replayUrl;
-  private List<GameReview> reviews;
-  private GameReviewsSummary reviewsSummary;
-
   @Id
   @Column(name = "id")
-  public int getId() {
-    return id;
-  }
+  private int id;
 
   @Column(name = "startTime")
-  public OffsetDateTime getStartTime() {
-    return startTime;
-  }
-
-  @Column(name = "gameType")
-  public VictoryCondition getVictoryCondition() {
-    return victoryCondition;
-  }
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "gameMod")
-  public FeaturedMod getFeaturedMod() {
-    return featuredMod;
-  }
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "host")
-  public Player getHost() {
-    return host;
-  }
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "mapId")
-  public MapVersion getMapVersion() {
-    return mapVersion;
-  }
-
-  @Column(name = "gameName")
-  public String getName() {
-    return name;
-  }
-
-  @Column(name = "validity")
-  @Enumerated(EnumType.ORDINAL)
-  public Validity getValidity() {
-    return validity;
-  }
-
-  @OneToMany(mappedBy = "game")
-  public List<GamePlayerStats> getPlayerStats() {
-    return playerStats;
-  }
+  private OffsetDateTime startTime;
 
   @Column(name = "endTime")
   @Nullable
-  public OffsetDateTime getEndTime() {
-    return endTime;
-  }
+  private OffsetDateTime endTime;
+
+  @Column(name = "gameType")
+  private VictoryCondition victoryCondition;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "gameMod")
+  private FeaturedMod featuredMod;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "host")
+  private Player host;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "mapId")
+  private MapVersion mapVersion;
+
+  @Column(name = "gameName")
+  private String name;
+
+  @Column(name = "validity")
+  @Enumerated(EnumType.ORDINAL)
+  private Validity validity;
+
+  @OneToMany(mappedBy = "game")
+  private List<GamePlayerStats> playerStats;
 
   @Transient
   @ComputedAttribute
-  public String getReplayUrl() {
-    return replayUrl;
-  }
+  private String replayUrl;
 
   @OneToMany(mappedBy = "game")
   @UpdatePermission(expression = "Prefab.Role.All")
-  public List<GameReview> getReviews() {
-    return reviews;
-  }
+  private List<GameReview> reviews;
 
   @OneToOne(fetch = FetchType.LAZY)
   @PrimaryKeyJoinColumn
   @UpdatePermission(expression = "Prefab.Role.All")
   @BatchSize(size = 1000)
-  public GameReviewsSummary getReviewsSummary() {
-    return reviewsSummary;
-  }
+  private GameReviewsSummary reviewsSummary;
 }

@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
+import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Immutable;
 
@@ -17,94 +18,52 @@ import java.time.OffsetDateTime;
 @Table(name = "game_player_stats")
 @Include(rootLevel = true, type = "gamePlayerStats")
 @Immutable
+@Getter
 @Setter
 public class GamePlayerStats {
 
-  private long id;
-  private Player player;
-  private boolean ai;
-  private Faction faction;
-  private byte color;
-  private byte team;
-  private byte startSpot;
-  private Double beforeMean;
-  private Double beforeDeviation;
-  private Double afterMean;
-  private Double afterDeviation;
-  private Byte score;
-  private OffsetDateTime scoreTime;
-  private Game game;
-
   @Id
   @Column(name = "id")
-  public long getId() {
-    return id;
-  }
+  private long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "playerId")
-  public Player getPlayer() {
-    return player;
-  }
+  private Player player;
 
   @Column(name = "AI")
-  public boolean getAi() {
-    return ai;
-  }
+  private boolean ai;
 
   @Column(name = "faction")
-  public Faction getFaction() {
-    return faction;
-  }
+  private Faction faction;
 
   @Column(name = "color")
-  public byte getColor() {
-    return color;
-  }
+  private byte color;
 
   @Column(name = "team")
-  public byte getTeam() {
-    return team;
-  }
+  private byte team;
 
   @Column(name = "place")
-  public byte getStartSpot() {
-    return startSpot;
-  }
+  private byte startSpot;
 
   @Column(name = "mean")
-  public Double getBeforeMean() {
-    return beforeMean;
-  }
+  private Double beforeMean;
 
   @Column(name = "deviation")
-  public Double getBeforeDeviation() {
-    return beforeDeviation;
-  }
+  private Double beforeDeviation;
 
   @Column(name = "after_mean")
-  public Double getAfterMean() {
-    return afterMean;
-  }
+  private Double afterMean;
 
   @Column(name = "after_deviation")
-  public Double getAfterDeviation() {
-    return afterDeviation;
-  }
+  private Double afterDeviation;
 
   @Column(name = "score")
-  public Byte getScore() {
-    return score;
-  }
+  private Byte score;
 
   @Column(name = "scoreTime")
-  public OffsetDateTime getScoreTime() {
-    return scoreTime;
-  }
+  private OffsetDateTime scoreTime;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "gameId")
-  public Game getGame() {
-    return game;
-  }
+  private Game game;
 }

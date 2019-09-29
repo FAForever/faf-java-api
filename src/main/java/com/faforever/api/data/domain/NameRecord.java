@@ -3,6 +3,7 @@ package com.faforever.api.data.domain;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
+import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -20,34 +21,23 @@ import java.time.OffsetDateTime;
 @Include(rootLevel = true, type = "nameRecord")
 @DeletePermission(expression = "Prefab.Role.None")
 @UpdatePermission(expression = "Prefab.Role.None")
+@Getter
 @Setter
 public class NameRecord {
-  private int id;
-  private OffsetDateTime changeTime;
-  private Player player;
-  private String name;
 
   @Id
   @Column(name = "id")
-  public int getId() {
-    return id;
-  }
+  private int id;
 
   @Column(name = "change_time")
-  public OffsetDateTime getChangeTime() {
-    return changeTime;
-  }
+  private OffsetDateTime changeTime;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   @NotNull
-  public Player getPlayer() {
-    return player;
-  }
+  private Player player;
 
   @Column(name = "previous_name")
   @NotNull
-  public String getName() {
-    return name;
-  }
+  private String name;
 }

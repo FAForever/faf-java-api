@@ -12,6 +12,7 @@ import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
+import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.CascadeType;
@@ -29,6 +30,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "tutorial_category")
+@Getter
 @Setter
 @Include(rootLevel = true, type = TutorialCategory.TYPE_NAME)
 @DeletePermission(expression = IsModerator.EXPRESSION)
@@ -42,32 +44,19 @@ import java.util.List;
 public class TutorialCategory {
   public static final String TYPE_NAME = "tutorialCategory";
 
-  private int id;
-  private String categoryKey;
-  private String category;
-  private List<Tutorial> tutorials;
-
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Id
   @Column(name = "id")
-  public int getId() {
-    return id;
-  }
+  private int id;
 
   @Column(name = "category_key")
   @NotNull
-  public String getCategoryKey() {
-    return categoryKey;
-  }
+  private String categoryKey;
 
   @Transient
   @ComputedAttribute
-  public String getCategory() {
-    return category;
-  }
+  private String category;
 
   @OneToMany(mappedBy = "category", cascade = CascadeType.REMOVE)
-  public List<Tutorial> getTutorials() {
-    return tutorials;
-  }
+  private List<Tutorial> tutorials;
 }

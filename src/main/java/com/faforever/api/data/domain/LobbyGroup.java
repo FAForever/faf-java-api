@@ -2,6 +2,7 @@ package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -17,30 +18,22 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "lobby_admin")
+@Getter
 @Setter
 @Deprecated
 @NoArgsConstructor
 @AllArgsConstructor
 @Include(type = "lobbyGroup")
 public class LobbyGroup {
-  private int userId;
-  private LegacyAccessLevel accessLevel;
-  private User user;
-
-  @Column(name = "\"group\"")
-  public LegacyAccessLevel getAccessLevel() {
-    return accessLevel;
-  }
 
   @Id
   @Column(name = "user_id")
-  public int getUserId() {
-    return userId;
-  }
+  private int userId;
+
+  @Column(name = "\"group\"")
+  private LegacyAccessLevel accessLevel;
 
   @OneToOne
   @JoinColumn(name = "user_id", insertable = false, updatable = false)
-  public User getUser() {
-    return user;
-  }
+  private User user;
 }

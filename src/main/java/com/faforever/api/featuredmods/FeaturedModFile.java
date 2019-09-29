@@ -1,6 +1,7 @@
 package com.faforever.api.featuredmods;
 
 import com.yahoo.elide.annotation.Exclude;
+import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Immutable;
 
@@ -10,6 +11,7 @@ import javax.persistence.EntityListeners;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 
+@Getter
 @Setter
 @Immutable
 @Entity
@@ -18,73 +20,37 @@ import javax.persistence.Transient;
 // a native query instead. This is why the columns here can't be found in any table.
 public class FeaturedModFile {
 
-  private int id;
-  private String group;
-  private String md5;
-  private String name;
-  private String originalFileName;
-  private int version;
-  // Enriched in FeaturedModFileEnricher
-  private String url;
-  private String folderName;
-  private short fileId;
-
   @Id
   @Column(name = "id")
-  public int getId() {
-    return id;
-  }
+  private int id;
 
   @Column(name = "\"group\"")
-  public String getGroup() {
-    return group;
-  }
+  private String group;
 
   @Column(name = "md5")
-  public String getMd5() {
-    return md5;
-  }
+  private String md5;
 
-  /**
-   * Name of the file on the client's file system.
-   */
+  // Name of the file on the client's file system.
   @Column(name = "name")
-  public String getName() {
-    return name;
-  }
+  private String name;
 
-
-  /**
-   * Name of the file on the server's file system.
-   */
+  // Name of the file on the server's file system.
   @Column(name = "fileName")
   @Exclude
-  public String getOriginalFileName() {
-    return originalFileName;
-  }
+  private String originalFileName;
 
   @Column(name = "version")
-  public int getVersion() {
-    return version;
-  }
+  private int version;
 
   @Column(name = "fileId")
-  public short getFileId() {
-    return fileId;
-  }
+  private short fileId;
 
   @Transient
   // Enriched by FeaturedModFileEnricher
-  public String getUrl() {
-    return url;
-  }
+  private String url;
 
-  /**
-   * Returns the name of the folder on the server in which the file resides (e.g. {@code updates_faf_files}). Used by
-   * the {@link FeaturedModFileEnricher}.
-   */
+  // Name of the folder on the server in which the file resides (e.g. {@code updates_faf_files}).
+  // Used by the FeaturedModFileEnricher
   @Column(name = "folderName")
-  public String getFolderName() {
-    return folderName;
-  }
+  private String folderName;
 }

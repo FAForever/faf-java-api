@@ -4,6 +4,7 @@ import com.faforever.api.data.listeners.AchievementLocalizationListener;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
+import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -24,132 +25,74 @@ import java.time.OffsetDateTime;
 @SecondaryTable(name = "achievement_statistics", pkJoinColumns = @PrimaryKeyJoinColumn(name = "achievement_id", referencedColumnName = "id"))
 @Include(rootLevel = true, type = Achievement.TYPE_NAME)
 @EntityListeners(AchievementLocalizationListener.class)
+@Getter
 @Setter
 public class Achievement {
 
   public static final String TYPE_NAME = "achievement";
 
-  private String id;
-  private int order;
-  private String nameKey;
-  private String descriptionKey;
-  private AchievementType type;
-  private Integer totalSteps;
-  private String revealedIconUrl;
-  private String unlockedIconUrl;
-  private AchievementState initialState;
-  private int experiencePoints;
-  private OffsetDateTime createTime;
-  private OffsetDateTime updateTime;
-  private long unlockersCount;
-  private BigDecimal unlockersPercent;
-  private Long unlockersMinDuration;
-  private Long unlockersAvgDuration;
-  private Long unlockersMaxDuration;
-
-  // Set by AchievementLocalizationListener
-  private String name;
-  private String description;
-
   @Id
   @Column(name = "id")
-  public String getId() {
-    return id;
-  }
+  private String id;
 
   @Column(name = "\"order\"")
-  public int getOrder() {
-    return order;
-  }
+  private int order;
 
   @Column(name = "name_key")
   @Exclude
-  public String getNameKey() {
-    return nameKey;
-  }
-
-  @Transient
-  @ComputedAttribute
-  public String getName() {
-    return name;
-  }
+  private String nameKey;
 
   @Column(name = "description_key")
   @Exclude
-  public String getDescriptionKey() {
-    return descriptionKey;
-  }
-
-  @Transient
-  @ComputedAttribute
-  public String getDescription() {
-    return description;
-  }
+  private String descriptionKey;
 
   @Column(name = "type")
   @Enumerated(EnumType.STRING)
-  public AchievementType getType() {
-    return type;
-  }
+  private AchievementType type;
 
   @Column(name = "total_steps")
-  public Integer getTotalSteps() {
-    return totalSteps;
-  }
+  private Integer totalSteps;
 
   @Column(name = "revealed_icon_url")
-  public String getRevealedIconUrl() {
-    return revealedIconUrl;
-  }
+  private String revealedIconUrl;
 
   @Column(name = "unlocked_icon_url")
-  public String getUnlockedIconUrl() {
-    return unlockedIconUrl;
-  }
+  private String unlockedIconUrl;
 
   @Column(name = "initial_state")
   @Enumerated(value = EnumType.STRING)
-  public AchievementState getInitialState() {
-    return initialState;
-  }
+  private AchievementState initialState;
 
   @Column(name = "experience_points")
-  public int getExperiencePoints() {
-    return experiencePoints;
-  }
+  private int experiencePoints;
 
   @Column(name = "create_time")
-  public OffsetDateTime getCreateTime() {
-    return createTime;
-  }
+  private OffsetDateTime createTime;
 
   @Column(name = "update_time")
-  public OffsetDateTime getUpdateTime() {
-    return updateTime;
-  }
+  private OffsetDateTime updateTime;
 
   @Column(name = "unlockers_count", table = "achievement_statistics")
-  public long getUnlockersCount() {
-    return unlockersCount;
-  }
+  private long unlockersCount;
 
   @Column(name = "unlockers_percent", table = "achievement_statistics")
-  public BigDecimal getUnlockersPercent() {
-    return unlockersPercent;
-  }
+  private BigDecimal unlockersPercent;
 
   @Column(name = "unlockers_min_duration", table = "achievement_statistics")
-  public Long getUnlockersMinDuration() {
-    return unlockersMinDuration;
-  }
+  private Long unlockersMinDuration;
 
   @Column(name = "unlockers_avg_duration", table = "achievement_statistics")
-  public Long getUnlockersAvgDuration() {
-    return unlockersAvgDuration;
-  }
+  private Long unlockersAvgDuration;
 
   @Column(name = "unlockers_max_duration", table = "achievement_statistics")
-  public Long getUnlockersMaxDuration() {
-    return unlockersMaxDuration;
-  }
+  private Long unlockersMaxDuration;
+
+  // Set by AchievementLocalizationListener
+  @Transient
+  @ComputedAttribute
+  private String name;
+
+  @Transient
+  @ComputedAttribute
+  private String description;
 }

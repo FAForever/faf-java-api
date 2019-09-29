@@ -5,6 +5,7 @@ import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.CascadeType;
@@ -23,30 +24,21 @@ import java.util.Set;
 @ReadPermission(expression = IsEntityOwner.EXPRESSION)
 @UpdatePermission(expression = "Prefab.Role.None")
 @EqualsAndHashCode(of = {"player", "votingSubject"}, callSuper = false)
+@Getter
 @Setter
 public class Vote extends AbstractEntity implements OwnableEntity {
   public static final String TYPE_NAME = "vote";
 
-  private Player player;
-  private VotingSubject votingSubject;
-  private Set<VotingAnswer> votingAnswers;
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "player_id")
-  public Player getPlayer() {
-    return player;
-  }
+  private Player player;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "voting_subject_id")
-  public VotingSubject getVotingSubject() {
-    return votingSubject;
-  }
+  private VotingSubject votingSubject;
 
   @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, orphanRemoval = true)
-  public Set<VotingAnswer> getVotingAnswers() {
-    return votingAnswers;
-  }
+  private Set<VotingAnswer> votingAnswers;
 
   @Transient
   @Override

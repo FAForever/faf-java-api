@@ -1,13 +1,13 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
+import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -20,6 +20,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.OffsetDateTime;
@@ -29,75 +30,47 @@ import java.util.List;
 @Table(name = "\"mod\"")
 @Include(rootLevel = true, type = Mod.TYPE_NAME)
 @Immutable
+@Getter
 @Setter
 public class Mod {
 
   public static final String TYPE_NAME = "mod";
 
-  private Integer id;
-  private String displayName;
-  private String author;
-  private OffsetDateTime createTime;
-  private OffsetDateTime updateTime;
-  private List<ModVersion> versions;
-  private ModVersion latestVersion;
-  private Player uploader;
-  private int numberOfReviews;
-  private float averageReviewScore;
-
   @Id
   @Column(name = "id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  public Integer getId() {
-    return id;
-  }
+  private Integer id;
 
   @Column(name = "display_name")
   @Size(max = 100)
   @NotNull
-  public String getDisplayName() {
-    return displayName;
-  }
+  private String displayName;
 
   @Column(name = "author")
   @Size(max = 100)
   @NotNull
-  public String getAuthor() {
-    return author;
-  }
+  private String author;
 
   @Column(name = "reviews")
-  public int getNumberOfReviews() {
-    return numberOfReviews;
-  }
+  private int numberOfReviews;
 
   @Column(name = "average_review_score")
-  public float getAverageReviewScore() {
-    return averageReviewScore;
-  }
+  private float averageReviewScore;
 
   @ManyToOne
   @JoinColumn(name = "uploader")
-  public Player getUploader() {
-    return uploader;
-  }
+  private Player uploader;
 
   @Column(name = "create_time")
-  public OffsetDateTime getCreateTime() {
-    return createTime;
-  }
+  private OffsetDateTime createTime;
 
   @Formula(value = "(SELECT MAX(mod_version.update_time) FROM mod_version WHERE mod_version.mod_id = id)")
-  public OffsetDateTime getUpdateTime() {
-    return updateTime;
-  }
+  private OffsetDateTime updateTime;
 
   @OneToMany(mappedBy = "mod", cascade = CascadeType.ALL, orphanRemoval = true)
   @NotEmpty
   @Valid
-  public List<ModVersion> getVersions() {
-    return versions;
-  }
+  private List<ModVersion> versions;
 
   @ManyToOne
   @JoinColumnsOrFormulas({
@@ -107,7 +80,5 @@ public class Mod {
         referencedColumnName = "id")
     )
   })
-  public ModVersion getLatestVersion() {
-    return latestVersion;
-  }
+  private ModVersion latestVersion;
 }

@@ -9,6 +9,7 @@ import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
+import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 
@@ -26,6 +27,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
+@Getter
 @Setter
 @EntityListeners(MapVersionEnricher.class)
 @Table(name = "map_version")
@@ -34,122 +36,71 @@ public class MapVersion extends AbstractEntity implements OwnableEntity {
 
   public static final String TYPE_NAME = "mapVersion";
 
-  private String description;
-  private int maxPlayers;
-  private int width;
-  private int height;
-  private int version;
-  private String filename;
-  private String folderName;
-  private boolean ranked;
-  private boolean hidden;
-  private Map map;
-  private MapVersionStatistics statistics;
-  private String thumbnailUrlSmall;
-  private String thumbnailUrlLarge;
-  private String downloadUrl;
-  private List<MapVersionReview> reviews;
-  private MapVersionReviewsSummary reviewsSummary;
-  private Ladder1v1Map ladder1v1Map;
-
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " or " + IsModerator.EXPRESSION)
   @Column(name = "description")
-  public String getDescription() {
-    return description;
-  }
+  private String description;
 
   @Column(name = "max_players")
-  @NotNull
-  public int getMaxPlayers() {
-    return maxPlayers;
-  }
+  private int maxPlayers;
 
   @Column(name = "width")
   // FIXME: validation
-  public int getWidth() {
-    return width;
-  }
+  private int width;
 
   @Column(name = "height")
   // FIXME: validation
-  public int getHeight() {
-    return height;
-  }
+  private int height;
 
   @Column(name = "version")
   // FIXME: validation
-  public int getVersion() {
-    return version;
-  }
+  private int version;
 
   @Column(name = "filename")
   @NotNull
-  public String getFilename() {
-    return filename;
-  }
+  private String filename;
 
   @UpdatePermission(expression = IsModerator.EXPRESSION + " or (" + IsEntityOwner.EXPRESSION + " and " + BooleanChange.TO_FALSE_EXPRESSION + ")")
   @Audit(action = Action.UPDATE, logStatement = "Updated map version `{0}` attribute ranked to: {1}", logExpressions = {"${mapVersion.id}", "${mapVersion.ranked}"})
   @Column(name = "ranked")
-  public boolean isRanked() {
-    return ranked;
-  }
+  private boolean ranked;
 
   @UpdatePermission(expression = IsModerator.EXPRESSION + " or (" + IsEntityOwner.EXPRESSION + " and " + BooleanChange.TO_TRUE_EXPRESSION + ")")
   @Audit(action = Action.UPDATE, logStatement = "Updated map version `{0}` attribute hidden to: {1}", logExpressions = {"${mapVersion.id}", "${mapVersion.hidden}"})
   @Column(name = "hidden")
-  public boolean isHidden() {
-    return hidden;
-  }
+  private boolean hidden;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "map_id")
   @NotNull
   @BatchSize(size = 1000)
-  public Map getMap() {
-    return this.map;
-  }
+  private Map map;
 
   @OneToOne(mappedBy = "mapVersion", fetch = FetchType.EAGER)
-  public MapVersionStatistics getStatistics() {
-    return statistics;
-  }
+  private MapVersionStatistics statistics;
 
   @Transient
   @ComputedAttribute
-  public String getThumbnailUrlSmall() {
-    return thumbnailUrlSmall;
-  }
+  private String thumbnailUrlSmall;
 
   @Transient
   @ComputedAttribute
-  public String getThumbnailUrlLarge() {
-    return thumbnailUrlLarge;
-  }
+  private String thumbnailUrlLarge;
 
   @Transient
   @ComputedAttribute
-  public String getDownloadUrl() {
-    return downloadUrl;
-  }
+  private String downloadUrl;
 
   @Transient
   @ComputedAttribute
-  public String getFolderName() {
-    return folderName;
-  }
+  private String folderName;
 
   @OneToMany(mappedBy = "mapVersion")
   @UpdatePermission(expression = "Prefab.Role.All")
-  public List<MapVersionReview> getReviews() {
-    return reviews;
-  }
+  private List<MapVersionReview> reviews;
 
   @OneToOne(mappedBy = "mapVersion")
   @UpdatePermission(expression = "Prefab.Role.All")
-  public MapVersionReviewsSummary getReviewsSummary() {
-    return reviewsSummary;
-  }
+  private MapVersionReviewsSummary reviewsSummary;
 
   @Transient
   @Override

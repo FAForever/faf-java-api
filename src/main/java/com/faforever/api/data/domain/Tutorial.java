@@ -11,6 +11,7 @@ import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
+import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,6 +26,7 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "tutorial")
+@Getter
 @Setter
 @Include(rootLevel = true, type = Tutorial.TYPE_NAME)
 @DeletePermission(expression = IsModerator.EXPRESSION)
@@ -37,83 +39,50 @@ import javax.validation.constraints.NotNull;
 @Type(Tutorial.TYPE_NAME)
 public class Tutorial extends AbstractEntity {
   public static final String TYPE_NAME = "tutorial";
-  private String descriptionKey;
+
+  @Transient
+  @ComputedAttribute
   private String description;
-  private String titleKey;
+
+  @Transient
+  @ComputedAttribute
   private String title;
-  private TutorialCategory category;
-  private String image;
-  private String imageUrl;
-  private Integer ordinal;
-  private Boolean launchable;
-  private MapVersion mapVersion;
-  private String technicalName;
-
-  @Transient
-  @ComputedAttribute
-  public String getDescription() {
-    return description;
-  }
-
-  @Transient
-  @ComputedAttribute
-  public String getTitle() {
-    return title;
-  }
 
   @ManyToOne()
   @JoinColumn(name = "category")
   @Nullable
-  public TutorialCategory getCategory() {
-    return category;
-  }
+  private TutorialCategory category;
 
   @NotNull
   @Column(name = "ordinal")
-  public Integer getOrdinal() {
-    return ordinal;
-  }
+  private Integer ordinal;
 
   @NotNull
   @Column(name = "launchable")
-  public Boolean getLaunchable() {
-    return launchable;
-  }
+  private Boolean launchable;
 
   @ManyToOne
   @Nullable
   @JoinColumn(name = "map_version_id")
-  public MapVersion getMapVersion() {
-    return mapVersion;
-  }
+  private MapVersion mapVersion;
 
   @Column(name = "description_key")
-  public String getDescriptionKey() {
-    return descriptionKey;
-  }
+  private String descriptionKey;
 
   @Column(name = "title_key")
   @NotNull
-  public String getTitleKey() {
-    return titleKey;
-  }
+  private String titleKey;
 
   @Column(name = "image")
   @Nullable
-  public String getImage() {
-    return image;
-  }
+  private String image;
 
   @ComputedAttribute
   @Transient
   @Nullable
-  public String getImageUrl() {
-    return imageUrl;
-  }
+  private String imageUrl;
 
   @Column(name = "technical_name")
   @NotNull
-  public String getTechnicalName() {
-    return technicalName;
-  }
+  private String technicalName;
 }

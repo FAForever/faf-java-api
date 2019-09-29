@@ -5,6 +5,7 @@ import com.faforever.api.data.checks.permission.IsModerator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
+import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -19,69 +20,47 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @MappedSuperclass
+@Getter
 @Setter
 public abstract class Login extends AbstractEntity implements OwnableEntity {
 
+  @Column(name = "login")
   private String login;
+
+  @Column(name = "email")
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
   private String email;
+
+  @Column(name = "steamid")
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
   private String steamId;
+
+  @Column(name = "user_agent")
   private String userAgent;
+
+  @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
+  // Permission is managed by BanInfo class
+  @UpdatePermission(expression = IsModerator.EXPRESSION)
   private Set<BanInfo> bans;
+
+  @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
+  @UpdatePermission(expression = IsModerator.EXPRESSION)
   private Set<UserNote> userNotes;
+
+  @OneToOne(mappedBy = "user")
   private LobbyGroup lobbyGroup;
+
+  @Column(name = "ip")
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
   private String recentIpAddress;
+
+  @Column(name = "last_login")
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
   private OffsetDateTime lastLogin;
 
   public Login() {
     this.bans = new HashSet<>(0);
     this.userNotes = new HashSet<>(0);
-  }
-
-  @Column(name = "login")
-  public String getLogin() {
-    return login;
-  }
-
-  @Column(name = "email")
-  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
-  public String getEmail() {
-    return email;
-  }
-
-  @Column(name = "steamid")
-  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
-  public String getSteamId() {
-    return steamId;
-  }
-
-  @Column(name = "ip")
-  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
-  public String getRecentIpAddress() {
-    return recentIpAddress;
-  }
-
-  @Column(name = "last_login")
-  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
-  public OffsetDateTime getLastLogin() {
-    return lastLogin;
-  }
-
-  @Column(name = "user_agent")
-  public String getUserAgent() {
-    return userAgent;
-  }
-
-  @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
-  // Permission is managed by BanInfo class
-  @UpdatePermission(expression = IsModerator.EXPRESSION)
-  public Set<BanInfo> getBans() {
-    return this.bans;
-  }
-
-  @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
-  @UpdatePermission(expression = IsModerator.EXPRESSION)
-  public Set<UserNote> getUserNotes() {
-    return this.userNotes;
   }
 
   @Transient
@@ -92,11 +71,6 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
   @Transient
   public boolean isGlobalBanned() {
     return getActiveBans().stream().anyMatch(ban -> ban.getLevel() == BanLevel.GLOBAL);
-  }
-
-  @OneToOne(mappedBy = "user")
-  public LobbyGroup getLobbyGroup() {
-    return lobbyGroup;
   }
 
   @Override

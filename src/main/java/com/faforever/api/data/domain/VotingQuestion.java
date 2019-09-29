@@ -12,6 +12,8 @@ import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.CascadeType;
@@ -40,93 +42,63 @@ import java.util.Set;
 @Audit(action = Action.DELETE, logStatement = "Deleted voting question with id:{0}", logExpressions = {"${votingQuestion.id}"})
 @Audit(action = Action.UPDATE, logStatement = "Updated voting question with id:{0}", logExpressions = {"${votingQuestion.id}"})
 @Include(rootLevel = true, type = VotingQuestion.TYPE_NAME)
+@Getter
 @Setter
 @EntityListeners(VotingQuestionEnricher.class)
 public class VotingQuestion extends AbstractEntity {
   public static final String TYPE_NAME = "votingQuestion";
 
-  private Integer numberOfAnswers;
-  private String question;
-  private String description;
-  private String questionKey;
-  private String descriptionKey;
-  private Integer maxAnswers;
-  private Integer ordinal;
-  private Boolean alternativeQuestion;
-  private VotingSubject votingSubject;
-  private List<VotingChoice> winners;
-  private Set<VotingChoice> votingChoices;
-
+  @Getter(AccessLevel.NONE) // for type Boolean Lombok generates get* method, not is*
   @UpdatePermission(expression = "Prefab.Common.UpdateOnCreate")
   @Column(name = "alternative_voting")
-  public Boolean isAlternativeQuestion() {
-    return alternativeQuestion;
-  }
+  private Boolean alternativeQuestion;
 
   @Column(name = "ordinal")
   @UpdatePermission(expression = IsModerator.EXPRESSION)
-  public Integer getOrdinal() {
-    return ordinal;
-  }
+  private Integer ordinal;
 
-  /**
-   * Is evaluated when voting ended and revealVote is set to true
-   */
+  // Evaluated when voting has ended and revealVote is set to true
   @UpdatePermission(expression = "Prefab.Role.None")
   @JoinTable(name = "winner_for_voting_question",
     joinColumns = {@JoinColumn(name = "voting_question_id")},
     inverseJoinColumns = {@JoinColumn(name = "voting_choice_id")}
   )
   @ManyToMany
-  public List<VotingChoice> getWinners() {
-    return winners;
-  }
+  private List<VotingChoice> winners;
 
   @ComputedAttribute
   @Transient
-  public String getQuestion() {
-    return question;
-  }
+  private String question;
 
   @ComputedAttribute
   @Transient
-  public String getDescription() {
-    return description;
-  }
+  private String description;
 
   @JsonBackReference
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "voting_subject_id")
-  public VotingSubject getVotingSubject() {
-    return votingSubject;
-  }
+  private VotingSubject votingSubject;
 
   @NotNull
   @Column(name = "question_key", nullable = false)
-  public String getQuestionKey() {
-    return questionKey;
-  }
+  private String questionKey;
 
   @Column(name = "description_key")
-  public String getDescriptionKey() {
-    return descriptionKey;
-  }
+  private String descriptionKey;
 
   @UpdatePermission(expression = "Prefab.Common.UpdateOnCreate")
   @Column(name = "max_answers")
-  public Integer getMaxAnswers() {
-    return maxAnswers;
-  }
+  private Integer maxAnswers;
 
   @Transient
   @ComputedAttribute
-  public Integer getNumberOfAnswers() {
-    return numberOfAnswers;
-  }
+  private Integer numberOfAnswers;
 
   @JsonManagedReference
   @OneToMany(mappedBy = "votingQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
-  public Set<VotingChoice> getVotingChoices() {
-    return votingChoices;
+  private Set<VotingChoice> votingChoices;
+
+  public Boolean isAlternativeQuestion() {
+    return alternativeQuestion;
   }
 }
