@@ -16,6 +16,10 @@ This is the official FAForever API. Amongst others, the API offers the following
  
 ## How to run
 
+### Setup database
+
+The application requires a database scheme in the right version. To create this database please checkout the project [faf-stack](https://github.com/FAForever/faf-stack), open a shell terminal (git bash on Windows) and run the script `scripts/init-db.sh`. This will setup the database in the latest version and configure the users for you.
+
 ### From source
 
 In order to run the application from source code:
