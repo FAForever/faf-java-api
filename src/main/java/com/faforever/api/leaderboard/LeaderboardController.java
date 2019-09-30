@@ -1,5 +1,6 @@
 package com.faforever.api.leaderboard;
 
+import com.faforever.api.utils.DataTypeValidation;
 import com.faforever.api.web.ResourceNotFoundException;
 import com.google.common.collect.ImmutableMap;
 import com.yahoo.elide.jsonapi.models.Data;
@@ -100,6 +101,9 @@ public class LeaderboardController {
   @RequestMapping(path = "/global/{playerId}", method = RequestMethod.GET)
   @ApiOperation("Lists the global leaderboard for the specified player")
   public CompletableFuture<JsonApiDocument> getSingleGlobal(@PathVariable("playerId") String playerId) {
+    if(!DataTypeValidation.isNumeric(playerId)){
+      // throw the appropriate exception.
+    }
     GlobalLeaderboardEntry entry = leaderboardService.getGlobalEntry(Integer.valueOf(playerId));
     if (entry == null) {
       throw new ResourceNotFoundException("No global leaderboard entry found for player: " + playerId);
