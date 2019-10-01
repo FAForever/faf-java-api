@@ -1,5 +1,6 @@
 package com.faforever.api.leaderboard;
 
+import com.faforever.api.utils.DataTypeValidation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.cache.annotation.Cacheable;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.validation.ValidationException;
 import java.util.Optional;
 
 @Service
@@ -35,8 +37,10 @@ public class LeaderboardService {
     return globalLeaderboardRepository.getLeaderboardByPage(getPageable(page, pageSize));
   }
 
-  public GlobalLeaderboardEntry getGlobalEntry(int playerId) {
-    return globalLeaderboardRepository.findByPlayerId(playerId);
+  public GlobalLeaderboardEntry getGlobalEntry(String playerId) {
+    if(DataTypeValidation.isNumeric(playerId))
+    return globalLeaderboardRepository.findByPlayerId(Integer.valueOf(playerId));
+    else throw new ValidationException();
   }
 
   public Ladder1v1LeaderboardEntry getLadder1v1Entry(int playerId) {

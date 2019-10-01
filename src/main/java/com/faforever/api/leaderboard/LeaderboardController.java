@@ -101,12 +101,9 @@ public class LeaderboardController {
   @RequestMapping(path = "/global/{playerId}", method = RequestMethod.GET)
   @ApiOperation("Lists the global leaderboard for the specified player")
   public CompletableFuture<JsonApiDocument> getSingleGlobal(@PathVariable("playerId") String playerId) {
-    if(!DataTypeValidation.isNumeric(playerId)){
-      // throw the appropriate exception.
-    }
-    GlobalLeaderboardEntry entry = leaderboardService.getGlobalEntry(Integer.valueOf(playerId));
+    GlobalLeaderboardEntry entry = leaderboardService.getGlobalEntry(playerId);
     if (entry == null) {
-      throw new ResourceNotFoundException("No global leaderboard entry found for player: " + playerId);
+      throw new ResourceNotFoundException("No global leader board entry found for player: " + playerId);
     }
 
     Resource resource = new Resource(GLOBAL_LEADERBOARD_ENTRY, playerId, ImmutableMap.<String, Object>builder()
