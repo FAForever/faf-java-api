@@ -40,7 +40,8 @@ public class LeaderboardService {
   public GlobalLeaderboardEntry getGlobalEntry(String playerId) {
     if (DataTypeValidation.isNumeric(playerId)) {
       return globalLeaderboardRepository.findByPlayerId(Integer.parseInt(playerId));
-    } else {
+    }
+    else {
       throw new ValidationException();
     }
   }
