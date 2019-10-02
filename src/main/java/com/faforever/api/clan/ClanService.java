@@ -36,7 +36,6 @@ public class ClanService {
   private final PlayerService playerService;
   private final ClanMembershipRepository clanMembershipRepository;
 
-  @Inject
   public ClanService(ClanRepository clanRepository,
                      PlayerRepository playerRepository,
                      FafApiProperties fafApiProperties,

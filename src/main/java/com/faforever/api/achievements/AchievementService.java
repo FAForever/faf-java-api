@@ -9,7 +9,6 @@ import com.faforever.api.error.Error;
 import com.google.common.base.MoreObjects;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.util.function.BiFunction;
 
 import static com.faforever.api.error.ErrorCode.ACHIEVEMENT_NOT_INCREMENTAL;
@@ -21,7 +20,6 @@ public class AchievementService {
   private final AchievementRepository achievementRepository;
   private final PlayerAchievementRepository playerAchievementRepository;
 
-  @Inject
   public AchievementService(AchievementRepository achievementRepository, PlayerAchievementRepository playerAchievementRepository) {
     this.achievementRepository = achievementRepository;
     this.playerAchievementRepository = playerAchievementRepository;

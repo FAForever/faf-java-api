@@ -1,10 +1,10 @@
 package com.faforever.api.i18n;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.support.AbstractResourceBasedMessageSource;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Locale;
@@ -12,7 +12,8 @@ import java.util.Map;
 import java.util.Objects;
 
 @Component
-public class RepositoryMessageSource extends AbstractResourceBasedMessageSource {
+@RequiredArgsConstructor
+public class RepositoryMessageSource extends AbstractResourceBasedMessageSource implements InitializingBean {
 
   private static final Locale FALLBACK_LOCALE = Locale.US;
 
@@ -22,16 +23,6 @@ public class RepositoryMessageSource extends AbstractResourceBasedMessageSource 
    * Language -&gt; Region -&gt; Key -&gt; Value.
    */
   private Map<String, Map<String, Map<String, String>>> messagesByLanguage;
-
-  @Inject
-  public RepositoryMessageSource(MessageRepository messageRepository) {
-    this.messageRepository = messageRepository;
-  }
-
-  @PostConstruct
-  public void reload() {
-    messagesByLanguage = loadMessages();
-  }
 
   private Map<String, Map<String, Map<String, String>>> loadMessages() {
     Map<String, Map<String, Map<String, String>>> messagesByLanguage = new HashMap<>();
@@ -81,5 +72,10 @@ public class RepositoryMessageSource extends AbstractResourceBasedMessageSource 
     }
 
     return messagesByRegion.get(region).get(key);
+  }
+
+  @Override
+  public void afterPropertiesSet() {
+    messagesByLanguage = loadMessages();
   }
 }

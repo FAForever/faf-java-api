@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
 import javax.persistence.PostLoad;
 
 @Slf4j
@@ -14,7 +13,6 @@ public class AchievementLocalizationListener {
 
   private static MessageSourceAccessor messageSourceAccessor;
 
-  @Inject
   public void init(MessageSourceAccessor messageSourceAccessor) {
     AchievementLocalizationListener.messageSourceAccessor = messageSourceAccessor;
   }

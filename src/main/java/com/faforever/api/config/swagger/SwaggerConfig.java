@@ -3,6 +3,7 @@ package com.faforever.api.config.swagger;
 import com.faforever.api.config.FafApiProperties;
 import com.google.common.base.Predicate;
 import io.swagger.annotations.Api;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -12,22 +13,16 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-import javax.inject.Inject;
-
 import static com.google.common.base.Predicates.or;
 import static springfox.documentation.builders.PathSelectors.regex;
 
 @Configuration
 @EnableSwagger2
 @Api(value = "Data API", tags = {"foo", "bar"})
+@RequiredArgsConstructor
 public class SwaggerConfig {
 
   private final FafApiProperties fafApiProperties;
-
-  @Inject
-  public SwaggerConfig(FafApiProperties fafApiProperties) {
-    this.fafApiProperties = fafApiProperties;
-  }
 
   @Bean
   public Docket newsApi() {

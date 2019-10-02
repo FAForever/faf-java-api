@@ -7,24 +7,18 @@ import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerService;
 import com.google.common.base.MoreObjects;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.util.function.BiFunction;
 
 @Service
+@RequiredArgsConstructor
 public class EventsService {
 
   private final EventRepository eventRepository;
   private final PlayerService playerService;
   private final PlayerEventRepository playerEventRepository;
-
-  @Inject
-  public EventsService(EventRepository eventRepository, PlayerService playerService, PlayerEventRepository playerEventRepository) {
-    this.eventRepository = eventRepository;
-    this.playerService = playerService;
-    this.playerEventRepository = playerEventRepository;
-  }
 
   UpdatedEventResponse increment(int playerId, String eventId, int steps) {
     BiFunction<Integer, Integer, Integer> stepsFunction = (currentSteps, newSteps) -> currentSteps + newSteps;

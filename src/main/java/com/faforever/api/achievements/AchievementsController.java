@@ -9,30 +9,25 @@ import com.yahoo.elide.jsonapi.models.Data;
 import com.yahoo.elide.jsonapi.models.JsonApiDocument;
 import com.yahoo.elide.jsonapi.models.Resource;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/achievements")
+@RequiredArgsConstructor
 public class AchievementsController {
 
   private static final String JSON_API_MEDIA_TYPE = "application/vnd.api+json";
   private final AchievementService achievementService;
-  private AtomicInteger nextUpdateId;
-
-  @Inject
-  public AchievementsController(AchievementService achievementService) {
-    this.achievementService = achievementService;
-    nextUpdateId = new AtomicInteger();
-  }
+  private AtomicInteger nextUpdateId = new AtomicInteger();
 
   @ApiOperation(value = "Updates the state and progress of one or multiple achievements.")
   @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACHIEVEMENTS + "')")
