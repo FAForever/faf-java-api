@@ -38,9 +38,11 @@ public class LeaderboardService {
   }
 
   public GlobalLeaderboardEntry getGlobalEntry(String playerId) {
-    if(DataTypeValidation.isNumeric(playerId))
-    return globalLeaderboardRepository.findByPlayerId(Integer.valueOf(playerId));
-    else throw new ValidationException();
+    if (DataTypeValidation.isNumeric(playerId)) {
+      return globalLeaderboardRepository.findByPlayerId(Integer.parseInt(playerId));
+    } else {
+      throw new ValidationException();
+    }
   }
 
   public Ladder1v1LeaderboardEntry getLadder1v1Entry(int playerId) {
