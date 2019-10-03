@@ -15,17 +15,18 @@ import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.player.PlayerService;
 import com.faforever.api.security.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 
 @Service
+@RequiredArgsConstructor
 public class ClanService {
 
   private final ClanRepository clanRepository;
@@ -35,23 +36,6 @@ public class ClanService {
   private final ObjectMapper objectMapper;
   private final PlayerService playerService;
   private final ClanMembershipRepository clanMembershipRepository;
-
-  @Inject
-  public ClanService(ClanRepository clanRepository,
-                     PlayerRepository playerRepository,
-                     FafApiProperties fafApiProperties,
-                     JwtService jwtService,
-                     PlayerService playerService,
-                     ClanMembershipRepository clanMembershipRepository,
-                     ObjectMapper objectMapper) {
-    this.clanRepository = clanRepository;
-    this.playerRepository = playerRepository;
-    this.fafApiProperties = fafApiProperties;
-    this.jwtService = jwtService;
-    this.playerService = playerService;
-    this.clanMembershipRepository = clanMembershipRepository;
-    this.objectMapper = objectMapper;
-  }
 
   @SneakyThrows
   Clan create(String name, String tag, String description, Player creator) {

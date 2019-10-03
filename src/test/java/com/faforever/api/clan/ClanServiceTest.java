@@ -19,9 +19,12 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.jwt.Jwt;
 
 import java.io.IOException;
@@ -41,7 +44,6 @@ import static org.mockito.Mockito.when;
 public class ClanServiceTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-  private ClanService instance;
   @Mock
   private ClanRepository clanRepository;
   @Mock
@@ -54,11 +56,10 @@ public class ClanServiceTest {
   private PlayerService playerService;
   @Mock
   private ClanMembershipRepository clanMembershipRepository;
-
-  @Before
-  public void setUp() throws Exception {
-    instance = new ClanService(clanRepository, playerRepository, fafApiProperties, jwtService, playerService, clanMembershipRepository, new ObjectMapper());
-  }
+  @Spy
+  private ObjectMapper objectMapper = new ObjectMapper();
+  @InjectMocks
+  private ClanService instance;
 
   @Test
   public void createClanWhereLeaderIsAlreadyInAClan() {

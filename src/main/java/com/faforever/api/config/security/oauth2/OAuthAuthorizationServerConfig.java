@@ -2,6 +2,7 @@ package com.faforever.api.config.security.oauth2;
 
 import com.faforever.api.security.FafUserDetailsService;
 import com.faforever.api.security.OAuthClientDetailsService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
@@ -13,13 +14,12 @@ import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEn
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 
-import javax.inject.Inject;
-
 /**
  * OAuth2 authorization server configuration.
  */
 @Configuration
 @EnableAuthorizationServer
+@RequiredArgsConstructor
 public class OAuthAuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
 
   private final AuthenticationManager authenticationManager;
@@ -27,17 +27,6 @@ public class OAuthAuthorizationServerConfig extends AuthorizationServerConfigure
   private final TokenEnhancer tokenEnhancer;
   private final FafUserDetailsService userDetailsService;
   private final OAuthClientDetailsService oAuthClientDetailsService;
-
-  @Inject
-  public OAuthAuthorizationServerConfig(AuthenticationManager authenticationManager, TokenStore tokenStore,
-                                        TokenEnhancer tokenEnhancer, FafUserDetailsService userDetailsService,
-                                        OAuthClientDetailsService oAuthClientDetailsService) {
-    this.authenticationManager = authenticationManager;
-    this.tokenStore = tokenStore;
-    this.tokenEnhancer = tokenEnhancer;
-    this.userDetailsService = userDetailsService;
-    this.oAuthClientDetailsService = oAuthClientDetailsService;
-  }
 
   @Override
   public void configure(AuthorizationServerSecurityConfigurer oAuthServer) throws Exception {

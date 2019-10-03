@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
@@ -28,17 +28,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
 @RestController
 @RequestMapping(path = ClansController.PATH)
+@RequiredArgsConstructor
 public class ClansController {
 
   static final String PATH = "/clans";
   private final ClanService clanService;
   private final PlayerService playerService;
-
-  @Inject
-  public ClansController(ClanService clanService, PlayerService playerService) {
-    this.clanService = clanService;
-    this.playerService = playerService;
-  }
 
   @ApiOperation("Grab data about yourself and the clan")
   @ApiResponses(value = {

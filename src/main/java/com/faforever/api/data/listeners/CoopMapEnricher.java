@@ -12,7 +12,6 @@ public class CoopMapEnricher {
 
   private static FafApiProperties fafApiProperties;
 
-  @Inject
   public void init(FafApiProperties fafApiProperties) {
     CoopMapEnricher.fafApiProperties = fafApiProperties;
   }

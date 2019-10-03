@@ -7,6 +7,7 @@ import com.faforever.api.player.PlayerService;
 import com.faforever.api.security.OAuthScope;
 import com.google.common.base.Strings;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,17 +23,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = VotingController.PATH)
+@RequiredArgsConstructor
 public class VotingController {
   static final String PATH = "/voting";
   private static final String JSON_API_MEDIA_TYPE = "application/vnd.api+json";
   private final VotingService votingService;
   private final PlayerService playerService;
-
-  @Inject
-  public VotingController(VotingService votingService, PlayerService playerService) {
-    this.votingService = votingService;
-    this.playerService = playerService;
-  }
 
   @ApiOperation(value = "Post a vote")
   @PreAuthorize("#oauth2.hasScope('" + OAuthScope._VOTE + "')")
