@@ -11,6 +11,9 @@
       <module name="faf-java-api_inttest" target="1.8" />
       <module name="faf-java-api_main" target="1.8" />
       <module name="faf-java-api_test" target="1.8" />
+      <module name="faforever.faf-java-api.inttest" target="1.8" />
+      <module name="faforever.faf-java-api.main" target="1.8" />
+      <module name="faforever.faf-java-api.test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
