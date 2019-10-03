@@ -7,6 +7,7 @@ import com.faforever.api.data.domain.PlayerAchievement;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.google.common.base.MoreObjects;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.function.BiFunction;
@@ -15,15 +16,11 @@ import static com.faforever.api.error.ErrorCode.ACHIEVEMENT_NOT_INCREMENTAL;
 import static com.faforever.api.error.ErrorCode.ACHIEVEMENT_NOT_STANDARD;
 
 @Service
+@RequiredArgsConstructor
 public class AchievementService {
 
   private final AchievementRepository achievementRepository;
   private final PlayerAchievementRepository playerAchievementRepository;
-
-  public AchievementService(AchievementRepository achievementRepository, PlayerAchievementRepository playerAchievementRepository) {
-    this.achievementRepository = achievementRepository;
-    this.playerAchievementRepository = playerAchievementRepository;
-  }
 
   UpdatedAchievementResponse increment(int playerId, String achievementId, int steps) {
     return updateSteps(playerId, achievementId, steps, (currentSteps, newSteps) -> currentSteps + newSteps);
