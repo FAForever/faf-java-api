@@ -99,8 +99,8 @@ public enum ErrorCode {
   PARSING_LUA_FILE_FAILED(189, "Parsing lua files failed", "During the parsing of the lua file an error occured: {0}"),
   NO_RUSH_RADIUS_MISSING(190, "No rush radius missing", "The scenario file must specify a no rush radius"),
   INVALID_FEATURED_MOD(191, "Invalid featured mod name", "The featured mod name ''{0}'' is not allowed in this context."),
-  API_KEY_INVALID(192, "Api key is invalid", "The api key is invalid.");
-
+  API_KEY_INVALID(192, "Api key is invalid", "The api key is invalid."),
+  PLAYER_ID_MUST_BE_NUMBER(193,"Player ID must be number","The player id must be a number");
   private final int code;
   private final String title;
   private final String detail;

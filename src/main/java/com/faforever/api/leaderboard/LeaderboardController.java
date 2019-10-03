@@ -1,6 +1,5 @@
 package com.faforever.api.leaderboard;
 
-import com.faforever.api.utils.DataTypeValidation;
 import com.faforever.api.web.ResourceNotFoundException;
 import com.google.common.collect.ImmutableMap;
 import com.yahoo.elide.jsonapi.models.Data;
