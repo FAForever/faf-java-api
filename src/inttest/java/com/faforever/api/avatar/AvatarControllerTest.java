@@ -5,8 +5,8 @@ import com.faforever.api.data.domain.Avatar;
 import com.faforever.api.security.AuditService;
 import com.faforever.api.security.OAuthScope;
 import com.faforever.api.utils.FileHandlingHelper;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
@@ -143,7 +143,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
     verify(auditServiceSpy, times(0)).logMessage(any());
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception {
     Files.deleteIfExists(Paths.get("build/cache/avatars/avatar1.png"));
     Files.deleteIfExists(Paths.get("build/cache/avatars/avatar3.png"));

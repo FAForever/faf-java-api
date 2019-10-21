@@ -1,7 +1,7 @@
 package com.faforever.api.leaderboard;
 
 import com.faforever.api.AbstractIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.web.servlet.MvcResult;

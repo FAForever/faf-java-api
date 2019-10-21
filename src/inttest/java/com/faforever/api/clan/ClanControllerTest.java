@@ -6,7 +6,7 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.security.FafUserDetails;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.SecurityContextHolder;

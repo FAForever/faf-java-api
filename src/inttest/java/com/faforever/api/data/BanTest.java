@@ -6,7 +6,7 @@ import com.faforever.commons.api.dto.BanInfo;
 import com.faforever.commons.api.dto.BanLevel;
 import com.faforever.commons.api.dto.ModerationReport;
 import com.faforever.commons.api.dto.Player;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithUserDetails;

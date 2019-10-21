@@ -5,7 +5,7 @@ import com.faforever.api.data.JsonApiMediaType;
 import com.faforever.api.security.OAuthScope;
 import com.google.common.collect.Lists;
 import org.hamcrest.Matchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;

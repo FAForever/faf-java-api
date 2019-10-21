@@ -2,7 +2,7 @@ package com.faforever.api.data;
 
 import com.faforever.api.AbstractIntegrationTest;
 import com.faforever.api.player.PlayerRepository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithUserDetails;

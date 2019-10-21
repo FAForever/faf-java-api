@@ -1,8 +1,8 @@
 package com.faforever.api.deployment;
 
 import com.faforever.api.AbstractIntegrationTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -19,7 +19,7 @@ public class ExeUploadControllerTest extends AbstractIntegrationTest {
   private MockMultipartFile file;
   private static final String SUPER_SECRET = "banana";
 
-  @Before
+  @BeforeEach
   public void setUp() {
     super.setUp();
     file = new MockMultipartFile("file", "ForgedAlliance.exe", "application/octet-stream", new byte[]{ 1, 2 ,3, 4 });

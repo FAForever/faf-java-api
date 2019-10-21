@@ -5,7 +5,7 @@ import com.faforever.api.data.domain.VotingChoice;
 import com.faforever.api.data.domain.VotingQuestion;
 import com.faforever.api.security.OAuthScope;
 import com.faforever.api.voting.VotingQuestionRepository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
