@@ -7,9 +7,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.ExpectedExceptionSupport;
 import org.junit.rules.ExpectedException;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
@@ -23,7 +25,9 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+@ExtendWith(ExpectedExceptionSupport.class)
 public class FafTokenServiceTest {
+
   private static final String TEST_SECRET = "banana";
   private final MacSigner macSigner;
   @Rule
@@ -35,7 +39,7 @@ public class FafTokenServiceTest {
     this.macSigner = new MacSigner(TEST_SECRET);
   }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     objectMapper = new ObjectMapper();
     objectMapper.registerModule(new JavaTimeModule());

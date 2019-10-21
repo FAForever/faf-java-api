@@ -1,12 +1,12 @@
 package com.faforever.api.mautic;
 
 import com.faforever.api.config.FafApiProperties;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.ResponseErrorHandler;
@@ -20,7 +20,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MauticServiceTest {
 
   private MauticService instance;
@@ -34,7 +34,7 @@ public class MauticServiceTest {
   @Mock
   private RestTemplate restTemplate;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     when(restTemplateBuilder.build()).thenReturn(restTemplate);
 

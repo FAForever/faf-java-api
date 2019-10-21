@@ -7,11 +7,11 @@ import com.faforever.api.data.domain.VotingChoice;
 import com.faforever.api.data.domain.VotingQuestion;
 import com.faforever.api.data.domain.VotingSubject;
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.support.MessageSourceAccessor;
 
 import java.time.OffsetDateTime;
@@ -22,13 +22,13 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class VotingSubjectEnricherTest {
   private VotingSubjectEnricher instance;
   @Mock
   private MessageSourceAccessor messageSourceAccessor;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     instance = new VotingSubjectEnricher();
     instance.init(messageSourceAccessor);

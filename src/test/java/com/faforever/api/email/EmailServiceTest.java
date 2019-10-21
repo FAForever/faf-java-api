@@ -5,18 +5,19 @@ import com.faforever.api.config.FafApiProperties.PasswordReset;
 import com.faforever.api.config.FafApiProperties.Registration;
 import com.faforever.api.error.ApiExceptionMatcher;
 import com.faforever.api.error.ErrorCode;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.ExpectedExceptionSupport;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith({MockitoExtension.class, ExpectedExceptionSupport.class})
 public class EmailServiceTest {
 
   @Rule
@@ -30,7 +31,7 @@ public class EmailServiceTest {
   @Mock
   private EmailSender emailSender;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     properties = new FafApiProperties();
     properties.getMail().setFromEmailAddress("foo@bar.com");

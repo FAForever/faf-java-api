@@ -133,8 +133,6 @@ public class ExeUploaderServiceTest {
   @Test
   public void testProcessUploadIsForbidden() {
     String modName = "faf";
-    Assertions.assertThrows(ApiException.class, () -> {
-      instance.processUpload(exeDataInputStream, modName);
-    });
+    Assertions.assertThrows(ApiException.class, () -> instance.processUpload(exeDataInputStream, modName)) ;
   }
 }

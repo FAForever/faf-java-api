@@ -6,14 +6,15 @@ import com.faforever.api.data.domain.AchievementType;
 import com.faforever.api.data.domain.PlayerAchievement;
 import com.faforever.api.error.ErrorCode;
 import org.hamcrest.CoreMatchers;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.ExpectedExceptionSupport;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
@@ -28,7 +29,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith({MockitoExtension.class, ExpectedExceptionSupport.class})
 public class EventsServiceTest {
 
   private static final int PLAYER_ID = 1;
@@ -47,7 +48,7 @@ public class EventsServiceTest {
     return playerAchievement;
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     instance = new AchievementService(achievementRepository, playerAchievementRepository);
   }
