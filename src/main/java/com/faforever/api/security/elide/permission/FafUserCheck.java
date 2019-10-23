@@ -72,7 +72,7 @@ abstract class FafUserCheck extends UserCheck {
       if (missedScopes.isEmpty()) {
         log.trace("All requested permissions are granted: {}", String.join(", ", userPermissionRole));
       } else {
-        log.trace("Permissions '{}' are not granted in requested permissions: {} , for user with id: {}", String.join(", ", missedScopes), String.join(", ", grantedUserRoles), userDetails.getId());
+        log.debug("Permissions '{}' are not granted in requested permissions: {} , for user with id: {}", String.join(", ", missedScopes), String.join(", ", grantedUserRoles), userDetails.getId());
       }
     }
 

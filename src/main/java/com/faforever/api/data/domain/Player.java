@@ -2,7 +2,7 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.Prefab;
-import com.faforever.api.data.checks.permission.IsModerator;
+import com.faforever.api.security.elide.permission.AdminModerationReportCheck;
 import com.github.jasminb.jsonapi.annotations.Type;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
@@ -77,7 +77,7 @@ public class Player extends Login {
     return avatarAssignments;
   }
 
-  @ReadPermission(expression = IsModerator.EXPRESSION + " OR " + IsEntityOwner.EXPRESSION)
+  @ReadPermission(expression = AdminModerationReportCheck.EXPRESSION + " OR " + IsEntityOwner.EXPRESSION)
   // Permission is managed by Moderation reports class
   @UpdatePermission(expression = Prefab.ALL)
   @OneToMany(mappedBy = "reporter")
@@ -87,7 +87,7 @@ public class Player extends Login {
   }
 
   // Permission is managed by Moderation reports class
-  @ReadPermission(expression = IsModerator.EXPRESSION)
+  @ReadPermission(expression = AdminModerationReportCheck.EXPRESSION)
   @UpdatePermission(expression = Prefab.ALL)
   @ManyToMany(mappedBy = "reportedUsers")
   public Set<ModerationReport> getReportedOnModerationReports() {
