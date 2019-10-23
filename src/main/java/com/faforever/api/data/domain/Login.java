@@ -2,9 +2,9 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.Prefab;
-import com.faforever.api.data.checks.permission.IsModerator;
 import com.faforever.api.security.elide.permission.AdminAccountBanCheck;
 import com.faforever.api.security.elide.permission.AdminAccountNoteCheck;
+import com.faforever.api.security.elide.permission.ReadAccountPrivateDetailsCheck;
 import com.faforever.api.security.elide.permission.ReadUserGroupCheck;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yahoo.elide.annotation.ReadPermission;
@@ -47,25 +47,25 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
   }
 
   @Column(name = "email")
-  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
   public String getEmail() {
     return email;
   }
 
   @Column(name = "steamid")
-  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
   public String getSteamId() {
     return steamId;
   }
 
   @Column(name = "ip")
-  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
   public String getRecentIpAddress() {
     return recentIpAddress;
   }
 
   @Column(name = "last_login")
-  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
   public OffsetDateTime getLastLogin() {
     return lastLogin;
   }

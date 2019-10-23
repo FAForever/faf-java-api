@@ -5,7 +5,7 @@ import com.faforever.api.data.checks.IsAuthenticated;
 import com.faforever.api.data.checks.IsClanMembershipDeletable;
 import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.IsInAwaitingState;
-import com.faforever.api.data.checks.permission.IsModerator;
+import com.faforever.api.data.checks.UserGroupPublicCheck;
 import com.faforever.api.security.ExtendedAuditLogger;
 import com.faforever.api.security.elide.permission.AdminAccountBanCheck;
 import com.faforever.api.security.elide.permission.AdminAccountNoteCheck;
@@ -20,6 +20,7 @@ import com.faforever.api.security.elide.permission.WriteAvatarCheck;
 import com.faforever.api.security.elide.permission.WriteEmailDomainBanCheck;
 import com.faforever.api.security.elide.permission.WriteMatchmakerMapCheck;
 import com.faforever.api.security.elide.permission.WriteTutorialCheck;
+import com.faforever.api.security.elide.permission.WriteUserGroupCheck;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yahoo.elide.Elide;
 import com.yahoo.elide.ElideSettingsBuilder;
@@ -102,7 +103,6 @@ public class ElideConfig {
   public EntityDictionary entityDictionary() {
     ConcurrentHashMap<String, Class<? extends Check>> checks = new ConcurrentHashMap<>();
     checks.put(IsAuthenticated.EXPRESSION, IsAuthenticated.Inline.class);
-    checks.put(IsModerator.EXPRESSION, IsModerator.Inline.class);
     checks.put(IsEntityOwner.EXPRESSION, IsEntityOwner.Inline.class);
     checks.put(IsClanMembershipDeletable.EXPRESSION, IsClanMembershipDeletable.Inline.class);
     checks.put(BooleanChange.TO_FALSE_EXPRESSION, BooleanChange.ToFalse.class);
@@ -121,6 +121,8 @@ public class ElideConfig {
     checks.put(WriteAvatarCheck.EXPRESSION, WriteAvatarCheck.class);
     checks.put(AdminMapCheck.EXPRESSION, AdminMapCheck.class);
     checks.put(AdminModCheck.EXPRESSION, AdminModCheck.class);
+    checks.put(WriteUserGroupCheck.EXPRESSION, WriteUserGroupCheck.class);
+    checks.put(UserGroupPublicCheck.EXPRESSION, UserGroupPublicCheck.class);
 
     return new EntityDictionary(checks);
   }

@@ -1,8 +1,8 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.Prefab;
-import com.faforever.api.data.checks.permission.IsModerator;
 import com.faforever.api.data.listeners.MessageReloadListener;
+import com.faforever.api.security.elide.permission.WriteMessageCheck;
 import com.github.jasminb.jsonapi.annotations.Type;
 import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Audit.Action;
@@ -25,9 +25,9 @@ import javax.persistence.Table;
 @Table(name = "messages")
 @Setter
 @Include(rootLevel = true)
-@DeletePermission(expression = IsModerator.EXPRESSION)
-@UpdatePermission(expression = IsModerator.EXPRESSION)
-@CreatePermission(expression = IsModerator.EXPRESSION)
+@DeletePermission(expression = WriteMessageCheck.EXPRESSION)
+@UpdatePermission(expression = WriteMessageCheck.EXPRESSION)
+@CreatePermission(expression = WriteMessageCheck.EXPRESSION)
 @Audit(action = Action.DELETE, logStatement = "Message with key `{0}` , ID `{1}`, language `{2}` , region `{3}` and value `{4}` deleted", logExpressions = {"${message.key}", "${message.id}", "${message.language}", "${message.region}", "${message.value}"})
 @Audit(action = Action.CREATE, logStatement = "Message with key `{0}` and ID `{1}` created", logExpressions = {"${message.key}", "${message.id}"})
 @ReadPermission(expression = Prefab.ALL)
