@@ -15,6 +15,8 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -22,16 +24,19 @@ import java.util.Set;
 
 @Entity
 @Table(name = "user_group")
-@Include(type = "userGroup")
+@Include(type = "userGroup", rootLevel = true)
 @UpdatePermission(expression = WriteUserGroupCheck.EXPRESSION)
 @CreatePermission(expression = WriteUserGroupCheck.EXPRESSION)
 @ReadPermission(expression = UserGroupPublicCheck.EXPRESSION + " or " + WriteUserGroupCheck.EXPRESSION)
 @Setter
-public class UserGroup extends AbstractEntity {
+public class
+UserGroup extends AbstractEntity {
 
   private String technicalName;
   private String nameKey;
   private boolean public_;
+  private UserGroup parent;
+  private Set<UserGroup> children;
   private Set<User> members;
   private Set<GroupPermission> permissions;
 
@@ -48,6 +53,17 @@ public class UserGroup extends AbstractEntity {
   @Column(name = "public")
   public boolean isPublic() {
     return public_;
+  }
+
+  @ManyToOne
+  @JoinColumn(name = "parent_group_id")
+  public UserGroup getParent() {
+    return parent;
+  }
+
+  @OneToMany(mappedBy = "parent")
+  public Set<UserGroup> getChildren() {
+    return children;
   }
 
   public void setPublic(boolean public_) {
