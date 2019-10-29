@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
+import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -100,7 +101,7 @@ public class UserNoteTest extends AbstractIntegrationTest {
   public void cannotCreateUserNoteWithoutScope() throws Exception {
     mockMvc.perform(post("/data/userNote")
       .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE))
-      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+      .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isForbidden());
   }
@@ -109,7 +110,7 @@ public class UserNoteTest extends AbstractIntegrationTest {
   public void cannotCreateUserNoteWithoutRole() throws Exception {
     mockMvc.perform(post("/data/userNote")
       .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, NO_AUTHORITIES))
-      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+      .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isForbidden());
   }
@@ -120,7 +121,7 @@ public class UserNoteTest extends AbstractIntegrationTest {
 
     mockMvc.perform(post("/data/userNote")
       .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE))
-      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+      .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isCreated());
 

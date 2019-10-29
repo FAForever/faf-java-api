@@ -17,6 +17,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -269,7 +270,7 @@ public class VotingElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/votingSubject/2")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_VOTE))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(PATCH_VOTING_SUBJECT_REVEAL_ID_2))
       .andExpect(status().isForbidden());
   }
@@ -279,7 +280,7 @@ public class VotingElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/votingSubject/2")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(PATCH_VOTING_SUBJECT_REVEAL_ID_2))
       .andExpect(status().isForbidden());
   }
@@ -289,7 +290,7 @@ public class VotingElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/votingSubject/2")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_VOTE))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(PATCH_VOTING_SUBJECT_REVEAL_ID_2))
       .andExpect(status().isNoContent());
     VotingQuestion question = votingQuestionRepository.getOne(2);
@@ -303,7 +304,7 @@ public class VotingElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/votingSubject/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_VOTE))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(PATCH_VOTING_SUBJECT_REVEAL_ID_1))
       .andExpect(status().is4xxClientError());
   }

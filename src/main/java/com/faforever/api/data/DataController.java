@@ -21,6 +21,9 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
+import static com.faforever.api.data.JsonApiMediaType.JSON_API_PATCH_MEDIA_TYPE;
+
 /**
  * JSON-API compliant data API.
  */
@@ -29,8 +32,6 @@ import java.util.Map;
 public class DataController {
 
   public static final String PATH_PREFIX = "/data";
-  public static final String JSON_API_MEDIA_TYPE = "application/vnd.api+json";
-  public static final String JSON_API_PATCH_MEDIA_TYPE = "application/vnd.api+json;ext=jsonpatch";
 
   private final Elide elide;
 
@@ -102,7 +103,7 @@ public class DataController {
   @RequestMapping(
     method = RequestMethod.PATCH,
     consumes = JSON_API_PATCH_MEDIA_TYPE,
-    produces = JSON_API_PATCH_MEDIA_TYPE,
+    produces = JSON_API_MEDIA_TYPE,
     value = "/{entity}")
   // should contain "/{entity}/{id}" but spring will call this method even for JSON_API_MEDIA_TYPE
   @PreAuthorize("isAuthenticated()")
@@ -111,7 +112,7 @@ public class DataController {
                                                final Authentication authentication) {
     ElideResponse response = elide.patch(
       JSON_API_PATCH_MEDIA_TYPE,
-      JSON_API_PATCH_MEDIA_TYPE,
+      JSON_API_MEDIA_TYPE,
       getJsonApiPath(request),
       body,
       getPrincipal(authentication)

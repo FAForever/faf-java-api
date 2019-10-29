@@ -12,6 +12,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.web.servlet.MvcResult;
 
+import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -82,7 +83,7 @@ public class TutorialElideTest extends AbstractIntegrationTest {
     MvcResult mvcResult = mockMvc.perform(
       post("/data/tutorial")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_TUTORIAL))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(tutorial())))
       .andExpect(status().isCreated())
       .andReturn();
@@ -99,7 +100,7 @@ public class TutorialElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       post("/data/tutorial")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_TUTORIAL))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(tutorial())))
       .andExpect(status().isForbidden());
   }
@@ -109,7 +110,7 @@ public class TutorialElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       post("/data/tutorial")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(tutorial())))
       .andExpect(status().isForbidden());
   }
@@ -119,7 +120,7 @@ public class TutorialElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/tutorial/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_TUTORIAL))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(tutorial().setDescription("changed").setId("1"))))
       .andExpect(status().isNoContent());
 
@@ -134,7 +135,7 @@ public class TutorialElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/tutorial/1")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_TUTORIAL))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(tutorial().setDescription("changed").setId("1"))))
       .andExpect(status().isForbidden());
   }
@@ -144,7 +145,7 @@ public class TutorialElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/tutorial/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(tutorial().setDescription("changed").setId("1"))))
       .andExpect(status().isForbidden());
   }

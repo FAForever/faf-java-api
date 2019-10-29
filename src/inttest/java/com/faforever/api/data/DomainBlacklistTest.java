@@ -9,6 +9,7 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
+import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -75,7 +76,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
     mockMvc.perform(
       post("/data/domainBlacklist")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(NEW_DOMAIN))
       .andExpect(status().isCreated());
   }
@@ -85,7 +86,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
     mockMvc.perform(
       post("/data/domainBlacklist")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(NEW_DOMAIN))
       .andExpect(status().isForbidden());
   }
@@ -95,7 +96,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
     mockMvc.perform(
       post("/data/domainBlacklist")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(NEW_DOMAIN))
       .andExpect(status().isForbidden());
   }
@@ -106,7 +107,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/domainBlacklist/spam.org")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content("{\"data\":{\"type\":\"domainBlacklist\",\"id\":\"spam.org\"}}"))
       .andExpect(status().isNoContent());
   }
@@ -116,7 +117,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/domainBlacklist/spam.org")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(NEW_DOMAIN))
       .andExpect(status().isForbidden());
   }
@@ -126,7 +127,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/domainBlacklist/spam.org")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(NEW_DOMAIN))
       .andExpect(status().isForbidden());
   }
