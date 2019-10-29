@@ -1,3 +1,5 @@
+SET FOREIGN_KEY_CHECKS = 0;
+
 DELETE FROM reported_user;
 DELETE FROM ban;
 DELETE FROM moderation_report;
@@ -43,6 +45,8 @@ DELETE FROM user_group_assignment;
 DELETE FROM user_group;
 DELETE FROM login;
 DELETE FROM email_domain_blacklist;
+
+SET FOREIGN_KEY_CHECKS = 1;
 
 INSERT INTO oauth_clients (id, name, client_secret, client_type, redirect_uris, default_redirect_uri, default_scope)
 VALUES
