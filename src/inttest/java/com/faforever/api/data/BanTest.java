@@ -12,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
+import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
 import static com.faforever.api.data.domain.GroupPermission.ROLE_ADMIN_ACCOUNT_BAN;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
@@ -107,7 +108,7 @@ public class BanTest extends AbstractIntegrationTest {
   public void cannotCreateBanWithoutScope() throws Exception {
     mockMvc.perform(post("/data/banInfo")
       .with(getOAuthTokenWithTestUser(NO_SCOPE, ROLE_ADMIN_ACCOUNT_BAN))
-      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+      .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isForbidden());
   }
@@ -116,7 +117,7 @@ public class BanTest extends AbstractIntegrationTest {
   public void cannotCreateBanWithoutRole() throws Exception {
     mockMvc.perform(post("/data/banInfo")
       .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
-      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+      .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isForbidden());
   }
@@ -125,7 +126,7 @@ public class BanTest extends AbstractIntegrationTest {
   public void canCreateBanWithScopeAndRole() throws Exception {
     mockMvc.perform(post("/data/banInfo")
       .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN))
-      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+      .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isCreated());
   }
@@ -140,7 +141,7 @@ public class BanTest extends AbstractIntegrationTest {
       .setModerationReport((ModerationReport) new ModerationReport().setId("1"));
 
     mockMvc.perform(post("/data/banInfo")
-      .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+      .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN))
       .content(createJsonApiContent(ban)))
       .andExpect(status().isCreated())

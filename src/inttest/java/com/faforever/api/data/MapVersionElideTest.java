@@ -9,6 +9,7 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
+import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -71,7 +72,7 @@ public class MapVersionElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/mapVersion/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._MANAGE_VAULT, GroupPermission.ROLE_ADMIN_MAP))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         // update hidden to false requires the extender permission, thus we test it here for the success case
         .content(MAP_VERSION_HIDE_FALSE_ID_1))
       .andExpect(status().isNoContent());
@@ -82,7 +83,7 @@ public class MapVersionElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/mapVersion/1")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_MAP))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         // update hidden to true is less restricted, thus we test it here for the failing case
         .content(MAP_VERSION_HIDE_TRUE_ID_1))
       .andExpect(status().isForbidden());
@@ -93,7 +94,7 @@ public class MapVersionElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/mapVersion/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._MANAGE_VAULT, NO_AUTHORITIES))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         // update hidden to true is less restricted, thus we test it here for the failing case
         .content(MAP_VERSION_HIDE_TRUE_ID_1))
       .andExpect(status().isForbidden());
@@ -104,7 +105,7 @@ public class MapVersionElideTest extends AbstractIntegrationTest {
   public void cannotUpdateHideToFalseAsEntityOwner() throws Exception {
     mockMvc.perform(
       patch("/data/mapVersion/1")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(MAP_VERSION_HIDE_FALSE_ID_1))
       .andExpect(status().isForbidden());
   }
@@ -114,7 +115,7 @@ public class MapVersionElideTest extends AbstractIntegrationTest {
   public void canUpdateRankedToFalseAsEntityOwner() throws Exception {
     mockMvc.perform(
       patch("/data/mapVersion/1")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(MAP_VERSION_RANKED_FALSE_ID_1))
       .andExpect(status().isNoContent());
   }
@@ -124,7 +125,7 @@ public class MapVersionElideTest extends AbstractIntegrationTest {
   public void cannotUpdateRankedToTrueAsEntityOwner() throws Exception {
     mockMvc.perform(
       patch("/data/mapVersion/1")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(MAP_VERSION_RANKED_TRUE_ID_1))
       .andExpect(status().isForbidden());
   }

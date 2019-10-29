@@ -14,6 +14,7 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 import java.time.OffsetDateTime;
 
+import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -60,7 +61,7 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       post("/data/player/{playerId}/avatarAssignments", player.getId())
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_AVATAR))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.data.relationships.player.data.id", is(player.getId())))
@@ -77,7 +78,7 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       post("/data/player/{playerId}/avatarAssignments", player.getId())
         .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_AVATAR))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isForbidden());
   }
@@ -92,7 +93,7 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       post("/data/player/{playerId}/avatarAssignments", player.getId())
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isForbidden());
   }
@@ -134,7 +135,7 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/avatarAssignment/{assignmentId}", 1)
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_AVATAR))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isNoContent());
     mockMvc.perform(
@@ -152,7 +153,7 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/avatarAssignment/{assignmentId}", 1)
         .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_AVATAR))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isForbidden());
   }
@@ -166,7 +167,7 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/avatarAssignment/{assignmentId}", 1)
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isForbidden());
   }
@@ -179,7 +180,7 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/avatarAssignment/{assignmentId}", 1)
         .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isNoContent());
     mockMvc.perform(
@@ -198,7 +199,7 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/avatarAssignment/{assignmentId}", 2)
         .with(getOAuthTokenWithoutUser(OAuthScope._PUBLIC_PROFILE))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isForbidden());
   }

@@ -1,7 +1,6 @@
 package com.faforever.api.moderationreport;
 
 import com.faforever.api.AbstractIntegrationTest;
-import com.faforever.api.data.DataController;
 import com.faforever.api.data.domain.GroupPermission;
 import com.faforever.api.security.OAuthScope;
 import com.faforever.commons.api.dto.Game;
@@ -19,6 +18,7 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import java.util.Collections;
 import java.util.Set;
 
+import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -64,7 +64,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
   public void anonymousUserCannotCreateValidModerationReport() throws Exception {
     mockMvc.perform(
       post("/data/moderationReport")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(validModerationReport)))
       .andExpect(status().isForbidden());
   }
@@ -75,7 +75,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     mockMvc.perform(
       post("/data/moderationReport")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(validModerationReport)))
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.data.attributes.reportStatus", is(ModerationReportStatus.AWAITING.name())))
@@ -95,7 +95,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     mockMvc.perform(
       post("/data/moderationReport")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(validModerationReport)))
       .andExpect(status().isForbidden());
   }
@@ -107,7 +107,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     mockMvc.perform(
       post("/data/moderationReport")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(validModerationReport)))
       .andExpect(status().isBadRequest());
   }
@@ -119,7 +119,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     mockMvc.perform(
       post("/data/moderationReport")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(validModerationReport)))
       .andExpect(status().isBadRequest());
   }
@@ -151,7 +151,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/moderationReport/2")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(updatedModerationReport)))
       .andExpect(status().isForbidden());
   }
@@ -170,7 +170,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(updatedModerationReport)))
       .andExpect(status().isNoContent());
     mockMvc.perform(
@@ -195,7 +195,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/moderationReport/2")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(updatedGameIdModerationReport)))
       .andExpect(status().isForbidden());
   }
@@ -208,7 +208,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(updatedReportStatusModerationReport)))
       .andExpect(status().isForbidden());
   }
@@ -221,7 +221,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(updatedReportStatusModerationReport)))
       .andExpect(status().isForbidden());
   }
@@ -234,7 +234,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(updatedReportStatusModerationReport)))
       .andExpect(status().isNoContent());
     mockMvc.perform(
@@ -251,7 +251,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(updatedPublicNoteModerationReport)))
       .andExpect(status().isNoContent());
     mockMvc.perform(
@@ -268,7 +268,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(updatedPublicNoteModerationReport)))
       .andExpect(status().isForbidden());
   }
@@ -281,7 +281,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(updatedPublicNoteModerationReport)))
       .andExpect(status().isForbidden());
   }
@@ -294,7 +294,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(updatedPrivateNoteModerationReport)))
       .andExpect(status().isNoContent());
     mockMvc.perform(
@@ -311,7 +311,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(updatedPrivateNoteModerationReport)))
       .andExpect(status().isForbidden());
   }
@@ -324,7 +324,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(updatedPrivateNoteModerationReport)))
       .andExpect(status().isForbidden());
   }
@@ -337,7 +337,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(updatedPrivateNoteModerationReport)))
       .andExpect(status().isNoContent());
     mockMvc.perform(
@@ -381,7 +381,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     mockMvc.perform(
       patch("/data/moderationReport/3")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(updatedReportedUsersModerationReport)))
       .andExpect(status().isForbidden());
   }
