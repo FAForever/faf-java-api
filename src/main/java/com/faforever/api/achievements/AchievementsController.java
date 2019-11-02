@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AchievementsController {
 
-  private static final String JSON_API_MEDIA_TYPE = "application/vnd.api+json";
   private final AchievementService achievementService;
   private AtomicInteger nextUpdateId = new AtomicInteger();
 

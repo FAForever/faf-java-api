@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EventsController {
 
-  private static final String JSON_API_MEDIA_TYPE = "application/vnd.api+json";
   private final EventsService eventsService;
 
   @ApiOperation(value = "Updates the state and progress of one or multiple events.")
