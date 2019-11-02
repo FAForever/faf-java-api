@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -26,7 +25,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VotingController {
   static final String PATH = "/voting";
-  private static final String JSON_API_MEDIA_TYPE = "application/vnd.api+json";
   private final VotingService votingService;
   private final PlayerService playerService;
 
