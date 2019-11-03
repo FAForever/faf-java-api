@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsEntityOwner;
+import com.faforever.api.data.checks.Prefab;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
@@ -19,7 +20,7 @@ import javax.persistence.Transient;
 @Table(name = "voting_answer")
 @Include(type = VotingAnswer.TYPE_NAME)
 @ReadPermission(expression = IsEntityOwner.EXPRESSION)
-@UpdatePermission(expression = "Prefab.Role.None")
+@UpdatePermission(expression = Prefab.NONE)
 @EqualsAndHashCode(of = {"vote", "votingChoice"}, callSuper = false)
 @Setter
 public class VotingAnswer extends AbstractEntity implements OwnableEntity {

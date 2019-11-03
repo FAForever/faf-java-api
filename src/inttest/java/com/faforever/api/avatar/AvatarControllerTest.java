@@ -2,6 +2,7 @@ package com.faforever.api.avatar;
 
 import com.faforever.api.AbstractIntegrationTest;
 import com.faforever.api.data.domain.Avatar;
+import com.faforever.api.data.domain.GroupPermission;
 import com.faforever.api.security.AuditService;
 import com.faforever.api.security.OAuthScope;
 import com.faforever.api.utils.FileHandlingHelper;
@@ -11,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
@@ -42,11 +42,10 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
   AvatarRepository avatarRepository;
 
   @Test
-  @WithUserDetails(AUTH_MODERATOR)
-  public void moderatorCanUpload() throws Exception {
+  public void canUploadWithScopeAndRole() throws Exception {
     mockMvc.perform(
       createAvatarUploadRequest()
-        .with(getOAuthToken(OAuthScope._UPLOAD_AVATAR))
+        .with(getOAuthTokenWithTestUser(OAuthScope._UPLOAD_AVATAR, GroupPermission.ROLE_WRITE_AVATAR))
     ).andExpect(status().isCreated())
       .andExpect(content().string(""));
     final Avatar avatar = avatarRepository.findOneByUrl("http://localhost/faf/avatars/avatar3.png").get();
@@ -57,12 +56,12 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_MODERATOR)
-  public void moderatorCanReupload() throws Exception {
+  public void canReuploadWithScopeAndRole() throws Exception {
+    Files.createDirectories(Paths.get("build/cache/avatars"));
     Files.copy(FileHandlingHelper.loadResourceAsStream("/avatars/donator.png"), Paths.get("build/cache/avatars/avatar1.png"));
     mockMvc.perform(
       createAvatarReuploadRequest(1)
-        .with(getOAuthToken(OAuthScope._UPLOAD_AVATAR))
+        .with(getOAuthTokenWithTestUser(OAuthScope._UPLOAD_AVATAR, GroupPermission.ROLE_WRITE_AVATAR))
     ).andExpect(status().isOk())
       .andExpect(content().string(""));
     final Avatar avatar = avatarRepository.findOneByUrl("http://localhost/faf/avatars/avatar1.png").get();
@@ -72,73 +71,67 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_MODERATOR)
-  public void moderatorCanDeleteAvatar() throws Exception {
+  public void canDeleteAvatarWithScopeAndRole() throws Exception {
+    Files.createDirectories(Paths.get("build/cache/avatars"));
     Files.copy(FileHandlingHelper.loadResourceAsStream("/avatars/donator.png"), Paths.get("build/cache/avatars/avatar1.png"));
     mockMvc.perform(
-      delete("/avatars/1")
-        .with(getOAuthToken(OAuthScope._UPLOAD_AVATAR))
+      delete("/avatars/3")
+        .with(getOAuthTokenWithTestUser(OAuthScope._UPLOAD_AVATAR, GroupPermission.ROLE_WRITE_AVATAR))
     ).andExpect(status().isNoContent());
-    assertThat(avatarRepository.findById(1), is(Optional.empty()));
+    assertThat(avatarRepository.findById(3), is(Optional.empty()));
     verify(auditServiceSpy, times(1)).logMessage(any());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void nonModeratorCannotUpload() throws Exception {
+  public void cannotUploadWithoutRole() throws Exception {
     mockMvc.perform(
       createAvatarUploadRequest()
-        .with(getOAuthToken(OAuthScope._UPLOAD_AVATAR))
+        .with(getOAuthTokenWithTestUser(OAuthScope._UPLOAD_AVATAR, NO_AUTHORITIES))
     ).andExpect(status().isForbidden());
     verify(auditServiceSpy, times(0)).logMessage(any());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void nonModeratorCannotReupload() throws Exception {
+  public void cannotReuploadWithoutRole() throws Exception {
     mockMvc.perform(
       createAvatarReuploadRequest(1)
-        .with(getOAuthToken(OAuthScope._UPLOAD_AVATAR))
+        .with(getOAuthTokenWithTestUser(OAuthScope._UPLOAD_AVATAR, NO_AUTHORITIES))
     ).andExpect(status().isForbidden());
     verify(auditServiceSpy, times(0)).logMessage(any());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void nonModeratorCannotDelete() throws Exception {
+  public void cannotDeleteWithoutRole() throws Exception {
     mockMvc.perform(
       delete("/avatars/1")
-        .with(getOAuthToken(OAuthScope._UPLOAD_AVATAR))
+        .with(getOAuthTokenWithTestUser(OAuthScope._UPLOAD_AVATAR, NO_AUTHORITIES))
     ).andExpect(status().isForbidden());
     verify(auditServiceSpy, times(0)).logMessage(any());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void moderatorWithoutScopeCannotUpload() throws Exception {
+  public void cannotUploadWithoutScope() throws Exception {
     mockMvc.perform(
       createAvatarUploadRequest()
-        .with(getOAuthToken())
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_AVATAR))
     ).andExpect(status().isForbidden());
     verify(auditServiceSpy, times(0)).logMessage(any());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void moderatorWithoutScopeCannotReupload() throws Exception {
+  public void cannotReuploadWithoutScope() throws Exception {
     mockMvc.perform(
       createAvatarReuploadRequest(1)
-        .with(getOAuthToken())
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_AVATAR))
     ).andExpect(status().isForbidden());
     verify(auditServiceSpy, times(0)).logMessage(any());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
-  public void moderatorWithoutScopeCannotDelete() throws Exception {
+  public void cannotDeleteWithoutScope() throws Exception {
     mockMvc.perform(
       delete("/avatars/1")
-        .with(getOAuthToken())
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_AVATAR))
     ).andExpect(status().isForbidden());
     verify(auditServiceSpy, times(0)).logMessage(any());
   }

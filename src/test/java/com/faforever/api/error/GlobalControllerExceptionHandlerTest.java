@@ -6,7 +6,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
-import javax.validation.*;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
+import javax.validation.ValidationException;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Set;
@@ -44,7 +49,7 @@ public class GlobalControllerExceptionHandlerTest {
     assertEquals(1, response.getErrors().size());
     final ErrorResult errorResult = response.getErrors().get(0);
     assertEquals(ErrorCode.CLAN_NAME_EXISTS.getTitle(), errorResult.getTitle());
-    assertEquals(MessageFormat.format(ErrorCode.CLAN_NAME_EXISTS.getDetail(), null), errorResult.getDetail());
+    assertEquals(MessageFormat.format(ErrorCode.CLAN_NAME_EXISTS.getDetail(), new Object[0]), errorResult.getDetail());
     assertEquals(String.valueOf(ErrorCode.CLAN_NAME_EXISTS.getCode()), errorResult.getAppCode());
   }
 

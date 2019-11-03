@@ -1,7 +1,8 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.data.checks.permission.IsModerator;
+import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.listeners.VotingChoiceEnricher;
+import com.faforever.api.security.elide.permission.AdminVoteCheck;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yahoo.elide.annotation.Audit;
@@ -29,10 +30,10 @@ import java.util.Set;
 
 @Entity
 @Table(name = "voting_choice")
-@ReadPermission(expression = "Prefab.Role.All")
-@DeletePermission(expression = IsModerator.EXPRESSION)
-@UpdatePermission(expression = IsModerator.EXPRESSION)
-@CreatePermission(expression = IsModerator.EXPRESSION)
+@ReadPermission(expression = Prefab.ALL)
+@DeletePermission(expression = AdminVoteCheck.EXPRESSION)
+@UpdatePermission(expression = AdminVoteCheck.EXPRESSION)
+@CreatePermission(expression = AdminVoteCheck.EXPRESSION)
 @Audit(action = Action.CREATE, logStatement = "Created voting choice with id: {0} ", logExpressions = {"${votingChoice.id}"})
 @Audit(action = Action.DELETE, logStatement = "Deleted voting choice with id: {0} ", logExpressions = {"${votingChoice.id}"})
 @Audit(action = Action.UPDATE, logStatement = "Updated voting choice with id: {0} ", logExpressions = {"${votingChoice.id}"})

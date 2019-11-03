@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class PlayerResult {
-  private final int id;
+  private final Integer id;
   private final String login;
 
   public static PlayerResult of(Player newMember) {

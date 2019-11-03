@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.data.checks.permission.IsModerator;
+import com.faforever.api.data.checks.Prefab;
+import com.faforever.api.security.elide.permission.WriteAvatarCheck;
 import com.github.jasminb.jsonapi.annotations.Type;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
@@ -34,7 +35,7 @@ public class Avatar extends AbstractEntity {
   }
 
   @Column(name = "tooltip")
-  @UpdatePermission(expression = IsModerator.EXPRESSION)
+  @UpdatePermission(expression = WriteAvatarCheck.EXPRESSION)
   public String getTooltip() {
     return tooltip;
   }
@@ -42,7 +43,7 @@ public class Avatar extends AbstractEntity {
   // Cascading is needed for Create & Delete
   @OneToMany(mappedBy = "avatar", cascade = CascadeType.ALL, orphanRemoval = true)
   // Permission is managed by AvatarAssignment class
-  @UpdatePermission(expression = "Prefab.Role.All")
+  @UpdatePermission(expression = Prefab.ALL)
   public List<AvatarAssignment> getAssignments() {
     return this.assignments;
   }

@@ -9,7 +9,7 @@ faf-api:
   challonge:
     key: ${CHALLONGE_KEY:}
   database:
-    schema-version: ${DATABASE_SCHEMA_VERSION:76}
+    schema-version: ${DATABASE_SCHEMA_VERSION:78}
   mautic:
     base-url: ${MAUTIC_BASE_URL:false}
     client-id: ${MAUTIC_CLIENT_ID:false}
@@ -59,6 +59,11 @@ spring:
     port: ${MAIL_PORT:false}
     username: ${MAIL_USERNAME:false}
     password: ${MAIL_PASSWORD:false}
+  http:
+    encoding:
+      charset: utf-8
+      enabled: true
+      force: true
 
 server:
   # Mind that this is configured in the docker compose file as well (that is, in the gradle script that generates it)

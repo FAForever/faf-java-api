@@ -1,8 +1,9 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.data.checks.permission.IsModerator;
+import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.listeners.VotingSubjectEnricher;
 import com.faforever.api.data.validation.VotingSubjectRevealWinnerCheck;
+import com.faforever.api.security.elide.permission.AdminVoteCheck;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.yahoo.elide.annotation.Audit;
@@ -31,10 +32,10 @@ import java.util.Set;
 @Entity
 @Table(name = "voting_subject")
 @Include(rootLevel = true, type = VotingSubject.TYPE_NAME)
-@ReadPermission(expression = "Prefab.Role.All")
-@DeletePermission(expression = IsModerator.EXPRESSION)
-@UpdatePermission(expression = IsModerator.EXPRESSION)
-@CreatePermission(expression = IsModerator.EXPRESSION)
+@ReadPermission(expression = Prefab.ALL)
+@DeletePermission(expression = AdminVoteCheck.EXPRESSION)
+@UpdatePermission(expression = AdminVoteCheck.EXPRESSION)
+@CreatePermission(expression = AdminVoteCheck.EXPRESSION)
 @Audit(action = Action.CREATE, logStatement = "Created voting subject with id: {0}", logExpressions = {"${votingSubject.id}"})
 @Audit(action = Action.DELETE, logStatement = "Deleted voting subject with id: {0}", logExpressions = {"${votingSubject.id}"})
 @Audit(action = Action.UPDATE, logStatement = "Updated voting subject with id: {0}", logExpressions = {"${votingSubject.id}"})

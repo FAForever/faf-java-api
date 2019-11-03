@@ -67,7 +67,7 @@ public class DataController {
     produces = JSON_API_MEDIA_TYPE,
     value = {"/{entity}", "/{entity}/{id}/relationships/{entity2}", "/{entity}/{id}/{child}", "/{entity}/{id}"})
   @Cacheable(cacheResolver = "elideCacheResolver")
-  @PreAuthorize("hasRole('USER')")
+  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<String> post(@RequestBody final String body,
                                      final HttpServletRequest request,
                                      final Authentication authentication) {
@@ -85,7 +85,7 @@ public class DataController {
     consumes = {JSON_API_MEDIA_TYPE, MediaType.APPLICATION_JSON_VALUE},
     produces = JSON_API_MEDIA_TYPE,
     value = {"/{entity}/{id}", "/{entity}/{id}/relationships/{entity2}"})
-  @PreAuthorize("hasRole('USER')")
+  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<String> patch(@RequestBody final String body,
                                       final HttpServletRequest request,
                                       final Authentication authentication) {
@@ -103,16 +103,16 @@ public class DataController {
   @RequestMapping(
     method = RequestMethod.PATCH,
     consumes = JSON_API_PATCH_MEDIA_TYPE,
-    produces = JSON_API_PATCH_MEDIA_TYPE,
+    produces = JSON_API_MEDIA_TYPE,
     value = "/{entity}")
   // should contain "/{entity}/{id}" but spring will call this method even for JSON_API_MEDIA_TYPE
-  @PreAuthorize("hasRole('USER')")
+  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<String> extensionPatch(@RequestBody final String body,
                                                final HttpServletRequest request,
                                                final Authentication authentication) {
     ElideResponse response = elide.patch(
       JSON_API_PATCH_MEDIA_TYPE,
-      JSON_API_PATCH_MEDIA_TYPE,
+      JSON_API_MEDIA_TYPE,
       getJsonApiPath(request),
       body,
       getPrincipal(authentication)
@@ -125,7 +125,7 @@ public class DataController {
     method = RequestMethod.DELETE,
     produces = JSON_API_MEDIA_TYPE,
     value = {"/{entity}/{id}", "/{entity}/{id}/relationships/{entity2}"})
-  @PreAuthorize("hasRole('USER')")
+  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<String> delete(final HttpServletRequest request,
                                        final Authentication authentication) {
     ElideResponse response = elide.delete(

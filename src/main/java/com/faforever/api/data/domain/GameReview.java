@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsEntityOwner;
+import com.faforever.api.data.checks.Prefab;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
@@ -17,7 +18,7 @@ import javax.persistence.Table;
 @Include(rootLevel = true, type = "gameReview")
 @Entity
 @Table(name = "game_review")
-@CreatePermission(expression = "Prefab.Role.All")
+@CreatePermission(expression = Prefab.ALL)
 @DeletePermission(expression = IsEntityOwner.EXPRESSION)
 public class GameReview extends Review {
 
@@ -25,7 +26,7 @@ public class GameReview extends Review {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "game_id")
-  @UpdatePermission(expression = "Prefab.Role.All and Prefab.Common.UpdateOnCreate")
+  @UpdatePermission(expression = Prefab.ALL_AND_UPDATE_ON_CREATE)
   public Game getGame() {
     return game;
   }

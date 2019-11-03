@@ -19,8 +19,8 @@ import static org.springframework.security.core.authority.AuthorityUtils.commaSe
  */
 public class FafUserAuthenticationConverter extends DefaultUserAuthenticationConverter {
 
-  private static final String ID = "user_id";
-  private static final String NON_LOCKED = "non_locked";
+  public static final String USER_ID_KEY = "user_id";
+  public static final String NON_LOCKED = "non_locked";
 
   @Override
   public Map<String, ?> convertUserAuthentication(Authentication authentication) {
@@ -28,7 +28,7 @@ public class FafUserAuthenticationConverter extends DefaultUserAuthenticationCon
 
     @SuppressWarnings("unchecked")
     Map<String, Object> response = (Map<String, Object>) super.convertUserAuthentication(authentication);
-    response.put(ID, fafUserDetails.getId());
+    response.put(USER_ID_KEY, fafUserDetails.getId());
     response.put(NON_LOCKED, fafUserDetails.isAccountNonLocked());
 
     return response;
@@ -36,11 +36,11 @@ public class FafUserAuthenticationConverter extends DefaultUserAuthenticationCon
 
   @Override
   public Authentication extractAuthentication(Map<String, ?> map) {
-    if (!map.containsKey(ID)) {
+    if (!map.containsKey(USER_ID_KEY)) {
       return null;
     }
 
-    int id = (Integer) map.get(ID);
+    int id = (Integer) map.get(USER_ID_KEY);
     String username = (String) map.get(USERNAME);
     boolean accountNonLocked = Optional.ofNullable((Boolean) map.get(NON_LOCKED)).orElse(true);
     Collection<? extends GrantedAuthority> authorities = getAuthorities(map);

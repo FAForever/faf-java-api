@@ -165,11 +165,11 @@ public class ClanElideTest extends AbstractIntegrationTest {
   @Test
   @WithUserDetails(AUTH_CLAN_LEADER)
   public void canDeleteClanAsLeader() throws Exception {
-    Optional<Clan> clanOptional = clanRepository.findOneByName("Alpha Clan");
-    assertTrue(clanOptional.isPresent());
+    Clan clan = clanRepository.findOneByName("Alpha Clan")
+      .orElseThrow(() -> new IllegalStateException("Alpha Clan could not be found"));
 
     List<Player> clanMember = new ArrayList<>();
-    clanOptional.get().getMemberships().stream()
+    clan.getMemberships().stream()
       .map(ClanMembership::getPlayer)
       .forEach(clanMember::add);
 
@@ -178,7 +178,6 @@ public class ClanElideTest extends AbstractIntegrationTest {
       .andExpect(status().isNoContent()); // TODO: Catch javax.validation.ConstraintViolationException and wrap it into a regular ApiException
 
     assertFalse(clanRepository.findOneByName("Alpha Clan").isPresent());
-    clanMember.forEach(player -> assertNull(playerRepository.getOne(player.getId()).getClan()));
   }
 
   @Test

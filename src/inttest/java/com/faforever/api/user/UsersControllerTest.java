@@ -66,7 +66,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
     params.add("password", NEW_PASSWORD);
 
     mockMvc.perform(post("/users/register")
-      .with(getOAuthToken(OAuthScope._CREATE_USER))
+      .with(getOAuthTokenWithoutUser(OAuthScope._CREATE_USER))
       .params(params)
     ).andExpect(status().isOk());
 
@@ -95,7 +95,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
     params.add("password", NEW_PASSWORD);
 
     MvcResult result = mockMvc.perform(post("/users/register")
-      .with(getOAuthToken(OAuthScope._CREATE_USER))
+      .with(getOAuthTokenWithoutUser(OAuthScope._CREATE_USER))
       .params(params)
     ).andExpect(status().is4xxClientError())
       .andReturn();
@@ -128,7 +128,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       post("/users/changePassword")
-        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().isOk());
 
@@ -139,13 +139,14 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   @WithUserDetails(AUTH_USER)
-  public void changePasswordWithWrongScope() throws Exception {
+  public void changePasswordWithoutScope() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("currentPassword", AUTH_USER);
     params.add("newPassword", NEW_PASSWORD);
 
     mockMvc.perform(
       post("/users/changePassword")
+        .with(getOAuthTokenWithoutUser(NO_SCOPE))
         .params(params))
       .andExpect(status().isForbidden());
   }
@@ -159,7 +160,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     MvcResult mvcResult = mockMvc.perform(
       post("/users/changePassword")
-        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().is4xxClientError())
       .andReturn();
@@ -176,7 +177,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       post("/users/changeEmail")
-        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().isOk());
 
@@ -186,13 +187,14 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   @WithUserDetails(AUTH_USER)
-  public void changeEmailWithWrongScope() throws Exception {
+  public void changeEmailWithoutScope() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("currentPassword", AUTH_USER);
     params.add("newEmail", NEW_EMAIL);
 
     mockMvc.perform(
       post("/users/changeEmail")
+        .with(getOAuthTokenWithoutUser(NO_SCOPE))
         .params(params))
       .andExpect(status().isForbidden());
   }
@@ -206,7 +208,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     MvcResult mvcResult = mockMvc.perform(
       post("/users/changeEmail")
-        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().is4xxClientError())
       .andReturn();
@@ -223,7 +225,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     MvcResult mvcResult = mockMvc.perform(
       post("/users/changeEmail")
-        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().is4xxClientError())
       .andReturn();
@@ -296,7 +298,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   public void buildSteamLinkUrlAlreadyLinked() throws Exception {
     MvcResult result = mockMvc.perform(
       post("/users/buildSteamLinkUrl?callbackUrl=foo")
-        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA)))
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA)))
       .andExpect(status().is4xxClientError())
       .andReturn();
 
@@ -310,7 +312,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       post("/users/buildSteamLinkUrl?callbackUrl=foo")
-        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA)))
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA)))
       .andExpect(status().isOk());
 
     verify(steamService, times(1)).buildLoginUrl(anyString());
@@ -405,7 +407,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       post("/users/changeUsername")
-        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().isOk());
 
@@ -422,7 +424,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       post("/users/1/forceChangeUsername")
-        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().is4xxClientError())
       .andReturn();
@@ -440,7 +442,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       post("/users/2/forceChangeUsername")
-        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().isOk());
 
@@ -457,7 +459,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     MvcResult result = mockMvc.perform(
       post("/users/changeUsername")
-        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().is4xxClientError())
       .andReturn();
@@ -477,7 +479,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       post("/users/2/forceChangeUsername")
-        .with(getOAuthToken(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().isOk())
       .andReturn();

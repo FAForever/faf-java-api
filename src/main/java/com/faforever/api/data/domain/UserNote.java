@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.data.checks.permission.IsModerator;
+import com.faforever.api.data.checks.Prefab;
+import com.faforever.api.security.elide.permission.AdminAccountNoteCheck;
 import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.CreatePermission;
@@ -21,10 +22,10 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Table(name = "user_notes")
 @Include(rootLevel = true, type = "userNote")
-@ReadPermission(expression = IsModerator.EXPRESSION)
-@CreatePermission(expression = IsModerator.EXPRESSION)
-@UpdatePermission(expression = IsModerator.EXPRESSION)
-@DeletePermission(expression = "Prefab.Role.None")
+@ReadPermission(expression = AdminAccountNoteCheck.EXPRESSION)
+@CreatePermission(expression = AdminAccountNoteCheck.EXPRESSION)
+@UpdatePermission(expression = AdminAccountNoteCheck.EXPRESSION)
+@DeletePermission(expression = Prefab.NONE)
 @Audit(action = Action.CREATE, logStatement = "Note `{0}` for user `{1}` added (watched=`{2}`) with text: {3}", logExpressions = {"${userNote.id}", "${userNote.player.id}", "${userNote.watched}", "${userNote.note}"})
 @Setter
 public class UserNote extends AbstractEntity {
