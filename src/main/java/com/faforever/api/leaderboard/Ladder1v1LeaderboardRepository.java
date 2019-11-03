@@ -28,6 +28,7 @@ public interface Ladder1v1LeaderboardRepository extends Repository<Ladder1v1Lead
       "   AND id NOT IN (" +
       "     SELECT player_id FROM ban" +
       "     WHERE (expires_at is null or expires_at > NOW()) AND (revoke_time IS NULL OR revoke_time > NOW())" +
+      "       AND (1=1 OR -1 IN (?,?,?))" +
       "  ) -- Dummy placeholder for pageable, prevents 'Unknown parameter position': ?,?,?",
     nativeQuery = true)
   Page<Ladder1v1LeaderboardEntry> getLeaderboardByPage(Pageable pageable);

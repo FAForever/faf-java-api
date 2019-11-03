@@ -27,6 +27,7 @@ public interface GlobalLeaderboardRepository extends Repository<GlobalLeaderboar
       "   AND id NOT IN (" +
       "     SELECT player_id FROM ban" +
       "     WHERE (expires_at is null or expires_at > NOW()) AND (revoke_time IS NULL OR revoke_time > NOW())" +
+      "       AND (1=1 OR -1 IN (?,?,?))" +
       "  ) -- Dummy placeholder for pageable, prevents 'Unknown parameter position': ?,?,?", nativeQuery = true)
   Page<GlobalLeaderboardEntry> getLeaderboardByPage(Pageable pageable);
 
