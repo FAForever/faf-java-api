@@ -148,8 +148,8 @@ sourceSets {
   inttest {
     java.srcDir 'src/inttest/java'
     resources.srcDir 'src/inttest/resources'
-    compileClasspath += main.output + test.output
-    runtimeClasspath += main.output + test.output
+    compileClasspath += sourceSets.test.compileClasspath
+    runtimeClasspath += sourceSets.test.runtimeClasspath
   }
 }
 
@@ -165,6 +165,9 @@ task inttest(type: Test) {
 
   setTestClassesDirs(files(sourceSets.inttest.output))
   classpath = sourceSets.inttest.runtimeClasspath
+
+  useJUnitPlatform()
+
   mustRunAfter test
 }
 
@@ -205,8 +208,7 @@ dependencyManagement {
 }
 
 test {
-  useJUnitPlatform {
-  }
+  useJUnitPlatform()
   testLogging {
     events("passed", "skipped", "failed")
   }
@@ -272,10 +274,10 @@ dependencies {
   testCompile("org.springframework.boot:spring-boot-starter-test")
   testCompile("org.springframework.restdocs:spring-restdocs-mockmvc")
   testCompile("org.springframework.security:spring-security-test")
-  testImplementation("junit:junit")
   testImplementation("org.junit.jupiter:junit-jupiter:${jUnit5Version}")
   testImplementation("org.junit.jupiter:junit-jupiter-params:${jUnit5Version}")
   testImplementation("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
+  testImplementation("org.junit.jupiter:junit-jupiter-migrationsupport:${jUnit5Version}")
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine:${jUnit5Version}")
   testCompile("com.h2database:h2:${h2Version}")
   testCompile("com.jayway.jsonpath:json-path:${jsonPath}")

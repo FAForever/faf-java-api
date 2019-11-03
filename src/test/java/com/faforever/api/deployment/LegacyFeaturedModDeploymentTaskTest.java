@@ -7,15 +7,16 @@ import com.faforever.api.deployment.git.GitWrapper;
 import com.faforever.api.featuredmods.FeaturedModFile;
 import com.faforever.api.featuredmods.FeaturedModService;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -30,6 +31,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyShort;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.any;
@@ -39,7 +41,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith({MockitoExtension.class, ExternalResourceSupport.class})
 public class LegacyFeaturedModDeploymentTaskTest {
 
   @Rule
@@ -56,8 +58,8 @@ public class LegacyFeaturedModDeploymentTaskTest {
 
   private FafApiProperties properties;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  public void setUp() {
     properties = new FafApiProperties();
     Deployment deployment = properties.getDeployment();
     deployment.setRepositoriesDirectory(repositoriesFolder.getRoot().getAbsolutePath());
@@ -66,9 +68,9 @@ public class LegacyFeaturedModDeploymentTaskTest {
     instance = new LegacyFeaturedModDeploymentTask(gitWrapper, featuredModService, properties, restTemplate);
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void testRunWithoutConfigurationThrowsException() throws Exception {
-    instance.run();
+  @Test
+  public void testRunWithoutConfigurationThrowsException() {
+    assertThrows(IllegalStateException.class, () -> instance.run() );
   }
 
   @Test

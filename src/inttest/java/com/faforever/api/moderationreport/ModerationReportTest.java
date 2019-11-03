@@ -8,8 +8,8 @@ import com.faforever.commons.api.dto.ModerationReport;
 import com.faforever.commons.api.dto.ModerationReportStatus;
 import com.faforever.commons.api.dto.Player;
 import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.jdbc.Sql;
@@ -41,7 +41,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
   private Set<Player> reportedUsers;
 
   @Override
-  @Before
+  @BeforeEach
   public void setUp() {
     super.setUp();
     Player reporter = (Player) new Player().setId("1");

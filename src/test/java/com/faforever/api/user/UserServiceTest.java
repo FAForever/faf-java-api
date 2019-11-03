@@ -18,14 +18,15 @@ import com.faforever.api.security.FafTokenType;
 import com.faforever.api.user.UserService.SteamLinkResult;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.ExpectedExceptionSupport;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -52,7 +53,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith({MockitoExtension.class, ExpectedExceptionSupport.class})
 public class UserServiceTest {
   public static final String INVALID_PASSWORD = "invalid password";
   private static final String TEST_SECRET = "banana";
@@ -69,6 +70,7 @@ public class UserServiceTest {
   private static final String STEAM_ID = "someSteamId";
   private static final String IP_ADDRESS = "127.0.0.1";
   private static FafPasswordEncoder fafPasswordEncoder = new FafPasswordEncoder();
+  private static final CompletableFuture<Object> COMPLETED_FUTURE = CompletableFuture.completedFuture(null);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -104,24 +106,20 @@ public class UserServiceTest {
       .setId(id);
   }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     properties = new FafApiProperties();
     properties.getJwt().setSecret(TEST_SECRET);
     properties.getLinkToSteam().setSteamRedirectUrlFormat("%s");
     instance = new UserService(emailService, playerRepository, userRepository, nameRecordRepository, properties, anopeUserRepository, fafTokenService, steamService, Optional.of(mauticService), globalRatingRepository, ladder1v1RatingRepository);
-
-    when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
-    when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
-
-    when(mauticService.createOrUpdateContact(any(), any(), any(), any(), any()))
-      .thenReturn(CompletableFuture.completedFuture(null));
   }
 
   @Test
   @SuppressWarnings("unchecked")
   public void register() {
     properties.getRegistration().setActivationUrlFormat(ACTIVATION_URL_FORMAT);
+
+    when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
 
     instance.register(TEST_USERNAME, TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
 
@@ -178,11 +176,14 @@ public class UserServiceTest {
   @Test
   public void activate() {
     final String TEST_IP_ADDRESS = IP_ADDRESS;
+
     when(fafTokenService.resolveToken(FafTokenType.REGISTRATION, TOKEN_VALUE)).thenReturn(ImmutableMap.of(
       UserService.KEY_USERNAME, TEST_USERNAME,
       UserService.KEY_EMAIL, TEST_CURRENT_EMAIL,
       UserService.KEY_PASSWORD, fafPasswordEncoder.encode(TEST_NEW_PASSWORD)
     ));
+    when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
+    when(mauticService.createOrUpdateContact(any(), any(), any(), any(), any())).thenReturn(COMPLETED_FUTURE);
 
     instance.activate(TOKEN_VALUE, TEST_IP_ADDRESS);
 
@@ -225,6 +226,9 @@ public class UserServiceTest {
   public void changeEmail() {
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
 
+    when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
+    when(mauticService.createOrUpdateContact(any(), any(), any(), any(), any())).thenReturn(COMPLETED_FUTURE);
+
     instance.changeEmail(TEST_CURRENT_PASSWORD, TEST_NEW_EMAIL, user, IP_ADDRESS);
     verify(emailService).validateEmailAddress(TEST_NEW_EMAIL);
     ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
@@ -246,6 +250,12 @@ public class UserServiceTest {
   public void changeLogin() {
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(nameRecordRepository.getDaysSinceLastNewRecord(anyInt(), anyInt())).thenReturn(Optional.empty());
+
+    when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
+
+    when(mauticService.createOrUpdateContact(any(), any(), any(), any(), any()))
+      .thenReturn(COMPLETED_FUTURE);
+
 
     instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
     ArgumentCaptor<User> captorUser = ArgumentCaptor.forClass(User.class);
@@ -304,6 +314,10 @@ public class UserServiceTest {
   @Test
   public void changeLoginTooEarlyButForce() {
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
+
+    when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
+    when(mauticService.createOrUpdateContact(any(), any(), any(), any(), any())).thenReturn(COMPLETED_FUTURE);
+
     instance.changeLoginForced(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
     verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME_CHANGED), eq(IP_ADDRESS), any(OffsetDateTime.class));
   }
@@ -319,6 +333,9 @@ public class UserServiceTest {
 
   @Test
   public void changeLoginUsernameReservedButForced() {
+    when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
+    when(mauticService.createOrUpdateContact(any(), any(), any(), any(), any())).thenReturn(COMPLETED_FUTURE);
+
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     instance.changeLoginForced(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
     verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME_CHANGED), eq(IP_ADDRESS), any(OffsetDateTime.class));
@@ -327,6 +344,8 @@ public class UserServiceTest {
   @Test
   public void changeLoginUsernameReservedBySelf() {
     when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(TEST_USERID));
+    when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
+    when(mauticService.createOrUpdateContact(any(), any(), any(), any(), any())).thenReturn(COMPLETED_FUTURE);
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
@@ -341,7 +360,9 @@ public class UserServiceTest {
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
 
+    when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
     when(userRepository.findOneByLogin(TEST_USERNAME)).thenReturn(Optional.of(user));
+
     instance.resetPassword(TEST_USERNAME, TEST_NEW_PASSWORD);
 
     verify(userRepository).findOneByLogin(TEST_USERNAME);
@@ -365,7 +386,9 @@ public class UserServiceTest {
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
 
+    when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
     when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.of(user));
+
     instance.resetPassword(TEST_CURRENT_EMAIL, TEST_NEW_PASSWORD);
 
     verify(userRepository).findOneByEmail(TEST_CURRENT_EMAIL);
@@ -413,6 +436,7 @@ public class UserServiceTest {
   @SuppressWarnings("unchecked")
   public void buildSteamLinkUrl() {
     when(steamService.buildLoginUrl(any())).thenReturn("steamLoginUrl");
+    when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     String url = instance.buildSteamLinkUrl(user, "http://example.com/callback");

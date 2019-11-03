@@ -2,8 +2,8 @@ package com.faforever.api.error;
 
 import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.Player;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 import javax.validation.ConstraintViolation;
@@ -22,7 +22,7 @@ public class GlobalControllerExceptionHandlerTest {
   private static final String COMMON_MESSAGE = "Error";
   private GlobalControllerExceptionHandler instance;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     instance = new GlobalControllerExceptionHandler();
   }

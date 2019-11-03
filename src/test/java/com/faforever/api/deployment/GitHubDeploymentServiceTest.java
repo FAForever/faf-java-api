@@ -3,9 +3,9 @@ package com.faforever.api.deployment;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.FeaturedMod;
 import com.faforever.api.featuredmods.FeaturedModService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GHDeployment;
 import org.kohsuke.github.GHDeploymentBuilder;
 import org.kohsuke.github.GHDeploymentStatusBuilder;
@@ -13,7 +13,7 @@ import org.kohsuke.github.GHEventPayload.Deployment;
 import org.kohsuke.github.GHEventPayload.Push;
 import org.kohsuke.github.GHRepository;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 
 import java.util.Collections;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class GitHubDeploymentServiceTest {
 
   private static final String EXAMPLE_REPO_URL = "https://example.com/repo.git";
@@ -40,7 +40,7 @@ public class GitHubDeploymentServiceTest {
   @Mock
   private FeaturedModService featuredModService;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     apiProperties = new FafApiProperties();
     instance = new GitHubDeploymentService(applicationContext, apiProperties, featuredModService);

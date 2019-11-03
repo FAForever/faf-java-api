@@ -3,8 +3,8 @@ package com.faforever.api.data.listeners;
 import com.faforever.api.clan.ClanFactory;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Clan;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -13,7 +13,7 @@ public class ClanEnricherListenerTest {
   private ClanEnricherListener instance;
 
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     instance = new ClanEnricherListener();
 

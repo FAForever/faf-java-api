@@ -8,7 +8,7 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.player.PlayerRepository;
 import lombok.SneakyThrows;
 import org.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithUserDetails;

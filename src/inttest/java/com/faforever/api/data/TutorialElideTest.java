@@ -6,7 +6,7 @@ import com.faforever.api.security.OAuthScope;
 import com.faforever.commons.api.dto.Tutorial;
 import com.faforever.commons.api.dto.TutorialCategory;
 import com.jayway.jsonpath.JsonPath;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;

@@ -6,7 +6,7 @@ import com.faforever.api.security.OAuthScope;
 import com.faforever.commons.api.dto.Avatar;
 import com.faforever.commons.api.dto.AvatarAssignment;
 import com.faforever.commons.api.dto.Player;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;

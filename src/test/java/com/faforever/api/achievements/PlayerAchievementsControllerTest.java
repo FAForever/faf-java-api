@@ -3,21 +3,22 @@ package com.faforever.api.achievements;
 import com.faforever.api.achievements.AchievementUpdateRequest.Operation;
 import com.faforever.api.data.domain.AchievementState;
 import com.yahoo.elide.jsonapi.models.JsonApiDocument;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PlayerAchievementsControllerTest {
 
   private AchievementsController instance;
@@ -25,7 +26,7 @@ public class PlayerAchievementsControllerTest {
   @Mock
   private AchievementService achievementService;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     instance = new AchievementsController(achievementService);
   }
@@ -59,10 +60,11 @@ public class PlayerAchievementsControllerTest {
     assertThat(result.getData().get(), hasSize(6));
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test
   public void updateReveledUnsupported() throws Exception {
     AchievementUpdateRequest[] updateRequests = {new AchievementUpdateRequest(1, "111", Operation.REVEAL, 1)};
 
-    instance.update(updateRequests);
+    assertThrows(UnsupportedOperationException.class, () -> instance.update(updateRequests));
+
   }
 }
