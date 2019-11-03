@@ -4,7 +4,10 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.data.domain.UserGroup;
 import com.faforever.api.player.PlayerService;
 import com.faforever.api.security.FafUserDetails;
-import com.faforever.api.web.JsonApiSingleResource;
+import com.google.common.collect.ImmutableMap;
+import com.yahoo.elide.jsonapi.models.Data;
+import com.yahoo.elide.jsonapi.models.JsonApiDocument;
+import com.yahoo.elide.jsonapi.models.Resource;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import lombok.Builder;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,7 +38,7 @@ public class MeController {
   @ApiOperation("Returns the authentication object of the current user")
   @ApiResponse(code = 200, message = "Success with JsonApi compliant MeResult")
   @Secured("ROLE_USER")
-  public JsonApiSingleResource<MeResult> me(@AuthenticationPrincipal FafUserDetails authentication) {
+  public JsonApiDocument me(@AuthenticationPrincipal FafUserDetails authentication) {
 
     Player player = playerService.getById(authentication.getId());
     Set<String> grantedAuthorities = authentication.getAuthorities().stream()
@@ -45,41 +49,27 @@ public class MeController {
       .map(UserGroup::getTechnicalName)
       .collect(Collectors.toSet());
 
-    return MeResult.builder()
-      .userId(player.getId())
-      .userName(player.getLogin())
-      .email(player.getEmail())
-      .clan(player.getClan() == null ? null : Clan.builder()
-        .id(player.getClan().getId())
-        .membershipId(player.getClanMembership().getId())
-        .tag(player.getClan().getTag())
-        .name(player.getClan().getName())
-        .build()
+    return new JsonApiDocument(new Data<>(
+      new Resource("me",
+        "me",
+        ImmutableMap.<String, Object>builder()
+          .put("userId", player.getId())
+          .put("userName", player.getLogin())
+          .put("email", player.getEmail())
+          .put("clan", player.getClan() == null ? Optional.empty() : Clan.builder()
+            .id(player.getClan().getId())
+            .membershipId(player.getClanMembership().getId())
+            .tag(player.getClan().getTag())
+            .name(player.getClan().getName())
+            .build())
+          .put("groups", groups)
+          .put("permissions", grantedAuthorities)
+          .build(),
+        null,
+        null,
+        null
       )
-      .groups(groups)
-      .permissions(grantedAuthorities)
-      .build()
-      .asJsonApi();
-  }
-
-  @Value
-  @Builder
-  public static class MeResult {
-    Integer userId;
-    String userName;
-    String email;
-    Clan clan;
-    Set<String> groups;
-    Set<String> permissions;
-
-    @SuppressWarnings("unchecked")
-    JsonApiSingleResource<MeResult> asJsonApi() {
-      return JsonApiSingleResource.ofProxy(
-        () -> "me",
-        () -> "me",
-        () -> this
-      );
-    }
+    ));
   }
 
   @Value
