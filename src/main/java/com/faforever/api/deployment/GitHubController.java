@@ -3,6 +3,8 @@ package com.faforever.api.deployment;
 import com.faforever.api.config.FafApiProperties;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.kohsuke.github.GHEventPayload;
 import org.kohsuke.github.GHEventPayload.Deployment;
 import org.kohsuke.github.GHEventPayload.Push;
@@ -16,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
+import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 
@@ -55,18 +57,16 @@ public class GitHubController {
     }
   }
 
-  @SneakyThrows
-  private <T extends GHEventPayload> T parseEvent(@RequestBody String body, Class<T> type) {
+  private <T extends GHEventPayload> T parseEvent(@RequestBody String body, Class<T> type) throws IOException {
     return gitHub.parseEventPayload(new StringReader(body), type);
   }
 
-  @SneakyThrows
-  private void verifyRequest(String payload, String signature) {
+  private void verifyRequest(String payload, String signature) throws DecoderException {
     String secret = apiProperties.getGitHub().getWebhookSecret();
     MacSigner macSigner = new MacSigner(HMAC_SHA1, new SecretKeySpec(secret.getBytes(StandardCharsets.US_ASCII), HMAC_SHA1));
 
     byte[] content = payload.getBytes(StandardCharsets.US_ASCII);
     // Signature starts with "sha1="
-    macSigner.verify(content, DatatypeConverter.parseHexBinary(signature.substring(5)));
+    macSigner.verify(content, Hex.decodeHex(signature.substring(5)));
   }
 }
