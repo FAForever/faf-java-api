@@ -1,4 +1,4 @@
-FROM frolvlad/alpine-java:jdk8-slim
+FROM adoptopenjdk/openjdk11:alpine-jre
 
 VOLUME /tmp
 COPY build/libs/faf-java-api-*.jar app.jar
