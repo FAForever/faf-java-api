@@ -35,22 +35,22 @@ public class LeaderboardServiceTest {
   @Test
   public void getLadder1v1Leaderboard() throws Exception {
     Page<Ladder1v1LeaderboardEntry> leaderboard = new PageImpl<>(Collections.emptyList());
-    when(ladder1v1LeaderboardRepository.getLeaderboardByPage(new PageRequest(0, 100))).thenReturn(leaderboard);
+    when(ladder1v1LeaderboardRepository.getLeaderboardByPage(PageRequest.of(0, 100))).thenReturn(leaderboard);
 
     List<Ladder1v1LeaderboardEntry> result = instance.getLadder1v1Leaderboard(1, 100).getContent();
 
     assertThat(result, is(leaderboard.getContent()));
-    verify(ladder1v1LeaderboardRepository).getLeaderboardByPage(new PageRequest(0,100));
+    verify(ladder1v1LeaderboardRepository).getLeaderboardByPage(PageRequest.of(0, 100));
   }
 
   @Test
   public void getGlobalLeaderboard() throws Exception {
     Page<GlobalLeaderboardEntry> leaderboard = new PageImpl<>(Collections.emptyList());
-    when(globalLeaderboardRepository.getLeaderboardByPage(new PageRequest(0, 100))).thenReturn(leaderboard);
+    when(globalLeaderboardRepository.getLeaderboardByPage(PageRequest.of(0, 100))).thenReturn(leaderboard);
 
     List<GlobalLeaderboardEntry> result = instance.getGlobalLeaderboard(1, 100).getContent();
 
     assertThat(result, is(leaderboard.getContent()));
-    verify(globalLeaderboardRepository).getLeaderboardByPage(new PageRequest(0,100));
+    verify(globalLeaderboardRepository).getLeaderboardByPage(PageRequest.of(0, 100));
   }
 }

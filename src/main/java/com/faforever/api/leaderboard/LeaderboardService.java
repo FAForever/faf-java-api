@@ -45,7 +45,7 @@ public class LeaderboardService {
 
   @NotNull
   private Pageable getPageable(@Nullable Integer page, @Nullable Integer pageSize) {
-    return new PageRequest(
+    return PageRequest.of(
       Optional.ofNullable(page).map(p -> p - 1).orElse(0),
       Optional.ofNullable(pageSize).orElse(MAX_RESULTS)
     );

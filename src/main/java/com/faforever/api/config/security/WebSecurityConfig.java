@@ -22,8 +22,6 @@ import org.springframework.security.web.authentication.ExceptionMappingAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -90,17 +88,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
           .antMatchers("/favicon.ico").permitAll()
           .antMatchers("/robots.txt").permitAll();
     // @formatter:on
-  }
-
-  @Bean
-  public WebMvcConfigurer corsConfigurer() {
-    return new WebMvcConfigurer() {
-      @Override
-      public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-          .allowedMethods("*");
-      }
-    };
   }
 
   @Bean

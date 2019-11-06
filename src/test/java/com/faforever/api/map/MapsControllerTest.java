@@ -11,8 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -34,6 +34,8 @@ public class MapsControllerTest {
 
   private MockMvc mvc;
   @MockBean
+  private UserDetailsService userDetailsService;
+  @MockBean
   private MapService mapService;
   @MockBean
   private FafApiProperties fafApiProperties;
@@ -52,7 +54,6 @@ public class MapsControllerTest {
     this.mvc.perform(multipart("/maps/upload"))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors", hasSize(1)))
-      .andExpect(jsonPath("$.errors[0].status", is(HttpStatus.BAD_REQUEST.toString())))
       .andExpect(jsonPath("$.errors[0].title", is("org.springframework.web.multipart.support.MissingServletRequestPartException")))
       .andExpect(jsonPath("$.errors[0].detail", is("Required request part 'file' is not present")));
   }
@@ -65,7 +66,6 @@ public class MapsControllerTest {
       .file(file))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors", hasSize(1)))
-      .andExpect(jsonPath("$.errors[0].status", is(HttpStatus.BAD_REQUEST.toString())))
       .andExpect(jsonPath("$.errors[0].title", is("org.springframework.web.bind.MissingServletRequestParameterException")))
       .andExpect(jsonPath("$.errors[0].detail", is("Required String parameter 'metadata' is not present")));
   }

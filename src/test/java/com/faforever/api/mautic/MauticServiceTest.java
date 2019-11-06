@@ -41,7 +41,7 @@ public class MauticServiceTest {
     when(restTemplateBuilder.additionalMessageConverters(messageConverter)).thenReturn(restTemplateBuilder);
     when(restTemplateBuilder.errorHandler(mauticApiErrorHandler)).thenReturn(restTemplateBuilder);
     when(restTemplateBuilder.rootUri(any())).thenReturn(restTemplateBuilder);
-    when(restTemplateBuilder.basicAuthorization(any(), any())).thenReturn(restTemplateBuilder);
+    when(restTemplateBuilder.basicAuthentication(any(), any())).thenReturn(restTemplateBuilder);
 
     instance = new MauticService(messageConverter, mauticApiErrorHandler, new FafApiProperties(), restTemplateBuilder);
   }
