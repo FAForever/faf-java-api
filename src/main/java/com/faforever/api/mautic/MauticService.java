@@ -54,7 +54,7 @@ public class MauticService {
 //    restOperations = restTemplateBuilder.configure(new OAuth2RestTemplate(details));
 
     // TODO for now, client ID needs to be a username and client secret the user's password.
-    RestTemplateBuilder builder = restTemplateBuilder.basicAuthorization(mauticProperties.getClientId(), mauticProperties.getClientSecret());
+    RestTemplateBuilder builder = restTemplateBuilder.basicAuthentication(mauticProperties.getClientId(), mauticProperties.getClientSecret());
 
     restOperations = builder.build();
   }

@@ -3,6 +3,7 @@ package com.faforever.api.config;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -35,5 +36,11 @@ public class MvcConfig implements WebMvcConfigurer {
   public void configureContentNegotiation(final ContentNegotiationConfigurer configurer) {
     // Turn off suffix-based content negotiation
     configurer.favorPathExtension(false);
+  }
+
+  @Override
+  public void addCorsMappings(CorsRegistry registry) {
+    registry.addMapping("/**")
+      .allowedMethods("*");
   }
 }
