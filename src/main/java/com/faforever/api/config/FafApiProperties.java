@@ -167,7 +167,6 @@ public class FafApiProperties {
   public static class Mail {
     private String fromEmailAddress;
     private String fromEmailName;
-    private String mandrillApiKey;
     private Smtp smtp;
   }
 
