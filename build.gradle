@@ -221,11 +221,6 @@ dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
   testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
-  //This is needed, because something in regards prometheus adds this annotationProcessor to the classpath
-  //See https://github.com/jenkinsci/prometheus-plugin/issues/35
-  annotationProcessor("org.jvnet.hudson:annotation-indexer:1.2")
-  testAnnotationProcessor("org.jvnet.hudson:annotation-indexer:1.2")
-
   runtime("io.micrometer:micrometer-registry-prometheus")
 
   compile("org.springframework.boot:spring-boot-starter-jdbc")
@@ -240,7 +235,6 @@ dependencies {
   compile("com.github.ben-manes.caffeine:caffeine")
   compile("com.github.FAForever:faf-java-commons:${fafCommonsVersion}")
   compile("org.kohsuke:github-api:${githubApiVersion}")
-  compile("org.jolokia:jolokia-core")
   compile("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springSecurityOauth2AutoConfigureVersion}")
   compile("org.springframework.security.oauth:spring-security-oauth2:${springSecurityOauth2Version}")
   compile("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
@@ -251,18 +245,14 @@ dependencies {
   compile("io.springfox:springfox-swagger2:${swaggerVersion}")
   compile("io.swagger:swagger-core:${swaggerCoreVersion}")
   compile("javax.inject:javax.inject:${javaxInjectVersion}")
-  // When switching from Java 8 to 9, I got "class file for javax.interceptor.interceptorbinding not found". Adding this fixed it, but IDK what caused it.
-  compile("javax.interceptor:javax.interceptor-api:${javaxInterceptorApiVersion}")
   compile("com.yahoo.elide:elide-core:${elideVersion}")
   compile("com.yahoo.elide:elide-swagger:${elideVersion}")
   compile("com.yahoo.elide:elide-datastore-hibernate5:${elideVersion}")
-//  compile("org.glassfish.jersey.core:jersey-common:2.26")
 
   compile("org.luaj:luaj-jse:${luajVersion}")
   compile("com.github.micheljung:nocatch:${nocatchVersion}")
   compile("junit-addons:junit-addons:${junitAddonsVersion}")
   compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonDatatypeJsr310Version}")
-  compile("com.mandrillapp.wrapper.lutung:lutung:${lutungVersion}")
   compile("org.apache.commons:commons-compress:${commonsCompressVersion}")
   compile("org.json:json:${jsonVersion}")
 
