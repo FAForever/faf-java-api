@@ -11,15 +11,12 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -40,8 +37,9 @@ public class ClansController {
     @ApiResponse(code = 200, message = "Success with JSON { player: {id: ?, login: ?}, clan: { id: ?, name: ?, tag: ?}}"),
     @ApiResponse(code = 400, message = "Bad Request")})
   @GetMapping(path = "/me", produces = APPLICATION_JSON_VALUE)
-  public MeResult me(Authentication authentication) {
-    Player player = playerService.getPlayer(authentication);
+  @Deprecated // use regular /me route instead
+  public MeResult me() {
+    Player player = playerService.getCurrentPlayer();
 
     Clan clan = player.getClan();
     ClanResult clanResult = null;
@@ -59,13 +57,11 @@ public class ClansController {
     @ApiResponse(code = 400, message = "Bad Request")})
   @PostMapping(path = "/create", produces = APPLICATION_JSON_VALUE)
   @PreAuthorize("hasRole('ROLE_USER')")
-  @Transactional
+  @Deprecated // use POST /data/clans instead (with a founder in relationships)
   public Map<String, Serializable> createClan(@RequestParam(value = "name") String name,
                                               @RequestParam(value = "tag") String tag,
-                                              @RequestParam(value = "description", required = false) String description,
-                                              Authentication authentication) throws IOException {
-    Player player = playerService.getPlayer(authentication);
-    Clan clan = clanService.create(name, tag, description, player);
+                                              @RequestParam(value = "description", required = false) String description) {
+    Clan clan = clanService.create(name, tag, description);
     return Map.of("id", clan.getId(), "type", "clan");
   }
 
@@ -76,19 +72,14 @@ public class ClansController {
   @GetMapping(path = "/generateInvitationLink", produces = APPLICATION_JSON_VALUE)
   public Map<String, Serializable> generateInvitationLink(
     @RequestParam(value = "clanId") int clanId,
-    @RequestParam(value = "playerId") int newMemberId,
-    Authentication authentication) throws IOException {
-    Player player = playerService.getPlayer(authentication);
-    String jwtToken = clanService.generatePlayerInvitationToken(player, newMemberId, clanId);
+    @RequestParam(value = "playerId") int newMemberId) {
+    String jwtToken = clanService.generatePlayerInvitationToken(newMemberId, clanId);
     return Map.of("jwtToken", jwtToken);
   }
 
-  @ApiOperation("Check invitation link and add Member to Clan")
+  @ApiOperation("Check invitation link and add member to Clan")
   @PostMapping(path = "/joinClan", produces = APPLICATION_JSON_VALUE)
-  @Transactional
-  public void joinClan(
-    @RequestParam(value = "token") String stringToken,
-    Authentication authentication) throws IOException {
-    clanService.acceptPlayerInvitationToken(stringToken, authentication);
+  public void joinClan(@RequestParam(value = "token") String stringToken) {
+    clanService.acceptPlayerInvitationToken(stringToken);
   }
 }

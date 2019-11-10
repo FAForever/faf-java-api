@@ -61,7 +61,7 @@ public enum ErrorCode {
   CLAN_ACCEPT_PLAYER_IN_A_CLAN(152, "Player is in a clan", "You are already in a clan"),
   CLAN_NOT_LEADER(153, "You Permission", "You are not the leader of the clan"),
   CLAN_NOT_EXISTS(154, "Cannot find Clan", "Clan with id {0, number} is not available"),
-  CLAN_GENERATE_LINK_PLAYER_NOT_FOUND(155, "Player not found", "Cannot find player with id {0, number} who should be invited to the clan"),
+  PLAYER_NOT_FOUND(155, "Player not found", "Cannot find player with id {0, number}."),
   CLAN_NAME_EXISTS(156, "Clan Name already in use", "The clan name ''{0}'' is already in use. Please choose a different clan name."),
   CLAN_TAG_EXISTS(157, "Clan Tag already in use", "The clan tag ''{0}'' is already in use. Please choose a different clan tag."),
   VALIDATION_FAILED(158, "Validation failed", "{0}"),
@@ -117,6 +117,7 @@ public enum ErrorCode {
   LESS_PERMISSIVE_LICENSE(207, "Less permissive license", "New license is less permissive than current license."),
   MALFORMED_URL(208, "Malformed URL", "Provided url ''{0}'' is malformed."),
   NOT_ALLOWED_URL_HOST(209, "URL host not allowed", "Provided URL's host is not allowed. URL: ''{0}'', allowed hosts: ''{1}''."),
+  CLAN_INVALID_FOUNDER(210, "Invalid clan founder", "If you create a clan you must be the founder of it."),
   ;
 
 
