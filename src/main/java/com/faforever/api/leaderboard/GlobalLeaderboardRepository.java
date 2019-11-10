@@ -20,13 +20,13 @@ public interface GlobalLeaderboardRepository extends Repository<GlobalLeaderboar
     "  WHERE is_active = 1" +
     "   AND login.id NOT IN (" +
     "     SELECT player_id FROM ban" +
-    "     WHERE (expires_at is null or expires_at > NOW()) AND (revoke_time IS NULL OR revoke_time > NOW())" +
+    "     WHERE (expires_at is null or expires_at > NOW()) AND revoke_time IS NULL" +
     "  ) " +
     "  ORDER BY rating DESC LIMIT ?#{#pageable.offset},?#{#pageable.pageSize}",
     countQuery = "SELECT count(*) FROM ladder1v1_rating WHERE is_active = 1 AND ladder1v1_rating.numGames > 0" +
       "   AND id NOT IN (" +
       "     SELECT player_id FROM ban" +
-      "     WHERE (expires_at is null or expires_at > NOW()) AND (revoke_time IS NULL OR revoke_time > NOW())" +
+      "     WHERE (expires_at is null or expires_at > NOW()) AND revoke_time IS NULL" +
       "       AND (1=1 OR -1 IN (?,?,?))" +
       "  ) -- Dummy placeholder for pageable, prevents 'Unknown parameter position': ?,?,?", nativeQuery = true)
   Page<GlobalLeaderboardEntry> getLeaderboardByPage(Pageable pageable);
@@ -43,7 +43,7 @@ public interface GlobalLeaderboardRepository extends Repository<GlobalLeaderboar
     "WHERE is_active = 1\n" +
     "   AND login.id NOT IN (" +
     "     SELECT player_id FROM ban" +
-    "     WHERE (expires_at is null or expires_at <= NOW()) AND (revoke_time IS NULL OR revoke_time > NOW())" +
+    "     WHERE (expires_at is null or expires_at > NOW()) AND revoke_time IS NULL" +
     "  ) " +
     "ORDER BY rating DESC) as leaderboard WHERE id = :playerId", nativeQuery = true)
   GlobalLeaderboardEntry findByPlayerId(@Param("playerId") int playerId);
