@@ -1,15 +1,23 @@
 package com.faforever.api.data.listeners;
 
 import com.faforever.api.clan.ClanFactory;
+import com.faforever.api.clan.ClanService;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Clan;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+@ExtendWith(MockitoExtension.class)
 public class ClanEnricherListenerTest {
+  @Mock
+  private ClanService clanService;
+
   private ClanEnricherListener instance;
 
   @BeforeEach
@@ -17,8 +25,7 @@ public class ClanEnricherListenerTest {
     instance = new ClanEnricherListener();
 
     FafApiProperties fafApiProperties = new FafApiProperties();
-    instance.init(fafApiProperties);
-
+    instance.init(fafApiProperties, clanService);
     fafApiProperties.getClan().setWebsiteUrlFormat("http://example.com/%s");
   }
 

@@ -14,7 +14,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -77,8 +76,7 @@ public class MapsController {
     @ApiResponse(code = 500, message = "Failure")})
   @RequestMapping(path = "/upload", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
   public void uploadMap(@RequestParam("file") MultipartFile file,
-                        @RequestParam("metadata") String jsonString,
-                        Authentication authentication) throws IOException {
+                        @RequestParam("metadata") String jsonString) throws IOException {
     if (file == null) {
       throw new ApiException(new Error(ErrorCode.UPLOAD_FILE_MISSING));
     }
@@ -97,7 +95,7 @@ public class MapsController {
       throw new ApiException(new Error(ErrorCode.INVALID_METADATA, e.getMessage()));
     }
 
-    Player player = playerService.getPlayer(authentication);
+    Player player = playerService.getCurrentPlayer();
     mapService.uploadMap(file.getInputStream(), file.getOriginalFilename(), player, ranked);
   }
 }

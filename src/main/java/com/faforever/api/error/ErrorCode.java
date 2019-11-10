@@ -61,7 +61,7 @@ public enum ErrorCode {
   CLAN_ACCEPT_PLAYER_IN_A_CLAN(152, "Player is in a clan", "You are already in a clan"),
   CLAN_NOT_LEADER(153, "You Permission", "You are not the leader of the clan"),
   CLAN_NOT_EXISTS(154, "Cannot find Clan", "Clan with id {0, number} is not available"),
-  CLAN_GENERATE_LINK_PLAYER_NOT_FOUND(155, "Player not found", "Cannot find player with id {0, number} who should be invited to the clan"),
+  PLAYER_NOT_FOUND(155, "Player not found", "Cannot find player with id {0, number}."),
   CLAN_NAME_EXISTS(156, "Clan Name already in use", "The clan name ''{0}'' is already in use. Please choose a different clan name."),
   CLAN_TAG_EXISTS(157, "Clan Tag already in use", "The clan tag ''{0}'' is already in use. Please choose a different clan tag."),
   VALIDATION_FAILED(158, "Validation failed", "{0}"),
@@ -99,7 +99,8 @@ public enum ErrorCode {
   PARSING_LUA_FILE_FAILED(189, "Parsing lua files failed", "During the parsing of the lua file an error occured: {0}"),
   NO_RUSH_RADIUS_MISSING(190, "No rush radius missing", "The scenario file must specify a no rush radius"),
   INVALID_FEATURED_MOD(191, "Invalid featured mod name", "The featured mod name ''{0}'' is not allowed in this context."),
-  API_KEY_INVALID(192, "Api key is invalid", "The api key is invalid.");
+  API_KEY_INVALID(192, "Api key is invalid", "The api key is invalid."),
+  CLAN_INVALID_FOUNDER(193, "Invalid clan founder", "If you create a clan you must be the founder of it.");
 
   private final int code;
   private final String title;

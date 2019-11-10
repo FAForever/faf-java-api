@@ -7,7 +7,6 @@ import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerService;
 import com.google.common.io.Files;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,7 +34,7 @@ public class ModsController {
 
   @ApiOperation("Upload a mod")
   @RequestMapping(path = "/upload", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
-  public void uploadMod(@RequestParam("file") MultipartFile file, Authentication authentication) throws IOException {
+  public void uploadMod(@RequestParam("file") MultipartFile file) throws IOException {
     if (file == null) {
       throw new ApiException(new Error(ErrorCode.UPLOAD_FILE_MISSING));
     }
@@ -48,6 +47,6 @@ public class ModsController {
     Path tempFile = java.nio.file.Files.createTempFile("mod", ".tmp");
     file.transferTo(tempFile.getFileName().toFile());
 
-    modService.processUploadedMod(tempFile, playerService.getPlayer(authentication));
+    modService.processUploadedMod(tempFile, playerService.getCurrentPlayer());
   }
 }

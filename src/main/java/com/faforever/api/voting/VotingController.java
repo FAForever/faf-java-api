@@ -9,7 +9,6 @@ import com.google.common.base.Strings;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -31,14 +30,14 @@ public class VotingController {
   @ApiOperation(value = "Post a vote")
   @PreAuthorize("#oauth2.hasScope('" + OAuthScope._VOTE + "')")
   @RequestMapping(path = "/vote", method = RequestMethod.POST, produces = JsonApiMediaType.JSON_API_MEDIA_TYPE)
-  public void postVote(@RequestBody Vote vote, Authentication authentication) {
-    votingService.saveVote(vote, playerService.getPlayer(authentication));
+  public void postVote(@RequestBody Vote vote) {
+    votingService.saveVote(vote, playerService.getCurrentPlayer());
   }
 
   @ApiOperation(value = "See if user can vote on a subject")
   @RequestMapping(path = "/votingSubjectsAbleToVote", method = RequestMethod.GET, produces = JsonApiMediaType.JSON_API_MEDIA_TYPE)
-  public void votingSubjectsAbleTo(HttpServletResponse response, Authentication authentication, HttpServletRequest request) throws IOException {
-    List<VotingSubject> votingSubjects = votingService.votingSubjectsAbleToVote(playerService.getPlayer(authentication));
+  public void votingSubjectsAbleTo(HttpServletResponse response, HttpServletRequest request) throws IOException {
+    List<VotingSubject> votingSubjects = votingService.votingSubjectsAbleToVote(playerService.getCurrentPlayer());
     redirectToFilteredVotingSubjects(response, votingSubjects, request);
   }
 
