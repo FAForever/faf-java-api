@@ -69,36 +69,17 @@ public class ClanService {
   @SneakyThrows
   @Transactional
   @Deprecated
-    // use preCreate instead
+    // use POST via Elide instead
   Clan create(String name, String tag, String description) {
-    Player creator = playerService.getCurrentPlayer();
-
-    if (creator.getClanMembership() != null) {
-      throw ApiException.of(ErrorCode.CLAN_CREATE_FOUNDER_IS_IN_A_CLAN);
-    }
-    if (clanRepository.findOneByName(name).isPresent()) {
-      throw ApiException.of(ErrorCode.CLAN_NAME_EXISTS, name);
-    }
-    if (clanRepository.findOneByTag(tag).isPresent()) {
-      throw ApiException.of(ErrorCode.CLAN_TAG_EXISTS, tag);
-    }
-
     Clan clan = new Clan();
     clan.setName(name);
     clan.setTag(tag);
     clan.setDescription(description);
     clan.setRequiresInvitation(true);
+    clan.setFounder(playerService.getCurrentPlayer());
+    clan.setLeader(playerService.getCurrentPlayer());
 
-    clan.setFounder(creator);
-    clan.setLeader(creator);
-
-    ClanMembership membership = new ClanMembership();
-    membership.setClan(clan);
-    membership.setPlayer(creator);
-
-    clan.setMemberships(Set.of(membership));
-
-    // clan membership is saved over cascading, otherwise validation will fail
+    // validation is done at preCreate() called by ClanListener
     clanRepository.save(clan);
     return clan;
   }
