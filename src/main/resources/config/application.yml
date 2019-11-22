@@ -23,6 +23,10 @@ faf-api:
   rating:
     default-mean: 1500
     default-deviation: 500
+  nodebb:
+    base-url: ${NODEBB_BASE_URL:false}
+    admin-user-id: ${NODEBB_ADMIN_USERID:1}
+    master-token: ${NODEBB_MASTER_TOKEN:false}
 
 spring:
   application:
