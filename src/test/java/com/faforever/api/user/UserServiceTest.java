@@ -28,6 +28,7 @@ import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -97,6 +98,8 @@ public class UserServiceTest {
   private Ladder1v1RatingRepository ladder1v1RatingRepository;
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private MeterRegistry meterRegistry;
+  @Mock
+  private ApplicationEventPublisher eventPublisher;
 
   private FafApiProperties properties;
 
@@ -112,7 +115,19 @@ public class UserServiceTest {
   public void setUp() {
     properties = new FafApiProperties();
     properties.getLinkToSteam().setSteamRedirectUrlFormat("%s");
-    instance = new UserService(emailService, playerRepository, userRepository, nameRecordRepository, properties, anopeUserRepository, fafTokenService, steamService, Optional.of(mauticService), globalRatingRepository, ladder1v1RatingRepository, meterRegistry);
+    instance = new UserService(emailService,
+      playerRepository,
+      userRepository,
+      nameRecordRepository,
+      properties,
+      anopeUserRepository,
+      fafTokenService,
+      steamService,
+      Optional.of(mauticService),
+      globalRatingRepository,
+      ladder1v1RatingRepository,
+      meterRegistry,
+      eventPublisher);
   }
 
   @Test

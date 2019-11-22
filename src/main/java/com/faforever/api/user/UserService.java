@@ -23,6 +23,7 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,8 +73,8 @@ public class UserService {
   private final Counter userNameChangeCounter;
   private final Counter userPasswordResetRequestCounter;
   private final Counter userPasswordResetDoneCounter;
+  private final ApplicationEventPublisher eventPublisher;
 
-  @java.beans.ConstructorProperties({"emailService", "playerRepository", "userRepository", "nameRecordRepository", "properties", "anopeUserRepository", "fafTokenService", "steamService", "mauticService", "globalRatingRepository", "ladder1v1RatingRepository", "meterRegistry"})
   public UserService(EmailService emailService,
                      PlayerRepository playerRepository,
                      UserRepository userRepository,
@@ -85,7 +86,8 @@ public class UserService {
                      Optional<MauticService> mauticService,
                      GlobalRatingRepository globalRatingRepository,
                      Ladder1v1RatingRepository ladder1v1RatingRepository,
-                     MeterRegistry meterRegistry) {
+                     MeterRegistry meterRegistry,
+                     ApplicationEventPublisher eventPublisher) {
     this.emailService = emailService;
     this.playerRepository = playerRepository;
     this.userRepository = userRepository;
@@ -97,6 +99,7 @@ public class UserService {
     this.mauticService = mauticService;
     this.globalRatingRepository = globalRatingRepository;
     this.ladder1v1RatingRepository = ladder1v1RatingRepository;
+    this.eventPublisher = eventPublisher;
     this.meterRegistry = meterRegistry;
 
     this.passwordEncoder = new FafPasswordEncoder();
@@ -245,8 +248,9 @@ public class UserService {
     nameRecordRepository.save(nameRecord);
 
     user.setLogin(newLogin);
+    user.setRecentIpAddress(ipAddress);
 
-    createOrUpdateMauticContact(userRepository.save(user), ipAddress);
+    updateUser(user);
     userNameChangeCounter.increment();
   }
 
@@ -274,11 +278,21 @@ public class UserService {
 
     log.debug("Changing email for user ''{}'' to ''{}''", user, newEmail);
     user.setEmail(newEmail);
-    createOrUpdateUser(user, ipAddress);
+    user.setRecentIpAddress(ipAddress);
+    updateUser(user);
   }
 
-  private void createOrUpdateUser(User user, String ipAddress) {
-    createOrUpdateMauticContact(userRepository.save(user), ipAddress);
+  private void updateUser(User user) {
+    UserUpdatedEvent userUpdatedEvent = new UserUpdatedEvent(
+      user,
+      user.getId(),
+      user.getLogin(),
+      user.getEmail(),
+      user.getRecentIpAddress());
+
+    eventPublisher.publishEvent(userUpdatedEvent);
+    // TODO: Replace createOrUpdateMauticContact with another EventListener
+    createOrUpdateMauticContact(userRepository.save(user), user.getRecentIpAddress());
   }
 
   void requestPasswordReset(String identifier) {

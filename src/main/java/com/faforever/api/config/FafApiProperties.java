@@ -39,6 +39,7 @@ public class FafApiProperties {
   private Anope anope = new Anope();
   private Rating rating = new Rating();
   private Tutorial tutorial = new Tutorial();
+  private Nodebb nodebb = new Nodebb();
 
   @Data
   public static class OAuth2 {
@@ -251,5 +252,15 @@ public class FafApiProperties {
   @Data
   public static class Tutorial {
     private String thumbnailUrlFormat;
+  }
+
+  @Data
+  public static class Nodebb {
+    private String baseUrl;
+    /**
+     * The nodeBB user id to be impersonated. Id 1 as initial admin should be sufficient.
+     */
+    private int adminUserId;
+    private String masterToken;
   }
 }
