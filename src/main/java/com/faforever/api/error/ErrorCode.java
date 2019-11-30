@@ -55,7 +55,7 @@ public enum ErrorCode {
   INVALID_METADATA(146, "Invalid metadata", "Metadata is not valid: {0}"),
   MAP_RENAME_FAILED(147, "Cannot rename to correct name failed ", "Cannot rename file ''{0}''"),
   MAP_INVALID_ZIP(148, "Invalid zip file", "The zip file should only contain one folder at the root level"),
-  CLAN_CREATE_CREATOR_IS_IN_A_CLAN(149, "You are already in a clan", "Clan creator is already member of a clan"),
+  CLAN_CREATE_FOUNDER_IS_IN_A_CLAN(149, "You are already in a clan", "Clan founder is already member of a clan"),
   CLAN_ACCEPT_TOKEN_EXPIRE(150, "Token Expire", "The Invitation Link expire"),
   CLAN_ACCEPT_WRONG_PLAYER(151, "Wrong Player", "Your are not the invited player"),
   CLAN_ACCEPT_PLAYER_IN_A_CLAN(152, "Player is in a clan", "You are already in a clan"),

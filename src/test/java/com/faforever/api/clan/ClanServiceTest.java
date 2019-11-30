@@ -71,7 +71,7 @@ public class ClanServiceTest {
       instance.create(clanName, tag, description, creator);
       fail();
     } catch (ApiException e) {
-      assertThat(e, hasErrorCode(ErrorCode.CLAN_CREATE_CREATOR_IS_IN_A_CLAN));
+      assertThat(e, hasErrorCode(ErrorCode.CLAN_CREATE_FOUNDER_IS_IN_A_CLAN));
     }
     verify(clanRepository, Mockito.never()).save(any(Clan.class));
   }

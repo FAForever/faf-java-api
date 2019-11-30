@@ -14,8 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,7 +24,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 
 @RestController
@@ -37,9 +38,9 @@ public class ClansController {
 
   @ApiOperation("Grab data about yourself and the clan")
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Success with JSON { player: {id: ?, login: ?}, clan: { id: ?, name: ?, tag: ?}}"),
-      @ApiResponse(code = 400, message = "Bad Request")})
-  @RequestMapping(path = "/me", method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
+    @ApiResponse(code = 200, message = "Success with JSON { player: {id: ?, login: ?}, clan: { id: ?, name: ?, tag: ?}}"),
+    @ApiResponse(code = 400, message = "Bad Request")})
+  @GetMapping(path = "/me", produces = APPLICATION_JSON_VALUE)
   public MeResult me(Authentication authentication) {
     Player player = playerService.getPlayer(authentication);
 
@@ -55,9 +56,9 @@ public class ClansController {
   // a: the new clan with the leader membership, b: the leader membership with the new clan
   @ApiOperation("Create a clan with correct leader, founder and clan membership")
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Success with JSON { id: ?, type: 'clan'}"),
-      @ApiResponse(code = 400, message = "Bad Request")})
-  @RequestMapping(path = "/create", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
+    @ApiResponse(code = 200, message = "Success with JSON { id: ?, type: 'clan'}"),
+    @ApiResponse(code = 400, message = "Bad Request")})
+  @PostMapping(path = "/create", produces = APPLICATION_JSON_VALUE)
   @PreAuthorize("hasRole('ROLE_USER')")
   @Transactional
   public Map<String, Serializable> createClan(@RequestParam(value = "name") String name,
@@ -71,28 +72,24 @@ public class ClansController {
 
   @ApiOperation("Generate invitation link")
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Success with JSON { jwtToken: ? }"),
-      @ApiResponse(code = 400, message = "Bad Request")})
-  @RequestMapping(path = "/generateInvitationLink",
-      method = RequestMethod.GET,
-    produces = APPLICATION_JSON_UTF8_VALUE)
+    @ApiResponse(code = 200, message = "Success with JSON { jwtToken: ? }"),
+    @ApiResponse(code = 400, message = "Bad Request")})
+  @GetMapping(path = "/generateInvitationLink", produces = APPLICATION_JSON_VALUE)
   public Map<String, Serializable> generateInvitationLink(
-      @RequestParam(value = "clanId") int clanId,
-      @RequestParam(value = "playerId") int newMemberId,
-      Authentication authentication) throws IOException {
+    @RequestParam(value = "clanId") int clanId,
+    @RequestParam(value = "playerId") int newMemberId,
+    Authentication authentication) throws IOException {
     Player player = playerService.getPlayer(authentication);
     String jwtToken = clanService.generatePlayerInvitationToken(player, newMemberId, clanId);
     return ImmutableMap.of("jwtToken", jwtToken);
   }
 
   @ApiOperation("Check invitation link and add Member to Clan")
-  @RequestMapping(path = "/joinClan",
-      method = RequestMethod.POST,
-    produces = APPLICATION_JSON_UTF8_VALUE)
+  @PostMapping(path = "/joinClan", produces = APPLICATION_JSON_VALUE)
   @Transactional
   public void joinClan(
-      @RequestParam(value = "token") String stringToken,
-      Authentication authentication) throws IOException {
+    @RequestParam(value = "token") String stringToken,
+    Authentication authentication) throws IOException {
     clanService.acceptPlayerInvitationToken(stringToken, authentication);
   }
 }

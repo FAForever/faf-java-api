@@ -12,9 +12,8 @@ import static org.junit.Assert.assertThat;
 public class ClanEnricherListenerTest {
   private ClanEnricherListener instance;
 
-
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     instance = new ClanEnricherListener();
 
     FafApiProperties fafApiProperties = new FafApiProperties();
@@ -24,7 +23,7 @@ public class ClanEnricherListenerTest {
   }
 
   @Test
-  public void enrich() throws Exception {
+  void enrich() throws Exception {
     Clan clan = ClanFactory.builder().id(54).build();
 
     instance.enrich(clan);

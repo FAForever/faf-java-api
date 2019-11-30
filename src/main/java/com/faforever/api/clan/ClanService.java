@@ -40,7 +40,7 @@ public class ClanService {
   @SneakyThrows
   Clan create(String name, String tag, String description, Player creator) {
     if (creator.getClanMembership() != null) {
-      throw new ApiException(new Error(ErrorCode.CLAN_CREATE_CREATOR_IS_IN_A_CLAN));
+      throw new ApiException(new Error(ErrorCode.CLAN_CREATE_FOUNDER_IS_IN_A_CLAN));
     }
     if (clanRepository.findOneByName(name).isPresent()) {
       throw new ApiException(new Error(ErrorCode.CLAN_NAME_EXISTS, name));

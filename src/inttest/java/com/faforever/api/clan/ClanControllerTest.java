@@ -180,6 +180,6 @@ public class ClanControllerTest extends AbstractIntegrationTest {
       .andExpect(status().isUnprocessableEntity())
       .andReturn();
 
-    assertApiError(result, ErrorCode.CLAN_CREATE_CREATOR_IS_IN_A_CLAN);
+    assertApiError(result, ErrorCode.CLAN_CREATE_FOUNDER_IS_IN_A_CLAN);
   }
 }
