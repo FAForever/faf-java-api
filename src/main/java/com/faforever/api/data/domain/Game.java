@@ -38,6 +38,7 @@ public class Game {
   private int id;
   private OffsetDateTime startTime;
   private OffsetDateTime endTime;
+  private Integer replayTicks;
   private VictoryCondition victoryCondition;
   private FeaturedMod featuredMod;
   private Player host;
@@ -58,6 +59,11 @@ public class Game {
   @Column(name = "startTime")
   public OffsetDateTime getStartTime() {
     return startTime;
+  }
+
+  @Column(name = "replay_ticks")
+  public Integer getReplayTicks() {
+    return replayTicks;
   }
 
   @Column(name = "gameType")
