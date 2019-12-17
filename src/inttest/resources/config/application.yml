@@ -18,6 +18,8 @@ spring:
   h2:
     console:
       enabled: true
+  mail:
+    host: false
 
 
 faf-api:

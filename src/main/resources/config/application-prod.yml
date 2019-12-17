@@ -36,7 +36,6 @@ faf-api:
   clan:
     website-url-format: ${CLAN_WEBSITE_URL_FORMAT}
   mail:
-    mandrill-api-key: ${MANDRILL_API_KEY}
     from-email-name: ${EMAIL_FROM_NAME}
     from-email-address: ${EMAIL_FROM_ADDRESS}
   registration:
