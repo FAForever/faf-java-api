@@ -57,6 +57,7 @@ public class SwaggerConfig {
       regex("/maps/.*"),
       regex("/exe/.*"),
       regex("/leaderboards/.*"),
+      regex("/featuredMods/.*"),
       regex("/voting/.*"));
   }
 }
