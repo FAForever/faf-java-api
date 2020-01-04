@@ -197,7 +197,7 @@ public class UserService {
       int usernameReservationTimeInMonths = properties.getUser().getUsernameReservationTimeInMonths();
       nameRecordRepository.getLastUsernameOwnerWithinMonths(newLogin, usernameReservationTimeInMonths)
         .ifPresent(reservedByUserId -> {
-          if (reservedByUserId != user.getId()) {
+          if (!reservedByUserId.equals(user.getId())) {
             throw new ApiException(new Error(ErrorCode.USERNAME_RESERVED, newLogin, usernameReservationTimeInMonths));
           }
         });
