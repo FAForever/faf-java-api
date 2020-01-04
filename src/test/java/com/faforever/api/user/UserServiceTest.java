@@ -343,7 +343,7 @@ public class UserServiceTest {
 
   @Test
   public void changeLoginUsernameReservedBySelf() {
-    when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(TEST_USERID));
+    when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(new Integer(TEST_USERID)));
     when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
     when(mauticService.createOrUpdateContact(any(), any(), any(), any(), any())).thenReturn(COMPLETED_FUTURE);
 
