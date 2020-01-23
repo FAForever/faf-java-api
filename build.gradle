@@ -2,7 +2,7 @@ buildscript {
   repositories {
     jcenter()
     mavenCentral()
-    maven { url 'http://repo.spring.io/plugins-release' }
+    maven { url 'https://repo.spring.io/plugins-release' }
   }
   dependencies {
     classpath("org.springframework.build.gradle:propdeps-plugin:${propdepsVersion}")
@@ -117,9 +117,9 @@ targetCompatibility = 11
 
 repositories {
   mavenCentral()
-  maven { url "http://repo.jenkins-ci.org/public/" }
+  maven { url "https://repo.jenkins-ci.org/public/" }
   maven { url "https://jitpack.io" }
-  maven { url "http://dl.bintray.com/typesafe/maven-releases" }
+  maven { url "https://dl.bintray.com/typesafe/maven-releases" }
 }
 
 compileJava.dependsOn(processResources)
@@ -215,63 +215,63 @@ test {
 }
 
 dependencies {
-  compileOnly("org.projectlombok:lombok:${lombokVersion}")
+  implementation("org.projectlombok:lombok:${lombokVersion}")
   annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
   testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
   testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
-  runtime("io.micrometer:micrometer-registry-prometheus")
+  runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
-  compile("org.springframework.boot:spring-boot-starter-jdbc")
-  compile("org.springframework.boot:spring-boot-starter-data-jpa")
-  compile("org.springframework.boot:spring-boot-starter-web")
-  compile("org.springframework.boot:spring-boot-starter-jetty")
-  compile("org.springframework.boot:spring-boot-starter-security")
-  compile("org.springframework.boot:spring-boot-starter-thymeleaf")
-  compile("org.springframework.boot:spring-boot-starter-mail")
-  compile("de.codecentric:spring-boot-admin-starter-client:${springBootAdminClientVersion}")
+  implementation("org.springframework.boot:spring-boot-starter-jdbc")
+  implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+  implementation("org.springframework.boot:spring-boot-starter-web")
+  implementation("org.springframework.boot:spring-boot-starter-jetty")
+  implementation("org.springframework.boot:spring-boot-starter-security")
+  implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+  implementation("org.springframework.boot:spring-boot-starter-mail")
+  implementation("de.codecentric:spring-boot-admin-starter-client:${springBootAdminClientVersion}")
 
-  compile("com.github.ben-manes.caffeine:caffeine")
-  compile("com.github.FAForever:faf-java-commons:${fafCommonsVersion}")
-  compile("org.kohsuke:github-api:${githubApiVersion}")
-  compile("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springSecurityOauth2AutoConfigureVersion}")
-  compile("org.springframework.security.oauth:spring-security-oauth2:${springSecurityOauth2Version}")
-  compile("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
-  compile("org.eclipse.jgit:org.eclipse.jgit:${jgitVersionn}")
-  compile("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
-  compile("com.google.guava:guava:${guavaVersion}")
-  compile("io.springfox:springfox-swagger-ui:${swaggerVersion}")
-  compile("io.springfox:springfox-swagger2:${swaggerVersion}")
-  compile("io.swagger:swagger-core:${swaggerCoreVersion}")
-  compile("javax.inject:javax.inject:${javaxInjectVersion}")
-  compile("com.yahoo.elide:elide-core:${elideVersion}")
-  compile("com.yahoo.elide:elide-swagger:${elideVersion}")
-  compile("com.yahoo.elide:elide-datastore-hibernate5:${elideVersion}")
+  implementation("com.github.ben-manes.caffeine:caffeine")
+  implementation("com.github.FAForever:faf-java-commons:${fafCommonsVersion}")
+  implementation("org.kohsuke:github-api:${githubApiVersion}")
+  implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springSecurityOauth2AutoConfigureVersion}")
+  implementation("org.springframework.security.oauth:spring-security-oauth2:${springSecurityOauth2Version}")
+  implementation("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
+  implementation("org.eclipse.jgit:org.eclipse.jgit:${jgitVersionn}")
+  implementation("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
+  implementation("com.google.guava:guava:${guavaVersion}")
+  implementation("io.springfox:springfox-swagger-ui:${swaggerVersion}")
+  implementation("io.springfox:springfox-swagger2:${swaggerVersion}")
+  implementation("io.swagger:swagger-core:${swaggerCoreVersion}")
+  implementation("javax.inject:javax.inject:${javaxInjectVersion}")
+  implementation("com.yahoo.elide:elide-core:${elideVersion}")
+  implementation("com.yahoo.elide:elide-swagger:${elideVersion}")
+  implementation("com.yahoo.elide:elide-datastore-hibernate5:${elideVersion}")
 
-  compile("org.luaj:luaj-jse:${luajVersion}")
-  compile("com.github.micheljung:nocatch:${nocatchVersion}")
-  compile("junit-addons:junit-addons:${junitAddonsVersion}")
-  compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonDatatypeJsr310Version}")
-  compile("org.apache.commons:commons-compress:${commonsCompressVersion}")
-  compile("org.json:json:${jsonVersion}")
+  implementation("org.luaj:luaj-jse:${luajVersion}")
+  implementation("com.github.micheljung:nocatch:${nocatchVersion}")
+  implementation("junit-addons:junit-addons:${junitAddonsVersion}")
+  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonDatatypeJsr310Version}")
+  implementation("org.apache.commons:commons-compress:${commonsCompressVersion}")
+  implementation("org.json:json:${jsonVersion}")
 
-  compile("com.github.jasminb:jsonapi-converter:${jsonapiConverterVersion}")
-  runtime("mysql:mysql-connector-java:${mysqlConnectorVersion}")
+  implementation("com.github.jasminb:jsonapi-converter:${jsonapiConverterVersion}")
+  runtimeOnly("mysql:mysql-connector-java:${mysqlConnectorVersion}")
 
   optional("org.springframework.boot:spring-boot-configuration-processor")
 
-  testCompile("org.springframework.boot:spring-boot-starter-test")
-  testCompile("org.springframework.restdocs:spring-restdocs-mockmvc")
-  testCompile("org.springframework.security:spring-security-test")
+  testImplementation("org.springframework.boot:spring-boot-starter-test")
+  testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
+  testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.junit.jupiter:junit-jupiter:${jUnit5Version}")
   testImplementation("org.junit.jupiter:junit-jupiter-params:${jUnit5Version}")
   testImplementation("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
   testImplementation("org.junit.jupiter:junit-jupiter-migrationsupport:${jUnit5Version}")
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine:${jUnit5Version}")
-  testCompile("com.h2database:h2:${h2Version}")
-  testCompile("com.jayway.jsonpath:json-path:${jsonPath}")
-  testCompile("com.jayway.jsonpath:json-path-assert:${jsonPathAssert}")
+  testImplementation("com.h2database:h2:${h2Version}")
+  testImplementation("com.jayway.jsonpath:json-path:${jsonPath}")
+  testImplementation("com.jayway.jsonpath:json-path-assert:${jsonPathAssert}")
 
   codacy("com.github.codacy:codacy-coverage-reporter:${codacyCoverageReporterVersion}")
 }
