@@ -6,6 +6,8 @@ import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -34,6 +36,7 @@ public class GamePlayerStats {
   private Byte score;
   private OffsetDateTime scoreTime;
   private Game game;
+  private GameOutcome result;
 
   @Id
   @Column(name = "id")
@@ -106,5 +109,11 @@ public class GamePlayerStats {
   @JoinColumn(name = "gameId")
   public Game getGame() {
     return game;
+  }
+
+  @Column(name = "result")
+  @Enumerated(EnumType.STRING)
+  public GameOutcome getResult() {
+    return result;
   }
 }
