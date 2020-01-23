@@ -53,6 +53,7 @@ public class ClanService {
     clan.setName(name);
     clan.setTag(tag);
     clan.setDescription(description);
+    clan.setRequiresInvitation(true);
 
     clan.setFounder(creator);
     clan.setLeader(creator);

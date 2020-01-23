@@ -48,6 +48,7 @@ public class Clan extends AbstractEntity implements OwnableEntity {
   private String tagColor;
   private String websiteUrl;
   private List<ClanMembership> memberships;
+  private Boolean requiresInvitation;
 
   @Column(name = "name")
   @NotNull
@@ -95,6 +96,11 @@ public class Clan extends AbstractEntity implements OwnableEntity {
   @NotEmpty(message = "At least the leader should be in the clan")
   public List<ClanMembership> getMemberships() {
     return this.memberships;
+  }
+
+  @Column(name = "requires_invitation", nullable = false)
+  public Boolean getRequiresInvitation() {
+    return requiresInvitation;
   }
 
   @Transient
