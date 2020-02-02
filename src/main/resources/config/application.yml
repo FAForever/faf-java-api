@@ -80,7 +80,6 @@ management:
     address: ${MANAGEMENT_ADDRESS:}
   endpoints:
     web:
-      base-path: ${MANAGEMENT_BASE_PATH:/manage}
       exposure:
         include: '*'
 logging:
