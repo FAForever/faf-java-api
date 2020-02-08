@@ -50,8 +50,8 @@ public class FafApiProperties {
     /**
      * The secret used for JWT token generation.
      */
-    private String secretKey;
-    private String publicKey;
+    private Path secretKeyPath;
+    private Path publicKeyPath;
     private int accessTokenValiditySeconds = 3600;
     private int refreshTokenValiditySeconds = 3600;
   }
