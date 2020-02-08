@@ -11,6 +11,9 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
+import java.io.IOException;
+import java.nio.file.Files;
+
 @Configuration
 public class OAuthJwtConfig {
 
@@ -35,10 +38,13 @@ public class OAuthJwtConfig {
   }
 
   @Bean
-  protected JwtAccessTokenConverter jwtAccessTokenConverter() {
+  protected JwtAccessTokenConverter jwtAccessTokenConverter() throws IOException {
+    String secretKey = Files.readString(fafApiProperties.getJwt().getSecretKeyPath());
+    String publicKey = Files.readString(fafApiProperties.getJwt().getPublicKeyPath());
+
     JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
-    jwtAccessTokenConverter.setSigningKey(fafApiProperties.getJwt().getSecretKey());
-    jwtAccessTokenConverter.setVerifierKey(fafApiProperties.getJwt().getPublicKey());
+    jwtAccessTokenConverter.setSigningKey(secretKey);
+    jwtAccessTokenConverter.setVerifierKey(publicKey);
     ((DefaultAccessTokenConverter) jwtAccessTokenConverter.getAccessTokenConverter()).setUserTokenConverter(new FafUserAuthenticationConverter());
     return jwtAccessTokenConverter;
   }

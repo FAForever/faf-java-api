@@ -18,6 +18,8 @@ import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.RsaSigner;
 import org.springframework.security.jwt.crypto.sign.RsaVerifier;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
@@ -65,19 +67,22 @@ public class FafTokenServiceTest {
   private ObjectMapper objectMapper;
   private FafTokenService instance;
 
-  public FafTokenServiceTest() {
-    this.rsaSigner = new RsaSigner(TEST_SECRET_KEY);
-    this.rsaVerifier = new RsaVerifier(TEST_PUBLIC_KEY);
+  public FafTokenServiceTest() throws Exception {
+    String privateKey = Files.readString(Paths.get("test-pki-private.key"));
+    String publicKey = Files.readString(Paths.get("test-pki-public.key"));
+
+    this.rsaSigner = new RsaSigner(privateKey);
+    this.rsaVerifier = new RsaVerifier(publicKey);
   }
 
   @BeforeEach
-  public void setUp() {
+  public void setUp() throws Exception {
     objectMapper = new ObjectMapper();
     objectMapper.registerModule(new JavaTimeModule());
 
     FafApiProperties properties = new FafApiProperties();
-    properties.getJwt().setSecretKey(TEST_SECRET_KEY);
-    properties.getJwt().setPublicKey(TEST_PUBLIC_KEY);
+    properties.getJwt().setSecretKeyPath(Paths.get("test-pki-private.key"));
+    properties.getJwt().setPublicKeyPath(Paths.get("test-pki-public.key"));
 
     instance = new FafTokenService(objectMapper, properties);
   }

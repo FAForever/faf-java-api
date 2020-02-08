@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
@@ -32,10 +34,13 @@ public class FafTokenService {
   private final RsaSigner rsaSigner;
   private final RsaVerifier rsaVerifier;
 
-  public FafTokenService(ObjectMapper objectMapper, FafApiProperties properties) {
+  public FafTokenService(ObjectMapper objectMapper, FafApiProperties properties) throws IOException {
+    String secretKey = Files.readString(properties.getJwt().getSecretKeyPath());
+    String publicKey = Files.readString(properties.getJwt().getPublicKeyPath());
+
     this.objectMapper = objectMapper;
-    this.rsaSigner = new RsaSigner(properties.getJwt().getSecretKey());
-    this.rsaVerifier = new RsaVerifier(properties.getJwt().getPublicKey());
+    this.rsaSigner = new RsaSigner(secretKey);
+    this.rsaVerifier = new RsaVerifier(publicKey);
   }
 
   /**
