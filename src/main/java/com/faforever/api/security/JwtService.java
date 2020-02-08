@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.nio.file.Files;
 
 @Service
 public class JwtService {
@@ -18,9 +19,12 @@ public class JwtService {
   private final ObjectMapper objectMapper;
 
   @Inject
-  public JwtService(FafApiProperties fafApiProperties, ObjectMapper objectMapper) {
-    this.rsaSigner = new RsaSigner(fafApiProperties.getJwt().getSecretKey());
-    this.rsaVerifier = new RsaVerifier(fafApiProperties.getJwt().getPublicKey());
+  public JwtService(FafApiProperties fafApiProperties, ObjectMapper objectMapper) throws IOException {
+    String secretKey = Files.readString(fafApiProperties.getJwt().getSecretKeyPath());
+    String publicKey = Files.readString(fafApiProperties.getJwt().getPublicKeyPath());
+
+    this.rsaSigner = new RsaSigner(secretKey);
+    this.rsaVerifier = new RsaVerifier(publicKey);
     this.objectMapper = objectMapper;
   }
 

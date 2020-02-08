@@ -109,7 +109,6 @@ public class UserServiceTest {
   @BeforeEach
   public void setUp() {
     properties = new FafApiProperties();
-    properties.getJwt().setSecretKey(TEST_SECRET);
     properties.getLinkToSteam().setSteamRedirectUrlFormat("%s");
     instance = new UserService(emailService, playerRepository, userRepository, nameRecordRepository, properties, anopeUserRepository, fafTokenService, steamService, Optional.of(mauticService), globalRatingRepository, ladder1v1RatingRepository);
   }

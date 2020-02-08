@@ -1,7 +1,8 @@
 faf-api:
   version: dev
   jwt:
-    secret: ${JWT_SECRET:banana}
+    secretKeyPath: ${JWT_SECRET:test-pki-private.key}
+    publicKeyPath: ${JWT_SECRET:test-pki-public.key}
   map:
     target-directory: ${MAP_UPLOAD_PATH:build/cache/map/maps}
     directory-preview-path-small: ${MAP_PREVIEW_PATH_SMALL:build/cache/map_previews/small}

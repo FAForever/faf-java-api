@@ -1,6 +1,7 @@
 faf-api:
   jwt:
-    secret: ${JWT_SECRET}
+    secretKeyPath: ${JWT_SECRET}
+    publicKeyPath: ${JWT_SECRET}
   map:
     target-directory: ${MAP_UPLOAD_PATH}
     directory-preview-path-small: ${MAP_PREVIEW_PATH_SMALL}
