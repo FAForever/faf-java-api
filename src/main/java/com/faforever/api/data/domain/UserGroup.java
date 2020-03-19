@@ -37,7 +37,7 @@ UserGroup extends AbstractEntity {
   private boolean public_;
   private UserGroup parent;
   private Set<UserGroup> children;
-  private Set<User> members;
+  private Set<Player> members;
   private Set<GroupPermission> permissions;
 
   @Column(name = "technical_name")
@@ -79,7 +79,7 @@ UserGroup extends AbstractEntity {
     CascadeType.MERGE
   })
   public @NotNull
-  @Valid Set<User> getMembers() {
+  @Valid Set<Player> getMembers() {
     return members;
   }
 
