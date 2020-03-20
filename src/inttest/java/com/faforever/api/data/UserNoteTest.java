@@ -2,19 +2,20 @@ package com.faforever.api.data;
 
 import com.faforever.api.AbstractIntegrationTest;
 import com.faforever.api.data.domain.GroupPermission;
-import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.security.OAuthScope;
-import org.junit.jupiter.api.Disabled;
+import com.faforever.api.user.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
+import java.util.Set;
+
 import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -35,13 +36,13 @@ public class UserNoteTest extends AbstractIntegrationTest {
           "relationships": {
               "author": {
                   "data": {
-                      "type": "player",
+                      "type": "user",
                       "id": "1"
                   }
               },
               "player": {
                   "data": {
-                      "type": "player",
+                      "type": "user",
                       "id": "3"
                   }
               }
@@ -49,9 +50,9 @@ public class UserNoteTest extends AbstractIntegrationTest {
       }
   }
    */
-  private static final String testPost = "{\"data\":{\"type\":\"userNote\",\"attributes\":{\"watched\":false,\"note\":\"This note will be posted\"},\"relationships\":{\"author\":{\"data\":{\"type\":\"player\",\"id\":\"1\"}},\"player\":{\"data\":{\"type\":\"player\",\"id\":\"3\"}}}}}";
+  private static final String testPost = "{\"data\":{\"type\":\"userNote\",\"attributes\":{\"watched\":false,\"note\":\"This note will be posted\"},\"relationships\":{\"author\":{\"data\":{\"type\":\"user\",\"id\":\"1\"}},\"player\":{\"data\":{\"type\":\"user\",\"id\":\"3\"}}}}}";
   @Autowired
-  PlayerRepository playerRepository;
+  UserRepository userRepository;
 
   @Test
   public void emptyResultWithoutScope() throws Exception {
@@ -117,16 +118,16 @@ public class UserNoteTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Disabled("Temporary disabled due to security changes in Player class")
   public void canCreateUserNoteWithScopeAndRole() throws Exception {
-    assertThat(playerRepository.getOne(3).getUserNotes().size(), is(0));
+    assertThat(userRepository.getOne(3).getUserNotes().size(), is(0));
 
     mockMvc.perform(post("/data/userNote")
-      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE))
+      .with(getOAuthTokenWithTestUser(Set.of(OAuthScope._READ_SENSIBLE_USERDATA),
+        Set.of(GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE)))
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isCreated());
 
-    assertThat(playerRepository.getOne(3).getUserNotes().size(), is(1));
+    assertThat(userRepository.getOne(3).getUserNotes().size(), is(1));
   }
 }

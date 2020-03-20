@@ -1,8 +1,7 @@
 package com.faforever.api.user;
 
-import com.faforever.api.data.domain.Player;
+import com.faforever.api.data.domain.User;
 import com.faforever.api.data.domain.UserGroup;
-import com.faforever.api.player.PlayerService;
 import com.faforever.api.security.FafUserDetails;
 import com.google.common.collect.ImmutableMap;
 import com.yahoo.elide.jsonapi.models.Data;
@@ -11,6 +10,7 @@ import com.yahoo.elide.jsonapi.models.Resource;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import lombok.Builder;
+import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,12 +27,9 @@ import java.util.stream.Collectors;
  * Provides the route {@code /me} which returns the currently logged in user's information.
  */
 @RestController
+@RequiredArgsConstructor
 public class MeController {
-  private final PlayerService playerService;
-
-  public MeController(PlayerService playerService) {
-    this.playerService = playerService;
-  }
+  private final UserService userService;
 
   @RequestMapping(method = RequestMethod.GET, value = "/me")
   @ApiOperation("Returns the authentication object of the current user")
@@ -40,7 +37,7 @@ public class MeController {
   @Secured("ROLE_USER")
   public JsonApiDocument me(@AuthenticationPrincipal FafUserDetails authentication) {
 
-    Player player = playerService.getById(authentication.getId());
+    User player = userService.getById(authentication.getId());
     Set<String> grantedAuthorities = authentication.getAuthorities().stream()
       .map(GrantedAuthority::getAuthority)
       .collect(Collectors.toSet());

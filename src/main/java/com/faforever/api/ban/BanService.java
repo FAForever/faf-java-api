@@ -1,22 +1,22 @@
 package com.faforever.api.ban;
 
-import com.faforever.api.data.domain.Player;
-import com.faforever.api.player.PlayerRepository;
+import com.faforever.api.data.domain.User;
+import com.faforever.api.user.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class BanService {
-  private final PlayerRepository playerRepository;
+  private final UserRepository userRepository;
 
-  public BanService(PlayerRepository playerRepository) {
-    this.playerRepository = playerRepository;
-  }
-
-  public boolean hasActiveGlobalBan(Player player) {
-    return player.isGlobalBanned();
+  public boolean hasActiveGlobalBan(User user) {
+    return user.isGlobalBanned();
   }
 
   public boolean hasActiveGlobalBan(String username) {
-    return hasActiveGlobalBan(playerRepository.findOneByLogin(username));
+    return userRepository.findOneByLogin(username)
+      .map(this::hasActiveGlobalBan)
+      .orElse(false);
   }
 }
