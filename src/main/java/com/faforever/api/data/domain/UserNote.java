@@ -1,3 +1,4 @@
+
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.Prefab;
@@ -29,22 +30,22 @@ import javax.validation.constraints.NotNull;
 @Audit(action = Action.CREATE, logStatement = "Note `{0}` for user `{1}` added (watched=`{2}`) with text: {3}", logExpressions = {"${userNote.id}", "${userNote.player.id}", "${userNote.watched}", "${userNote.note}"})
 @Setter
 public class UserNote extends AbstractEntity {
-  private Player player;
-  private Player author;
+  private User player;
+  private User author;
   private boolean watched;
   private String note;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   @NotNull
-  public Player getPlayer() {
+  public User getPlayer() {
     return player;
   }
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "author")
   @NotNull
-  public Player getAuthor() {
+  public User getAuthor() {
     return author;
   }
 

@@ -101,8 +101,8 @@ public class UserServiceTest {
   private static User createUser(int id, String name, String password, String email) {
     return (User) new User()
       .setPassword(fafPasswordEncoder.encode(password))
-      .setLogin(name)
       .setEmail(email)
+      .setLogin(name)
       .setId(id);
   }
 
