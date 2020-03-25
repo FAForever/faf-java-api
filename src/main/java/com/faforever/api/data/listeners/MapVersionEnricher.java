@@ -1,7 +1,6 @@
 package com.faforever.api.data.listeners;
 
 import com.faforever.api.config.FafApiProperties;
-import com.faforever.api.data.domain.Map;
 import com.faforever.api.data.domain.MapVersion;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -32,7 +31,7 @@ public class MapVersionEnricher {
     mapVersion.setFolderName(filename.substring(filename.indexOf('/') + 1, filename.indexOf(".zip")));
   }
 
-  @CacheEvict(allEntries = true, cacheNames = {Map.TYPE_NAME, MapVersion.TYPE_NAME})
+  @CacheEvict(allEntries = true, cacheNames = {com.faforever.api.dto.Map.TYPE, com.faforever.api.dto.MapVersion.TYPE})
   @PostUpdate
   @PostRemove
   public void mapVersionChanged(MapVersion mapVersion) {

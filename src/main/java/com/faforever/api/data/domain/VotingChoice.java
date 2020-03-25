@@ -37,12 +37,10 @@ import java.util.Set;
 @Audit(action = Action.CREATE, logStatement = "Created voting choice with id: {0} ", logExpressions = {"${votingChoice.id}"})
 @Audit(action = Action.DELETE, logStatement = "Deleted voting choice with id: {0} ", logExpressions = {"${votingChoice.id}"})
 @Audit(action = Action.UPDATE, logStatement = "Updated voting choice with id: {0} ", logExpressions = {"${votingChoice.id}"})
-@Include(rootLevel = true, type = VotingChoice.TYPE_NAME)
+@Include(rootLevel = true, type = com.faforever.api.dto.VotingChoice.TYPE)
 @Setter
 @EntityListeners(VotingChoiceEnricher.class)
 public class VotingChoice extends AbstractEntity {
-  public static final String TYPE_NAME = "votingChoice";
-
   private String choiceTextKey;
   private String choiceText;
   private String descriptionKey;

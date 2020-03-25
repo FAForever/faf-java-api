@@ -4,7 +4,6 @@ import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.security.elide.permission.WriteAvatarCheck;
 import com.github.jasminb.jsonapi.annotations.Relationship;
-import com.github.jasminb.jsonapi.annotations.Type;
 import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.CreatePermission;
@@ -25,21 +24,18 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "avatars")
-@Include(rootLevel = true, type = AvatarAssignment.TYPE_NAME)
+@Include(rootLevel = true, type = com.faforever.api.dto.AvatarAssignment.TYPE)
 @CreatePermission(expression = WriteAvatarCheck.EXPRESSION)
 @DeletePermission(expression = WriteAvatarCheck.EXPRESSION)
 @Audit(action = Action.CREATE, logStatement = "Avatar ''{0}'' has been assigned to player ''{1}''", logExpressions = {"${avatarAssignment.avatar.id}", "${avatarAssignment.player.id}"})
 @Audit(action = Action.DELETE, logStatement = "Avatar ''{0}'' has been revoked from player ''{1}''", logExpressions = {"${avatarAssignment.avatar.id}", "${avatarAssignment.player.id}"})
 @Setter
-@Type(AvatarAssignment.TYPE_NAME)
 public class AvatarAssignment extends AbstractEntity implements OwnableEntity {
-  public static final String TYPE_NAME = "avatarAssignment";
-
   private Boolean selected = Boolean.FALSE;
   private OffsetDateTime expiresAt;
-  @Relationship(Player.TYPE_NAME)
+  @Relationship("player")
   private Player player;
-  @Relationship(Avatar.TYPE_NAME)
+  @Relationship("avatar")
   private Avatar avatar;
 
   @Column(name = "selected")

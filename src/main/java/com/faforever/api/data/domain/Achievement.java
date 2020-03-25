@@ -22,12 +22,10 @@ import java.time.OffsetDateTime;
 @Entity
 @Table(name = "achievement_definitions")
 @SecondaryTable(name = "achievement_statistics", pkJoinColumns = @PrimaryKeyJoinColumn(name = "achievement_id", referencedColumnName = "id"))
-@Include(rootLevel = true, type = Achievement.TYPE_NAME)
+@Include(rootLevel = true, type = com.faforever.api.dto.Achievement.TYPE)
 @EntityListeners(AchievementLocalizationListener.class)
 @Setter
 public class Achievement {
-
-  public static final String TYPE_NAME = "achievement";
 
   private String id;
   private int order;

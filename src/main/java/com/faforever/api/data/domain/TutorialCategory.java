@@ -4,7 +4,6 @@ package com.faforever.api.data.domain;
 import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.listeners.TutorialCategoryEnricherListener;
 import com.faforever.api.security.elide.permission.WriteTutorialCheck;
-import com.github.jasminb.jsonapi.annotations.Type;
 import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.ComputedAttribute;
@@ -31,7 +30,7 @@ import java.util.List;
 @Entity
 @Table(name = "tutorial_category")
 @Setter
-@Include(rootLevel = true, type = TutorialCategory.TYPE_NAME)
+@Include(rootLevel = true, type = com.faforever.api.dto.TutorialCategory.TYPE)
 @DeletePermission(expression = WriteTutorialCheck.EXPRESSION)
 @UpdatePermission(expression = WriteTutorialCheck.EXPRESSION)
 @CreatePermission(expression = WriteTutorialCheck.EXPRESSION)
@@ -39,10 +38,7 @@ import java.util.List;
 @Audit(action = Action.CREATE, logStatement = "Tutorial Category with title `{0}` and ID `{1}` created", logExpressions = {"${tutorialCategory.category}", "${tutorialCategory.id}"})
 @ReadPermission(expression = Prefab.ALL)
 @EntityListeners(TutorialCategoryEnricherListener.class)
-@Type(TutorialCategory.TYPE_NAME)
 public class TutorialCategory {
-  public static final String TYPE_NAME = "tutorialCategory";
-
   private int id;
   private String categoryKey;
   private String category;

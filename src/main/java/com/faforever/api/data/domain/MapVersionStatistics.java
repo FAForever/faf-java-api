@@ -16,7 +16,7 @@ import javax.persistence.Table;
 @Entity
 @Setter
 @Table(name = "map_version_statistics")
-@Include(rootLevel = true, type = "mapVersionStatistics")
+@Include(rootLevel = true, type = com.faforever.api.dto.MapVersionStatistics.TYPE)
 @Immutable
 public class MapVersionStatistics {
   private int id;

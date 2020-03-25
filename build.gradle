@@ -215,6 +215,8 @@ test {
 }
 
 dependencies {
+  implementation project(":faf-java-api-dto")
+
   implementation("org.projectlombok:lombok:${lombokVersion}")
   annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
   testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")

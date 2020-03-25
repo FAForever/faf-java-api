@@ -40,12 +40,10 @@ import java.util.Set;
 @Audit(action = Action.CREATE, logStatement = "Created voting question with id:{0}", logExpressions = {"${votingQuestion.id}"})
 @Audit(action = Action.DELETE, logStatement = "Deleted voting question with id:{0}", logExpressions = {"${votingQuestion.id}"})
 @Audit(action = Action.UPDATE, logStatement = "Updated voting question with id:{0}", logExpressions = {"${votingQuestion.id}"})
-@Include(rootLevel = true, type = VotingQuestion.TYPE_NAME)
+@Include(rootLevel = true, type = com.faforever.api.dto.VotingQuestion.TYPE)
 @Setter
 @EntityListeners(VotingQuestionEnricher.class)
 public class VotingQuestion extends AbstractEntity {
-  public static final String TYPE_NAME = "votingQuestion";
-
   private Integer numberOfAnswers;
   private String question;
   private String description;

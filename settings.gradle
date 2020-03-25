@@ -1,1 +1,2 @@
 rootProject.name = 'faf-java-api'
+include 'faf-java-api-dto'

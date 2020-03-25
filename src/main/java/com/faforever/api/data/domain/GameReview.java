@@ -15,7 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Setter
-@Include(rootLevel = true, type = "gameReview")
+@Include(rootLevel = true, type = com.faforever.api.dto.GameReview.TYPE)
 @Entity
 @Table(name = "game_review")
 @CreatePermission(expression = Prefab.ALL)

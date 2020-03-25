@@ -15,7 +15,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "player_achievements")
-@Include(rootLevel = true, type = "playerAchievement")
+@Include(rootLevel = true, type = com.faforever.api.dto.PlayerAchievement.TYPE)
 @Setter
 public class PlayerAchievement extends AbstractEntity {
 

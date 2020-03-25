@@ -18,16 +18,16 @@ import javax.persistence.Transient;
 
 @Entity
 @Table(name = "voting_answer")
-@Include(type = VotingAnswer.TYPE_NAME)
+@Include(type = com.faforever.api.dto.VotingAnswer.TYPE)
 @ReadPermission(expression = IsEntityOwner.EXPRESSION)
 @UpdatePermission(expression = Prefab.NONE)
-@EqualsAndHashCode(of = {"vote", "votingChoice"}, callSuper = false)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Setter
 public class VotingAnswer extends AbstractEntity implements OwnableEntity {
-  public static final String TYPE_NAME = "votingAnswer";
-
+  @EqualsAndHashCode.Include
   private Vote vote;
   private Integer alternativeOrdinal;
+  @EqualsAndHashCode.Include
   private VotingChoice votingChoice;
 
   @Column(name = "alternative_ordinal")

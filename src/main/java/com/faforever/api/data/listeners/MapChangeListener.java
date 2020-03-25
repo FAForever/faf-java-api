@@ -1,7 +1,7 @@
 package com.faforever.api.data.listeners;
 
 import com.faforever.api.data.domain.Map;
-import com.faforever.api.data.domain.MapVersion;
+import com.faforever.api.dto.MapVersion;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ import javax.persistence.PostUpdate;
 @Slf4j
 public class MapChangeListener {
 
-  @CacheEvict(allEntries = true, cacheNames = {Map.TYPE_NAME, MapVersion.TYPE_NAME})
+  @CacheEvict(allEntries = true, cacheNames = {com.faforever.api.dto.Map.TYPE, MapVersion.TYPE})
   @PostUpdate
   @PostRemove
   public void mapChanged(Map map) {

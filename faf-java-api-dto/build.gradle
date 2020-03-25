@@ -1,0 +1,25 @@
+plugins {
+    id 'java-library'
+}
+
+group 'faforever'
+version 'snapshot'
+
+sourceCompatibility = 11
+
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+  annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+
+  api("com.github.jasminb:jsonapi-converter:${jsonapiConverterVersion}")
+  api("com.github.rutledgepaulv:q-builders:${qBuildersVersion}")
+
+  implementation("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
+  implementation("org.projectlombok:lombok:${lombokVersion}")
+
+  compileOnly("org.slf4j:slf4j-api:${slf4jVersion}")
+}

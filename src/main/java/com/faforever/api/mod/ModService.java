@@ -53,7 +53,7 @@ public class ModService {
 
   @SneakyThrows
   @Transactional
-  @CacheEvict(value = {Mod.TYPE_NAME, ModVersion.TYPE_NAME}, allEntries = true)
+  @CacheEvict(value = {com.faforever.api.dto.Mod.TYPE, com.faforever.api.dto.ModVersion.TYPE}, allEntries = true)
   public void processUploadedMod(Path uploadedFile, Player uploader) {
     log.debug("Player '{}' uploaded a mod", uploader);
 

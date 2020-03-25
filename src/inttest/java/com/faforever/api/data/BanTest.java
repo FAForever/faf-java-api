@@ -2,11 +2,11 @@ package com.faforever.api.data;
 
 import com.faforever.api.AbstractIntegrationTest;
 import com.faforever.api.data.domain.GroupPermission;
+import com.faforever.api.dto.BanInfo;
+import com.faforever.api.dto.BanLevel;
+import com.faforever.api.dto.ModerationReport;
+import com.faforever.api.dto.Player;
 import com.faforever.api.security.OAuthScope;
-import com.faforever.commons.api.dto.BanInfo;
-import com.faforever.commons.api.dto.BanLevel;
-import com.faforever.commons.api.dto.ModerationReport;
-import com.faforever.commons.api.dto.Player;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.jdbc.Sql;
@@ -134,11 +134,12 @@ public class BanTest extends AbstractIntegrationTest {
   @Test
   public void canCreateBanWithModerationWithScopeAndRole() throws Exception {
 
-    final BanInfo ban = new BanInfo()
-      .setLevel(BanLevel.CHAT)
-      .setReason("Ban reason")
-      .setPlayer((Player) new Player().setId("3"))
-      .setModerationReport((ModerationReport) new ModerationReport().setId("1"));
+    final BanInfo ban = BanInfo.builder()
+      .level(BanLevel.CHAT)
+      .reason("Ban reason")
+      .player(Player.builder().id("3").build())
+      .moderationReport(ModerationReport.builder().id("1").build())
+      .build();
 
     mockMvc.perform(post("/data/banInfo")
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)

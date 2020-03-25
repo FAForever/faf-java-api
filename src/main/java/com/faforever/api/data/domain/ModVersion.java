@@ -27,12 +27,10 @@ import java.util.List;
 
 @Entity
 @Table(name = "mod_version")
-@Include(rootLevel = true, type = ModVersion.TYPE_NAME)
+@Include(rootLevel = true, type = com.faforever.api.dto.ModVersion.TYPE)
 @Setter
 @EntityListeners(ModVersionEnricher.class)
 public class ModVersion extends AbstractEntity implements OwnableEntity {
-
-  public static final String TYPE_NAME = "modVersion";
 
   private String uid;
   private ModType type;

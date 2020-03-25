@@ -13,11 +13,9 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "coop_leaderboard")
-@Include(rootLevel = true, type = CoopResult.TYPE_NAME)
+@Include(rootLevel = true, type = com.faforever.api.dto.CoopResult.TYPE)
 @Setter
 public class CoopResult {
-
-  public static final String TYPE_NAME = "coopResult";
 
   private int id;
   private short mission;

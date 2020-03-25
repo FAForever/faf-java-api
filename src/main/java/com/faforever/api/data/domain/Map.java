@@ -31,12 +31,10 @@ import java.util.List;
 @Entity
 @Setter
 @Table(name = "map")
-@Include(rootLevel = true, type = Map.TYPE_NAME)
+@Include(rootLevel = true, type = com.faforever.api.dto.Map.TYPE)
 @Immutable
 @EntityListeners(MapChangeListener.class)
 public class Map extends AbstractEntity implements OwnableEntity {
-
-  public static final String TYPE_NAME = "map";
 
   private String displayName;
   private String mapType;

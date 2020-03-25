@@ -24,13 +24,12 @@ import java.util.Set;
 
 @Entity
 @Table(name = "user_group")
-@Include(type = "userGroup", rootLevel = true)
+@Include(rootLevel = true, type = com.faforever.api.dto.UserGroup.TYPE)
 @UpdatePermission(expression = WriteUserGroupCheck.EXPRESSION)
 @CreatePermission(expression = WriteUserGroupCheck.EXPRESSION)
 @ReadPermission(expression = UserGroupPublicCheck.EXPRESSION + " or " + WriteUserGroupCheck.EXPRESSION)
 @Setter
-public class
-UserGroup extends AbstractEntity {
+public class UserGroup extends AbstractEntity {
 
   private String technicalName;
   private String nameKey;

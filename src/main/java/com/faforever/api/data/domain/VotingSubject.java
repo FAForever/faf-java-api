@@ -31,7 +31,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "voting_subject")
-@Include(rootLevel = true, type = VotingSubject.TYPE_NAME)
+@Include(rootLevel = true, type = com.faforever.api.dto.VotingSubject.TYPE)
 @ReadPermission(expression = Prefab.ALL)
 @DeletePermission(expression = AdminVoteCheck.EXPRESSION)
 @UpdatePermission(expression = AdminVoteCheck.EXPRESSION)
@@ -43,8 +43,6 @@ import java.util.Set;
 @EntityListeners(VotingSubjectEnricher.class)
 @VotingSubjectRevealWinnerCheck
 public class VotingSubject extends AbstractEntity {
-  public static final String TYPE_NAME = "votingSubject";
-
   private String subjectKey;
   private String subject;
   private int numberOfVotes;

@@ -29,10 +29,8 @@ import java.util.stream.Collectors;
 @Table(name = "login")
 @ReadPermission(expression = ReadAccountPrivateDetailsCheck.EXPRESSION + " OR " + IsEntityOwner.EXPRESSION)
 @Setter
-@Include(rootLevel = true, type = User.TYPE_NAME)
+@Include(rootLevel = true, type = com.faforever.api.dto.User.TYPE)
 public class User extends Login {
-  public static final String TYPE_NAME = "user";
-
   private String password;
   private String email;
   private String steamId;

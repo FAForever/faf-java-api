@@ -28,7 +28,7 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "ban")
-@Include(rootLevel = true, type = "banInfo")
+@Include(rootLevel = true, type = com.faforever.api.dto.BanInfo.TYPE)
 // Bans can never be deleted, only disabled over BanDisableData
 @DeletePermission(expression = Prefab.NONE)
 @ReadPermission(expression = AdminAccountBanCheck.EXPRESSION)

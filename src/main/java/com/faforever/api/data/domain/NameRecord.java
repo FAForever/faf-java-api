@@ -18,7 +18,7 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "name_history")
-@Include(rootLevel = true, type = "nameRecord")
+@Include(rootLevel = true, type = com.faforever.api.dto.NameRecord.TYPE)
 @DeletePermission(expression = Prefab.NONE)
 @UpdatePermission(expression = Prefab.NONE)
 @Setter

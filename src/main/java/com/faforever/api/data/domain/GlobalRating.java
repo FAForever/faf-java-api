@@ -7,6 +7,6 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "global_rating")
-@Include(rootLevel = true, type = "globalRating")
+@Include(rootLevel = true, type = com.faforever.api.dto.GlobalRating.TYPE)
 public class GlobalRating extends Rating {
 }

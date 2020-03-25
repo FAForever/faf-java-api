@@ -2,7 +2,6 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.security.elide.permission.WriteAvatarCheck;
-import com.github.jasminb.jsonapi.annotations.Type;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
@@ -17,12 +16,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "avatars_list")
-@Include(rootLevel = true, type = Avatar.TYPE_NAME)
+@Include(rootLevel = true, type = com.faforever.api.dto.Avatar.TYPE)
 @Setter
-@Type(Avatar.TYPE_NAME)
 public class Avatar extends AbstractEntity {
-
-  public static final String TYPE_NAME = "avatar";
 
   private String url;
   private String tooltip;

@@ -29,7 +29,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "game_stats")
-@Include(rootLevel = true, type = "game")
+@Include(rootLevel = true, type = com.faforever.api.dto.Game.TYPE)
 @Immutable
 @Setter
 @EntityListeners(GameEnricher.class)

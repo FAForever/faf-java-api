@@ -16,7 +16,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "clan_membership")
-@Include(rootLevel = true, type = "clanMembership")
+@Include(rootLevel = true, type = com.faforever.api.dto.ClanMembership.TYPE)
 @DeletePermission(expression = IsClanMembershipDeletable.EXPRESSION)
 @UpdatePermission(expression = IsClanMembershipDeletable.EXPRESSION + " or " + Prefab.UPDATE_ON_CREATE)
 @Setter

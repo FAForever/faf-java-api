@@ -20,15 +20,15 @@ import java.util.Set;
 
 @Entity
 @Table(name = "vote")
-@Include(type = Vote.TYPE_NAME, rootLevel = true)
+@Include(rootLevel = true, type = com.faforever.api.dto.Vote.TYPE)
 @ReadPermission(expression = IsEntityOwner.EXPRESSION)
 @UpdatePermission(expression = Prefab.NONE)
-@EqualsAndHashCode(of = {"player", "votingSubject"}, callSuper = false)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Setter
 public class Vote extends AbstractEntity implements OwnableEntity {
-  public static final String TYPE_NAME = "vote";
-
+  @EqualsAndHashCode.Include
   private Player player;
+  @EqualsAndHashCode.Include
   private VotingSubject votingSubject;
   private Set<VotingAnswer> votingAnswers;
 

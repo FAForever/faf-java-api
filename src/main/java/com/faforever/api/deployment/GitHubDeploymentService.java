@@ -62,7 +62,7 @@ public class GitHubDeploymentService {
   @Async
   @SneakyThrows
   @Transactional
-  @CacheEvict(value = FeaturedMod.TYPE_NAME, allEntries = true)
+  @CacheEvict(value = com.faforever.api.dto.FeaturedMod.TYPE, allEntries = true)
   public void deploy(Deployment deployment) {
     GHDeployment ghDeployment = deployment.getDeployment();
     String environment = ghDeployment.getEnvironment();
