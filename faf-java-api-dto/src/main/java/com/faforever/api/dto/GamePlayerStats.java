@@ -16,7 +16,7 @@ import java.time.OffsetDateTime;
 @Builder
 @Type(GamePlayerStats.TYPE)
 public class GamePlayerStats implements ElideEntity {
-  public static final String TYPE = "game";
+  public static final String TYPE = "gamePlayerStats";
 
   @Id
   @EqualsAndHashCode.Include
