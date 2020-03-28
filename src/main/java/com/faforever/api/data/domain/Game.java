@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.Prefab;
+import com.faforever.api.data.converter.VictoryConditionConverter;
 import com.faforever.api.data.listeners.GameEnricher;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
@@ -11,6 +12,7 @@ import org.hibernate.annotations.Immutable;
 import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
@@ -67,6 +69,7 @@ public class Game {
   }
 
   @Column(name = "gameType")
+  @Convert(converter = VictoryConditionConverter.class)
   public VictoryCondition getVictoryCondition() {
     return victoryCondition;
   }
