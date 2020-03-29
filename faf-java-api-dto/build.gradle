@@ -22,4 +22,11 @@ dependencies {
   implementation("org.projectlombok:lombok:${lombokVersion}")
 
   compileOnly("org.slf4j:slf4j-api:${slf4jVersion}")
+
+  testImplementation("org.junit.jupiter:junit-jupiter-api:${jUnit5Version}")
+  testImplementation("org.hamcrest:hamcrest-core:${hamcrestVersion}")
+  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${jUnit5Version}")
+  testImplementation("org.mockito:mockito-core:${mockitoVersion}")
+  testImplementation("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
+  testImplementation("pl.pojo:pojo-tester:${pojoTesterVersion}")
 }
