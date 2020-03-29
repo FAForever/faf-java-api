@@ -46,7 +46,7 @@ public enum Faction {
     return ordinal() + 1;
   }
 
-  @Converter(autoApply = true)
+  @Converter
   public static class FactionConverter implements AttributeConverter<Faction, Integer> {
 
     @Override
