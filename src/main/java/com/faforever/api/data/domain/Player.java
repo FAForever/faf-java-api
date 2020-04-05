@@ -27,7 +27,6 @@ import java.util.Set;
 @SharePermission
 @Setter
 @Type(Player.TYPE_NAME)
-@ReadPermission(expression = AdminModerationReportCheck.EXPRESSION + " OR " + IsEntityOwner.EXPRESSION)
 public class Player extends Login {
 
   public static final String TYPE_NAME = "player";
