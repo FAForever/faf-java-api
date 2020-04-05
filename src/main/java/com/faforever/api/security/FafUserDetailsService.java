@@ -1,5 +1,6 @@
 package com.faforever.api.security;
 
+import com.faforever.api.data.domain.LegacyAccessLevel;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class FafUserDetailsService implements UserDetailsService {
       .orElseThrow(() -> new UsernameNotFoundException("User could not be found: " + usernameOrEmail));
 
     ArrayList<GrantedAuthority> authorities = new ArrayList<>();
+    authorities.add(LegacyAccessLevel.ROLE_USER);
 
     authorities.addAll(getUserRoles(user));
     authorities.addAll(getPermissionRoles(user));

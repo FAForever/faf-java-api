@@ -1,19 +1,23 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.checks.Prefab;
 import com.github.jasminb.jsonapi.annotations.Type;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.SharePermission;
+import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.util.Set;
 
 @Entity
 @Table(name = "login")
-@Include(rootLevel = true, type = com.faforever.api.dto.Player.TYPE)
+@Include(rootLevel = true, type = Player.TYPE_NAME)
 // Needed to change leader of a clan
 @SharePermission
 @Setter
@@ -23,6 +27,8 @@ public class Player extends Login {
 
   private Ladder1v1Rating ladder1v1Rating;
   private GlobalRating globalRating;
+  private Set<NameRecord> names;
+  private Set<AvatarAssignment> avatarAssignments;
 
   @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
   @BatchSize(size = 1000)
@@ -34,6 +40,22 @@ public class Player extends Login {
   @BatchSize(size = 1000)
   public GlobalRating getGlobalRating() {
     return globalRating;
+  }
+
+
+  // Permission is managed by NameRecord class
+  @UpdatePermission(expression = Prefab.ALL)
+  @OneToMany(mappedBy = "player")
+  public Set<NameRecord> getNames() {
+    return this.names;
+  }
+
+  // Permission is managed by AvatarAssignment class
+  @UpdatePermission(expression = Prefab.ALL)
+  @OneToMany(mappedBy = "player")
+  @BatchSize(size = 1000)
+  public Set<AvatarAssignment> getAvatarAssignments() {
+    return avatarAssignments;
   }
 
   @Override

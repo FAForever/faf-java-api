@@ -19,7 +19,7 @@ import javax.persistence.Table;
 @Entity
 @Setter
 @Table(name = "email_domain_blacklist")
-@Include(rootLevel = true, type = com.faforever.api.dto.DomainBlacklist.TYPE)
+@Include(type = "domainBlacklist", rootLevel = true)
 @ReadPermission(expression = WriteEmailDomainBanCheck.EXPRESSION)
 @UpdatePermission(expression = WriteEmailDomainBanCheck.EXPRESSION)
 @CreatePermission(expression = WriteEmailDomainBanCheck.EXPRESSION)

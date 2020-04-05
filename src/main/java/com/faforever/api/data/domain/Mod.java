@@ -23,10 +23,12 @@ import java.util.List;
 
 @Entity
 @Table(name = "\"mod\"")
-@Include(rootLevel = true, type = com.faforever.api.dto.Mod.TYPE)
+@Include(rootLevel = true, type = Mod.TYPE_NAME)
 @Immutable
 @Setter
 public class Mod extends AbstractEntity implements OwnableEntity {
+
+  public static final String TYPE_NAME = "mod";
 
   private String displayName;
   private String author;

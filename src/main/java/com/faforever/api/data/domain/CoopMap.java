@@ -1,7 +1,6 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.listeners.CoopMapEnricher;
-import com.faforever.api.dto.CoopMission;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
@@ -19,7 +18,7 @@ import javax.persistence.Transient;
 @Entity
 @Table(name = "coop_map")
 @EntityListeners(CoopMapEnricher.class)
-@Include(rootLevel = true, type = CoopMission.TYPE)
+@Include(rootLevel = true, type = "coopMission")
 @Setter
 public class CoopMap {
 

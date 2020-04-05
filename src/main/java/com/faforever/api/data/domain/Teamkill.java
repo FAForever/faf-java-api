@@ -19,10 +19,12 @@ import java.time.OffsetDateTime;
 @Entity
 @Setter
 @Table(name = "teamkills")
-@Include(rootLevel = true, type = com.faforever.api.dto.Teamkill.TYPE)
+@Include(rootLevel = true, type = Teamkill.TYPE_NAME)
 @Immutable
 @ReadPermission(expression = ReadTeamkillReportCheck.EXPRESSION)
 public class Teamkill {
+  public static final String TYPE_NAME = "teamkill";
+
   private int id;
   private Player teamkiller;
   private Player victim;

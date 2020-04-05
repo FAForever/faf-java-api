@@ -22,7 +22,7 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "user_notes")
-@Include(rootLevel = true, type = com.faforever.api.dto.UserNote.TYPE)
+@Include(rootLevel = true, type = "userNote")
 @ReadPermission(expression = AdminAccountNoteCheck.EXPRESSION)
 @CreatePermission(expression = AdminAccountNoteCheck.EXPRESSION)
 @UpdatePermission(expression = AdminAccountNoteCheck.EXPRESSION)

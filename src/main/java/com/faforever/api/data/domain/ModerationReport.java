@@ -41,25 +41,24 @@ import java.util.Set;
 @Entity
 @Table(name = "moderation_report")
 @Setter
-@ToString
-@Include(rootLevel = true, type = com.faforever.api.dto.ModerationReport.TYPE)
+@ToString(exclude = {"reportedUsers", "bans"})
+@Include(rootLevel = true, type = ModerationReport.TYPE_NAME)
 @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + AdminModerationReportCheck.EXPRESSION)
 @DeletePermission(expression = Prefab.NONE)
 @CreatePermission(expression = Prefab.ALL)
 @Audit(action = Action.CREATE, logStatement = "Moderation report `{0}` has been reported", logExpressions = "${moderationReport}")
 @Audit(action = Action.UPDATE, logStatement = "Moderation report `{0}` has been updated", logExpressions = "${moderationReport}")
 public class ModerationReport extends AbstractEntity implements OwnableEntity {
+  public static final String TYPE_NAME = "moderationReport";
   private ModerationReportStatus reportStatus;
-  private User reporter;
+  private Player reporter;
   private String reportDescription;
   private String gameIncidentTimecode;
   private Game game;
   private String moderatorNotice;
   private String moderatorPrivateNote;
-  private User lastModerator;
-  @ToString.Exclude
+  private Player lastModerator;
   private Set<Player> reportedUsers;
-  @ToString.Exclude
   private Collection<BanInfo> bans;
 
   @NotNull
@@ -75,7 +74,7 @@ public class ModerationReport extends AbstractEntity implements OwnableEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "reporter_id", referencedColumnName = "id")
   @CreatePermission(expression = Prefab.ALL_AND_UPDATE_ON_CREATE)
-  public User getReporter() {
+  public Player getReporter() {
     return reporter;
   }
 
@@ -118,7 +117,7 @@ public class ModerationReport extends AbstractEntity implements OwnableEntity {
   @JoinColumn(name = "last_moderator", referencedColumnName = "id")
   @CreatePermission(expression = Prefab.NONE)
   @UpdatePermission(expression = AdminModerationReportCheck.EXPRESSION)
-  public User getLastModerator() {
+  public Player getLastModerator() {
     return lastModerator;
   }
 
@@ -159,7 +158,7 @@ public class ModerationReport extends AbstractEntity implements OwnableEntity {
     final Object caller = scope.getUser().getOpaqueUser();
     if (caller instanceof FafUserDetails) {
       final FafUserDetails fafUser = (FafUserDetails) caller;
-      final User reporter = new User();
+      final Player reporter = new Player();
       reporter.setId(fafUser.getId());
       this.reporter = reporter;
     }
@@ -171,7 +170,7 @@ public class ModerationReport extends AbstractEntity implements OwnableEntity {
     if (caller instanceof FafUserDetails) {
       final FafUserDetails fafUser = (FafUserDetails) caller;
       if (fafUser.hasPermission(GroupPermission.ROLE_ADMIN_MODERATION_REPORT)) {
-        final User lastModerator = new User();
+        final Player lastModerator = new Player();
         lastModerator.setId(fafUser.getId());
         this.lastModerator = lastModerator;
       }

@@ -2,10 +2,10 @@ package com.faforever.api.data;
 
 import com.faforever.api.AbstractIntegrationTest;
 import com.faforever.api.data.domain.GroupPermission;
-import com.faforever.api.dto.Avatar;
-import com.faforever.api.dto.AvatarAssignment;
-import com.faforever.api.dto.Player;
 import com.faforever.api.security.OAuthScope;
+import com.faforever.commons.api.dto.Avatar;
+import com.faforever.commons.api.dto.AvatarAssignment;
+import com.faforever.commons.api.dto.Player;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -53,12 +53,11 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
 
   @Test
   public void canAssignAvatarWithScopeAndRole() throws Exception {
-    final Avatar avatar = Avatar.builder().id("1").build();
-    final Player player = Player.builder().id("1").build();
-    final AvatarAssignment avatarAssignment = AvatarAssignment.builder()
-      .avatar(avatar)
-      .selected(false)
-      .build();
+    final Avatar avatar = (Avatar) new Avatar().setId("1");
+    final Player player = (Player) new Player().setId("1");
+    final AvatarAssignment avatarAssignment = new AvatarAssignment()
+      .setAvatar(avatar)
+      .setSelected(false);
     mockMvc.perform(
       post("/data/player/{playerId}/avatarAssignments", player.getId())
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_AVATAR))
@@ -71,12 +70,11 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
 
   @Test
   public void cannotAssignAvatarWithoutScope() throws Exception {
-    final Avatar avatar = Avatar.builder().id("1").build();
-    final Player player = Player.builder().id("1").build();
-    final AvatarAssignment avatarAssignment = AvatarAssignment.builder()
-      .avatar(avatar)
-      .selected(false)
-      .build();
+    final Avatar avatar = (Avatar) new Avatar().setId("1");
+    final Player player = (Player) new Player().setId("1");
+    final AvatarAssignment avatarAssignment = new AvatarAssignment()
+      .setAvatar(avatar)
+      .setSelected(false);
     mockMvc.perform(
       post("/data/player/{playerId}/avatarAssignments", player.getId())
         .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_AVATAR))
@@ -87,12 +85,11 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
 
   @Test
   public void cannotAssignAvatarWithoutRole() throws Exception {
-    final Avatar avatar = Avatar.builder().id("1").build();
-    final Player player = Player.builder().id("1").build();
-    final AvatarAssignment avatarAssignment = AvatarAssignment.builder()
-      .avatar(avatar)
-      .selected(false)
-      .build();
+    final Avatar avatar = (Avatar) new Avatar().setId("1");
+    final Player player = (Player) new Player().setId("1");
+    final AvatarAssignment avatarAssignment = new AvatarAssignment()
+      .setAvatar(avatar)
+      .setSelected(false);
     mockMvc.perform(
       post("/data/player/{playerId}/avatarAssignments", player.getId())
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
@@ -132,10 +129,9 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
   @Test
   public void canUpdateAvatarAssignmentExpirationWithScopeAndRole() throws Exception {
     final OffsetDateTime now = OffsetDateTime.now();
-    final AvatarAssignment avatarAssignment = AvatarAssignment.builder()
-      .id("1")
-      .expiresAt(now)
-      .build();
+    final AvatarAssignment avatarAssignment = (AvatarAssignment) new AvatarAssignment()
+      .setExpiresAt(now)
+      .setId("1");
     mockMvc.perform(
       patch("/data/avatarAssignment/{assignmentId}", 1)
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_AVATAR))
@@ -151,10 +147,9 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
   @Test
   public void cannotUpdateAvatarAssignmentExpirationWithoutScope() throws Exception {
     final OffsetDateTime now = OffsetDateTime.now();
-    final AvatarAssignment avatarAssignment = (AvatarAssignment) AvatarAssignment.builder()
-      .id("1")
-      .expiresAt(now)
-      .build();
+    final AvatarAssignment avatarAssignment = (AvatarAssignment) new AvatarAssignment()
+      .setExpiresAt(now)
+      .setId("1");
     mockMvc.perform(
       patch("/data/avatarAssignment/{assignmentId}", 1)
         .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_AVATAR))
@@ -166,10 +161,9 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
   @Test
   public void cannotUpdateAvatarAssignmentExpirationWithoutRole() throws Exception {
     final OffsetDateTime now = OffsetDateTime.now();
-    final AvatarAssignment avatarAssignment = (AvatarAssignment) AvatarAssignment.builder()
-      .id("1")
-      .expiresAt(now)
-      .build();
+    final AvatarAssignment avatarAssignment = (AvatarAssignment) new AvatarAssignment()
+      .setExpiresAt(now)
+      .setId("1");
     mockMvc.perform(
       patch("/data/avatarAssignment/{assignmentId}", 1)
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
@@ -180,10 +174,9 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
 
   @Test
   public void ownerCanUpdateAvatarAssignmentSelection() throws Exception {
-    final AvatarAssignment avatarAssignment = (AvatarAssignment) AvatarAssignment.builder()
-      .id("1")
-      .selected(true)
-      .build();
+    final AvatarAssignment avatarAssignment = (AvatarAssignment) new AvatarAssignment()
+      .setSelected(true)
+      .setId("1");
     mockMvc.perform(
       patch("/data/avatarAssignment/{assignmentId}", 1)
         .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
@@ -200,10 +193,9 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
   @Test
   @WithUserDetails(AUTH_USER)
   public void nonOwnerCannotUpdateAvatarAssignmentSelection() throws Exception {
-    final AvatarAssignment avatarAssignment = (AvatarAssignment) AvatarAssignment.builder()
-      .id("2")
-      .selected(false)
-      .build();
+    final AvatarAssignment avatarAssignment = (AvatarAssignment) new AvatarAssignment()
+      .setSelected(false)
+      .setId("2");
     mockMvc.perform(
       patch("/data/avatarAssignment/{assignmentId}", 2)
         .with(getOAuthTokenWithoutUser(OAuthScope._PUBLIC_PROFILE))

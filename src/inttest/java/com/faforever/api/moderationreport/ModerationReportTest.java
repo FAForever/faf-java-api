@@ -2,12 +2,11 @@ package com.faforever.api.moderationreport;
 
 import com.faforever.api.AbstractIntegrationTest;
 import com.faforever.api.data.domain.GroupPermission;
-import com.faforever.api.dto.Game;
-import com.faforever.api.dto.ModerationReport;
-import com.faforever.api.dto.ModerationReportStatus;
-import com.faforever.api.dto.Player;
-import com.faforever.api.dto.User;
 import com.faforever.api.security.OAuthScope;
+import com.faforever.commons.api.dto.Game;
+import com.faforever.commons.api.dto.ModerationReport;
+import com.faforever.commons.api.dto.ModerationReportStatus;
+import com.faforever.commons.api.dto.Player;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,19 +44,18 @@ public class ModerationReportTest extends AbstractIntegrationTest {
   @BeforeEach
   public void setUp() {
     super.setUp();
-    User reporter = User.builder().id("1").build();
-    Player reportedUser1 = Player.builder().id("3").build();
-    Player reportedUser2 = Player.builder().id("2").build();
-    Game game = Game.builder().id("1").build();
+    Player reporter = (Player) new Player().setId("1");
+    Player reportedUser1 = (Player) new Player().setId("3");
+    Player reportedUser2 = (Player) new Player().setId("2");
+    Game game = (Game) new Game().setId("1");
     reportedUsers = Sets.newHashSet(reportedUser1, reportedUser2);
-    validModerationReport = ModerationReport.builder()
-      .reportDescription("Report description")
-      .gameIncidentTimecode("Incident code")
-      .game(game)
-      .reportStatus(null)
-      .reporter(reporter)
-      .reportedUsers(reportedUsers)
-      .build()
+    validModerationReport = new ModerationReport()
+      .setReportDescription("Report description")
+      .setGameIncidentTimecode("Incident code")
+      .setGame(game)
+      .setReportStatus(null)
+      .setReporter(reporter)
+      .setReportedUsers(reportedUsers)
     ;
   }
 
@@ -73,6 +71,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
 
   @Test
   public void canCreateValidModerationReportWithoutScopeAndRole() throws Exception {
+    mockMvc.perform(get("/data/account"));
     mockMvc.perform(
       post("/data/moderationReport")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
@@ -110,7 +109,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
         .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(validModerationReport)))
-      .andExpect(status().is4xxClientError());
+      .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -122,7 +121,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
         .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(validModerationReport)))
-      .andExpect(status().is4xxClientError());
+      .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -143,13 +142,12 @@ public class ModerationReportTest extends AbstractIntegrationTest {
 
   @Test
   public void cannotUpdateSomeoneElsesReport() throws Exception {
-    reportedUsers.add(Player.builder().id("3").build());
+    reportedUsers.add((Player) new Player().setId("2"));
 
-    final ModerationReport updatedModerationReport = ModerationReport.builder()
-      .id("2")
-      .reportStatus(null)
-      .reportDescription("New report description")
-      .build();
+    final ModerationReport updatedModerationReport = (ModerationReport) new ModerationReport()
+      .setReportStatus(null)
+      .setReportDescription("New report description")
+      .setId("2");
     mockMvc.perform(
       patch("/data/moderationReport/2")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
@@ -160,16 +158,15 @@ public class ModerationReportTest extends AbstractIntegrationTest {
 
   @Test
   public void canUpdateOwnReport() throws Exception {
-    reportedUsers.add(Player.builder().id("1").build());
+    reportedUsers.add((Player) new Player().setId("1"));
 
-    final ModerationReport updatedModerationReport = ModerationReport.builder()
-      .id("1")
-      .reportStatus(null)
-      .reportDescription("New report description")
-      .gameIncidentTimecode("New incident timecode")
-      .game(Game.builder().id("1").build())
-      .reportedUsers(reportedUsers)
-      .build();
+    final ModerationReport updatedModerationReport = (ModerationReport) new ModerationReport()
+      .setReportStatus(null)
+      .setReportDescription("New report description")
+      .setGameIncidentTimecode("New incident timecode")
+      .setGame((Game) new Game().setId("1"))
+      .setReportedUsers(reportedUsers)
+      .setId("1");
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
@@ -188,14 +185,13 @@ public class ModerationReportTest extends AbstractIntegrationTest {
   @Test
   public void userCannotUpdateReportInNonAwaitingState() throws Exception {
     reportedUsers.removeIf(player -> player.getId().equals("2"));
-    final ModerationReport updatedGameIdModerationReport = ModerationReport.builder()
-      .id("2")
-      .reportStatus(null)
-      .reportDescription("New report description")
-      .gameIncidentTimecode("New incident timecode")
-      .game(Game.builder().id("1").build())
-      .reportedUsers(reportedUsers)
-      .build();
+    final ModerationReport updatedGameIdModerationReport = (ModerationReport) new ModerationReport()
+      .setReportStatus(null)
+      .setReportDescription("New report description")
+      .setGameIncidentTimecode("New incident timecode")
+      .setGame((Game) new Game().setId("1"))
+      .setReportedUsers(reportedUsers)
+      .setId("2");
     mockMvc.perform(
       patch("/data/moderationReport/2")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
@@ -206,10 +202,9 @@ public class ModerationReportTest extends AbstractIntegrationTest {
 
   @Test
   public void cannotUpdateReportStatusWithoutScope() throws Exception {
-    final ModerationReport updatedReportStatusModerationReport = ModerationReport.builder()
-      .id("1")
-      .reportStatus(ModerationReportStatus.AWAITING)
-      .build();
+    final ModerationReport updatedReportStatusModerationReport = (ModerationReport) new ModerationReport()
+      .setReportStatus(ModerationReportStatus.AWAITING)
+      .setId("1");
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
@@ -220,10 +215,9 @@ public class ModerationReportTest extends AbstractIntegrationTest {
 
   @Test
   public void cannotUpdateReportStatusWithoutRole() throws Exception {
-    final ModerationReport updatedReportStatusModerationReport = ModerationReport.builder()
-      .id("1")
-      .reportStatus(ModerationReportStatus.AWAITING)
-      .build();
+    final ModerationReport updatedReportStatusModerationReport = (ModerationReport) new ModerationReport()
+      .setReportStatus(ModerationReportStatus.AWAITING)
+      .setId("1");
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
@@ -234,10 +228,9 @@ public class ModerationReportTest extends AbstractIntegrationTest {
 
   @Test
   public void canUpdateReportStatusWithScopeAndRole() throws Exception {
-    final ModerationReport updatedReportStatusModerationReport = ModerationReport.builder()
-      .id("1")
-      .reportStatus(ModerationReportStatus.AWAITING)
-      .build();
+    final ModerationReport updatedReportStatusModerationReport = (ModerationReport) new ModerationReport()
+      .setReportStatus(ModerationReportStatus.AWAITING)
+      .setId("1");
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
@@ -252,11 +245,9 @@ public class ModerationReportTest extends AbstractIntegrationTest {
 
   @Test
   public void canUpdateNoticeWithScopeAndRole() throws Exception {
-    final ModerationReport updatedPublicNoteModerationReport = ModerationReport.builder()
-      .id("1")
-      .moderatorNotice("New moderator notice")
-      .build();
-
+    final ModerationReport updatedPublicNoteModerationReport = (ModerationReport) new ModerationReport()
+      .setModeratorNotice("New moderator notice")
+      .setId("1");
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
@@ -271,11 +262,9 @@ public class ModerationReportTest extends AbstractIntegrationTest {
 
   @Test
   public void cannotUpdateNoticeWithoutScope() throws Exception {
-    final ModerationReport updatedPublicNoteModerationReport = ModerationReport.builder()
-      .id("1")
-      .moderatorNotice("New moderator notice")
-      .build();
-
+    final ModerationReport updatedPublicNoteModerationReport = (ModerationReport) new ModerationReport()
+      .setModeratorNotice("New moderator notice")
+      .setId("1");
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
@@ -286,11 +275,9 @@ public class ModerationReportTest extends AbstractIntegrationTest {
 
   @Test
   public void cannotUpdateNoticeWithoutRole() throws Exception {
-    final ModerationReport updatedPublicNoteModerationReport = ModerationReport.builder()
-      .id("1")
-      .moderatorNotice("New moderator notice")
-      .build();
-
+    final ModerationReport updatedPublicNoteModerationReport = (ModerationReport) new ModerationReport()
+      .setModeratorNotice("New moderator notice")
+      .setId("1");
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
@@ -301,11 +288,9 @@ public class ModerationReportTest extends AbstractIntegrationTest {
 
   @Test
   public void canUpdatePrivateNoteWithScopeAndRole() throws Exception {
-    final ModerationReport updatedPrivateNoteModerationReport = ModerationReport.builder()
-      .id("1")
-      .moderatorPrivateNote("New moderator private note")
-      .build();
-
+    final ModerationReport updatedPrivateNoteModerationReport = (ModerationReport) new ModerationReport()
+      .setModeratorPrivateNote("New moderator private note")
+      .setId("1");
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
@@ -320,11 +305,9 @@ public class ModerationReportTest extends AbstractIntegrationTest {
 
   @Test
   public void cannotUpdatePrivateNoteWithoutScope() throws Exception {
-    final ModerationReport updatedPrivateNoteModerationReport = ModerationReport.builder()
-      .id("1")
-      .moderatorPrivateNote("New moderator private note")
-      .build();
-
+    final ModerationReport updatedPrivateNoteModerationReport = (ModerationReport) new ModerationReport()
+      .setModeratorPrivateNote("New moderator private note")
+      .setId("1");
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
@@ -335,11 +318,9 @@ public class ModerationReportTest extends AbstractIntegrationTest {
 
   @Test
   public void cannotUpdatePrivateNoteWithoutRole() throws Exception {
-    final ModerationReport updatedPrivateNoteModerationReport = ModerationReport.builder()
-      .id("1")
-      .moderatorPrivateNote("New moderator private note")
-      .build();
-
+    final ModerationReport updatedPrivateNoteModerationReport = (ModerationReport) new ModerationReport()
+      .setModeratorPrivateNote("New moderator private note")
+      .setId("1");
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
@@ -350,11 +331,9 @@ public class ModerationReportTest extends AbstractIntegrationTest {
 
   @Test
   public void lastModeratorIsUpdatedWhenCalledByModerator() throws Exception {
-    final ModerationReport updatedPrivateNoteModerationReport = ModerationReport.builder()
-      .id("1")
-      .moderatorPrivateNote("New moderator private note")
-      .build();
-
+    final ModerationReport updatedPrivateNoteModerationReport = (ModerationReport) new ModerationReport()
+      .setModeratorPrivateNote("New moderator private note")
+      .setId("1");
     mockMvc.perform(
       patch("/data/moderationReport/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
@@ -396,10 +375,9 @@ public class ModerationReportTest extends AbstractIntegrationTest {
 
   @Test
   public void cannotUpdateReportedUsers() throws Exception {
-    final ModerationReport updatedReportedUsersModerationReport = ModerationReport.builder()
-      .id("3")
-      .reportedUsers(Collections.emptySet())
-      .build();
+    final ModerationReport updatedReportedUsersModerationReport = (ModerationReport) new ModerationReport()
+      .setReportedUsers(Collections.emptySet())
+      .setId("3");
     mockMvc.perform(
       patch("/data/moderationReport/3")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_MODERATION_REPORT))
