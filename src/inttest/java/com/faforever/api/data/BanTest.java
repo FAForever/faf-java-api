@@ -7,7 +7,6 @@ import com.faforever.commons.api.dto.BanInfo;
 import com.faforever.commons.api.dto.BanLevel;
 import com.faforever.commons.api.dto.ModerationReport;
 import com.faforever.commons.api.dto.Player;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.jdbc.Sql;
@@ -124,7 +123,6 @@ public class BanTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Disabled("Temporary disabled due to security changes in Player class")
   public void canCreateBanWithScopeAndRole() throws Exception {
     mockMvc.perform(post("/data/banInfo")
       .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN))
@@ -134,7 +132,6 @@ public class BanTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Disabled("Temporary disabled due to security changes in Player class")
   public void canCreateBanWithModerationWithScopeAndRole() throws Exception {
 
     final BanInfo ban = new BanInfo()
