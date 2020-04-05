@@ -201,12 +201,6 @@ configurations.all {
 
 build.dependsOn inttest
 
-dependencyManagement {
-  dependencies {
-    dependency("org.mockito:mockito-core:${mockitoVersion}")
-  }
-}
-
 test {
   useJUnitPlatform()
   testLogging {
@@ -215,9 +209,9 @@ test {
 }
 
 dependencies {
-  implementation("org.projectlombok:lombok:${lombokVersion}")
-  annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
-  testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+  implementation("org.projectlombok:lombok")
+  annotationProcessor("org.projectlombok:lombok")
+  testAnnotationProcessor("org.projectlombok:lombok")
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
   testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
@@ -243,7 +237,7 @@ dependencies {
   implementation("com.google.guava:guava:${guavaVersion}")
   implementation("io.springfox:springfox-swagger-ui:${swaggerVersion}")
   implementation("io.springfox:springfox-swagger2:${swaggerVersion}")
-  implementation("io.swagger:swagger-core:${swaggerCoreVersion}")
+  implementation("io.swagger.core.v3:swagger-core:${swaggerCoreVersion}")
   implementation("javax.inject:javax.inject:${javaxInjectVersion}")
   implementation("com.yahoo.elide:elide-core:${elideVersion}")
   implementation("com.yahoo.elide:elide-swagger:${elideVersion}")
@@ -251,8 +245,6 @@ dependencies {
 
   implementation("org.luaj:luaj-jse:${luajVersion}")
   implementation("com.github.micheljung:nocatch:${nocatchVersion}")
-  implementation("junit-addons:junit-addons:${junitAddonsVersion}")
-  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonDatatypeJsr310Version}")
   implementation("org.apache.commons:commons-compress:${commonsCompressVersion}")
   implementation("org.json:json:${jsonVersion}")
 
@@ -264,11 +256,12 @@ dependencies {
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("org.junit.jupiter:junit-jupiter:${jUnit5Version}")
-  testImplementation("org.junit.jupiter:junit-jupiter-params:${jUnit5Version}")
-  testImplementation("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
-  testImplementation("org.junit.jupiter:junit-jupiter-migrationsupport:${jUnit5Version}")
-  testRuntimeOnly("org.junit.vintage:junit-vintage-engine:${jUnit5Version}")
+  testImplementation("org.junit.jupiter:junit-jupiter")
+  testImplementation("org.junit.jupiter:junit-jupiter-params")
+  testImplementation("junit-addons:junit-addons:${junitAddonsVersion}")
+  testImplementation("org.mockito:mockito-junit-jupiter")
+  testImplementation("org.junit.jupiter:junit-jupiter-migrationsupport")
+  testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
   testImplementation("com.h2database:h2:${h2Version}")
   testImplementation("com.jayway.jsonpath:json-path:${jsonPath}")
   testImplementation("com.jayway.jsonpath:json-path-assert:${jsonPathAssert}")
@@ -276,5 +269,3 @@ dependencies {
   codacy("com.github.codacy:codacy-coverage-reporter:${codacyCoverageReporterVersion}")
 }
 
-ext["mockito.version"] = "${mockitoVersion}"
-ext["junit-jupiter.version"] = "${jUnit5Version}"
