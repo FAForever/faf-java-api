@@ -78,11 +78,6 @@ public class UserService {
     this.passwordEncoder = new FafPasswordEncoder();
   }
 
-  public User getById(Integer playerId) {
-    return userRepository.findById(playerId)
-      .orElseThrow(() -> new ApiException(new Error(ErrorCode.ENTITY_NOT_FOUND, playerId)));
-  }
-
   void register(String username, String email, String password) {
     log.debug("Registration requested for user: {}", username);
     validateUsername(username);
