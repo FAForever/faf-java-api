@@ -1,21 +1,17 @@
 package com.faforever.api.data.domain;
 
-import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
 import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 @Entity
 @Table(name = "game_featuredMods")
 @Include(rootLevel = true, type = FeaturedMod.TYPE_NAME)
 @Setter
-@EntityListeners(FeaturedModEnricher.class)
 public class FeaturedMod {
   public static final String TYPE_NAME = "featuredMod";
 
@@ -29,7 +25,6 @@ public class FeaturedMod {
   private String gitBranch;
   private Boolean allowOverride;
   private String fileExtension;
-  private String bireusUrl;
   private String deploymentWebhook;
 
   @Id
@@ -86,12 +81,5 @@ public class FeaturedMod {
   @Column(name = "deployment_webhook ")
   public String getDeploymentWebhook() {
     return deploymentWebhook;
-  }
-
-  @Transient
-  @ComputedAttribute
-  // Enriched by FeaturedModEnricher
-  public String getBireusUrl() {
-    return bireusUrl;
   }
 }
