@@ -152,7 +152,7 @@ public class MapService {
 
   @Transactional
   @SneakyThrows
-  @CacheEvict(value = {com.faforever.api.dto.Map.TYPE, com.faforever.api.dto.MapVersion.TYPE}, allEntries = true)
+  @CacheEvict(value = {Map.TYPE_NAME, MapVersion.TYPE_NAME}, allEntries = true)
   public void uploadMap(InputStream mapDataInputStream, String mapFilename, Player author, boolean isRanked) {
     Assert.notNull(author, "'author' must not be null");
     Assert.isTrue(mapDataInputStream.available() > 0, "'mapData' must not be empty");

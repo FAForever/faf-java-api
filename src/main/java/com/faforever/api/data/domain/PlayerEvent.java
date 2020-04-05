@@ -14,7 +14,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "player_events")
-@Include(rootLevel = true, type = com.faforever.api.dto.PlayerEvent.TYPE)
+@Include(rootLevel = true, type = "playerEvent")
 @Setter
 public class PlayerEvent extends AbstractEntity {
 

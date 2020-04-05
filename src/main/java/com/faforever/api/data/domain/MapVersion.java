@@ -30,8 +30,10 @@ import java.util.List;
 @Setter
 @EntityListeners(MapVersionEnricher.class)
 @Table(name = "map_version")
-@Include(rootLevel = true, type = com.faforever.api.dto.MapVersion.TYPE)
+@Include(rootLevel = true, type = MapVersion.TYPE_NAME)
 public class MapVersion extends AbstractEntity implements OwnableEntity {
+
+  public static final String TYPE_NAME = "mapVersion";
 
   private String description;
   private int maxPlayers;

@@ -15,7 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Setter
-@Include(rootLevel = true, type = com.faforever.api.dto.MapVersionReview.TYPE)
+@Include(rootLevel = true, type = "mapVersionReview")
 @Entity
 @Table(name = "map_version_review")
 @CreatePermission(expression = Prefab.ALL)

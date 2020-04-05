@@ -1,17 +1,16 @@
 package com.faforever.api;
 
 import com.faforever.api.config.ApplicationProfile;
-import com.faforever.api.dto.Avatar;
-import com.faforever.api.dto.AvatarAssignment;
-import com.faforever.api.dto.BanInfo;
-import com.faforever.api.dto.DomainBlacklist;
-import com.faforever.api.dto.ModerationReport;
-import com.faforever.api.dto.Player;
-import com.faforever.api.dto.Tutorial;
-import com.faforever.api.dto.User;
-import com.faforever.api.elide.ElideEntity;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.utils.OAuthHelper;
+import com.faforever.commons.api.dto.AbstractEntity;
+import com.faforever.commons.api.dto.Avatar;
+import com.faforever.commons.api.dto.AvatarAssignment;
+import com.faforever.commons.api.dto.BanInfo;
+import com.faforever.commons.api.dto.DomainBlacklist;
+import com.faforever.commons.api.dto.ModerationReport;
+import com.faforever.commons.api.dto.Player;
+import com.faforever.commons.api.dto.Tutorial;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -89,8 +88,7 @@ public abstract class AbstractIntegrationTest {
       Avatar.class,
       AvatarAssignment.class,
       BanInfo.class,
-      DomainBlacklist.class,
-      User.class
+      DomainBlacklist.class
     );
   }
 
@@ -111,7 +109,7 @@ public abstract class AbstractIntegrationTest {
     JSONAssert.assertEquals(String.format("{\"errors\":[{\"code\":\"%s\"}]}", errorCode.getCode()), resonseJson, false);
   }
 
-  protected <T extends ElideEntity> byte[] createJsonApiContent(T entity) throws DocumentSerializationException {
+  protected <T extends AbstractEntity> byte[] createJsonApiContent(T entity) throws DocumentSerializationException {
     return resourceConverter.writeDocument(new JSONAPIDocument<>(entity));
   }
 }

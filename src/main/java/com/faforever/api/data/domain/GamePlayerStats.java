@@ -18,7 +18,7 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "game_player_stats")
-@Include(rootLevel = true, type = com.faforever.api.dto.GamePlayerStats.TYPE)
+@Include(rootLevel = true, type = "gamePlayerStats")
 @Immutable
 @Setter
 public class GamePlayerStats {

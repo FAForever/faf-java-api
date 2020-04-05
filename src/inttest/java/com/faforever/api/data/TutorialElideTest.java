@@ -2,9 +2,9 @@ package com.faforever.api.data;
 
 import com.faforever.api.AbstractIntegrationTest;
 import com.faforever.api.data.domain.GroupPermission;
-import com.faforever.api.dto.Tutorial;
-import com.faforever.api.dto.TutorialCategory;
 import com.faforever.api.security.OAuthScope;
+import com.faforever.commons.api.dto.Tutorial;
+import com.faforever.commons.api.dto.TutorialCategory;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
@@ -28,19 +28,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(executionPhase = ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:sql/cleanTutorialData.sql")
 public class TutorialElideTest extends AbstractIntegrationTest {
   private static Tutorial tutorial() {
-    TutorialCategory category = TutorialCategory.builder()
-      .id("1")
-      .build();
-
-    return Tutorial.builder()
-      .category(category)
-      .image("abc.png")
-      .description("abc")
-      .launchable(true)
-      .technicalName("tec_name")
-      .titleKey("abc")
-      .ordinal(0)
-      .build();
+    Tutorial tutorial = new Tutorial();
+    TutorialCategory category = new TutorialCategory();
+    category.setId("1");
+    tutorial.setCategory(category);
+    tutorial.setImage("abc.png");
+    tutorial.setDescription("abc");
+    tutorial.setLaunchable(true);
+    tutorial.setTechnicalName("tec_name");
+    tutorial.setTitleKey("abc");
+    tutorial.setOrdinal(0);
+    return tutorial;
   }
 
   @Test

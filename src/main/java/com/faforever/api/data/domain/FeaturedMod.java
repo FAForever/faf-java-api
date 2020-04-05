@@ -13,10 +13,12 @@ import javax.persistence.Transient;
 
 @Entity
 @Table(name = "game_featuredMods")
-@Include(rootLevel = true, type = com.faforever.api.dto.FeaturedMod.TYPE)
+@Include(rootLevel = true, type = FeaturedMod.TYPE_NAME)
 @Setter
 @EntityListeners(FeaturedModEnricher.class)
 public class FeaturedMod {
+  public static final String TYPE_NAME = "featuredMod";
+
   private int id;
   private String technicalName;
   private String description;
@@ -81,7 +83,7 @@ public class FeaturedMod {
     return fileExtension;
   }
 
-  @Column(name = "deployment_webhook")
+  @Column(name = "deployment_webhook ")
   public String getDeploymentWebhook() {
     return deploymentWebhook;
   }

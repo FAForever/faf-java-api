@@ -29,7 +29,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "clan")
-@Include(rootLevel = true, type = com.faforever.api.dto.Clan.TYPE)
+@Include(rootLevel = true, type = Clan.TYPE_NAME)
 @SharePermission
 @DeletePermission(expression = IsEntityOwner.EXPRESSION)
 @CreatePermission(expression = Prefab.ALL)
@@ -37,6 +37,8 @@ import java.util.List;
 @IsLeaderInClan
 @EntityListeners(ClanEnricherListener.class)
 public class Clan extends AbstractEntity implements OwnableEntity {
+
+  public static final String TYPE_NAME = "clan";
 
   private String name;
   private String tag;
