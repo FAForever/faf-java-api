@@ -44,22 +44,25 @@ DELETE FROM group_permission;
 DELETE FROM user_group_assignment;
 DELETE FROM user_group;
 DELETE FROM login;
-DELETE FROM email_domain_blacklist;
+DELETE
+FROM email_domain_blacklist;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
 INSERT INTO oauth_clients (id, name, client_secret, client_type, redirect_uris, default_redirect_uri, default_scope)
-VALUES
-  ('test', 'test', '{noop}test', 'public', 'http://localhost https://www.getpostman.com/oauth2/callback ',
-   'http://localhost',
-   'read_events read_achievements upload_map upload_mod upload_avatar write_account_data vote');
+VALUES ('test', 'test', '{noop}test', 'public', 'http://localhost https://www.getpostman.com/oauth2/callback ',
+        'http://localhost',
+        'read_events read_achievements upload_map upload_mod upload_avatar write_account_data vote');
 
-INSERT INTO login (id, login, email, password, steamid)
-VALUES (1, 'USER', 'user@faforever.com', '92b7b421992ef490f3b75898ec0e511f1a5c02422819d89719b20362b023ee4f', NULL),
-  (2, 'MODERATOR', 'moderator@faforever.com', '778ac5b81fa251b450f827846378739caee510c31b01cfa9d31822b88bed8441', 1234),
-       (3, 'ADMIN', 'admin@faforever.com', '835d6dc88b708bc646d6db82c853ef4182fabbd4a8de59c213f2b5ab3ae7d9be', NULL),
-       (4, 'BANNED', 'banned@faforever.com', '', NULL),
-       (5, 'ACTIVE_USER', 'active-user@faforever.com', '', true);
+INSERT INTO login (id, login, email, password, steamid, ip)
+VALUES (1, 'USER', 'user@faforever.com', '92b7b421992ef490f3b75898ec0e511f1a5c02422819d89719b20362b023ee4f', NULL,
+        '127.0.0.1'),
+       (2, 'MODERATOR', 'moderator@faforever.com', '778ac5b81fa251b450f827846378739caee510c31b01cfa9d31822b88bed8441',
+        1234, '127.0.0.1'),
+       (3, 'ADMIN', 'admin@faforever.com', '835d6dc88b708bc646d6db82c853ef4182fabbd4a8de59c213f2b5ab3ae7d9be', NULL,
+        '127.0.0.1'),
+       (4, 'BANNED', 'banned@faforever.com', '', NULL, '127.0.0.1'),
+       (5, 'ACTIVE_USER', 'active-user@faforever.com', '', null, '127.0.0.1');
 
 INSERT INTO user_group (id, technical_name, name_key, parent_group_id, public)
 VALUES (1, 'ADMINISTRATOR', 'administrator', null, true),
