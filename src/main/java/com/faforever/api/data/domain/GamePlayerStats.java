@@ -5,7 +5,6 @@ import lombok.Setter;
 import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -57,7 +56,6 @@ public class GamePlayerStats {
   }
 
   @Column(name = "faction")
-  @Convert(converter = Faction.FactionConverter.class)
   public Faction getFaction() {
     return faction;
   }

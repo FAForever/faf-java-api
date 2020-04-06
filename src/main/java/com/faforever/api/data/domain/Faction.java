@@ -1,5 +1,8 @@
 package com.faforever.api.data.domain;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 import java.util.HashMap;
@@ -23,6 +26,7 @@ public enum Faction {
     this.string = string;
   }
 
+  @JsonCreator
   public static Faction fromFaValue(int value) {
     if (value > 5 || value < 1) {
       return UNKNOWN;
@@ -37,11 +41,12 @@ public enum Faction {
   /**
    * Returns the faction value used as in "Forged Alliance Forever".
    */
+  @JsonValue
   public int toFaValue() {
     return ordinal() + 1;
   }
 
-  @Converter
+  @Converter(autoApply = true)
   public static class FactionConverter implements AttributeConverter<Faction, Integer> {
 
     @Override
