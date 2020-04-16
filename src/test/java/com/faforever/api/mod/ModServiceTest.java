@@ -1,6 +1,8 @@
 package com.faforever.api.mod;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.data.domain.BanInfo;
+import com.faforever.api.data.domain.BanLevel;
 import com.faforever.api.data.domain.Mod;
 import com.faforever.api.data.domain.ModVersion;
 import com.faforever.api.data.domain.Player;
@@ -19,6 +21,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Example;
+import org.springframework.web.client.HttpClientErrorException.Forbidden;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -26,11 +29,13 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -108,6 +113,21 @@ public class ModServiceTest {
     expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.MOD_UID_EXISTS));
 
     instance.processUploadedMod(uploadedFile, new Player());
+  }
+
+  @Test
+  public void testUploaderVaultBanned() throws Exception {
+    Path uploadedFile = prepareMod(TEST_MOD);
+
+    Player uploader = mock(Player.class);
+    when(uploader.getActiveBans()).thenReturn(Set.of(
+      new BanInfo()
+        .setLevel(BanLevel.VAULT)
+    ));
+
+    expectedException.expect(Forbidden.class);
+
+    instance.processUploadedMod(uploadedFile, uploader);
   }
 
   @Test

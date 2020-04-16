@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.client.HttpClientErrorException.Forbidden;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import javax.validation.ConstraintViolationException;
@@ -89,7 +90,7 @@ class GlobalControllerExceptionHandler {
   }
 
 
-  @ExceptionHandler(AccessDeniedException.class)
+  @ExceptionHandler({AccessDeniedException.class, Forbidden.class})
   @ResponseStatus(HttpStatus.FORBIDDEN)
   @ResponseBody
   public ErrorResponse processAccessDeniedException(Throwable ex) throws MissingServletRequestPartException {
@@ -98,7 +99,7 @@ class GlobalControllerExceptionHandler {
     ErrorResponse response = new ErrorResponse();
     response.addError(new ErrorResult(
       String.valueOf(HttpStatus.FORBIDDEN.value()),
-      ex.getClass().getName(),
+      "You are not allowed to access this resource.",
       ex.getMessage()
     ));
     return response;

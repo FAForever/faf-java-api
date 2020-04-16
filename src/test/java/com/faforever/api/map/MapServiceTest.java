@@ -3,6 +3,8 @@ package com.faforever.api.map;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.Map;
 import com.faforever.api.content.ContentService;
+import com.faforever.api.data.domain.BanInfo;
+import com.faforever.api.data.domain.BanLevel;
 import com.faforever.api.data.domain.MapVersion;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
@@ -22,6 +24,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.client.HttpClientErrorException.Forbidden;
 import org.thymeleaf.util.StringUtils;
 
 import java.io.IOException;
@@ -33,6 +36,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -201,6 +205,18 @@ public class MapServiceTest {
 
       assertThat(mapLineError.getArgs().length, is(1));
       assertThat(mapLineError.getArgs()[0], is("map = '/maps/mirage/mirage.scmap'"));
+    }
+
+    @Test
+    void authorBannedFromVault() {
+      when(author.getActiveBans()).thenReturn(Set.of(
+        new BanInfo()
+          .setLevel(BanLevel.VAULT)
+      ));
+
+      InputStream mapData = loadMapAsInputSteam("command_conquer_rush.v0007.zip");
+      assertThrows(Forbidden.class, () -> instance.uploadMap(mapData, "command_conquer_rush.v0007.zip", author, true));
+      verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
 
