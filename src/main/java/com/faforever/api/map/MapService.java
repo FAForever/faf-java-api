@@ -2,6 +2,8 @@ package com.faforever.api.map;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.content.ContentService;
+import com.faforever.api.data.domain.BanDurationType;
+import com.faforever.api.data.domain.BanLevel;
 import com.faforever.api.data.domain.Map;
 import com.faforever.api.data.domain.MapVersion;
 import com.faforever.api.data.domain.Player;
@@ -23,11 +25,14 @@ import org.apache.commons.compress.archivers.ArchiveException;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -157,6 +162,8 @@ public class MapService {
     Assert.notNull(author, "'author' must not be null");
     Assert.isTrue(mapDataInputStream.available() > 0, "'mapData' must not be empty");
 
+    checkAuthorVaultBan(author);
+
     Path rootTempFolder = contentService.createTempDir();
 
     try {
@@ -192,6 +199,19 @@ public class MapService {
       mapDataInputStream.close();
       FileSystemUtils.deleteRecursively(rootTempFolder);
     }
+  }
+
+  private void checkAuthorVaultBan(Player author) {
+    author.getActiveBans().stream()
+      .filter(ban -> ban.getLevel() == BanLevel.VAULT)
+      .findFirst()
+      .ifPresent((banInfo) -> {
+        String message = banInfo.getDuration() == BanDurationType.PERMANENT ?
+          "You are permanently banned from uploading maps to the vault." :
+          format("You are banned from uploading maps to the vault until {0}.", banInfo.getExpiresAt());
+        throw HttpClientErrorException.create(message, HttpStatus.FORBIDDEN, "Upload forbidden",
+          HttpHeaders.EMPTY, null, null);
+      });
   }
 
   private Path unzipToTemporaryDirectory(InputStream mapDataInputStream, Path rootTempFolder)

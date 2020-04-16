@@ -1,6 +1,8 @@
 package com.faforever.api.mod;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.data.domain.BanDurationType;
+import com.faforever.api.data.domain.BanLevel;
 import com.faforever.api.data.domain.Mod;
 import com.faforever.api.data.domain.ModType;
 import com.faforever.api.data.domain.ModVersion;
@@ -19,8 +21,11 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -34,6 +39,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import static java.text.MessageFormat.format;
 
 @Service
 @Slf4j
@@ -55,6 +62,8 @@ public class ModService {
   @Transactional
   @CacheEvict(value = {Mod.TYPE_NAME, ModVersion.TYPE_NAME}, allEntries = true)
   public void processUploadedMod(Path uploadedFile, Player uploader) {
+    checkUploaderVaultBan(uploader);
+
     log.debug("Player '{}' uploaded a mod", uploader);
 
     validateZipFileSafety(uploadedFile);
@@ -159,6 +168,19 @@ public class ModService {
 
   private boolean modUidExists(String uuid) {
     return modVersionRepository.existsByUid(uuid);
+  }
+
+  private void checkUploaderVaultBan(Player uploader) {
+    uploader.getActiveBans().stream()
+      .filter(ban -> ban.getLevel() == BanLevel.VAULT)
+      .findFirst()
+      .ifPresent((banInfo) -> {
+        String message = banInfo.getDuration() == BanDurationType.PERMANENT ?
+          "You are permanently banned from uploading mods to the vault." :
+          format("You are banned from uploading mods to the vault until {0}.", banInfo.getExpiresAt());
+        throw HttpClientErrorException.create(message, HttpStatus.FORBIDDEN, "Upload forbidden",
+          HttpHeaders.EMPTY, null, null);
+      });
   }
 
   private boolean canUploadMod(String displayName, Player uploader) {
