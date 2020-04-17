@@ -202,9 +202,7 @@ public class MapService {
   }
 
   private void checkAuthorVaultBan(Player author) {
-    author.getActiveBans().stream()
-      .filter(ban -> ban.getLevel() == BanLevel.VAULT)
-      .findFirst()
+    author.getActiveBanOf(BanLevel.VAULT)
       .ifPresent((banInfo) -> {
         String message = banInfo.getDuration() == BanDurationType.PERMANENT ?
           "You are permanently banned from uploading maps to the vault." :

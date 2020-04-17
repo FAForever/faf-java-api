@@ -19,6 +19,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -91,6 +92,13 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
   @Transient
   public Set<BanInfo> getActiveBans() {
     return getBans().stream().filter(ban -> ban.getBanStatus() == BanStatus.BANNED).collect(Collectors.toSet());
+  }
+
+  @Transient
+  public Optional<BanInfo> getActiveBanOf(BanLevel banLevel) {
+    return getActiveBans().stream()
+      .filter(ban -> ban.getLevel() == banLevel)
+      .findFirst();
   }
 
   @Transient

@@ -171,9 +171,7 @@ public class ModService {
   }
 
   private void checkUploaderVaultBan(Player uploader) {
-    uploader.getActiveBans().stream()
-      .filter(ban -> ban.getLevel() == BanLevel.VAULT)
-      .findFirst()
+    uploader.getActiveBanOf(BanLevel.VAULT)
       .ifPresent((banInfo) -> {
         String message = banInfo.getDuration() == BanDurationType.PERMANENT ?
           "You are permanently banned from uploading mods to the vault." :

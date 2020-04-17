@@ -29,7 +29,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -120,7 +119,7 @@ public class ModServiceTest {
     Path uploadedFile = prepareMod(TEST_MOD);
 
     Player uploader = mock(Player.class);
-    when(uploader.getActiveBans()).thenReturn(Set.of(
+    when(uploader.getActiveBanOf(BanLevel.VAULT)).thenReturn(Optional.of(
       new BanInfo()
         .setLevel(BanLevel.VAULT)
     ));
