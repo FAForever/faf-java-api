@@ -37,6 +37,16 @@ Given the number of required configuration values, it's easiest to run the API u
 
     docker-compose up -d faf-java-api
 
+## Database dependency
+
+Due to potential issues with Hibernate, the application checks on startup if the flyway migration version matches the expected version and otherwise fails to boot.
+
+* To increment the db version you need to change it in two places:
+  * application.yml: `faf-api.database.schema-version` (just an integer of the version)
+  * travis.yml: Global variable `FAF_DB_VERSION` (git tag of the db release, usually prefixed with a `v`)
+* In some cases it might make sense to override the required version on the server. Use the env variable `DATABASE_SCHEMA_VERSION`
+ 
+
 ## Sample routes
 
 * [API documentation](http://localhost:8010)
