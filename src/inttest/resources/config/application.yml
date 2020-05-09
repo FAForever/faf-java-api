@@ -67,7 +67,7 @@ faf-api:
     realm: "http://localhost"
     api-key: "banana"
   replay:
-    download-url-format: "http://localhost/faf/vault/replay_vault/replay.php?id=%s"
+    download-url-format: "http://localhost/replays/%s"
   mautic:
     client-id: banana
     client-secret: banana

@@ -1,4 +1,4 @@
-package com.faforever.api.game;
+package com.faforever.api.data;
 
 import com.faforever.api.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepGameData.sql")
 @Sql(executionPhase = ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:sql/cleanGameData.sql")
 @Sql(executionPhase = ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:sql/cleanMapData.sql")
-public class GameTest extends AbstractIntegrationTest {
+public class GameElideTest extends AbstractIntegrationTest {
 
   @Test
   @WithAnonymousUser

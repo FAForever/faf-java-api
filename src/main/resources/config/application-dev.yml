@@ -14,7 +14,7 @@ faf-api:
     download-url-format: ${MOD_DOWNLOAD_URL_FORMAT:http://test.content.faforever.com/faf/vault/mods/%s}
     preview-url-format: ${MOD_PREVIEW_URL_FORMAT:http://test.content.faforever.com/faf/vault/mods/%s}
   replay:
-    download-url-format: ${REPLAY_DOWNLOAD_URL_FORMAT:http://content.test.faforever.com/faf/vault/replay_vault/replay.php?id=%s}
+    download-url-format: ${REPLAY_DOWNLOAD_URL_FORMAT:http://content.test.faforever.com/replays/%s}
   tutorial:
     thumbnail-url-format: ${TUTORIAL_THUMBNAIL_URL_FORMAT:http://content.test.faforever.com/faf/tutorials/thumbs/%s}
   avatar:
