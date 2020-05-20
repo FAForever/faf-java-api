@@ -19,7 +19,6 @@ import com.faforever.api.security.FafTokenType;
 import com.faforever.api.security.FafUserDetails;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
-import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -125,8 +124,6 @@ public class UserService {
    *   }
    * </pre>
    */
-  @SneakyThrows
-  @SuppressWarnings("unchecked")
   @Transactional
   void activate(String registrationToken, String password, String ipAddress) {
     Map<String, String> claims = fafTokenService.resolveToken(FafTokenType.REGISTRATION, registrationToken);
@@ -262,7 +259,6 @@ public class UserService {
     emailService.sendPasswordResetMail(user.getLogin(), user.getEmail(), passwordResetUrl);
   }
 
-  @SneakyThrows
   void performPasswordReset(String token, String newPassword) {
     log.debug("Trying to reset password with token: {}", token);
     Map<String, String> claims = fafTokenService.resolveToken(FafTokenType.PASSWORD_RESET, token);
@@ -313,7 +309,6 @@ public class UserService {
     return steamService.buildLoginUrl(String.format(properties.getLinkToSteam().getSteamRedirectUrlFormat(), token));
   }
 
-  @SneakyThrows
   public SteamLinkResult linkToSteam(String token, String steamId) {
     log.debug("linkToSteam requested for steamId '{}' with token: {}", steamId, token);
     List<Error> errors = new ArrayList<>();
