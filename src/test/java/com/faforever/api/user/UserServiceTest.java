@@ -6,7 +6,7 @@ import com.faforever.api.data.domain.Ladder1v1Rating;
 import com.faforever.api.data.domain.NameRecord;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.email.EmailService;
-import com.faforever.api.error.ApiExceptionMatcher;
+import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.mautic.MauticService;
 import com.faforever.api.player.PlayerRepository;
@@ -18,12 +18,11 @@ import com.faforever.api.security.FafTokenType;
 import com.faforever.api.user.UserService.SteamLinkResult;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.ExpectedExceptionSupport;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -37,6 +36,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
 import static com.faforever.api.user.UserService.KEY_STEAM_LINK_CALLBACK_URL;
 import static com.faforever.api.user.UserService.KEY_USER_ID;
 import static org.hamcrest.CoreMatchers.is;
@@ -45,6 +45,7 @@ import static org.hamcrest.Matchers.hasItemInArray;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -52,7 +53,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@ExtendWith({MockitoExtension.class, ExpectedExceptionSupport.class})
+@ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
   public static final String INVALID_PASSWORD = "invalid password";
   private static final String TEST_SECRET = "banana";
@@ -68,11 +69,9 @@ public class UserServiceTest {
   private static final String ACTIVATION_URL_FORMAT = "http://www.example.com/%s";
   private static final String STEAM_ID = "someSteamId";
   private static final String IP_ADDRESS = "127.0.0.1";
-  private static FafPasswordEncoder fafPasswordEncoder = new FafPasswordEncoder();
+  private static final FafPasswordEncoder fafPasswordEncoder = new FafPasswordEncoder();
   private static final CompletableFuture<Object> COMPLETED_FUTURE = CompletableFuture.completedFuture(null);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   private UserService instance;
   @Mock
   private EmailService emailService;
@@ -113,7 +112,6 @@ public class UserServiceTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void register() {
     properties.getRegistration().setActivationUrlFormat(ACTIVATION_URL_FORMAT);
 
@@ -134,41 +132,31 @@ public class UserServiceTest {
   @Test
   public void registerEmailAlreadyRegistered() {
     when(userRepository.existsByEmail(TEST_CURRENT_EMAIL)).thenReturn(true);
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.EMAIL_REGISTERED));
 
-    instance.register("junit", TEST_CURRENT_EMAIL);
+    ApiException exception = assertThrows(ApiException.class, () -> instance.register("junit", TEST_CURRENT_EMAIL));
+    assertThat(exception, hasErrorCode(ErrorCode.EMAIL_REGISTERED));
   }
 
-  @Test
-  public void registerInvalidUsernameWithComma() {
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_INVALID));
-    instance.register("junit,", TEST_CURRENT_EMAIL);
-  }
-
-  @Test
-  public void registerInvalidUsernameStartsUnderscore() {
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_INVALID));
-    instance.register("_junit", TEST_CURRENT_EMAIL);
-  }
-
-  @Test
-  public void registerInvalidUsernameTooShort() {
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_INVALID));
-    instance.register("ju", TEST_CURRENT_EMAIL);
+  @ParameterizedTest
+  @ValueSource(strings = {"junit,", "_junit", "ju"})
+  public void registerInvalidUsername(String invalidUsername) {
+    ApiException exception = assertThrows(ApiException.class, () -> instance.register(invalidUsername, TEST_CURRENT_EMAIL));
+    assertThat(exception, hasErrorCode(ErrorCode.USERNAME_INVALID));
   }
 
   @Test
   public void registerUsernameTaken() {
     when(userRepository.existsByLogin("junit")).thenReturn(true);
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_TAKEN));
-    instance.register("junit", TEST_CURRENT_EMAIL);
+    ApiException exception = assertThrows(ApiException.class, () -> instance.register("junit", TEST_CURRENT_EMAIL));
+    assertThat(exception, hasErrorCode(ErrorCode.USERNAME_TAKEN));
   }
 
   @Test
   public void registerUsernameReserved() {
     when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(1));
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_RESERVED));
-    instance.register("junit", TEST_CURRENT_EMAIL);
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.register("junit", TEST_CURRENT_EMAIL));
+    assertThat(exception, hasErrorCode(ErrorCode.USERNAME_RESERVED));
   }
 
   @Test
@@ -213,10 +201,10 @@ public class UserServiceTest {
 
   @Test
   public void changePasswordInvalidPassword() {
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.PASSWORD_CHANGE_FAILED_WRONG_PASSWORD));
-
     User user = createUser(TEST_USERID, TEST_USERNAME, INVALID_PASSWORD, TEST_CURRENT_EMAIL);
-    instance.changePassword(TEST_CURRENT_PASSWORD, TEST_NEW_PASSWORD, user);
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.changePassword(TEST_CURRENT_PASSWORD, TEST_NEW_PASSWORD, user));
+    assertThat(exception, hasErrorCode(ErrorCode.PASSWORD_CHANGE_FAILED_WRONG_PASSWORD));
   }
 
   @Test
@@ -237,10 +225,10 @@ public class UserServiceTest {
 
   @Test
   public void changeEmailInvalidPassword() {
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.EMAIL_CHANGE_FAILED_WRONG_PASSWORD));
-
     User user = createUser(TEST_USERID, TEST_USERNAME, INVALID_PASSWORD, TEST_CURRENT_EMAIL);
-    instance.changeEmail(TEST_CURRENT_PASSWORD, TEST_NEW_PASSWORD, user, IP_ADDRESS);
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.changeEmail(TEST_CURRENT_PASSWORD, TEST_NEW_PASSWORD, user, IP_ADDRESS));
+    assertThat(exception, hasErrorCode(ErrorCode.EMAIL_CHANGE_FAILED_WRONG_PASSWORD));
   }
 
   @Test
@@ -267,45 +255,45 @@ public class UserServiceTest {
 
   @Test
   public void changeLoginWithUsernameInUse() {
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_TAKEN));
-
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(userRepository.existsByLogin(TEST_USERNAME_CHANGED)).thenReturn(true);
-    instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS));
+    assertThat(exception, hasErrorCode(ErrorCode.USERNAME_TAKEN));
   }
 
   @Test
   public void changeLoginWithUsernameInUseButForced() {
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_TAKEN));
-
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(userRepository.existsByLogin(TEST_USERNAME_CHANGED)).thenReturn(true);
-    instance.changeLoginForced(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.changeLoginForced(TEST_USERNAME_CHANGED, user, IP_ADDRESS));
+    assertThat(exception, hasErrorCode(ErrorCode.USERNAME_TAKEN));
   }
 
   @Test
   public void changeLoginWithInvalidUsername() {
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_INVALID));
-
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    instance.changeLogin("$%&", user, IP_ADDRESS);
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.changeLogin("$%&", user, IP_ADDRESS));
+    assertThat(exception, hasErrorCode(ErrorCode.USERNAME_INVALID));
   }
 
   @Test
   public void changeLoginWithInvalidUsernameButForced() {
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_INVALID));
-
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    instance.changeLoginForced("$%&", user, IP_ADDRESS);
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.changeLoginForced("$%&", user, IP_ADDRESS));
+    assertThat(exception, hasErrorCode(ErrorCode.USERNAME_INVALID));
   }
 
   @Test
   public void changeLoginTooEarly() {
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_CHANGE_TOO_EARLY));
     when(nameRecordRepository.getDaysSinceLastNewRecord(anyInt(), anyInt())).thenReturn(Optional.of(BigInteger.valueOf(5)));
-
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS));
+    assertThat(exception, hasErrorCode(ErrorCode.USERNAME_CHANGE_TOO_EARLY));
   }
 
   @Test
@@ -321,11 +309,11 @@ public class UserServiceTest {
 
   @Test
   public void changeLoginUsernameReserved() {
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_RESERVED));
     when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(TEST_USERID + 1));
-
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS));
+    assertThat(exception, hasErrorCode(ErrorCode.USERNAME_RESERVED));
   }
 
   @Test
@@ -402,11 +390,11 @@ public class UserServiceTest {
 
   @Test
   public void resetPasswordUnknownUsernameAndEmail() {
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.UNKNOWN_IDENTIFIER));
+    when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
+    when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
 
-    when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
-    when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
-    instance.requestPasswordPasswordReset(TEST_CURRENT_EMAIL);
+    ApiException exception = assertThrows(ApiException.class, () -> instance.requestPasswordPasswordReset(TEST_CURRENT_EMAIL));
+    assertThat(exception, hasErrorCode(ErrorCode.UNKNOWN_IDENTIFIER));
   }
 
   @Test
@@ -455,13 +443,12 @@ public class UserServiceTest {
   }
 
   @Test
-  public void buildSteamLinkUrlAlreadLinked() {
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.STEAM_ID_UNCHANGEABLE));
-
+  public void buildSteamLinkUrlAlreadyLinked() {
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     user.setSteamId(STEAM_ID);
 
-    instance.buildSteamLinkUrl(user, "http://example.com/callback");
+    ApiException exception = assertThrows(ApiException.class, () -> instance.buildSteamLinkUrl(user, "http://example.com/callback"));
+    assertThat(exception, hasErrorCode(ErrorCode.STEAM_ID_UNCHANGEABLE));
   }
 
   @Test
@@ -487,12 +474,12 @@ public class UserServiceTest {
 
   @Test
   public void linkToSteamUnknownUser() {
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.TOKEN_INVALID));
-
     when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE)).thenReturn(ImmutableMap.of(KEY_USER_ID, "5"));
     when(userRepository.findById(5)).thenReturn(Optional.empty());
 
-    instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
+    ApiException exception = assertThrows(ApiException.class, () -> instance.linkToSteam(TOKEN_VALUE, STEAM_ID));
+    assertThat(exception, hasErrorCode(ErrorCode.TOKEN_INVALID));
+
     verifyNoMoreInteractions(mauticService);
   }
 
