@@ -107,7 +107,7 @@ public class FafTokenService {
 
     Instant expiresAt = Instant.parse(claims.get(KEY_LIFETIME));
     if (expiresAt.isBefore(Instant.now())) {
-      log.debug("Token of expected type '{}' is invalid: {}", expectedTokenType, token);
+      log.debug("Token already expired at '{}' for token: {}", expiresAt, token);
       throw new ApiException(new Error(ErrorCode.TOKEN_EXPIRED));
     }
 
