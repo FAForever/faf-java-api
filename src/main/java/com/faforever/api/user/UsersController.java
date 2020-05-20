@@ -48,20 +48,20 @@ public class UsersController {
   @PreAuthorize("#oauth2.hasScope('" + OAuthScope._CREATE_USER + "')")
   public void register(HttpServletRequest request,
                        @RequestParam("username") String username,
-                       @RequestParam("email") String email,
-                       @RequestParam("password") String password) {
+                       @RequestParam("email") String email) {
     if (request.isUserInRole("USER")) {
       throw new ApiException(new Error(ErrorCode.ALREADY_REGISTERED));
     }
 
-    userService.register(username, email, password);
+    userService.register(username, email);
   }
 
   @ApiOperation("Activates a previously registered account.")
-  @RequestMapping(path = "/activate", method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
+  @RequestMapping(path = "/activate", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
   public void activate(HttpServletRequest request, HttpServletResponse response,
-                       @RequestParam("token") String token) throws IOException {
-    userService.activate(token, RemoteAddressUtil.getRemoteAddress(request));
+                       @RequestParam("token") String registrationToken,
+                       @RequestParam("password") String password) throws IOException {
+    userService.activate(registrationToken, password, RemoteAddressUtil.getRemoteAddress(request));
     response.sendRedirect(fafApiProperties.getRegistration().getSuccessRedirectUrl());
   }
 
@@ -95,18 +95,18 @@ public class UsersController {
   }
 
 
-  @ApiOperation("Sends a password reset to the username OR email linked by this account.")
-  @RequestMapping(path = "/resetPassword", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
-  public void resetPassword(@RequestParam("identifier") String identifier,
-                            @RequestParam("newPassword") String newPassword) {
-    userService.resetPassword(identifier, newPassword);
+  @ApiOperation("Sends a password reset request to the username OR email linked by this account.")
+  @RequestMapping(path = "/requestPasswordReset", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
+  public void requestPasswordReset(@RequestParam("identifier") String identifier) {
+    userService.requestPasswordPasswordReset(identifier);
   }
 
   @ApiOperation("Sets a new password for an account.")
-  @RequestMapping(path = "/confirmPasswordReset", method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
-  public void claimPasswordResetToken(HttpServletResponse response,
-                                      @RequestParam("token") String token) throws IOException {
-    userService.claimPasswordResetToken(token);
+  @RequestMapping(path = "/performPasswordReset", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
+  public void performPasswordReset(HttpServletResponse response,
+                                   @RequestParam("token") String token,
+                                   @RequestParam("newPassword") String newPassword) throws IOException {
+    userService.performPasswordReset(token, newPassword);
     response.sendRedirect(fafApiProperties.getPasswordReset().getSuccessRedirectUrl());
   }
 

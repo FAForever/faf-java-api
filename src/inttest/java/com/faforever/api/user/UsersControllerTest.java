@@ -110,11 +110,13 @@ public class UsersControllerTest extends AbstractIntegrationTest {
       Duration.ofSeconds(100),
       ImmutableMap.of(
         UserService.KEY_USERNAME, NEW_USER,
-        UserService.KEY_EMAIL, NEW_EMAIL,
-        UserService.KEY_PASSWORD, NEW_PASSWORD
+        UserService.KEY_EMAIL, NEW_EMAIL
       ));
 
-    mockMvc.perform(get("/users/activate?token=" + token))
+    mockMvc.perform(
+      post("/users/activate")
+        .param("token", token)
+        .param("password", NEW_PASSWORD))
       .andExpect(status().isFound())
       .andExpect(redirectedUrl("http://localhost/account_activated"));
   }
@@ -238,10 +240,9 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   public void resetPasswordWithUsername() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("identifier", AUTH_USER);
-    params.add("newPassword", NEW_PASSWORD);
 
     mockMvc.perform(
-      post("/users/resetPassword")
+      post("/users/requestPasswordReset")
         .params(params))
       .andExpect(status().isOk());
 
@@ -253,10 +254,9 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   public void resetPasswordWithEmail() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("identifier", "user@faforever.com");
-    params.add("newPassword", NEW_PASSWORD);
 
     mockMvc.perform(
-      post("/users/resetPassword")
+      post("/users/requestPasswordReset")
         .params(params))
       .andExpect(status().isOk());
 
@@ -268,11 +268,12 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   public void confirmPasswordReset() throws Exception {
     String token = fafTokenService.createToken(FafTokenType.PASSWORD_RESET,
       Duration.ofSeconds(100),
-      ImmutableMap.of(UserService.KEY_USER_ID, String.valueOf(1),
-        UserService.KEY_PASSWORD, NEW_PASSWORD));
+      ImmutableMap.of(UserService.KEY_USER_ID, String.valueOf(1)));
 
     mockMvc.perform(
-      get("/users/confirmPasswordReset?token={token}", token))
+      post("/users/performPasswordReset")
+        .param("token", token)
+        .param("newPassword", NEW_PASSWORD))
       .andExpect(status().isFound())
       .andExpect(redirectedUrl("http://localhost/password_resetted"));
   }
@@ -367,7 +368,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
     mockMvc.perform(
       get(String.format("/users/linkToSteam?callbackUrl=%s&token=%s&openid.identity=http://steamcommunity.com/openid/id/%s", callbackUrl, token, steamId)))
       .andExpect(status().isFound())
-      .andExpect(redirectedUrlPattern(callbackUrl+"?errors=*"+ErrorCode.STEAM_ID_ALREADY_LINKED.getCode()+"*"+userThatOwnsSteamId.getLogin()+"*"));
+      .andExpect(redirectedUrlPattern(callbackUrl + "?errors=*" + ErrorCode.STEAM_ID_ALREADY_LINKED.getCode() + "*" + userThatOwnsSteamId.getLogin() + "*"));
     //We expect and error with code STEAM_ID_ALREADY_LINKED and that the error message contains the user that this steam account was linked to already which is MODERATOR with id 2
 
     assertThat(userRepository.getOne(1).getSteamId(), nullValue());

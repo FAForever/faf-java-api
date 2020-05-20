@@ -78,7 +78,7 @@ public class UserService {
     this.passwordEncoder = new FafPasswordEncoder();
   }
 
-  void register(String username, String email, String password) {
+  void register(String username, String email) {
     log.debug("Registration requested for user: {}", username);
     validateUsername(username);
     emailService.validateEmailAddress(email);
@@ -97,8 +97,7 @@ public class UserService {
       Duration.ofSeconds(properties.getRegistration().getLinkExpirationSeconds()),
       ImmutableMap.of(
         KEY_USERNAME, username,
-        KEY_EMAIL, email,
-        KEY_PASSWORD, passwordEncoder.encode(password)
+        KEY_EMAIL, email
       ));
 
     String activationUrl = String.format(properties.getRegistration().getActivationUrlFormat(), token);
@@ -118,7 +117,7 @@ public class UserService {
   /**
    * Creates a new user based on the information in the activation token.
    *
-   * @param token the JWT in the format: <pre>
+   * @param registrationToken the JWT in the format: <pre>
    *   {
    *     "action": "activate",
    *     "expiry": "2011-12-03T10:15:30Z",
@@ -129,15 +128,17 @@ public class UserService {
   @SneakyThrows
   @SuppressWarnings("unchecked")
   @Transactional
-  void activate(String token, String ipAddress) {
-    Map<String, String> claims = fafTokenService.resolveToken(FafTokenType.REGISTRATION, token);
+  void activate(String registrationToken, String password, String ipAddress) {
+    Map<String, String> claims = fafTokenService.resolveToken(FafTokenType.REGISTRATION, registrationToken);
 
     String username = claims.get(KEY_USERNAME);
     String email = claims.get(KEY_EMAIL);
-    String password = claims.get(KEY_PASSWORD);
+
+    // the username could have been taken in the meantime
+    validateUsername(username);
 
     User user = new User();
-    user.setPassword(password);
+    user.setPassword(passwordEncoder.encode(password));
     user.setEmail(email);
     user.setLogin(username);
     user.setRecentIpAddress(ipAddress);
@@ -245,7 +246,7 @@ public class UserService {
     createOrUpdateMauticContact(userRepository.save(user), ipAddress);
   }
 
-  void resetPassword(String identifier, String newPassword) {
+  void requestPasswordPasswordReset(String identifier) {
     log.debug("Password reset requested for user-identifier: {}", identifier);
 
     User user = userRepository.findOneByLogin(identifier)
@@ -254,21 +255,19 @@ public class UserService {
 
     String token = fafTokenService.createToken(FafTokenType.PASSWORD_RESET,
       Duration.ofSeconds(properties.getRegistration().getLinkExpirationSeconds()),
-      ImmutableMap.of(KEY_USER_ID, String.valueOf(user.getId()),
-        KEY_PASSWORD, newPassword));
+      ImmutableMap.of(KEY_USER_ID, String.valueOf(user.getId())));
 
-    String passwordResetUrl = String.format(properties.getPasswordReset().getPasswordResetUrlFormat(), token);
+    String passwordResetUrl = String.format(properties.getPasswordReset().getPasswordResetUrlFormat(), user.getLogin(), token);
 
     emailService.sendPasswordResetMail(user.getLogin(), user.getEmail(), passwordResetUrl);
   }
 
   @SneakyThrows
-  void claimPasswordResetToken(String token) {
+  void performPasswordReset(String token, String newPassword) {
     log.debug("Trying to reset password with token: {}", token);
     Map<String, String> claims = fafTokenService.resolveToken(FafTokenType.PASSWORD_RESET, token);
 
     int userId = Integer.parseInt(claims.get(KEY_USER_ID));
-    String newPassword = claims.get(KEY_PASSWORD);
     User user = userRepository.findById(userId)
       .orElseThrow(() -> new ApiException(new Error(TOKEN_INVALID)));
 

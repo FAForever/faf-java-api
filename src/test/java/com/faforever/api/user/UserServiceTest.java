@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static com.faforever.api.user.UserService.KEY_PASSWORD;
 import static com.faforever.api.user.UserService.KEY_STEAM_LINK_CALLBACK_URL;
 import static com.faforever.api.user.UserService.KEY_USER_ID;
 import static org.hamcrest.CoreMatchers.is;
@@ -50,7 +49,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith({MockitoExtension.class, ExpectedExceptionSupport.class})
@@ -65,7 +64,7 @@ public class UserServiceTest {
   private static final String TEST_CURRENT_PASSWORD = "oldPassword";
   private static final String TEST_NEW_PASSWORD = "newPassword";
   private static final String TOKEN_VALUE = "someToken";
-  private static final String PASSWORD_RESET_URL_FORMAT = "http://www.example.com/resetPassword/%s";
+  private static final String PASSWORD_RESET_URL_FORMAT = "http://www.example.com/resetPassword/username=%s&token=%s";
   private static final String ACTIVATION_URL_FORMAT = "http://www.example.com/%s";
   private static final String STEAM_ID = "someSteamId";
   private static final String IP_ADDRESS = "127.0.0.1";
@@ -120,7 +119,7 @@ public class UserServiceTest {
 
     when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
 
-    instance.register(TEST_USERNAME, TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
+    instance.register(TEST_USERNAME, TEST_CURRENT_EMAIL);
 
     verify(emailService).validateEmailAddress(TEST_CURRENT_EMAIL);
     verify(userRepository).existsByEmail(TEST_CURRENT_EMAIL);
@@ -129,7 +128,7 @@ public class UserServiceTest {
     verify(emailService).sendActivationMail(eq(TEST_USERNAME), eq(TEST_CURRENT_EMAIL), urlCaptor.capture());
     assertThat(urlCaptor.getValue(), is(String.format(ACTIVATION_URL_FORMAT, TOKEN_VALUE)));
 
-    verifyZeroInteractions(mauticService);
+    verifyNoMoreInteractions(mauticService);
   }
 
   @Test
@@ -137,39 +136,39 @@ public class UserServiceTest {
     when(userRepository.existsByEmail(TEST_CURRENT_EMAIL)).thenReturn(true);
     expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.EMAIL_REGISTERED));
 
-    instance.register("junit", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
+    instance.register("junit", TEST_CURRENT_EMAIL);
   }
 
   @Test
   public void registerInvalidUsernameWithComma() {
     expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_INVALID));
-    instance.register("junit,", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
+    instance.register("junit,", TEST_CURRENT_EMAIL);
   }
 
   @Test
   public void registerInvalidUsernameStartsUnderscore() {
     expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_INVALID));
-    instance.register("_junit", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
+    instance.register("_junit", TEST_CURRENT_EMAIL);
   }
 
   @Test
   public void registerInvalidUsernameTooShort() {
     expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_INVALID));
-    instance.register("ju", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
+    instance.register("ju", TEST_CURRENT_EMAIL);
   }
 
   @Test
   public void registerUsernameTaken() {
     when(userRepository.existsByLogin("junit")).thenReturn(true);
     expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_TAKEN));
-    instance.register("junit", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
+    instance.register("junit", TEST_CURRENT_EMAIL);
   }
 
   @Test
   public void registerUsernameReserved() {
     when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(1));
     expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.USERNAME_RESERVED));
-    instance.register("junit", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
+    instance.register("junit", TEST_CURRENT_EMAIL);
   }
 
   @Test
@@ -178,13 +177,12 @@ public class UserServiceTest {
 
     when(fafTokenService.resolveToken(FafTokenType.REGISTRATION, TOKEN_VALUE)).thenReturn(ImmutableMap.of(
       UserService.KEY_USERNAME, TEST_USERNAME,
-      UserService.KEY_EMAIL, TEST_CURRENT_EMAIL,
-      UserService.KEY_PASSWORD, fafPasswordEncoder.encode(TEST_NEW_PASSWORD)
+      UserService.KEY_EMAIL, TEST_CURRENT_EMAIL
     ));
     when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
     when(mauticService.createOrUpdateContact(any(), any(), any(), any(), any())).thenReturn(COMPLETED_FUTURE);
 
-    instance.activate(TOKEN_VALUE, TEST_IP_ADDRESS);
+    instance.activate(TOKEN_VALUE, TEST_NEW_PASSWORD, TEST_IP_ADDRESS);
 
     ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
     verify(userRepository).save(captor.capture());
@@ -210,7 +208,7 @@ public class UserServiceTest {
     assertEquals(captor.getValue().getPassword(), fafPasswordEncoder.encode(TEST_NEW_PASSWORD));
     verify(anopeUserRepository).updatePassword(TEST_USERNAME, Hashing.md5().hashString(TEST_NEW_PASSWORD, StandardCharsets.UTF_8).toString());
 
-    verifyZeroInteractions(mauticService);
+    verifyNoMoreInteractions(mauticService);
   }
 
   @Test
@@ -362,20 +360,19 @@ public class UserServiceTest {
     when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
     when(userRepository.findOneByLogin(TEST_USERNAME)).thenReturn(Optional.of(user));
 
-    instance.resetPassword(TEST_USERNAME, TEST_NEW_PASSWORD);
+    instance.requestPasswordPasswordReset(TEST_USERNAME);
 
     verify(userRepository).findOneByLogin(TEST_USERNAME);
 
     ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
     verify(emailService).sendPasswordResetMail(eq(TEST_USERNAME), eq(TEST_CURRENT_EMAIL), urlCaptor.capture());
-    assertThat(urlCaptor.getValue(), is(String.format(PASSWORD_RESET_URL_FORMAT, TOKEN_VALUE)));
+    assertThat(urlCaptor.getValue(), is(String.format(PASSWORD_RESET_URL_FORMAT, TEST_USERNAME, TOKEN_VALUE)));
 
     ArgumentCaptor<Map<String, String>> attributesMapCaptor = ArgumentCaptor.forClass(Map.class);
     verify(fafTokenService).createToken(eq(FafTokenType.PASSWORD_RESET), any(), attributesMapCaptor.capture());
     Map<String, String> tokenAttributes = attributesMapCaptor.getValue();
-    assertThat(tokenAttributes.size(), is(2));
+    assertThat(tokenAttributes.size(), is(1));
     assertThat(tokenAttributes.get(KEY_USER_ID), is(String.valueOf(TEST_USERID)));
-    assertThat(tokenAttributes.get(KEY_PASSWORD), is(String.valueOf(TEST_NEW_PASSWORD)));
   }
 
   @Test
@@ -388,20 +385,19 @@ public class UserServiceTest {
     when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
     when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.of(user));
 
-    instance.resetPassword(TEST_CURRENT_EMAIL, TEST_NEW_PASSWORD);
+    instance.requestPasswordPasswordReset(TEST_CURRENT_EMAIL);
 
     verify(userRepository).findOneByEmail(TEST_CURRENT_EMAIL);
 
     ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
     verify(emailService).sendPasswordResetMail(eq(TEST_USERNAME), eq(TEST_CURRENT_EMAIL), urlCaptor.capture());
-    assertThat(urlCaptor.getValue(), is(String.format(PASSWORD_RESET_URL_FORMAT, TOKEN_VALUE)));
+    assertThat(urlCaptor.getValue(), is(String.format(PASSWORD_RESET_URL_FORMAT, TEST_USERNAME, TOKEN_VALUE)));
 
     ArgumentCaptor<Map<String, String>> attributesMapCaptor = ArgumentCaptor.forClass(Map.class);
     verify(fafTokenService).createToken(eq(FafTokenType.PASSWORD_RESET), any(), attributesMapCaptor.capture());
     Map<String, String> tokenAttributes = attributesMapCaptor.getValue();
-    assertThat(tokenAttributes.size(), is(2));
+    assertThat(tokenAttributes.size(), is(1));
     assertThat(tokenAttributes.get(KEY_USER_ID), is(String.valueOf(TEST_USERID)));
-    assertThat(tokenAttributes.get(KEY_PASSWORD), is(String.valueOf(TEST_NEW_PASSWORD)));
   }
 
   @Test
@@ -410,25 +406,24 @@ public class UserServiceTest {
 
     when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
     when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
-    instance.resetPassword(TEST_CURRENT_EMAIL, TEST_NEW_PASSWORD);
+    instance.requestPasswordPasswordReset(TEST_CURRENT_EMAIL);
   }
 
   @Test
   public void claimPasswordResetToken() {
     when(fafTokenService.resolveToken(FafTokenType.PASSWORD_RESET, TOKEN_VALUE))
-      .thenReturn(ImmutableMap.of(KEY_USER_ID, "5",
-        KEY_PASSWORD, TEST_NEW_PASSWORD));
+      .thenReturn(ImmutableMap.of(KEY_USER_ID, "5"));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(userRepository.findById(5)).thenReturn(Optional.of(user));
 
-    instance.claimPasswordResetToken(TOKEN_VALUE);
+    instance.performPasswordReset(TOKEN_VALUE, TEST_NEW_PASSWORD);
 
     ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
     verify(userRepository).save(captor.capture());
     assertEquals(captor.getValue().getPassword(), fafPasswordEncoder.encode(TEST_NEW_PASSWORD));
     verify(anopeUserRepository).updatePassword(TEST_USERNAME, Hashing.md5().hashString(TEST_NEW_PASSWORD, StandardCharsets.UTF_8).toString());
-    verifyZeroInteractions(mauticService);
+    verifyNoMoreInteractions(mauticService);
   }
 
   @Test
@@ -487,7 +482,7 @@ public class UserServiceTest {
     assertThat(result.getCallbackUrl(), is("callbackUrl"));
     assertThat(result.getErrors(), is(empty()));
     assertThat(user.getSteamId(), is(STEAM_ID));
-    verifyZeroInteractions(mauticService);
+    verifyNoMoreInteractions(mauticService);
   }
 
   @Test
@@ -498,7 +493,7 @@ public class UserServiceTest {
     when(userRepository.findById(5)).thenReturn(Optional.empty());
 
     instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
-    verifyZeroInteractions(mauticService);
+    verifyNoMoreInteractions(mauticService);
   }
 
   @Test
@@ -520,7 +515,7 @@ public class UserServiceTest {
     assertThat(result.getErrors(), hasSize(1));
     assertThat(result.getErrors().get(0).getErrorCode(), is(ErrorCode.STEAM_LINK_NO_FA_GAME));
     assertThat(result.getErrors().get(0).getArgs(), is(new Object[0]));
-    verifyZeroInteractions(mauticService);
+    verifyNoMoreInteractions(mauticService);
   }
 
   @Test
@@ -544,7 +539,7 @@ public class UserServiceTest {
     assertThat(result.getErrors(), hasSize(1));
     assertThat(result.getErrors().get(0).getErrorCode(), is(ErrorCode.STEAM_ID_ALREADY_LINKED));
     assertThat(result.getErrors().get(0).getArgs(), hasItemInArray(otherUser.getLogin()));
-    verifyZeroInteractions(mauticService);
+    verifyNoMoreInteractions(mauticService);
   }
 
   @Test
