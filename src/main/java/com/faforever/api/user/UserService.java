@@ -83,13 +83,13 @@ public class UserService {
     emailService.validateEmailAddress(email);
 
     if (userRepository.existsByEmail(email)) {
-      throw new ApiException(new Error(ErrorCode.EMAIL_REGISTERED, email));
+      throw ApiException.of(ErrorCode.EMAIL_REGISTERED, email);
     }
 
     int usernameReservationTimeInMonths = properties.getUser().getUsernameReservationTimeInMonths();
     nameRecordRepository.getLastUsernameOwnerWithinMonths(username, usernameReservationTimeInMonths)
       .ifPresent(reservedByUserId -> {
-        throw new ApiException(new Error(ErrorCode.USERNAME_RESERVED, username, usernameReservationTimeInMonths));
+        throw ApiException.of(ErrorCode.USERNAME_RESERVED, username, usernameReservationTimeInMonths);
       });
 
     String token = fafTokenService.createToken(FafTokenType.REGISTRATION,
@@ -106,10 +106,10 @@ public class UserService {
 
   private void validateUsername(String username) {
     if (!USERNAME_PATTERN.matcher(username).matches()) {
-      throw new ApiException(new Error(ErrorCode.USERNAME_INVALID, username));
+      throw ApiException.of(ErrorCode.USERNAME_INVALID, username);
     }
     if (userRepository.existsByLogin(username)) {
-      throw new ApiException(new Error(ErrorCode.USERNAME_TAKEN, username));
+      throw ApiException.of(ErrorCode.USERNAME_TAKEN, username);
     }
   }
 
@@ -166,7 +166,7 @@ public class UserService {
 
   void changePassword(String currentPassword, String newPassword, User user) {
     if (!Objects.equals(user.getPassword(), passwordEncoder.encode(currentPassword))) {
-      throw new ApiException(new Error(ErrorCode.PASSWORD_CHANGE_FAILED_WRONG_PASSWORD));
+      throw ApiException.of(ErrorCode.PASSWORD_CHANGE_FAILED_WRONG_PASSWORD);
     }
 
     setPassword(user, newPassword);
@@ -189,14 +189,14 @@ public class UserService {
       int minDaysBetweenChange = properties.getUser().getMinimumDaysBetweenUsernameChange();
       nameRecordRepository.getDaysSinceLastNewRecord(user.getId(), minDaysBetweenChange)
         .ifPresent(daysSinceLastRecord -> {
-          throw new ApiException(new Error(ErrorCode.USERNAME_CHANGE_TOO_EARLY, minDaysBetweenChange - daysSinceLastRecord.intValue() + 1));
+          throw ApiException.of(ErrorCode.USERNAME_CHANGE_TOO_EARLY, minDaysBetweenChange - daysSinceLastRecord.intValue() + 1);
         });
 
       int usernameReservationTimeInMonths = properties.getUser().getUsernameReservationTimeInMonths();
       nameRecordRepository.getLastUsernameOwnerWithinMonths(newLogin, usernameReservationTimeInMonths)
         .ifPresent(reservedByUserId -> {
           if (!reservedByUserId.equals(user.getId())) {
-            throw new ApiException(new Error(ErrorCode.USERNAME_RESERVED, newLogin, usernameReservationTimeInMonths));
+            throw ApiException.of(ErrorCode.USERNAME_RESERVED, newLogin, usernameReservationTimeInMonths);
           }
         });
 
@@ -229,7 +229,7 @@ public class UserService {
 
   public void changeEmail(String currentPassword, String newEmail, User user, String ipAddress) {
     if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
-      throw new ApiException(new Error(ErrorCode.EMAIL_CHANGE_FAILED_WRONG_PASSWORD));
+      throw ApiException.of(ErrorCode.EMAIL_CHANGE_FAILED_WRONG_PASSWORD);
     }
 
     emailService.validateEmailAddress(newEmail);
@@ -248,7 +248,7 @@ public class UserService {
 
     User user = userRepository.findOneByLogin(identifier)
       .orElseGet(() -> userRepository.findOneByEmail(identifier)
-        .orElseThrow(() -> new ApiException(new Error(ErrorCode.UNKNOWN_IDENTIFIER))));
+        .orElseThrow(() -> ApiException.of(ErrorCode.UNKNOWN_IDENTIFIER, identifier)));
 
     String token = fafTokenService.createToken(FafTokenType.PASSWORD_RESET,
       Duration.ofSeconds(properties.getRegistration().getLinkExpirationSeconds()),
@@ -265,7 +265,7 @@ public class UserService {
 
     int userId = Integer.parseInt(claims.get(KEY_USER_ID));
     User user = userRepository.findById(userId)
-      .orElseThrow(() -> new ApiException(new Error(TOKEN_INVALID)));
+      .orElseThrow(() -> ApiException.of(TOKEN_INVALID));
 
     setPassword(user, newPassword);
   }
@@ -284,18 +284,18 @@ public class UserService {
       && authentication.getPrincipal() instanceof FafUserDetails) {
       return getUser(((FafUserDetails) authentication.getPrincipal()).getId());
     }
-    throw new ApiException(new Error(TOKEN_INVALID));
+    throw ApiException.of(TOKEN_INVALID);
   }
 
   public User getUser(int userId) {
-    return userRepository.findById(userId).orElseThrow(() -> new ApiException(new Error(TOKEN_INVALID)));
+    return userRepository.findById(userId).orElseThrow(() -> ApiException.of(TOKEN_INVALID));
   }
 
   public String buildSteamLinkUrl(User user, String callbackUrl) {
     log.debug("Building Steam link url for user id: {}", user.getId());
     if (user.getSteamId() != null && !Objects.equals(user.getSteamId(), "")) {
       log.debug("User with id '{}' already linked to steam", user.getId());
-      throw new ApiException(new Error(ErrorCode.STEAM_ID_UNCHANGEABLE));
+      throw ApiException.of(ErrorCode.STEAM_ID_UNCHANGEABLE);
     }
 
     String token = fafTokenService.createToken(FafTokenType.LINK_TO_STEAM,
@@ -315,7 +315,7 @@ public class UserService {
     Map<String, String> attributes = fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, token);
 
     User user = userRepository.findById(Integer.parseInt(attributes.get(KEY_USER_ID)))
-      .orElseThrow(() -> new ApiException(new Error(TOKEN_INVALID)));
+      .orElseThrow(() -> ApiException.of(TOKEN_INVALID));
 
     if (!steamService.ownsForgedAlliance(steamId)) {
       errors.add(new Error(ErrorCode.STEAM_LINK_NO_FA_GAME));
