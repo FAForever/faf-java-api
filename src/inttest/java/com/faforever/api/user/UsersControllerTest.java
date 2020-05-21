@@ -265,7 +265,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   @WithAnonymousUser
-  public void confirmPasswordReset() throws Exception {
+  public void performPasswordReset() throws Exception {
     String token = fafTokenService.createToken(FafTokenType.PASSWORD_RESET,
       Duration.ofSeconds(100),
       ImmutableMap.of(UserService.KEY_USER_ID, String.valueOf(1)));
