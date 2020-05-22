@@ -53,12 +53,10 @@ faf-api:
     preview-url-format: "http://localhost/mod/preview-url/%s"
   password-reset:
     password-reset-url-format: "http://localhost:8010/users/claimPasswordResetToken/%s"
-    success-redirect-url: "http://localhost/password_resetted"
     subject: "Integration test password reset"
     html-format: "Integration test password reset html body"
   registration:
     activation-url-format: "http://localhost/users/activate?token=%s"
-    success-redirect-url: "http://localhost/account_activated"
     subject: "Integration test registration"
     html-format: "Integration test registration html body"
   link-to-steam:

@@ -19,6 +19,8 @@ import com.faforever.api.security.FafTokenType;
 import com.faforever.api.security.FafUserDetails;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -42,10 +44,14 @@ import static com.faforever.api.error.ErrorCode.TOKEN_INVALID;
 public class UserService {
   static final String KEY_USERNAME = "username";
   static final String KEY_EMAIL = "email";
-  static final String KEY_PASSWORD = "password";
   static final String KEY_USER_ID = "id";
   static final String KEY_STEAM_LINK_CALLBACK_URL = "callbackUrl";
+
   private static final Pattern USERNAME_PATTERN = Pattern.compile("[A-Za-z][A-Za-z0-9_-]{2,15}$");
+  private static final String USER_REGISTRATIONS_COUNT = "user.registrations.count";
+  private static final String USER_PASSWORD_RESET_COUNT = "user.password.reset.count";
+  private static final String STEP_TAG = "step";
+
   private final EmailService emailService;
   private final PlayerRepository playerRepository;
   private final UserRepository userRepository;
@@ -58,11 +64,28 @@ public class UserService {
   private final Optional<MauticService> mauticService;
   private final GlobalRatingRepository globalRatingRepository;
   private final Ladder1v1RatingRepository ladder1v1RatingRepository;
+  private final MeterRegistry meterRegistry;
+  private final Counter userRegistrationCounter;
+  private final Counter userActivationCounter;
+  private final Counter userSteamLinkRequestedCounter;
+  private final Counter userSteamLinkDoneCounter;
+  private final Counter userNameChangeCounter;
+  private final Counter userPasswordResetRequestCounter;
+  private final Counter userPasswordResetDoneCounter;
 
-  public UserService(EmailService emailService, PlayerRepository playerRepository, UserRepository userRepository,
-                     NameRecordRepository nameRecordRepository, FafApiProperties properties,
-                     AnopeUserRepository anopeUserRepository, FafTokenService fafTokenService,
-                     SteamService steamService, Optional<MauticService> mauticService, GlobalRatingRepository globalRatingRepository, Ladder1v1RatingRepository ladder1v1RatingRepository) {
+  @java.beans.ConstructorProperties({"emailService", "playerRepository", "userRepository", "nameRecordRepository", "properties", "anopeUserRepository", "fafTokenService", "steamService", "mauticService", "globalRatingRepository", "ladder1v1RatingRepository", "meterRegistry"})
+  public UserService(EmailService emailService,
+                     PlayerRepository playerRepository,
+                     UserRepository userRepository,
+                     NameRecordRepository nameRecordRepository,
+                     FafApiProperties properties,
+                     AnopeUserRepository anopeUserRepository,
+                     FafTokenService fafTokenService,
+                     SteamService steamService,
+                     Optional<MauticService> mauticService,
+                     GlobalRatingRepository globalRatingRepository,
+                     Ladder1v1RatingRepository ladder1v1RatingRepository,
+                     MeterRegistry meterRegistry) {
     this.emailService = emailService;
     this.playerRepository = playerRepository;
     this.userRepository = userRepository;
@@ -74,7 +97,17 @@ public class UserService {
     this.mauticService = mauticService;
     this.globalRatingRepository = globalRatingRepository;
     this.ladder1v1RatingRepository = ladder1v1RatingRepository;
+    this.meterRegistry = meterRegistry;
+
     this.passwordEncoder = new FafPasswordEncoder();
+
+    userRegistrationCounter = meterRegistry.counter(USER_REGISTRATIONS_COUNT, STEP_TAG, "registration");
+    userActivationCounter = meterRegistry.counter(USER_REGISTRATIONS_COUNT, STEP_TAG, "activation");
+    userSteamLinkRequestedCounter = meterRegistry.counter(USER_REGISTRATIONS_COUNT, STEP_TAG, "steamLinkRequested");
+    userSteamLinkDoneCounter = meterRegistry.counter(USER_REGISTRATIONS_COUNT, STEP_TAG, "steamLinkDone");
+    userNameChangeCounter = meterRegistry.counter("user.name.change.count");
+    userPasswordResetRequestCounter = meterRegistry.counter(USER_PASSWORD_RESET_COUNT, STEP_TAG, "request");
+    userPasswordResetDoneCounter = meterRegistry.counter(USER_PASSWORD_RESET_COUNT, STEP_TAG, "done");
   }
 
   void register(String username, String email) {
@@ -102,6 +135,9 @@ public class UserService {
     String activationUrl = String.format(properties.getRegistration().getActivationUrlFormat(), token);
 
     emailService.sendActivationMail(username, email, activationUrl);
+
+
+    userRegistrationCounter.increment();
   }
 
   private void validateUsername(String username) {
@@ -162,6 +198,7 @@ public class UserService {
     log.debug("User has been activated: {}", user);
 
     createOrUpdateMauticContact(user, ipAddress);
+    userActivationCounter.increment();
   }
 
   void changePassword(String currentPassword, String newPassword, User user) {
@@ -210,6 +247,7 @@ public class UserService {
     user.setLogin(newLogin);
 
     createOrUpdateMauticContact(userRepository.save(user), ipAddress);
+    userNameChangeCounter.increment();
   }
 
   private void createOrUpdateMauticContact(User user, String ipAddress) {
@@ -243,7 +281,7 @@ public class UserService {
     createOrUpdateMauticContact(userRepository.save(user), ipAddress);
   }
 
-  void requestPasswordPasswordReset(String identifier) {
+  void requestPasswordReset(String identifier) {
     log.debug("Password reset requested for user-identifier: {}", identifier);
 
     User user = userRepository.findOneByLogin(identifier)
@@ -257,6 +295,7 @@ public class UserService {
     String passwordResetUrl = String.format(properties.getPasswordReset().getPasswordResetUrlFormat(), user.getLogin(), token);
 
     emailService.sendPasswordResetMail(user.getLogin(), user.getEmail(), passwordResetUrl);
+    userPasswordResetRequestCounter.increment();
   }
 
   void performPasswordReset(String token, String newPassword) {
@@ -268,6 +307,7 @@ public class UserService {
       .orElseThrow(() -> ApiException.of(TOKEN_INVALID));
 
     setPassword(user, newPassword);
+    userPasswordResetDoneCounter.increment();
   }
 
   private void setPassword(User user, String password) {
@@ -306,6 +346,7 @@ public class UserService {
       )
     );
 
+    userSteamLinkRequestedCounter.increment();
     return steamService.buildLoginUrl(String.format(properties.getLinkToSteam().getSteamRedirectUrlFormat(), token));
   }
 
@@ -332,6 +373,7 @@ public class UserService {
     }
 
     String callbackUrl = attributes.get(KEY_STEAM_LINK_CALLBACK_URL);
+    userSteamLinkDoneCounter.increment();
     return new SteamLinkResult(callbackUrl, errors);
   }
 
