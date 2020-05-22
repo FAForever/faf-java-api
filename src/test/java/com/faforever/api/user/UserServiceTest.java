@@ -18,11 +18,13 @@ import com.faforever.api.security.FafTokenType;
 import com.faforever.api.user.UserService.SteamLinkResult;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -93,6 +95,8 @@ public class UserServiceTest {
   private GlobalRatingRepository globalRatingRepository;
   @Mock
   private Ladder1v1RatingRepository ladder1v1RatingRepository;
+  @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+  private MeterRegistry meterRegistry;
 
   private FafApiProperties properties;
 
@@ -108,7 +112,7 @@ public class UserServiceTest {
   public void setUp() {
     properties = new FafApiProperties();
     properties.getLinkToSteam().setSteamRedirectUrlFormat("%s");
-    instance = new UserService(emailService, playerRepository, userRepository, nameRecordRepository, properties, anopeUserRepository, fafTokenService, steamService, Optional.of(mauticService), globalRatingRepository, ladder1v1RatingRepository);
+    instance = new UserService(emailService, playerRepository, userRepository, nameRecordRepository, properties, anopeUserRepository, fafTokenService, steamService, Optional.of(mauticService), globalRatingRepository, ladder1v1RatingRepository, meterRegistry);
   }
 
   @Test
@@ -348,7 +352,7 @@ public class UserServiceTest {
     when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
     when(userRepository.findOneByLogin(TEST_USERNAME)).thenReturn(Optional.of(user));
 
-    instance.requestPasswordPasswordReset(TEST_USERNAME);
+    instance.requestPasswordReset(TEST_USERNAME);
 
     verify(userRepository).findOneByLogin(TEST_USERNAME);
 
@@ -373,7 +377,7 @@ public class UserServiceTest {
     when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
     when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.of(user));
 
-    instance.requestPasswordPasswordReset(TEST_CURRENT_EMAIL);
+    instance.requestPasswordReset(TEST_CURRENT_EMAIL);
 
     verify(userRepository).findOneByEmail(TEST_CURRENT_EMAIL);
 
@@ -393,7 +397,7 @@ public class UserServiceTest {
     when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
     when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
 
-    ApiException exception = assertThrows(ApiException.class, () -> instance.requestPasswordPasswordReset(TEST_CURRENT_EMAIL));
+    ApiException exception = assertThrows(ApiException.class, () -> instance.requestPasswordReset(TEST_CURRENT_EMAIL));
     assertThat(exception, hasErrorCode(ErrorCode.UNKNOWN_IDENTIFIER));
   }
 

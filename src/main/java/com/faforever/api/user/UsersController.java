@@ -92,7 +92,7 @@ public class UsersController {
   @ApiOperation("Sends a password reset request to the username OR email linked by this account.")
   @RequestMapping(path = "/requestPasswordReset", method = RequestMethod.POST, produces = APPLICATION_JSON_VALUE)
   public void requestPasswordReset(@RequestParam("identifier") String identifier) {
-    userService.requestPasswordPasswordReset(identifier);
+    userService.requestPasswordReset(identifier);
   }
 
   @ApiOperation("Sets a new password for an account.")

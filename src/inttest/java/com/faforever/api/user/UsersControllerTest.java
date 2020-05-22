@@ -117,8 +117,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
       post("/users/activate")
         .param("token", token)
         .param("password", NEW_PASSWORD))
-      .andExpect(status().isFound())
-      .andExpect(redirectedUrl("http://localhost/account_activated"));
+      .andExpect(status().isOk());
   }
 
   @Test
@@ -274,8 +273,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
       post("/users/performPasswordReset")
         .param("token", token)
         .param("newPassword", NEW_PASSWORD))
-      .andExpect(status().isFound())
-      .andExpect(redirectedUrl("http://localhost/password_resetted"));
+      .andExpect(status().isOk());
   }
 
   @Test
