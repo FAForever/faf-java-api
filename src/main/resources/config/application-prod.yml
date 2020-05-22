@@ -41,12 +41,10 @@ faf-api:
     from-email-address: ${EMAIL_FROM_ADDRESS}
   registration:
     activation-url-format: ${ACTIVATION_URL_FORMAT}
-    success-redirect-url: ${ACTIVATION_SUCCESS_REDIRECT_URL}
     subject: ${REGISTRATION_EMAIL_SUBJECT}
     html-format: ${REGISTRATION_EMAIL_BODY}
   password-reset:
     password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT}
-    success-redirect-url: ${PASSWORD_RESET_SUCCESS_REDIRECT_URL}
     subject: ${PASSWORD_RESET_EMAIL_SUBJECT}
     html-format: ${PASSWORD_RESET_EMAIL_BODY}
   steam:

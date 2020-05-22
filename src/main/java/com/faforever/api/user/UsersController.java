@@ -57,7 +57,6 @@ public class UsersController {
                        @RequestParam("token") String registrationToken,
                        @RequestParam("password") String password) throws IOException {
     userService.activate(registrationToken, password, RemoteAddressUtil.getRemoteAddress(request));
-    response.sendRedirect(fafApiProperties.getRegistration().getSuccessRedirectUrl());
   }
 
   @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
@@ -102,7 +101,6 @@ public class UsersController {
                                    @RequestParam("token") String token,
                                    @RequestParam("newPassword") String newPassword) throws IOException {
     userService.performPasswordReset(token, newPassword);
-    response.sendRedirect(fafApiProperties.getPasswordReset().getSuccessRedirectUrl());
   }
 
   @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")

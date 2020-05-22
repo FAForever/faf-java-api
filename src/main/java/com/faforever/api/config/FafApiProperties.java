@@ -177,7 +177,6 @@ public class FafApiProperties {
     private String activationUrlFormat;
     private String subject;
     private String htmlFormat;
-    private String successRedirectUrl;
   }
 
   @Data
@@ -186,7 +185,6 @@ public class FafApiProperties {
     private String passwordResetUrlFormat;
     private String subject;
     private String htmlFormat;
-    private String successRedirectUrl;
   }
 
   @Data
