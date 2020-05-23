@@ -132,7 +132,7 @@ public class UserService {
         KEY_EMAIL, email
       ));
 
-    String activationUrl = String.format(properties.getRegistration().getActivationUrlFormat(), token);
+    String activationUrl = String.format(properties.getRegistration().getActivationUrlFormat(), username, token);
 
     emailService.sendActivationMail(username, email, activationUrl);
 

@@ -128,7 +128,7 @@ public class UserServiceTest {
 
     ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
     verify(emailService).sendActivationMail(eq(TEST_USERNAME), eq(TEST_CURRENT_EMAIL), urlCaptor.capture());
-    assertThat(urlCaptor.getValue(), is(String.format(ACTIVATION_URL_FORMAT, TOKEN_VALUE)));
+    assertThat(urlCaptor.getValue(), is(String.format(ACTIVATION_URL_FORMAT, TEST_USERNAME, TOKEN_VALUE)));
 
     verifyNoMoreInteractions(mauticService);
   }
