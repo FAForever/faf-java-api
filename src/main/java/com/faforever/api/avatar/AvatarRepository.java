@@ -8,7 +8,8 @@ import java.util.Optional;
 
 @Repository
 public interface AvatarRepository extends JpaRepository<Avatar, Integer> {
-  Optional<Avatar> findOneByUrl(String url);
+  //Optional<Avatar> findOneByUrl(String url);
 
+  Optional<Avatar> findOneByFilename(String filename);
   Optional<Avatar> findById(Integer id);
 }

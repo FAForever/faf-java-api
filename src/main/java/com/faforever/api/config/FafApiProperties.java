@@ -131,6 +131,7 @@ public class FafApiProperties {
     private int maxNameLength = 100;
     private int imageWidth = 40;
     private int imageHeight = 20;
+    private String baseUrl = "https://content.faforever.com/faf/avatars";
   }
 
   @Data

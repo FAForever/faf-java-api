@@ -5,6 +5,7 @@ import com.faforever.api.security.elide.permission.WriteAvatarCheck;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
+import org.springframework.data.annotation.Transient;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -22,13 +23,18 @@ public class Avatar extends AbstractEntity {
 
   private String url;
   private String tooltip;
+  private String filename;
   private List<AvatarAssignment> assignments;
 
-  @Column(name = "url")
+  @Transient
   @NotNull
   public String getUrl() {
     return url;
   }
+
+  @Column(name = "filename")
+  @NotNull
+  public String getFilename() { return filename; }
 
   @Column(name = "tooltip")
   @UpdatePermission(expression = WriteAvatarCheck.EXPRESSION)
@@ -43,5 +49,4 @@ public class Avatar extends AbstractEntity {
   public List<AvatarAssignment> getAssignments() {
     return this.assignments;
   }
-
 }

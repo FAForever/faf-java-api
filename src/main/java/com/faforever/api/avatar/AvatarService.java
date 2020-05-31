@@ -23,6 +23,8 @@ import java.awt.Dimension;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -47,12 +49,15 @@ public class AvatarService {
   public void createAvatar(AvatarMetadata avatarMetadata, String originalFilename, InputStream imageDataInputStream, long avatarImageFileSize) {
     final Avatar avatarToCreate = new Avatar();
     final String normalizedAvatarFileName = NameUtil.normalizeFileName(originalFilename);
-    String url = String.format(properties.getAvatar().getDownloadUrlFormat(), normalizedAvatarFileName);
-    avatarRepository.findOneByUrl(url).ifPresent(existingAvatar -> {
+    String url = String.format(properties.getAvatar().getBaseUrl(), normalizedAvatarFileName);
+    String encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString());
+    avatarRepository.findOneByFilename(normalizedAvatarFileName).ifPresent(existingAvatar -> {
       throw new ApiException(new Error(ErrorCode.AVATAR_NAME_CONFLICT, normalizedAvatarFileName));
     });
     avatarToCreate.setTooltip(avatarMetadata.getName())
-      .setUrl(url);
+      .setUrl(encodedUrl);
+    avatarToCreate.setTooltip(avatarMetadata.getName())
+      .setFilename(normalizedAvatarFileName);
 
     final InputStream markSupportedImageInputStream = getMarkSupportedInputStream(imageDataInputStream);
     validateImageFile(originalFilename, avatarImageFileSize);
