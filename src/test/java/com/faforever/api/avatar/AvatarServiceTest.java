@@ -98,7 +98,7 @@ public class AvatarServiceTest {
 
       final Avatar storedAvatar = avatarCaptor.getValue();
       String expectedFilename = NameUtil.normalizeFileName(worstCasePrefix + avatarFileName);
-      assertEquals(String.format(DOWNLOAD_URL_FORMAT, expectedFilename), storedAvatar.getUrl());
+      assertEquals(expectedFilename, storedAvatar.getFilename());
       assertEquals(AVATAR_NAME, storedAvatar.getTooltip());
       assertThat(avatarsPath.resolve(expectedFilename).toFile().length(), is(imageResource.openConnection().getContentLengthLong()));
     }
