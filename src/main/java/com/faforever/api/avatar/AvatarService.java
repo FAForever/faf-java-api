@@ -49,13 +49,9 @@ public class AvatarService {
   public void createAvatar(AvatarMetadata avatarMetadata, String originalFilename, InputStream imageDataInputStream, long avatarImageFileSize) {
     final Avatar avatarToCreate = new Avatar();
     final String normalizedAvatarFileName = NameUtil.normalizeFileName(originalFilename);
-    String url = String.format(properties.getAvatar().getBaseUrl(), normalizedAvatarFileName);
-    String encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString());
     avatarRepository.findOneByFilename(normalizedAvatarFileName).ifPresent(existingAvatar -> {
       throw new ApiException(new Error(ErrorCode.AVATAR_NAME_CONFLICT, normalizedAvatarFileName));
     });
-    avatarToCreate.setTooltip(avatarMetadata.getName())
-      .setUrl(encodedUrl);
     avatarToCreate.setTooltip(avatarMetadata.getName())
       .setFilename(normalizedAvatarFileName);
 
