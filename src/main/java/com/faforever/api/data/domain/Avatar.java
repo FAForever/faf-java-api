@@ -27,6 +27,8 @@ import java.util.List;
 @EntityListeners(AvatarEnricherListener.class)
 public class Avatar extends AbstractEntity {
 
+  public static final String TYPE_NAME = "avatar";
+
   private String url;
   private String tooltip;
   private String filename;
