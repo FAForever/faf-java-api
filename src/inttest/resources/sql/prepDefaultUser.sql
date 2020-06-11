@@ -20,16 +20,26 @@ DELETE FROM `map`;
 DELETE FROM mod_version_review;
 DELETE FROM mod_version_reviews_summary;
 DELETE FROM mod_version;
-DELETE FROM `mod`;
-DELETE FROM mod_stats;
-DELETE FROM oauth_clients;
-DELETE FROM updates_faf;
-DELETE FROM updates_faf_files;
-DELETE FROM avatars;
-DELETE FROM avatars_list;
-DELETE FROM ban;
-DELETE FROM clan_membership;
-DELETE FROM clan;
+DELETE
+FROM `mod`;
+DELETE
+FROM mod_stats;
+DELETE
+FROM oauth_clients;
+DELETE
+FROM updates_faf;
+DELETE
+FROM updates_faf_files;
+DELETE
+FROM avatars;
+DELETE
+FROM avatars_list;
+DELETE
+FROM ban;
+DELETE
+FROM clan_membership;
+DELETE
+FROM clan;
 DELETE
 FROM game_player_stats;
 DELETE
