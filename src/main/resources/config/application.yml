@@ -64,6 +64,10 @@ spring:
       charset: utf-8
       enabled: true
       force: true
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: DEFAULT
 
 server:
   # Mind that this is configured in the docker compose file as well (that is, in the gradle script that generates it)

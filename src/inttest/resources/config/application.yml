@@ -20,6 +20,10 @@ spring:
       enabled: true
   mail:
     host: false
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: DEFAULT
 
 faf-api:
   jwt:
