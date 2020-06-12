@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -25,9 +26,14 @@ import java.util.Optional;
 @ConditionalOnProperty(value = "faf-api.nodebb.master-token")
 @Slf4j
 @RequiredArgsConstructor
-public class NodebbService implements UserDataSyncService {
+public class NodebbService implements UserDataSyncService, InitializingBean {
   private final RestTemplate restTemplate;
   private final FafApiProperties properties;
+
+  @Override
+  public void afterPropertiesSet() throws Exception {
+    log.info("NodeBB service initialized");
+  }
 
   @Override
   public void userDataChanged(UserUpdatedEvent event) {
