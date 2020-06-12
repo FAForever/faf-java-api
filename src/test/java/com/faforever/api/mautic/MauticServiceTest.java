@@ -1,6 +1,8 @@
 package com.faforever.api.mautic;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.data.domain.User;
+import com.faforever.api.user.UserUpdatedEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,11 +14,11 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.OffsetDateTime;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,8 +49,14 @@ public class MauticServiceTest {
   }
 
   @Test
-  public void createOrUpdateContact() {
-    instance.createOrUpdateContact("junit@example.com", "111", "JUnit", "1.1.1.1", OffsetDateTime.now());
+  public void onUserUpdated() {
+    instance.onUserUpdated(new UserUpdatedEvent(
+      mock(User.class),
+      111,
+      "JUnit",
+      "junit@example.com",
+      "1.1.1.1"
+    ));
 
     ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
     verify(restTemplate).postForObject(eq("/contacts/new"), captor.capture(), eq(Object.class));

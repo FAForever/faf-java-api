@@ -2,18 +2,30 @@ package com.faforever.api.user;
 
 import com.faforever.api.data.domain.User;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.Value;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationEvent;
 
-@Getter
+@Value
 @EqualsAndHashCode(callSuper = true)
 public class UserUpdatedEvent extends ApplicationEvent {
-  private final int id;
-  private final String username;
-  private final String email;
-  private final String ipAddress;
 
-  public UserUpdatedEvent(User source, int id, String username, String email, String ipAddress) {
+  int id;
+
+  @NotNull
+  String username;
+
+  @NotNull
+  String email;
+
+  @NotNull
+  String ipAddress;
+
+  public UserUpdatedEvent(@NotNull User source,
+                          int id,
+                          @NotNull String username,
+                          @NotNull String email,
+                          @NotNull String ipAddress) {
     super(source);
     this.id = id;
     this.username = username;

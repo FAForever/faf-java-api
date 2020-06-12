@@ -8,7 +8,6 @@ import com.faforever.api.data.domain.User;
 import com.faforever.api.email.EmailService;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ErrorCode;
-import com.faforever.api.mautic.MauticService;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.rating.GlobalRatingRepository;
 import com.faforever.api.rating.Ladder1v1RatingRepository;
@@ -30,11 +29,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -91,8 +88,6 @@ public class UserServiceTest {
   @Mock
   private FafTokenService fafTokenService;
   @Mock
-  private MauticService mauticService;
-  @Mock
   private GlobalRatingRepository globalRatingRepository;
   @Mock
   private Ladder1v1RatingRepository ladder1v1RatingRepository;
@@ -123,7 +118,6 @@ public class UserServiceTest {
       anopeUserRepository,
       fafTokenService,
       steamService,
-      Optional.of(mauticService),
       globalRatingRepository,
       ladder1v1RatingRepository,
       meterRegistry,
@@ -145,7 +139,7 @@ public class UserServiceTest {
     verify(emailService).sendActivationMail(eq(TEST_USERNAME), eq(TEST_CURRENT_EMAIL), urlCaptor.capture());
     assertThat(urlCaptor.getValue(), is(String.format(ACTIVATION_URL_FORMAT, TEST_USERNAME, TOKEN_VALUE)));
 
-    verifyNoMoreInteractions(mauticService);
+    verifyNoMoreInteractions(eventPublisher);
   }
 
   @Test
@@ -187,7 +181,6 @@ public class UserServiceTest {
       UserService.KEY_EMAIL, TEST_CURRENT_EMAIL
     ));
     when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
-    when(mauticService.createOrUpdateContact(any(), any(), any(), any(), any())).thenReturn(COMPLETED_FUTURE);
 
     instance.activate(TOKEN_VALUE, TEST_NEW_PASSWORD, TEST_IP_ADDRESS);
 
@@ -202,7 +195,7 @@ public class UserServiceTest {
     assertThat(user.getPassword(), is(fafPasswordEncoder.encode(TEST_NEW_PASSWORD)));
     assertThat(user.getRecentIpAddress(), is(TEST_IP_ADDRESS));
 
-    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME), eq(IP_ADDRESS), any(OffsetDateTime.class));
+    verify(eventPublisher).publishEvent(any(UserUpdatedEvent.class));
   }
 
   @Test
@@ -215,7 +208,7 @@ public class UserServiceTest {
     assertEquals(captor.getValue().getPassword(), fafPasswordEncoder.encode(TEST_NEW_PASSWORD));
     verify(anopeUserRepository).updatePassword(TEST_USERNAME, Hashing.md5().hashString(TEST_NEW_PASSWORD, StandardCharsets.UTF_8).toString());
 
-    verifyNoMoreInteractions(mauticService);
+    verifyNoMoreInteractions(eventPublisher);
   }
 
   @Test
@@ -231,7 +224,6 @@ public class UserServiceTest {
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
 
     when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
-    when(mauticService.createOrUpdateContact(any(), any(), any(), any(), any())).thenReturn(COMPLETED_FUTURE);
 
     instance.changeEmail(TEST_CURRENT_PASSWORD, TEST_NEW_EMAIL, user, IP_ADDRESS);
     verify(emailService).validateEmailAddress(TEST_NEW_EMAIL);
@@ -239,7 +231,7 @@ public class UserServiceTest {
     verify(userRepository).save(captor.capture());
     assertEquals(captor.getValue().getEmail(), TEST_NEW_EMAIL);
 
-    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME), eq(IP_ADDRESS), any(OffsetDateTime.class));
+    verify(eventPublisher).publishEvent(any(UserUpdatedEvent.class));
   }
 
   @Test
@@ -257,9 +249,6 @@ public class UserServiceTest {
 
     when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
 
-    when(mauticService.createOrUpdateContact(any(), any(), any(), any(), any()))
-      .thenReturn(COMPLETED_FUTURE);
-
 
     instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
     ArgumentCaptor<User> captorUser = ArgumentCaptor.forClass(User.class);
@@ -269,7 +258,7 @@ public class UserServiceTest {
     verify(nameRecordRepository).save(captorNameRecord.capture());
     assertEquals(captorNameRecord.getValue().getName(), TEST_USERNAME);
 
-    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME_CHANGED), eq(IP_ADDRESS), any(OffsetDateTime.class));
+    verify(eventPublisher).publishEvent(any(UserUpdatedEvent.class));
   }
 
   @Test
@@ -320,10 +309,9 @@ public class UserServiceTest {
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
 
     when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
-    when(mauticService.createOrUpdateContact(any(), any(), any(), any(), any())).thenReturn(COMPLETED_FUTURE);
 
     instance.changeLoginForced(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
-    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME_CHANGED), eq(IP_ADDRESS), any(OffsetDateTime.class));
+    verify(eventPublisher).publishEvent(any(UserUpdatedEvent.class));
   }
 
   @Test
@@ -338,23 +326,21 @@ public class UserServiceTest {
   @Test
   public void changeLoginUsernameReservedButForced() {
     when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
-    when(mauticService.createOrUpdateContact(any(), any(), any(), any(), any())).thenReturn(COMPLETED_FUTURE);
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     instance.changeLoginForced(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
-    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME_CHANGED), eq(IP_ADDRESS), any(OffsetDateTime.class));
+    verify(eventPublisher).publishEvent(any(UserUpdatedEvent.class));
   }
 
   @Test
   public void changeLoginUsernameReservedBySelf() {
     when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(new Integer(TEST_USERID)));
     when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
-    when(mauticService.createOrUpdateContact(any(), any(), any(), any(), any())).thenReturn(COMPLETED_FUTURE);
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
 
-    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME_CHANGED), eq(IP_ADDRESS), any(OffsetDateTime.class));
+    verify(eventPublisher).publishEvent(any(UserUpdatedEvent.class));
   }
 
   @Test
@@ -430,7 +416,7 @@ public class UserServiceTest {
     verify(userRepository).save(captor.capture());
     assertEquals(captor.getValue().getPassword(), fafPasswordEncoder.encode(TEST_NEW_PASSWORD));
     verify(anopeUserRepository).updatePassword(TEST_USERNAME, Hashing.md5().hashString(TEST_NEW_PASSWORD, StandardCharsets.UTF_8).toString());
-    verifyNoMoreInteractions(mauticService);
+    verifyNoMoreInteractions(eventPublisher);
   }
 
   @Test
@@ -488,7 +474,7 @@ public class UserServiceTest {
     assertThat(result.getCallbackUrl(), is("callbackUrl"));
     assertThat(result.getErrors(), is(empty()));
     assertThat(user.getSteamId(), is(STEAM_ID));
-    verifyNoMoreInteractions(mauticService);
+    verifyNoMoreInteractions(eventPublisher);
   }
 
   @Test
@@ -499,7 +485,7 @@ public class UserServiceTest {
     ApiException exception = assertThrows(ApiException.class, () -> instance.linkToSteam(TOKEN_VALUE, STEAM_ID));
     assertThat(exception, hasErrorCode(ErrorCode.TOKEN_INVALID));
 
-    verifyNoMoreInteractions(mauticService);
+    verifyNoMoreInteractions(eventPublisher);
   }
 
   @Test
@@ -521,7 +507,7 @@ public class UserServiceTest {
     assertThat(result.getErrors(), hasSize(1));
     assertThat(result.getErrors().get(0).getErrorCode(), is(ErrorCode.STEAM_LINK_NO_FA_GAME));
     assertThat(result.getErrors().get(0).getArgs(), is(new Object[0]));
-    verifyNoMoreInteractions(mauticService);
+    verifyNoMoreInteractions(eventPublisher);
   }
 
   @Test
@@ -545,20 +531,7 @@ public class UserServiceTest {
     assertThat(result.getErrors(), hasSize(1));
     assertThat(result.getErrors().get(0).getErrorCode(), is(ErrorCode.STEAM_ID_ALREADY_LINKED));
     assertThat(result.getErrors().get(0).getArgs(), hasItemInArray(otherUser.getLogin()));
-    verifyNoMoreInteractions(mauticService);
+    verifyNoMoreInteractions(eventPublisher);
   }
 
-  @Test
-  public void mauticUpdateFailureDoesNotThrowException() {
-    when(mauticService.createOrUpdateContact(any(), any(), any(), any(), any()))
-      .thenAnswer(invocation -> {
-        CompletableFuture<Object> future = new CompletableFuture<>();
-        future.completeExceptionally(new IOException("This exception should be logged but cause no harm."));
-        return future;
-      });
-
-    activate();
-
-    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME), eq(IP_ADDRESS), any(OffsetDateTime.class));
-  }
 }

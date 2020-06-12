@@ -9,7 +9,6 @@ import com.faforever.api.email.EmailService;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
-import com.faforever.api.mautic.MauticService;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.rating.GlobalRatingRepository;
 import com.faforever.api.rating.Ladder1v1RatingRepository;
@@ -30,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +60,6 @@ public class UserService {
   private final AnopeUserRepository anopeUserRepository;
   private final FafTokenService fafTokenService;
   private final SteamService steamService;
-  private final Optional<MauticService> mauticService;
   private final GlobalRatingRepository globalRatingRepository;
   private final Ladder1v1RatingRepository ladder1v1RatingRepository;
   private final MeterRegistry meterRegistry;
@@ -83,7 +80,6 @@ public class UserService {
                      AnopeUserRepository anopeUserRepository,
                      FafTokenService fafTokenService,
                      SteamService steamService,
-                     Optional<MauticService> mauticService,
                      GlobalRatingRepository globalRatingRepository,
                      Ladder1v1RatingRepository ladder1v1RatingRepository,
                      MeterRegistry meterRegistry,
@@ -96,7 +92,6 @@ public class UserService {
     this.anopeUserRepository = anopeUserRepository;
     this.fafTokenService = fafTokenService;
     this.steamService = steamService;
-    this.mauticService = mauticService;
     this.globalRatingRepository = globalRatingRepository;
     this.ladder1v1RatingRepository = ladder1v1RatingRepository;
     this.eventPublisher = eventPublisher;
@@ -200,7 +195,7 @@ public class UserService {
 
     log.debug("User has been activated: {}", user);
 
-    createOrUpdateMauticContact(user, ipAddress);
+    broadcastUserChange(user);
     userActivationCounter.increment();
   }
 
@@ -250,23 +245,9 @@ public class UserService {
     user.setLogin(newLogin);
     user.setRecentIpAddress(ipAddress);
 
-    updateUser(user);
+    userRepository.save(user);
+    broadcastUserChange(user);
     userNameChangeCounter.increment();
-  }
-
-  private void createOrUpdateMauticContact(User user, String ipAddress) {
-    mauticService.ifPresent(service -> service.createOrUpdateContact(
-      user.getEmail(),
-      String.valueOf(user.getId()),
-      user.getLogin(),
-      ipAddress,
-      OffsetDateTime.now()
-    )
-      .thenAccept(result -> log.debug("Updated contact in Mautic: {}", user.getEmail()))
-      .exceptionally(throwable -> {
-        log.warn("Could not update contact in Mautic: {}", user, throwable);
-        return null;
-      }));
   }
 
   public void changeEmail(String currentPassword, String newEmail, User user, String ipAddress) {
@@ -279,20 +260,21 @@ public class UserService {
     log.debug("Changing email for user ''{}'' to ''{}''", user, newEmail);
     user.setEmail(newEmail);
     user.setRecentIpAddress(ipAddress);
-    updateUser(user);
+
+    userRepository.save(user);
+    broadcastUserChange(user);
   }
 
-  private void updateUser(User user) {
+  private void broadcastUserChange(User user) {
     UserUpdatedEvent userUpdatedEvent = new UserUpdatedEvent(
       user,
       user.getId(),
       user.getLogin(),
       user.getEmail(),
-      user.getRecentIpAddress());
+      user.getRecentIpAddress()
+    );
 
     eventPublisher.publishEvent(userUpdatedEvent);
-    // TODO: Replace createOrUpdateMauticContact with another EventListener
-    createOrUpdateMauticContact(userRepository.save(user), user.getRecentIpAddress());
   }
 
   void requestPasswordReset(String identifier) {
