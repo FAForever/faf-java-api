@@ -2,12 +2,13 @@ package com.faforever.api.mautic;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.Mautic;
+import com.faforever.api.user.UserDataSyncService;
 import com.faforever.api.user.UserUpdatedEvent;
 import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.event.EventListener;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResponseErrorHandler;
@@ -23,7 +24,7 @@ import java.util.Map;
 @Service
 @Slf4j
 @ConditionalOnProperty(value = "faf-api.mautic.client-id")
-public class MauticService {
+public class MauticService implements UserDataSyncService, InitializingBean {
 
   private final RestTemplate restTemplate;
 
@@ -31,6 +32,11 @@ public class MauticService {
   public MauticService(MappingJackson2HttpMessageConverter mauticApiMessageConverter,
                        ResponseErrorHandler mauticApiErrorHandler, FafApiProperties properties) {
     this(mauticApiMessageConverter, mauticApiErrorHandler, properties, new RestTemplateBuilder());
+  }
+
+  @Override
+  public void afterPropertiesSet() throws Exception {
+    log.info("Mautic service initialized");
   }
 
   @VisibleForTesting
@@ -59,24 +65,24 @@ public class MauticService {
     restTemplate = builder.build();
   }
 
-  @EventListener
-  public void onUserUpdated(UserUpdatedEvent userUpdatedEvent) {
+  @Override
+  public void userDataChanged(UserUpdatedEvent event) {
     Map<String, Object> body = Map.of(
       // These are Mautic default fields. For some reason, these are camel case.
-      "email", userUpdatedEvent.getEmail(),
-      "ipAddress", userUpdatedEvent.getIpAddress(),
+      "email", event.getEmail(),
+      "ipAddress", event.getIpAddress(),
       "lastActive", OffsetDateTime.now(),
 
       // These are Mautic "custom fields" that need to be created  explicitly. For some reason, these are underscore case by default.
-      "faf_user_id", userUpdatedEvent.getId(),
-      "faf_username", userUpdatedEvent.getUsername()
+      "faf_user_id", event.getId(),
+      "faf_username", event.getUsername()
     );
 
     try {
       restTemplate.postForObject("/contacts/new", body, Object.class);
-      log.debug("Updated contact in Mautic from event: {}", userUpdatedEvent);
+      log.debug("Updated contact in Mautic from event: {}", event);
     } catch (Exception e) {
-      log.error("Could not update contact in Mautic for user id: {}", userUpdatedEvent.getId(), e);
+      log.error("Could not update contact in Mautic for user id: {}", event.getId(), e);
     }
   }
 }

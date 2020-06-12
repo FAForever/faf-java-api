@@ -49,8 +49,8 @@ public class MauticServiceTest {
   }
 
   @Test
-  public void onUserUpdated() {
-    instance.onUserUpdated(new UserUpdatedEvent(
+  public void userDataChanged() {
+    instance.userDataChanged(new UserUpdatedEvent(
       mock(User.class),
       111,
       "JUnit",
