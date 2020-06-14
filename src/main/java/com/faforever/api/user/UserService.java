@@ -236,7 +236,7 @@ public class UserService {
         });
 
     }
-    log.debug("Changing username for user ''{}'' to ''{}'', forced:''{}''", user, newLogin, force);
+    log.debug("Changing username for user ''{}'' to ''{}'', forced:''{}''", user.getLogin(), newLogin, force);
     NameRecord nameRecord = new NameRecord()
       .setName(user.getLogin())
       .setPlayer(playerRepository.getOne(user.getId()));

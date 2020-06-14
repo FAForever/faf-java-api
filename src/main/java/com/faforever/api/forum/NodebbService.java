@@ -50,6 +50,7 @@ public class NodebbService implements UserDataSyncService, InitializingBean {
 
   private Optional<Integer> getNodebbUserId(int userId) {
     URI uri = UriComponentsBuilder.fromHttpUrl(properties.getNodebb().getBaseUrl())
+      // This is not an official NodeBB api url, it's coming from our own sso plugin
       .pathSegment("api", "user", "oauth", String.valueOf(userId))
       .queryParam("_uid", properties.getNodebb().getAdminUserId())
       .build()
@@ -75,7 +76,8 @@ public class NodebbService implements UserDataSyncService, InitializingBean {
       .build()
       .toUri();
 
-    UserUpdate userUpdate = new UserUpdate(String.valueOf(nodebbUserId), event.getUsername(), event.getEmail());
+    UserUpdate userUpdate = new UserUpdate(String.valueOf(properties.getNodebb().getAdminUserId()),
+      event.getUsername(), event.getEmail());
     restTemplate.exchange(uri, HttpMethod.PUT, buildAuthorizedRequest(userUpdate), Void.class);
     log.info("User data updated in NodeBB: {}", event);
   }
@@ -97,7 +99,7 @@ public class NodebbService implements UserDataSyncService, InitializingBean {
   @Value
   private class UserUpdate {
     /**
-     * ID of the user to impersonate for the http call (should be the user himself)
+     * ID of the user to impersonate for the http call (should be an admin user if username change is disabled)
      */
     String _uid;
 
