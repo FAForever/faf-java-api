@@ -23,7 +23,7 @@ public class AvatarEnricherListener {
   @PostLoad
   public void enrich(Avatar avatar) throws UnsupportedEncodingException {
     String encodedFileName = URLEncoder.encode(avatar.getFilename(), StandardCharsets.UTF_8.toString());
-    String url = String.format(fafApiProperties.getAvatar().getBaseUrl(), encodedFileName);
+    String url = String.format(fafApiProperties.getAvatar().getDownloadUrlFormat(), encodedFileName);
     avatar.setUrl(url);
   }
 
