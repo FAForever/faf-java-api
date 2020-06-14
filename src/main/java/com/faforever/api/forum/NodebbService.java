@@ -52,13 +52,11 @@ public class NodebbService implements UserDataSyncService, InitializingBean {
     URI uri = UriComponentsBuilder.fromHttpUrl(properties.getNodebb().getBaseUrl())
       // This is not an official NodeBB api url, it's coming from our own sso plugin
       .pathSegment("api", "user", "oauth", String.valueOf(userId))
-      .queryParam("_uid", properties.getNodebb().getAdminUserId())
       .build()
       .toUri();
 
     try {
-      ResponseEntity<UserResponse> result = restTemplate.exchange(uri, HttpMethod.GET,
-        buildAuthorizedRequest(null), UserResponse.class);
+      ResponseEntity<UserResponse> result = restTemplate.exchange(uri, HttpMethod.GET, null, UserResponse.class);
       return Optional.of(result.getBody().uid);
     } catch (HttpClientErrorException e) {
       if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
