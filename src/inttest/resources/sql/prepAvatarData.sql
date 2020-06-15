@@ -15,7 +15,8 @@ SET FOREIGN_KEY_CHECKS = 1;
 INSERT INTO avatars_list (id, filename, tooltip)
 VALUES (1, 'avatar1.png', 'Avatar No. 1'),
        (2, 'avatar2.png', 'Avatar No. 2'),
-       (3, 'donator.png', 'Donator Avatar');
+       (3, 'donator.png', 'Donator Avatar'),
+       (4, 'avatar space.png', 'Space Avatar');
 
 INSERT INTO avatars (id, idUser, idAvatar, selected)
 VALUES (1, 5, 1, 1),

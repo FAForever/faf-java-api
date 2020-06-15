@@ -52,6 +52,17 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
   }
 
   @Test
+  public void getAvatarURLEncoded() throws Exception {
+    mockMvc.perform(get("/data/avatar/4"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data.id", is("4")))
+      .andExpect(jsonPath("$.data.type", is("avatar")))
+      .andExpect(jsonPath("$.data.attributes.tooltip", is("Space Avatar")))
+      .andExpect(jsonPath("$.data.attributes.url", is("http://localhost/faf/avatars/avatar%20space.png")))
+      .andExpect(jsonPath("$.data.relationships.assignments.data", hasSize(1)));
+  }
+
+  @Test
   public void canAssignAvatarWithScopeAndRole() throws Exception {
     final Avatar avatar = (Avatar) new Avatar().setId("1");
     final Player player = (Player) new Player().setId("1");
