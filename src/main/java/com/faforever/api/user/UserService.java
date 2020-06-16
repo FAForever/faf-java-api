@@ -257,7 +257,7 @@ public class UserService {
 
     emailService.validateEmailAddress(newEmail);
 
-    log.debug("Changing email for user ''{}'' to ''{}''", user, newEmail);
+    log.debug("Changing email for user ''{}'' to ''{}''", user.getLogin(), newEmail);
     user.setEmail(newEmail);
     user.setRecentIpAddress(ipAddress);
 
@@ -307,10 +307,10 @@ public class UserService {
   }
 
   private void setPassword(User user, String password) {
-    log.debug("Updating FAF password for user: {}", user);
+    log.debug("Updating FAF password for user: {}", user.getLogin());
     user.setPassword(passwordEncoder.encode(password));
     userRepository.save(user);
-    log.debug("Updating anope password for user: {}", user);
+    log.debug("Updating anope password for user: {}", user.getLogin());
     anopeUserRepository.updatePassword(user.getLogin(), Hashing.md5().hashString(password, StandardCharsets.UTF_8).toString());
   }
 
