@@ -30,9 +30,19 @@ public class LeaderboardService {
     return ladder1v1LeaderboardRepository.getLeaderboardByPage(getPageable(page, pageSize));
   }
 
+  @Cacheable(LEADERBOARD_RANKED_1V1_CACHE_NAME)
+  public Page<Ladder1v1LeaderboardEntry> getLadder1v1LeaderboardAndFilterPlayerByRegex(@Nullable Integer page, @Nullable Integer pageSize, @NotNull String playNameRgex) {
+    return ladder1v1LeaderboardRepository.getLeaderboardByPageAndPlayerNameMatchesRegex(getPageable(page, pageSize), playNameRgex);
+  }
+
   @Cacheable(LEADERBOARD_GLOBAL_CACHE_NAME)
   public Page<GlobalLeaderboardEntry> getGlobalLeaderboard(@Nullable Integer page, @Nullable Integer pageSize) {
     return globalLeaderboardRepository.getLeaderboardByPage(getPageable(page, pageSize));
+  }
+
+  @Cacheable(LEADERBOARD_GLOBAL_CACHE_NAME)
+  public Page<GlobalLeaderboardEntry> getGlobalLeaderboardAndFilterPlayerByRegex(@Nullable Integer page, @Nullable Integer pageSize, @NotNull String playNameRgex) {
+    return globalLeaderboardRepository.getLeaderboardByPageAndPlayerNameMatchesRegex(getPageable(page, pageSize), playNameRgex);
   }
 
   public GlobalLeaderboardEntry getGlobalEntry(int playerId) {

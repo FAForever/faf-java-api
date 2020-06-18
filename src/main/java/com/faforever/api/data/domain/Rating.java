@@ -21,6 +21,7 @@ public abstract class Rating {
   private Double deviation;
   private Player player;
   private double rating;
+  private int numberGames;
 
   @Id
   @Column(name = "id")
@@ -49,4 +50,10 @@ public abstract class Rating {
   public double getRating() {
     return rating;
   }
+
+  @Column(name = "numGames", updatable = false)
+  public int getNumberGames() {
+    return numberGames;
+  }
+
 }

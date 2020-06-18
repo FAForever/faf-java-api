@@ -6,8 +6,11 @@ import com.faforever.api.error.NotFoundApiException;
 import com.google.common.collect.ImmutableMap;
 import com.yahoo.elide.jsonapi.models.Data;
 import com.yahoo.elide.jsonapi.models.JsonApiDocument;
+import com.yahoo.elide.jsonapi.models.Meta;
 import com.yahoo.elide.jsonapi.models.Resource;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,12 +35,22 @@ public class LeaderboardController {
     this.leaderboardService = leaderboardService;
   }
 
+
   @Async
   @RequestMapping(path = "/ladder1v1", method = RequestMethod.GET)
   @ApiOperation("Lists the ladder1v1 leaderboard")
-  public CompletableFuture<JsonApiDocument> getLadder1v1(@RequestParam(value = "page[number]", required = false) Integer page,
-                                                         @RequestParam(value = "page[size]", required = false) Integer pageSize) {
-    List<Resource> values = StreamSupport.stream(leaderboardService.getLadder1v1Leaderboard(page, pageSize).spliterator(), false)
+  public CompletableFuture<JsonApiDocument> getLadder(@RequestParam(value = "page[number]", required = false) Integer page,
+                                                      @RequestParam(value = "page[size]", required = false) Integer pageSize,
+                                                      @ApiParam("Only players that have the following pattern in their name.")
+                                                      @RequestParam(value = "playerNameMatchesRegex", required = false) String playerNameMatchesRegex) {
+    Page<Ladder1v1LeaderboardEntry> ladder1v1LeaderboardEntries;
+    if(playerNameMatchesRegex == null){
+      ladder1v1LeaderboardEntries = leaderboardService.getLadder1v1Leaderboard(page, pageSize);
+    }else {
+      ladder1v1LeaderboardEntries = leaderboardService.getLadder1v1LeaderboardAndFilterPlayerByRegex(page, pageSize, playerNameMatchesRegex);
+    }
+    List<Resource> values = StreamSupport.stream(
+      ladder1v1LeaderboardEntries.spliterator(), false)
       .map(entry -> new Resource(LADDER_1V1_LEADERBOARD_ENTRY, String.valueOf(entry.getId()),
         ImmutableMap.<String, Object>builder()
           .put("name", entry.getPlayerName())
@@ -51,15 +64,29 @@ public class LeaderboardController {
         null, null, null))
       .collect(Collectors.toList());
 
-    return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(values)));
+    JsonApiDocument value = new JsonApiDocument(new Data<>(values));
+    value.setMeta(new Meta(ImmutableMap
+      .of("totalPages", ladder1v1LeaderboardEntries.getTotalPages(),
+        "totalRecords", ladder1v1LeaderboardEntries.getTotalElements())
+    ));
+    return CompletableFuture.completedFuture(value);
   }
 
   @Async
   @RequestMapping(path = "/global", method = RequestMethod.GET)
   @ApiOperation("Lists the global leaderboard")
   public CompletableFuture<JsonApiDocument> getGlobal(@RequestParam(value = "page[number]", required = false) Integer page,
-                                                      @RequestParam(value = "page[size]", required = false) Integer pageSize) {
-    List<Resource> values = StreamSupport.stream(leaderboardService.getGlobalLeaderboard(page, pageSize).spliterator(), false)
+                                                      @RequestParam(value = "page[size]", required = false) Integer pageSize,
+                                                      @ApiParam("Only players that have the following pattern in their name.")
+                                                      @RequestParam(value = "playerNameMatchesRegex", required = false) String playerNameMatchesRegex) {
+    Page<GlobalLeaderboardEntry> globalLeaderboard;
+    if(playerNameMatchesRegex == null){
+      globalLeaderboard = leaderboardService.getGlobalLeaderboard(page, pageSize);
+    }else {
+      globalLeaderboard = leaderboardService.getGlobalLeaderboardAndFilterPlayerByRegex(page, pageSize, playerNameMatchesRegex);
+    }
+    List<Resource> values = StreamSupport.stream(
+      globalLeaderboard.spliterator(), false)
       .map(entry -> new Resource(GLOBAL_LEADERBOARD_ENTRY, String.valueOf(entry.getId()),
         ImmutableMap.<String, Object>builder()
           .put("name", entry.getPlayerName())
@@ -72,7 +99,12 @@ public class LeaderboardController {
         null, null, null))
       .collect(Collectors.toList());
 
-    return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(values)));
+    JsonApiDocument value = new JsonApiDocument(new Data<>(values));
+    value.setMeta(new Meta(ImmutableMap
+      .of("totalPages", globalLeaderboard.getTotalPages(),
+          "totalRecords", globalLeaderboard.getTotalElements())
+    ));
+    return CompletableFuture.completedFuture(value);
   }
 
   @Async

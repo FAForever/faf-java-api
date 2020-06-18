@@ -33,6 +33,33 @@ public interface Ladder1v1LeaderboardRepository extends Repository<Ladder1v1Lead
     nativeQuery = true)
   Page<Ladder1v1LeaderboardEntry> getLeaderboardByPage(Pageable pageable);
 
+  @Query(value = "SELECT" +
+    "    ladder1v1_rating.id," +
+    "    login.login," +
+    "    ladder1v1_rating.mean," +
+    "    ladder1v1_rating.deviation," +
+    "    ladder1v1_rating.numGames," +
+    "    ladder1v1_rating.winGames," +
+    "    @s \\:= @s + 1 rank" +
+    "  FROM ladder1v1_rating JOIN login on login.id = ladder1v1_rating.id," +
+    "    (SELECT @s \\:= ?#{#pageable.offset}) AS s" +
+    "  WHERE is_active = 1 AND ladder1v1_rating.numGames > 0" +
+    "   AND login.id NOT IN (" +
+    "     SELECT player_id FROM ban" +
+    "     WHERE (expires_at is null or expires_at > NOW()) AND revoke_time IS NULL" +
+    "  ) " +
+    "   AND login.login LIKE ?#{#playerNameRegex}"+
+    "  ORDER BY rating DESC LIMIT ?#{#pageable.offset},?#{#pageable.pageSize}",
+    countQuery = "SELECT count(*) FROM ladder1v1_rating JOIN login on login.id = ladder1v1_rating.id WHERE is_active = 1 AND ladder1v1_rating.numGames > 0" +
+      "   AND ladder1v1_rating.id NOT IN (" +
+      "     SELECT player_id FROM ban" +
+      "     WHERE (expires_at is null or expires_at > NOW()) AND revoke_time IS NULL" +
+      "       AND (1=1 OR -1 IN (?,?,?))" +
+      "  ) "+
+      "  AND login.login LIKE ? -- Dummy placeholder for pageable, prevents 'Unknown parameter position': ?,?,?",
+    nativeQuery = true)
+  Page<Ladder1v1LeaderboardEntry> getLeaderboardByPageAndPlayerNameMatchesRegex(Pageable pageable, @Param("playerNameRegex") String playerNameRegex);
+
   @Query(value = "SELECT * FROM (SELECT\n" +
     "                 ladder1v1_rating.id,\n" +
     "                 login.login,\n" +

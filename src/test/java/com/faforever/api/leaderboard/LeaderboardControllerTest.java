@@ -35,21 +35,22 @@ public class LeaderboardControllerTest {
 
   @Test
   public void getLadder1v1() throws Exception {
-    when(leaderboardService.getLadder1v1Leaderboard(1, 100)).thenReturn(new PageImpl<>(Arrays.asList(
-      new Ladder1v1LeaderboardEntry().setId(14).setPlayerName("JUnit 14").setMean(1500f).setDeviation(51f).setNumGames((short) 514).setRank(1).setWonGames((short) 270),
-      new Ladder1v1LeaderboardEntry().setId(5).setPlayerName("JUnit 5").setMean(1400f).setDeviation(67f).setNumGames((short) 65).setRank(2).setWonGames((short) 32)
+    when(leaderboardService.getLadder1v1LeaderboardAndFilterPlayerByRegex(1, 100, "%a%")).thenReturn(new PageImpl<>(Arrays.asList(
+      new Ladder1v1LeaderboardEntry().setId(14).setPlayerName("JUnit 14 a").setMean(1500f).setDeviation(51f).setNumGames((short) 514).setRank(1).setWonGames((short) 270),
+      new Ladder1v1LeaderboardEntry().setId(5).setPlayerName("JUnit 5 a").setMean(1400f).setDeviation(67f).setNumGames((short) 65).setRank(2).setWonGames((short) 32)
     )));
 
-    CompletableFuture<JsonApiDocument> result = instance.getLadder1v1(1, 100);
-    assertThat(result.get(), is(notNullValue()));
+    CompletableFuture<JsonApiDocument> result = instance.getLadder(1, 100, "%a%");
+    JsonApiDocument jsonApiDocument = result.get();
+    assertThat(jsonApiDocument, is(notNullValue()));
 
-    Collection<Resource> resources = result.get().getData().get();
+    Collection<Resource> resources = jsonApiDocument.getData().get();
     assertThat(resources, hasSize(2));
 
     Iterator<Resource> iterator = resources.iterator();
     Resource firstEntry = iterator.next();
     assertThat(firstEntry.getId(), is("14"));
-    assertThat(firstEntry.getAttributes().get("name"), is("JUnit 14"));
+    assertThat(firstEntry.getAttributes().get("name"), is("JUnit 14 a"));
     assertThat(firstEntry.getAttributes().get("mean"), is(1500f));
     assertThat(firstEntry.getAttributes().get("deviation"), is(51f));
     assertThat(firstEntry.getAttributes().get("numGames"), is((short) 514));
@@ -59,32 +60,35 @@ public class LeaderboardControllerTest {
 
     Resource secondEntry = iterator.next();
     assertThat(secondEntry.getId(), is("5"));
-    assertThat(secondEntry.getAttributes().get("name"), is("JUnit 5"));
+    assertThat(secondEntry.getAttributes().get("name"), is("JUnit 5 a"));
     assertThat(secondEntry.getAttributes().get("mean"), is(1400f));
     assertThat(secondEntry.getAttributes().get("deviation"), is(67f));
     assertThat(secondEntry.getAttributes().get("numGames"), is((short) 65));
     assertThat(secondEntry.getAttributes().get("wonGames"), is((short) 32));
     assertThat(secondEntry.getAttributes().get("rank"), is(2));
     assertThat(secondEntry.getAttributes().get("rating"), is(1199));
+
+    assertThat(jsonApiDocument.getMeta().getValue("totalPages"), is(1));
   }
 
   @Test
   public void getGlobal() throws Exception {
-    when(leaderboardService.getGlobalLeaderboard(1, 100)).thenReturn(new PageImpl<>(Arrays.asList(
-      new GlobalLeaderboardEntry().setId(14).setPlayerName("JUnit 14").setMean(1500f).setDeviation(51f).setNumGames((short) 514).setRank(1),
-      new GlobalLeaderboardEntry().setId(5).setPlayerName("JUnit 5").setMean(1400f).setDeviation(67f).setNumGames((short) 65).setRank(2)
+    when(leaderboardService.getGlobalLeaderboardAndFilterPlayerByRegex(1, 100, "%a%")).thenReturn(new PageImpl<>(Arrays.asList(
+      new GlobalLeaderboardEntry().setId(14).setPlayerName("JUnit 14 a").setMean(1500f).setDeviation(51f).setNumGames((short) 514).setRank(1),
+      new GlobalLeaderboardEntry().setId(5).setPlayerName("JUnit 5 a").setMean(1400f).setDeviation(67f).setNumGames((short) 65).setRank(2)
     )));
 
-    CompletableFuture<JsonApiDocument> result = instance.getGlobal(1, 100);
-    assertThat(result.get(), is(notNullValue()));
+    CompletableFuture<JsonApiDocument> result = instance.getGlobal(1, 100, "%a%");
+    JsonApiDocument jsonApiDocument = result.get();
+    assertThat(jsonApiDocument, is(notNullValue()));
 
-    Collection<Resource> resources = result.get().getData().get();
+    Collection<Resource> resources = jsonApiDocument.getData().get();
     assertThat(resources, hasSize(2));
 
     Iterator<Resource> iterator = resources.iterator();
     Resource firstEntry = iterator.next();
     assertThat(firstEntry.getId(), is("14"));
-    assertThat(firstEntry.getAttributes().get("name"), is("JUnit 14"));
+    assertThat(firstEntry.getAttributes().get("name"), is("JUnit 14 a"));
     assertThat(firstEntry.getAttributes().get("mean"), is(1500f));
     assertThat(firstEntry.getAttributes().get("deviation"), is(51f));
     assertThat(firstEntry.getAttributes().get("numGames"), is((short) 514));
@@ -93,11 +97,13 @@ public class LeaderboardControllerTest {
 
     Resource secondEntry = iterator.next();
     assertThat(secondEntry.getId(), is("5"));
-    assertThat(secondEntry.getAttributes().get("name"), is("JUnit 5"));
+    assertThat(secondEntry.getAttributes().get("name"), is("JUnit 5 a"));
     assertThat(secondEntry.getAttributes().get("mean"), is(1400f));
     assertThat(secondEntry.getAttributes().get("deviation"), is(67f));
     assertThat(secondEntry.getAttributes().get("numGames"), is((short) 65));
     assertThat(secondEntry.getAttributes().get("rank"), is(2));
     assertThat(secondEntry.getAttributes().get("rating"), is(1199));
+
+    assertThat(jsonApiDocument.getMeta().getValue("totalPages"), is(1));
   }
 }
