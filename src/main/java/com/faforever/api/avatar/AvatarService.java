@@ -47,12 +47,11 @@ public class AvatarService {
   public void createAvatar(AvatarMetadata avatarMetadata, String originalFilename, InputStream imageDataInputStream, long avatarImageFileSize) {
     final Avatar avatarToCreate = new Avatar();
     final String normalizedAvatarFileName = NameUtil.normalizeFileName(originalFilename);
-    String url = String.format(properties.getAvatar().getDownloadUrlFormat(), normalizedAvatarFileName);
-    avatarRepository.findOneByUrl(url).ifPresent(existingAvatar -> {
+    avatarRepository.findOneByFilename(normalizedAvatarFileName).ifPresent(existingAvatar -> {
       throw new ApiException(new Error(ErrorCode.AVATAR_NAME_CONFLICT, normalizedAvatarFileName));
     });
     avatarToCreate.setTooltip(avatarMetadata.getName())
-      .setUrl(url);
+      .setFilename(normalizedAvatarFileName);
 
     final InputStream markSupportedImageInputStream = getMarkSupportedInputStream(imageDataInputStream);
     validateImageFile(originalFilename, avatarImageFileSize);

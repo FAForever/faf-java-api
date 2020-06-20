@@ -98,7 +98,7 @@ public class AvatarServiceTest {
 
       final Avatar storedAvatar = avatarCaptor.getValue();
       String expectedFilename = NameUtil.normalizeFileName(worstCasePrefix + avatarFileName);
-      assertEquals(String.format(DOWNLOAD_URL_FORMAT, expectedFilename), storedAvatar.getUrl());
+      assertEquals(expectedFilename, storedAvatar.getFilename());
       assertEquals(AVATAR_NAME, storedAvatar.getTooltip());
       assertThat(avatarsPath.resolve(expectedFilename).toFile().length(), is(imageResource.openConnection().getContentLengthLong()));
     }
@@ -128,7 +128,7 @@ public class AvatarServiceTest {
   @Test
   public void duplicateAvatarUpload() throws Exception {
     final String avatarFileName = VALID_AVATAR_FILENAME;
-    when(avatarRepository.findOneByUrl(String.format(DOWNLOAD_URL_FORMAT, avatarFileName))).thenReturn(Optional.of(new Avatar()));
+    when(avatarRepository.findOneByFilename(String.format(avatarFileName))).thenReturn(Optional.of(new Avatar()));
     try (final InputStream imageInputStream = loadResource(avatarFileName).openStream()) {
       expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.AVATAR_NAME_CONFLICT));
       avatarService.createAvatar(AVATAR_METADATA, avatarFileName, imageInputStream, VALID_FILE_SIZE);

@@ -48,8 +48,8 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
         .with(getOAuthTokenWithTestUser(OAuthScope._UPLOAD_AVATAR, GroupPermission.ROLE_WRITE_AVATAR))
     ).andExpect(status().isCreated())
       .andExpect(content().string(""));
-    final Avatar avatar = avatarRepository.findOneByUrl("http://localhost/faf/avatars/avatar3.png").get();
-    assertThat(avatar.getUrl(), is("http://localhost/faf/avatars/avatar3.png"));
+    final Avatar avatar = avatarRepository.findOneByFilename("avatar3.png").get();
+    assertThat(avatar.getFilename(), is("avatar3.png"));
     assertThat(avatar.getTooltip(), is("Best avatar"));
 
     verify(auditServiceSpy, times(1)).logMessage(any());
@@ -64,8 +64,8 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
         .with(getOAuthTokenWithTestUser(OAuthScope._UPLOAD_AVATAR, GroupPermission.ROLE_WRITE_AVATAR))
     ).andExpect(status().isOk())
       .andExpect(content().string(""));
-    final Avatar avatar = avatarRepository.findOneByUrl("http://localhost/faf/avatars/avatar1.png").get();
-    assertThat(avatar.getUrl(), is("http://localhost/faf/avatars/avatar1.png"));
+    final Avatar avatar = avatarRepository.findOneByFilename("avatar1.png").get();
+    assertThat(avatar.getFilename(), is("avatar1.png"));
     assertThat(avatar.getTooltip(), is("Best avatar"));
     verify(auditServiceSpy, times(1)).logMessage(any());
   }
