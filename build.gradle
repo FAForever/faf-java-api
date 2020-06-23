@@ -171,6 +171,10 @@ task inttest(type: Test) {
   mustRunAfter test
 }
 
+bootJar {
+  layered()
+}
+
 // JACOCO & COVERALLS
 
 apply plugin: 'jacoco'
