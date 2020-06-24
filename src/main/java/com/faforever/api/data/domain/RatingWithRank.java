@@ -14,13 +14,14 @@ import javax.persistence.OneToOne;
 
 @MappedSuperclass
 @Setter
-public abstract class Rating {
+public abstract class RatingWithRank {
   private int id;
   private Double mean;
   private Double deviation;
   private Player player;
   private double rating;
   private int numberOfGames;
+  private int rank;
 
   @Id
   @Column(name = "id")
@@ -50,9 +51,14 @@ public abstract class Rating {
     return rating;
   }
 
-  @Column(name = "numGames", updatable = false)
+  @Column(name = "num_games")
   public int getNumberOfGames() {
     return numberOfGames;
+  }
+
+  @Column(name = "ranking", updatable = false)
+  public int getRank() {
+    return rank;
   }
 
 }
