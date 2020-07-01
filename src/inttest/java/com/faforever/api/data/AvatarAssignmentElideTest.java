@@ -58,7 +58,7 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
       .andExpect(jsonPath("$.data.id", is("4")))
       .andExpect(jsonPath("$.data.type", is("avatar")))
       .andExpect(jsonPath("$.data.attributes.tooltip", is("Space Avatar")))
-      .andExpect(jsonPath("$.data.attributes.url", is("http://localhost/faf/avatars/avatar+space.png")));
+      .andExpect(jsonPath("$.data.attributes.url", is("http://localhost/faf/avatars/avatar%20space.png")));
   }
 
   @Test
