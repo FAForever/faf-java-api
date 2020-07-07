@@ -40,12 +40,12 @@ public class Ladder1v1LeaderboardEntry {
     return deviation;
   }
 
-  @Column(name = "numGames")
+  @Column(name = "num_games")
   public short getNumGames() {
     return numGames;
   }
 
-  @Column(name = "winGames")
+  @Column(name = "win_games")
   public short getWonGames() {
     return wonGames;
   }
