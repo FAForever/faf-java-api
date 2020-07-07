@@ -58,11 +58,12 @@ public class ElideConfig {
     registerAdditionalConverters();
 
     return new Elide(new ElideSettingsBuilder(springHibernateDataStore)
-      .withJsonApiMapper(new JsonApiMapper(entityDictionary, objectMapper))
+      .withJsonApiMapper(new JsonApiMapper(objectMapper))
       .withAuditLogger(extendedAuditLogger)
       .withEntityDictionary(entityDictionary)
       .withJoinFilterDialect(rsqlFilterDialect)
       .withSubqueryFilterDialect(rsqlFilterDialect)
+      .withReturnErrorObjects(true) //required to be correctly read in downlord-client
       .build());
   }
 
