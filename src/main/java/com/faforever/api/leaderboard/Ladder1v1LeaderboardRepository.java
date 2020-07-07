@@ -9,45 +9,27 @@ import org.springframework.data.repository.query.Param;
 public interface Ladder1v1LeaderboardRepository extends Repository<Ladder1v1LeaderboardEntry, Integer> {
 
   @Query(value = "SELECT" +
-    "    ladder1v1_rating.id," +
+    "    rating.id," +
     "    login.login," +
-    "    ladder1v1_rating.mean," +
-    "    ladder1v1_rating.deviation," +
-    "    ladder1v1_rating.numGames," +
-    "    ladder1v1_rating.winGames," +
-    "    @s \\:= @s + 1 rank" +
-    "  FROM ladder1v1_rating JOIN login on login.id = ladder1v1_rating.id," +
-    "    (SELECT @s \\:= ?#{#pageable.offset}) AS s" +
-    "  WHERE is_active = 1 AND ladder1v1_rating.numGames > 0" +
-    "   AND login.id NOT IN (" +
-    "     SELECT player_id FROM ban" +
-    "     WHERE (expires_at is null or expires_at > NOW()) AND revoke_time IS NULL" +
-    "  ) " +
-    "  ORDER BY rating DESC LIMIT ?#{#pageable.offset},?#{#pageable.pageSize}",
-    countQuery = "SELECT count(*) FROM ladder1v1_rating WHERE is_active = 1 AND ladder1v1_rating.numGames > 0" +
-      "   AND id NOT IN (" +
-      "     SELECT player_id FROM ban" +
-      "     WHERE (expires_at is null or expires_at > NOW()) AND revoke_time IS NULL" +
-      "       AND (1=1 OR -1 IN (?,?,?))" +
-      "  ) -- Dummy placeholder for pageable, prevents 'Unknown parameter position': ?,?,?",
-    nativeQuery = true)
+    "    rating.mean," +
+    "    rating.deviation," +
+    "    rating.num_games," +
+    "    rating.win_games," +
+    "    rating.ranking `rank`" +
+    "  FROM ladder1v1_rating_rank_view rating JOIN login on login.id = rating.id" +
+    "  ORDER BY rating.rating DESC LIMIT ?#{#pageable.offset},?#{#pageable.pageSize}",
+    countQuery = "SELECT count(*) FROM ladder1v1_rating_rank_view", nativeQuery = true)
   Page<Ladder1v1LeaderboardEntry> getLeaderboardByPage(Pageable pageable);
 
-  @Query(value = "SELECT * FROM (SELECT\n" +
-    "                 ladder1v1_rating.id,\n" +
-    "                 login.login,\n" +
-    "                 ladder1v1_rating.mean,\n" +
-    "                 ladder1v1_rating.deviation,\n" +
-    "                 ladder1v1_rating.numGames,\n" +
-    "                 ladder1v1_rating.winGames," +
-    "                 @s \\:= @s + 1 rank\n" +
-    "FROM ladder1v1_rating JOIN login on login.id = ladder1v1_rating.id,\n" +
-    "(SELECT @s \\:= 0) AS s\n" +
-    "WHERE is_active = 1\n" +
-    "   AND login.id NOT IN (" +
-    "     SELECT player_id FROM ban" +
-    "     WHERE (expires_at is null or expires_at > NOW()) AND revoke_time IS NULL" +
-    "  ) " +
-    "ORDER BY rating DESC) as leaderboard WHERE id = :playerId", nativeQuery = true)
+  @Query(value = "SELECT" +
+    "                 rating.id," +
+    "                 login.login," +
+    "                 rating.mean," +
+    "                 rating.deviation," +
+    "                 rating.num_games," +
+    "                 rating.win_games," +
+    "                 rating.ranking `rank`" +
+    "  FROM ladder1v1_rating_rank_view rating JOIN login on login.id = rating.id" +
+    "  WHERE login.id = :playerId", nativeQuery = true)
   Ladder1v1LeaderboardEntry findByPlayerId(@Param("playerId") int playerId);
 }

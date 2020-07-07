@@ -9,42 +9,25 @@ import org.springframework.data.repository.query.Param;
 public interface GlobalLeaderboardRepository extends Repository<GlobalLeaderboardEntry, Integer> {
 
   @Query(value = "SELECT" +
-    "    global_rating.id," +
+    "    rating.id," +
     "    login.login," +
-    "    global_rating.mean," +
-    "    global_rating.deviation," +
-    "    global_rating.numGames," +
-    "    @s \\:= @s + 1 rank" +
-    "  FROM global_rating JOIN login on login.id = global_rating.id," +
-    "    (SELECT @s \\:= ?#{#pageable.offset}) AS s" +
-    "  WHERE is_active = 1" +
-    "   AND login.id NOT IN (" +
-    "     SELECT player_id FROM ban" +
-    "     WHERE (expires_at is null or expires_at > NOW()) AND revoke_time IS NULL" +
-    "  ) " +
-    "  ORDER BY rating DESC LIMIT ?#{#pageable.offset},?#{#pageable.pageSize}",
-    countQuery = "SELECT count(*) FROM ladder1v1_rating WHERE is_active = 1 AND ladder1v1_rating.numGames > 0" +
-      "   AND id NOT IN (" +
-      "     SELECT player_id FROM ban" +
-      "     WHERE (expires_at is null or expires_at > NOW()) AND revoke_time IS NULL" +
-      "       AND (1=1 OR -1 IN (?,?,?))" +
-      "  ) -- Dummy placeholder for pageable, prevents 'Unknown parameter position': ?,?,?", nativeQuery = true)
+    "    rating.mean," +
+    "    rating.deviation," +
+    "    rating.num_games," +
+    "    rating.ranking as `rank`" +
+    "  FROM global_rating_rank_view rating JOIN login on login.id = rating.id" +
+    "  ORDER BY rating.rating DESC LIMIT ?#{#pageable.offset},?#{#pageable.pageSize}",
+    countQuery = "SELECT count(*) FROM global_rating_rank_view", nativeQuery = true)
   Page<GlobalLeaderboardEntry> getLeaderboardByPage(Pageable pageable);
 
-  @Query(value = "SELECT * FROM (SELECT\n" +
-    "                 global_rating.id,\n" +
-    "                 login.login,\n" +
-    "                 global_rating.mean,\n" +
-    "                 global_rating.deviation,\n" +
-    "                 global_rating.numGames,\n" +
-    "                 @s \\:= @s + 1 rank\n" +
-    "FROM global_rating JOIN login on login.id = global_rating.id,\n" +
-    "(SELECT @s \\:= 0) AS s\n" +
-    "WHERE is_active = 1\n" +
-    "   AND login.id NOT IN (" +
-    "     SELECT player_id FROM ban" +
-    "     WHERE (expires_at is null or expires_at > NOW()) AND revoke_time IS NULL" +
-    "  ) " +
-    "ORDER BY rating DESC) as leaderboard WHERE id = :playerId", nativeQuery = true)
+  @Query(value = "SELECT" +
+    "                 rating.id," +
+    "                 login.login," +
+    "                 rating.mean," +
+    "                 rating.deviation," +
+    "                 rating.num_games," +
+    "                 rating.ranking `rank`" +
+    "  FROM global_rating_rank_view rating JOIN login on login.id = rating.id" +
+    "  WHERE login.id = :playerId", nativeQuery = true)
   GlobalLeaderboardEntry findByPlayerId(@Param("playerId") int playerId);
 }
