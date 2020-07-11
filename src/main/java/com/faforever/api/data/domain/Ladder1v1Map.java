@@ -28,6 +28,7 @@ import javax.persistence.Table;
 @Immutable
 @Audit(action = Action.CREATE, logStatement = "Added map `{0}` with version `{1}` to the ladder pool", logExpressions = {"${ladder1v1Map.mapVersion.map.displayName}", "${ladder1v1Map.mapVersion.version}"})
 @Audit(action = Action.DELETE, logStatement = "Removed map `{0}` with version `{1}` from the ladder pool", logExpressions = {"${ladder1v1Map.mapVersion.map.displayName}", "${ladder1v1Map.mapVersion.version}"})
+@Deprecated // use MapPool instead
 public class Ladder1v1Map {
   private int id;
   private MapVersion mapVersion;
