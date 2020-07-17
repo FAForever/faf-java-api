@@ -16,6 +16,7 @@ import javax.persistence.OneToOne;
 @Setter
 public abstract class Rating {
   private int id;
+  private int ranking;
   private Double mean;
   private Double deviation;
   private Player player;
@@ -26,6 +27,11 @@ public abstract class Rating {
   @Column(name = "id")
   public int getId() {
     return id;
+  }
+
+  @Column(name = "ranking")
+  public int getRanking() {
+    return ranking;
   }
 
   @Column(name = "mean")
@@ -50,9 +56,8 @@ public abstract class Rating {
     return rating;
   }
 
-  @Column(name = "numGames", updatable = false)
+  @Column(name = "num_games", updatable = false)
   public int getNumberOfGames() {
     return numberOfGames;
   }
-
 }

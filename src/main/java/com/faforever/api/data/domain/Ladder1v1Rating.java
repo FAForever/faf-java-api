@@ -1,12 +1,21 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
+import lombok.Setter;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "ladder1v1_rating")
+@Setter
+@Table(name = "ladder1v1_rating_rank_view")
 @Include(rootLevel = true, type = "ladder1v1Rating")
 public class Ladder1v1Rating extends Rating {
+  private int wonGames;
+
+  @Column(name = "win_games", updatable = false)
+  public int getWonGames() {
+    return wonGames;
+  }
 }
