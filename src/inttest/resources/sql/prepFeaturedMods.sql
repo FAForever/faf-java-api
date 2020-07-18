@@ -1,12 +1,3 @@
-DELETE FROM updates_fafdevelop_files;
-DELETE FROM updates_fafdevelop;
-DELETE FROM updates_fafbeta_files;
-DELETE FROM updates_fafbeta;
-DELETE FROM reported_user;
-DELETE FROM moderation_report;
-DELETE FROM game_stats;
-DELETE FROM game_featuredMods;
-
 INSERT INTO `game_featuredMods` (`id`, `gamemod`, `description`, `name`, `publish`, `order`, `git_url`, `git_branch`, `file_extension`, `allow_override`, `deployment_webhook`) VALUES
 (1,	'faf',	'Forged Alliance Forever',	'FAF',	1,	0,	'https://github.com/FAForever/fa.git',	'deploy/faf',	'nx2',	0,	NULL),
 (27,	'fafbeta',	'Beta version of the next FAF patch',	'FAF Beta',	1,	2,	'https://github.com/FAForever/fa.git',	'deploy/fafbeta',	'nx4',	1,	NULL),

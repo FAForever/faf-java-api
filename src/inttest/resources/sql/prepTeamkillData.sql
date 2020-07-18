@@ -1,6 +1,3 @@
-DELETE FROM game_stats;
-DELETE FROM teamkills;
-
 SET FOREIGN_KEY_CHECKS = 0;
 
 INSERT INTO game_stats (id, startTime, gameName, gameType, gameMod, `host`, mapId, validity) VALUES

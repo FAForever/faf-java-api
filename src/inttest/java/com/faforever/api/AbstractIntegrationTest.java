@@ -49,7 +49,8 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @ActiveProfiles(ApplicationProfile.INTEGRATION_TEST)
 @Import(OAuthHelper.class)
 @Transactional
-@Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultUser.sql")
+@Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/truncateTables.sql")
+@Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultData.sql")
 public abstract class AbstractIntegrationTest {
   protected static final String NO_SCOPE = "no_scope";
   protected static final String NO_AUTHORITIES = "NO_AUTHORITIES";

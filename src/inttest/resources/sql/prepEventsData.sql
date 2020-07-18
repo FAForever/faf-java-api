@@ -1,7 +1,3 @@
-DELETE
-FROM player_events;
-DELETE
-FROM event_definitions;
 INSERT INTO event_definitions (id, name_key, image_url, type)
 VALUES ('15b6c19a-6084-4e82-ada9-6c30e282191f', 'event.seraphimWins', null, 'NUMERIC');
 INSERT INTO event_definitions (id, name_key, image_url, type)
