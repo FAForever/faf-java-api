@@ -1,8 +1,3 @@
-DELETE
-FROM ladder1v1_rating_rank_view;
-DELETE
-FROM global_rating_rank_view;
-
 insert into ladder1v1_rating_rank_view (id, ranking, mean, deviation, num_games, win_games, rating)
 VALUES (1, 1, 1500, 120, 5, 1, 1500 - 3 * 120),
        (2, 2, 1200, 90, 5, 2, 1200 - 3 * 90),

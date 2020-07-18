@@ -1,10 +1,3 @@
-DELETE FROM winner_for_voting_question;
-DELETE FROM voting_answer;
-DELETE FROM vote;
-DELETE FROM voting_choice;
-DELETE FROM voting_question;
-DELETE FROM voting_subject;
-
 INSERT INTO voting_subject (id, subject_key, begin_of_vote_time, end_of_vote_time, min_games_to_vote, description_key, topic_url)
 VALUES
   (1, 'subject', NOW() - INTERVAL 1 MINUTE, DATE_ADD(NOW(), INTERVAL 1 YEAR), 0, 'des', 'www.google.de');

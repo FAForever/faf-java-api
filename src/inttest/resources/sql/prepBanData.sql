@@ -1,5 +1,3 @@
-DELETE FROM ban;
-
 INSERT INTO login (id, login, email, password) VALUES (6, 'TO_BE_REVOKED', 'revoke@faforever.com', 'not-relevant');
 
 INSERT INTO ban (id, player_id, author_id, reason, expires_at, level) VALUE

@@ -1,8 +1,3 @@
-DELETE
-FROM mod_version;
-DELETE
-FROM `mod`;
-
 INSERT INTO `mod` (id, display_name, author, uploader)
 VALUES (1, 'MOD_001', 'some Author', 1),
        (2, 'MOD_002', 'some Author', 1);

@@ -1,78 +1,3 @@
-SET FOREIGN_KEY_CHECKS = 0;
-
-DELETE FROM reported_user;
-DELETE FROM ban;
-DELETE FROM moderation_report;
-DELETE FROM teamkills;
-DELETE FROM unique_id_users;
-DELETE FROM uniqueid;
-DELETE FROM global_rating;
-DELETE FROM ladder1v1_rating;
-DELETE FROM uniqueid_exempt;
-DELETE FROM version_lobby;
-DELETE FROM friends_and_foes;
-DELETE FROM ladder_map;
-DELETE FROM tutorial;
-DELETE FROM map_version_review;
-DELETE FROM map_version_reviews_summary;
-DELETE FROM map_version;
-DELETE FROM `map`;
-DELETE FROM mod_version_review;
-DELETE FROM mod_version_reviews_summary;
-DELETE FROM mod_version;
-DELETE
-FROM `mod`;
-DELETE
-FROM mod_stats;
-DELETE
-FROM oauth_clients;
-DELETE
-FROM updates_faf;
-DELETE
-FROM updates_faf_files;
-DELETE
-FROM avatars;
-DELETE
-FROM avatars_list;
-DELETE
-FROM ban;
-DELETE
-FROM clan_membership;
-DELETE
-FROM clan;
-DELETE
-FROM game_player_stats;
-DELETE
-FROM game_review;
-DELETE
-FROM game_reviews_summary;
-DELETE
-FROM game_stats;
-DELETE
-FROM game_featuredMods;
-DELETE
-FROM ladder_division_score;
-DELETE
-FROM ladder_division;
-DELETE
-FROM lobby_admin;
-DELETE
-FROM name_history;
-DELETE
-FROM group_permission_assignment;
-DELETE
-FROM user_group_assignment;
-DELETE
-FROM group_permission;
-DELETE
-FROM user_group;
-DELETE
-FROM login;
-DELETE
-FROM email_domain_blacklist;
-
-SET FOREIGN_KEY_CHECKS = 1;
-
 INSERT INTO oauth_clients (id, name, client_secret, client_type, redirect_uris, default_redirect_uri, default_scope)
 VALUES ('test', 'test', '{noop}test', 'public', 'http://localhost https://www.getpostman.com/oauth2/callback ',
         'http://localhost',
@@ -151,3 +76,16 @@ VALUES (1, 1),
 
 INSERT INTO name_history (change_time, user_id, previous_name)
 VALUES (NOW(), 2, 'OLD_MODERATOR');
+
+INSERT INTO game_featuredMods (id, gamemod, name, description, publish, git_url, git_branch, file_extension, allow_override)
+VALUES
+  (1, 'faf', 'FAF', 'Forged Alliance Forever', 1, 'https://github.com/FAForever/fa.git', 'deploy/faf', 'nx2', FALSE),
+  (6, 'ladder1v1', 'FAF', 'Ladder games', 1, 'https://github.com/FAForever/fa.git', 'deploy/faf', 'nx2', TRUE),
+  (25, 'coop', 'Coop', 'Multiplayer campaign games', 1, 'https://github.com/FAForever/fa-coop.git', 'master', 'cop', TRUE);
+
+INSERT INTO leaderboard (id, technical_name, name_key, description_key) VALUES
+  (1, 'global', 'leaderboard.global.name', 'leaderboard.global.description'),
+  (2, 'ladder_1v1', 'leaderboard.ladder_1v1.name', 'leaderboard.ladder_1v1.description');
+
+INSERT INTO matchmaker_queue (id, technical_name, featured_mod_id, leaderboard_id, name_key, team_size, enabled) VALUES
+  (1, 'ladder1v1', 1, 2, 'matchmaker_queue.ladder1v1', 1, 1);
