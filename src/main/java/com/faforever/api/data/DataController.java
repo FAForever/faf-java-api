@@ -9,6 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -44,10 +48,7 @@ public class DataController {
   }
 
   //!!! No @Transactional - transactions are being handled by Elide
-  @RequestMapping(
-    method = RequestMethod.GET,
-    produces = JSON_API_MEDIA_TYPE,
-    value = {"/{entity}", "/{entity}/{id}/relationships/{entity2}", "/{entity}/{id}/{child}", "/{entity}/{id}"})
+  @GetMapping(value = "/**", produces = JSON_API_MEDIA_TYPE)
   @Cacheable(cacheResolver = "elideCacheResolver", keyGenerator = GetCacheKeyGenerator.NAME)
   public ResponseEntity<String> get(@RequestParam final Map<String, String> allRequestParams,
                                     final HttpServletRequest request,
@@ -61,32 +62,26 @@ public class DataController {
   }
 
   //!!! No @Transactional - transactions are being handled by Elide
-  @RequestMapping(
-    method = RequestMethod.POST,
-    consumes = {JSON_API_MEDIA_TYPE, MediaType.APPLICATION_JSON_VALUE},
-    produces = JSON_API_MEDIA_TYPE,
-    value = {"/{entity}", "/{entity}/{id}/relationships/{entity2}", "/{entity}/{id}/{child}", "/{entity}/{id}"})
-  @Cacheable(cacheResolver = "elideCacheResolver")
+  @PostMapping(value = "/**", consumes = {JSON_API_MEDIA_TYPE, MediaType.APPLICATION_JSON_VALUE}, produces = JSON_API_MEDIA_TYPE)
   @PreAuthorize("isAuthenticated()")
-  public ResponseEntity<String> post(@RequestBody final String body,
+  public ResponseEntity<String> post(@RequestParam final Map<String, String> allRequestParams,
+                                     @RequestBody final String body,
                                      final HttpServletRequest request,
                                      final Authentication authentication) {
     ElideResponse response = elide.post(
       getJsonApiPath(request),
       body,
+      new MultivaluedHashMap<>(allRequestParams),
       getPrincipal(authentication)
     );
     return wrapResponse(response);
   }
 
   //!!! No @Transactional - transactions are being handled by Elide
-  @RequestMapping(
-    method = RequestMethod.PATCH,
-    consumes = {JSON_API_MEDIA_TYPE, MediaType.APPLICATION_JSON_VALUE},
-    produces = JSON_API_MEDIA_TYPE,
-    value = {"/{entity}/{id}", "/{entity}/{id}/relationships/{entity2}"})
+  @PatchMapping(value = "/**", consumes = {JSON_API_MEDIA_TYPE, MediaType.APPLICATION_JSON_VALUE}, produces = JSON_API_MEDIA_TYPE)
   @PreAuthorize("isAuthenticated()")
-  public ResponseEntity<String> patch(@RequestBody final String body,
+  public ResponseEntity<String> patch(@RequestParam final Map<String, String> allRequestParams,
+                                      @RequestBody final String body,
                                       final HttpServletRequest request,
                                       final Authentication authentication) {
     ElideResponse response = elide.patch(
@@ -94,20 +89,17 @@ public class DataController {
       JSON_API_MEDIA_TYPE,
       getJsonApiPath(request),
       body,
+      new MultivaluedHashMap<>(allRequestParams),
       getPrincipal(authentication)
     );
     return wrapResponse(response);
   }
 
   //!!! No @Transactional - transactions are being handled by Elide
-  @RequestMapping(
-    method = RequestMethod.PATCH,
-    consumes = JSON_API_PATCH_MEDIA_TYPE,
-    produces = JSON_API_MEDIA_TYPE,
-    value = "/{entity}")
-  // should contain "/{entity}/{id}" but spring will call this method even for JSON_API_MEDIA_TYPE
+  @PatchMapping(value = "/**", consumes = JSON_API_PATCH_MEDIA_TYPE, produces = JSON_API_MEDIA_TYPE)
   @PreAuthorize("isAuthenticated()")
-  public ResponseEntity<String> extensionPatch(@RequestBody final String body,
+  public ResponseEntity<String> extensionPatch(@RequestParam final Map<String, String> allRequestParams,
+                                               @RequestBody final String body,
                                                final HttpServletRequest request,
                                                final Authentication authentication) {
     ElideResponse response = elide.patch(
@@ -115,22 +107,22 @@ public class DataController {
       JSON_API_MEDIA_TYPE,
       getJsonApiPath(request),
       body,
+      new MultivaluedHashMap<>(allRequestParams),
       getPrincipal(authentication)
     );
     return wrapResponse(response);
   }
 
   //!!! No @Transactional - transactions are being handled by Elide
-  @RequestMapping(
-    method = RequestMethod.DELETE,
-    produces = JSON_API_MEDIA_TYPE,
-    value = {"/{entity}/{id}", "/{entity}/{id}/relationships/{entity2}"})
+  @DeleteMapping(value = "/**", produces = JSON_API_MEDIA_TYPE)
   @PreAuthorize("isAuthenticated()")
-  public ResponseEntity<String> delete(final HttpServletRequest request,
+  public ResponseEntity<String> delete(@RequestParam final Map<String, String> allRequestParams,
+                                       final HttpServletRequest request,
                                        final Authentication authentication) {
     ElideResponse response = elide.delete(
       getJsonApiPath(request),
       null,
+      new MultivaluedHashMap<>(allRequestParams),
       getPrincipal(authentication)
     );
     return wrapResponse(response);
