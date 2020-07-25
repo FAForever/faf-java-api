@@ -15,13 +15,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/truncateTables.sql")
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultData.sql")
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepMapData.sql")
-public class MatchmakerQueueMapPoolElideTest extends AbstractIntegrationTest {
-  private static final String NEW_LADDER_MAP_BODY = "{\"data\":{\"type\":\"ladder1v1Map\",\"relationships\":{\"mapVersion\":{\"data\":{\"type\":\"mapVersion\",\"id\":\"2\"}}}}}";
+public class MapPoolElideTest extends AbstractIntegrationTest {
+  private static final String NEW_LADDER_MAP_BODY = "{\"data\":{\"type\":\"mapVersion\",\"id\":\"2\"}}}";
 
   @Test
-  public void cannotCreateLadderMapWithoutScope() throws Exception {
+  public void cannotCreateMapPoolItemWithoutScope() throws Exception {
     mockMvc.perform(
-      post("/data/ladder1v1Map")
+      post("/data/mapPool/1/mapVersions")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
@@ -29,9 +29,9 @@ public class MatchmakerQueueMapPoolElideTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void cannotCreateLadderMapWithoutRole() throws Exception {
+  public void cannotCreateMapPoolItemWithoutRole() throws Exception {
     mockMvc.perform(
-      post("/data/ladder1v1Map")
+      post("/data/mapPool/1/mapVersions")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
@@ -39,9 +39,9 @@ public class MatchmakerQueueMapPoolElideTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void canCreateLadderMapWithScopeAndRole() throws Exception {
+  public void canCreateMapPoolItemWithScopeAndRole() throws Exception {
     mockMvc.perform(
-      post("/data/ladder1v1Map")
+      post("/data/mapPool/1/mapVersions")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
@@ -49,25 +49,25 @@ public class MatchmakerQueueMapPoolElideTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void canDeleteLadderMapWithScopeAndRole() throws Exception {
+  public void canDeleteMapPoolItemWithScopeAndRole() throws Exception {
     mockMvc.perform(
-      delete("/data/ladder1v1Map/1")
+      delete("/data/mapPool/1/mapVersions/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))) // magic value from prepMapData.sql
       .andExpect(status().isNoContent());
   }
 
   @Test
-  public void cannotDeleteLadderMapWithoutScope() throws Exception {
+  public void cannotDeleteMapPoolItemWithoutScope() throws Exception {
     mockMvc.perform(
-      delete("/data/ladder1v1Map/1")
+      delete("/data/mapPool/1/mapVersions/1")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))) // magic value from prepMapData.sql
       .andExpect(status().isForbidden());
   }
 
   @Test
-  public void cannotDeleteLadderMapWithoutRole() throws Exception {
+  public void cannotDeleteMapPoolItemWithoutRole() throws Exception {
     mockMvc.perform(
-      delete("/data/ladder1v1Map/1")
+      delete("/data/mapPool/1")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))) // magic value from prepMapData.sql
       .andExpect(status().isForbidden());
   }
