@@ -4,10 +4,8 @@ import com.faforever.api.security.elide.permission.WriteMatchmakerMapCheck;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
-import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
-import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -24,7 +22,6 @@ import java.util.Set;
 @CreatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @UpdatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @DeletePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
-@SharePermission
 public class MapPool extends AbstractEntity {
   private String name;
   private Set<MapVersion> mapVersions;

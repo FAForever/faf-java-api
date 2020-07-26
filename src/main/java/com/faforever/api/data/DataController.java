@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.HandlerMapping;
@@ -117,11 +116,12 @@ public class DataController {
   @DeleteMapping(value = "/**", produces = JSON_API_MEDIA_TYPE)
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<String> delete(@RequestParam final Map<String, String> allRequestParams,
+                                       @RequestBody(required = false) final String body,
                                        final HttpServletRequest request,
                                        final Authentication authentication) {
     ElideResponse response = elide.delete(
       getJsonApiPath(request),
-      null,
+      body,
       new MultivaluedHashMap<>(allRequestParams),
       getPrincipal(authentication)
     );
