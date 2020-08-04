@@ -285,7 +285,7 @@ public class UserService {
         .orElseThrow(() -> ApiException.of(ErrorCode.UNKNOWN_IDENTIFIER, identifier)));
 
     String token = fafTokenService.createToken(FafTokenType.PASSWORD_RESET,
-      Duration.ofSeconds(properties.getRegistration().getLinkExpirationSeconds()),
+      Duration.ofSeconds(properties.getPasswordReset().getLinkExpirationSeconds()),
       ImmutableMap.of(KEY_USER_ID, String.valueOf(user.getId())));
 
     String passwordResetUrl = String.format(properties.getPasswordReset().getPasswordResetUrlFormat(), user.getLogin(), token);
@@ -335,7 +335,7 @@ public class UserService {
     }
 
     String token = fafTokenService.createToken(FafTokenType.LINK_TO_STEAM,
-      Duration.ofHours(1),
+      Duration.ofHours(6),
       ImmutableMap.of(
         KEY_USER_ID, String.valueOf(user.getId()),
         KEY_STEAM_LINK_CALLBACK_URL, callbackUrl
