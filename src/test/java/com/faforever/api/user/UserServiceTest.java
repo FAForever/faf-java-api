@@ -435,7 +435,7 @@ public class UserServiceTest {
 
     verify(fafTokenService).createToken(
       eq(FafTokenType.LINK_TO_STEAM),
-      eq(Duration.ofHours(1)),
+      eq(Duration.ofHours(6)),
       attributesCaptor.capture()
     );
 
