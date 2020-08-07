@@ -20,7 +20,7 @@ public abstract class Rating {
   private Double mean;
   private Double deviation;
   private Player player;
-  private double rating;
+  private Double rating;
   private int numberOfGames;
 
   @Id
@@ -50,9 +50,9 @@ public abstract class Rating {
     return player;
   }
 
-  @Column(name = "rating", updatable = false)
+  @Column(name = "rating", updatable = false, insertable = false)
   @Generated(GenerationTime.ALWAYS)
-  public double getRating() {
+  public Double getRating() {
     return rating;
   }
 
