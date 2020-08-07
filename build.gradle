@@ -39,16 +39,19 @@ tasks.withType(Test) {
 
   }
   afterTest { descriptor, result ->
+    String indent = '    '
     def indicator = ANSI_WHITE
 
     if (result.failedTestCount > 0) indicator = ANSI_RED + X_MARK
     else if (result.skippedTestCount > 0) indicator = ANSI_YELLOW + NEUTRAL_FACE
     else indicator = ANSI_GREEN + CHECK_MARK
 
-    out.println('    ' + indicator + ANSI_RESET + " " + descriptor.name);
+    out.println(indent + indicator + ANSI_RESET + " " + descriptor.name);
 
-    if (result.failedTestCount > 0) { out.println(' ') }
-
+    if (result.failedTestCount > 0) {
+      String exceptions = result.getException().toString()
+      out.println(indent + exceptions.split("\\n").join("\n" + indent))
+    }
   }
 
   afterSuite { desc, result ->
