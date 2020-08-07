@@ -17,7 +17,7 @@ env:
 before_install:
   - sudo /etc/init.d/mysql stop
   - sudo rm /usr/local/bin/docker-compose
-  - curl -L https://github.com/docker/compose/releases/download/1.24.0/docker-compose-`uname -s`-`uname -m` > /tmp/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/1.26.2/docker-compose-`uname -s`-`uname -m` > /tmp/docker-compose
   - chmod +x /tmp/docker-compose
   - sudo mv /tmp/docker-compose /usr/local/bin
   - APP_VERSION=$([ -n "${TRAVIS_TAG}" ] && echo "${TRAVIS_TAG#*v}" || echo "${TRAVIS_BRANCH##*/}")
