@@ -1,7 +1,7 @@
 name: Build
 on: [push]
 env:
-  FAF_DB_VERSION: v101
+  FAF_DB_VERSION: v102
 jobs:
   test:
     runs-on: ubuntu-latest
