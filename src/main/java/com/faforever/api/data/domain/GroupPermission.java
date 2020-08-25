@@ -39,6 +39,7 @@ public class GroupPermission extends AbstractEntity implements GrantedAuthority 
   public static final String ROLE_READ_TEAMKILL_REPORT = "ROLE_READ_TEAMKILL_REPORT";
   public static final String ROLE_READ_ACCOUNT_PRIVATE_DETAILS = "ROLE_READ_ACCOUNT_PRIVATE_DETAILS";
   public static final String ROLE_ADMIN_ACCOUNT_NOTE = "ROLE_ADMIN_ACCOUNT_NOTE";
+  public static final String ROLE_ADMIN_ACCOUNT_NAME_CHANGE = "ROLE_ADMIN_ACCOUNT_NAME_CHANGE";
   public static final String ROLE_ADMIN_MODERATION_REPORT = "ROLE_ADMIN_MODERATION_REPORT";
   public static final String ROLE_ADMIN_ACCOUNT_BAN = "ROLE_ADMIN_ACCOUNT_BAN";
   public static final String ROLE_ADMIN_CLAN = "ROLE_ADMIN_CLAN";

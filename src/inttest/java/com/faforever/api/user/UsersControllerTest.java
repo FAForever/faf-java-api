@@ -2,6 +2,7 @@ package com.faforever.api.user;
 
 
 import com.faforever.api.AbstractIntegrationTest;
+import com.faforever.api.data.domain.GroupPermission;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.email.EmailSender;
 import com.faforever.api.error.ErrorCode;
@@ -432,20 +433,41 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_MODERATOR)
   public void changeUsernameForcedByModerator() throws Exception {
-    assertThat(userRepository.getOne(2).getLogin(), is(AUTH_MODERATOR));
-
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("newUsername", NEW_USER);
 
     mockMvc.perform(
       post("/users/2/forceChangeUsername")
-        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_NAME_CHANGE))
         .params(params))
       .andExpect(status().isOk());
 
     assertThat(userRepository.getOne(2).getLogin(), is(NEW_USER));
+  }
+
+  @Test
+  public void changeUsernameForcedByModeratorWithoutScope() throws Exception {
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("newUsername", NEW_USER);
+
+    mockMvc.perform(
+      post("/users/2/forceChangeUsername")
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_ACCOUNT_NAME_CHANGE))
+        .params(params))
+      .andExpect(status().is4xxClientError());
+  }
+
+  @Test
+  public void changeUsernameForcedByModeratorWithoutRole() throws Exception {
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("newUsername", NEW_USER);
+
+    mockMvc.perform(
+      post("/users/2/forceChangeUsername")
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+        .params(params))
+      .andExpect(status().is4xxClientError());
   }
 
   @Test
@@ -469,16 +491,13 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_MODERATOR)
   public void changeUsernameTooEarlyButForced() throws Exception {
-    assertThat(userRepository.getOne(2).getLogin(), is(AUTH_MODERATOR));
-
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("newUsername", NEW_USER);
 
     mockMvc.perform(
       post("/users/2/forceChangeUsername")
-        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_NAME_CHANGE))
         .params(params))
       .andExpect(status().isOk())
       .andReturn();

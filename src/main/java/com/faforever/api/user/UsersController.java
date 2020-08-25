@@ -73,11 +73,11 @@ public class UsersController {
     userService.changeLogin(newUsername, userService.getUser(authentication), RemoteAddressUtil.getRemoteAddress(request));
   }
 
-  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasAnyRole('ROLE_MODERATOR', 'ROLE_ADMINISTRATOR')")
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._ADMINISTRATIVE_ACTION + "') and hasAnyRole('ROLE_ADMIN_ACCOUNT_NAME_CHANGE')")
   @ApiOperation("Force the change of the login of a user with the given userId.")
   @RequestMapping(path = "/{userId}/forceChangeUsername", method = RequestMethod.POST, produces = APPLICATION_JSON_VALUE)
-  public void forceChangeLogin(HttpServletRequest request, @RequestParam("newUsername") String newUsername, @PathVariable("userId") String userId) {
-    User user = userService.getUser(Integer.parseInt(userId));
+  public void forceChangeLogin(HttpServletRequest request, @RequestParam("newUsername") String newUsername, @PathVariable("userId") int userId) {
+    User user = userService.getUser(userId);
     userService.changeLoginForced(newUsername, user, RemoteAddressUtil.getRemoteAddress(request));
   }
 
