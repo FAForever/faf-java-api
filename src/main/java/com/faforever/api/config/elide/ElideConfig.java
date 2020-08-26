@@ -32,6 +32,7 @@ import com.yahoo.elide.core.filter.dialect.RSQLFilterDialect;
 import com.yahoo.elide.jsonapi.JsonApiMapper;
 import com.yahoo.elide.security.checks.Check;
 import com.yahoo.elide.utils.coerce.CoerceUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
 import org.hibernate.ScrollMode;
@@ -47,6 +48,7 @@ import java.time.OffsetDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Configuration
+@Slf4j
 public class ElideConfig {
 
   public static final String DEFAULT_CACHE_NAME = "Elide.defaultCache";
@@ -70,6 +72,7 @@ public class ElideConfig {
   SpringHibernateDataStore springHibernateDataStore(PlatformTransactionManager txManager,
                                                     AutowireCapableBeanFactory beanFactory,
                                                     EntityManager entityManager) {
+    System.out.println("LALALALA " + Thread.currentThread().getName());
     return new SpringHibernateDataStore(txManager, beanFactory, entityManager, false, true, ScrollMode.FORWARD_ONLY);
   }
 
