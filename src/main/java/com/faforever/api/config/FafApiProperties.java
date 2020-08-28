@@ -239,12 +239,12 @@ public class FafApiProperties {
   }
 
   @Data
-  public class Anope {
+  public static class Anope {
     private String databaseName;
   }
 
   @Data
-  public class Rating {
+  public static class Rating {
     private int defaultMean;
     private int defaultDeviation;
   }
