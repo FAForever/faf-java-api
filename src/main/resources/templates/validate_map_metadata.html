@@ -20,7 +20,7 @@
                   .done(function (msg) {
                       $("#mapNameBlock").append('<table class="result">' +
                           '<tr class="alert alert-success"><th>Map name</th><td>' + msg.displayName + '</td></tr>' +
-                          '<tr class="alert alert-success"><th>Next version</th><td>' + msg.nextVersion + '</td></tr>' +
+                          '<tr class="alert alert-success"><th>Next version</th><td>' + (parseInt(msg.nextVersion, 10) + 1) + '</td></tr>' +
                           '<tr class="alert alert-success"><th>Folder name</th><td>' + msg.folderName + '</td></tr>' +
                           '<tr class="alert alert-success"><th>File names</th><td>' + Object.entries(msg.fileNames).map(arr => arr[1]).join(', ') + '</td></tr>' +
                           '</table>');
