@@ -97,7 +97,7 @@ public class MapService {
         .mapToInt(MapVersion::getVersion)
         .max()
         .orElse(1))
-      .orElse(1);
+      .orElse(2);
 
     return MapNameValidationResponse.builder()
       .displayName(mapNameBuilder.getDisplayName())
