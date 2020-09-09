@@ -95,9 +95,10 @@ public class MapService {
     Integer nextVersion = mapRepository.findOneByDisplayName(mapNameBuilder.getDisplayName())
       .map(map -> map.getVersions().stream()
         .mapToInt(MapVersion::getVersion)
+        .map(i -> i + 1)
         .max()
         .orElse(1))
-      .orElse(2);
+      .orElse(1);
 
     return MapNameValidationResponse.builder()
       .displayName(mapNameBuilder.getDisplayName())
