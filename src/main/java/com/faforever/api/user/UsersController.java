@@ -127,4 +127,11 @@ public class UsersController {
 
     response.sendRedirect(result.getCallbackUrl());
   }
+
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
+  @ApiOperation("Trigger resynchronisation of the users account with all related systems.")
+  @RequestMapping(path = "/resyncAccount", method = RequestMethod.POST, produces = APPLICATION_JSON_VALUE)
+  public void resynchronizeAccount(Authentication authentication) {
+    userService.resynchronizeAccount(userService.getUser(authentication));
+  }
 }

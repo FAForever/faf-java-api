@@ -534,4 +534,13 @@ public class UserServiceTest {
     verifyNoMoreInteractions(eventPublisher);
   }
 
+  @Test
+  public void testResyncAccount() {
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
+
+    instance.resynchronizeAccount(user);
+
+    verify(eventPublisher).publishEvent(any(UserUpdatedEvent.class));
+  }
+
 }
