@@ -265,6 +265,11 @@ public class UserService {
     broadcastUserChange(user);
   }
 
+  public void resynchronizeAccount(User user) {
+    log.debug("Resynchronizing account data for user ''{}''", user.getLogin());
+    broadcastUserChange(user);
+  }
+
   private void broadcastUserChange(User user) {
     UserUpdatedEvent userUpdatedEvent = new UserUpdatedEvent(
       user,

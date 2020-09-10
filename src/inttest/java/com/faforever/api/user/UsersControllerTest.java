@@ -504,4 +504,13 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     assertThat(userRepository.getOne(2).getLogin(), is(NEW_USER));
   }
+
+  @Test
+  @WithUserDetails(AUTH_USER)
+  public void resyncAccountSuccess() throws Exception {
+    mockMvc.perform(
+      post("/users/resyncAccount")
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA)))
+      .andExpect(status().isOk());
+  }
 }
