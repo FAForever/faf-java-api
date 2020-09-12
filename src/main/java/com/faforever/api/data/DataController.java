@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.HandlerMapping;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -53,6 +54,7 @@ public class DataController {
                                     final HttpServletRequest request,
                                     final Authentication authentication) {
     ElideResponse response = elide.get(
+      getBaseUrlEndpoint(),
       getJsonApiPath(request),
       new MultivaluedHashMap<>(allRequestParams),
       getPrincipal(authentication)
@@ -68,6 +70,7 @@ public class DataController {
                                      final HttpServletRequest request,
                                      final Authentication authentication) {
     ElideResponse response = elide.post(
+      getBaseUrlEndpoint(),
       getJsonApiPath(request),
       body,
       new MultivaluedHashMap<>(allRequestParams),
@@ -84,6 +87,7 @@ public class DataController {
                                       final HttpServletRequest request,
                                       final Authentication authentication) {
     ElideResponse response = elide.patch(
+      getBaseUrlEndpoint(),
       JSON_API_MEDIA_TYPE,
       JSON_API_MEDIA_TYPE,
       getJsonApiPath(request),
@@ -102,6 +106,7 @@ public class DataController {
                                                final HttpServletRequest request,
                                                final Authentication authentication) {
     ElideResponse response = elide.patch(
+      getBaseUrlEndpoint(),
       JSON_API_PATCH_MEDIA_TYPE,
       JSON_API_MEDIA_TYPE,
       getJsonApiPath(request),
@@ -120,6 +125,7 @@ public class DataController {
                                        final HttpServletRequest request,
                                        final Authentication authentication) {
     ElideResponse response = elide.delete(
+      getBaseUrlEndpoint(),
       getJsonApiPath(request),
       body,
       new MultivaluedHashMap<>(allRequestParams),
@@ -132,8 +138,17 @@ public class DataController {
     return ResponseEntity.status(response.getResponseCode()).body(response.getBody());
   }
 
-  private static String getJsonApiPath(HttpServletRequest request) {
-    return ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).replace(PATH_PREFIX, "");
+  private String getJsonApiPath(HttpServletRequest request) {
+    String pathname = (String) request
+      .getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+
+    return pathname.replaceFirst(PATH_PREFIX, "");
+  }
+
+
+  private String getBaseUrlEndpoint() {
+    return ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString()
+      + PATH_PREFIX + "/";
   }
 
   @Component(GetCacheKeyGenerator.NAME)
