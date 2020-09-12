@@ -3,11 +3,12 @@ buildscript {
     jcenter()
     mavenCentral()
     maven { url 'https://repo.spring.io/plugins-release' }
+    maven { url "https://plugins.gradle.org/m2/" }
   }
   dependencies {
     classpath("org.springframework.build.gradle:propdeps-plugin:${propdepsVersion}")
     classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-    classpath("org.kt3k.gradle.plugin:coveralls-gradle-plugin:${coverallsGradlePluginVersion}")
+    classpath("gradle.plugin.org.kt3k.gradle.plugin:coveralls-gradle-plugin:${coverallsGradlePluginVersion}")
   }
 }
 
@@ -32,9 +33,11 @@ tasks.withType(Test) {
   beforeSuite { suite ->
     if (suite.name.startsWith("Test Run") || suite.name.startsWith("Gradle Worker")) return
 
-    if(suite.parent != null && suite.className != null){
-      if(TRAVIS_FOLDING){ out.println("travis_fold:start:" + suite.name +"\r"); }
-      out.println(ANSI_BOLD_WHITE + suite.name + ANSI_RESET )
+    if (suite.parent != null && suite.className != null) {
+      if (TRAVIS_FOLDING) {
+        out.println("travis_fold:start:" + suite.name + "\r");
+      }
+      out.println(ANSI_BOLD_WHITE + suite.name + ANSI_RESET)
     }
 
   }
@@ -55,9 +58,11 @@ tasks.withType(Test) {
   }
 
   afterSuite { desc, result ->
-    if(desc.parent != null && desc.className != null){
+    if (desc.parent != null && desc.className != null) {
 
-      if(TRAVIS_FOLDING && result.failedTestCount==0) { out.println("travis_fold:end:" + desc.name +"\r"); }
+      if (TRAVIS_FOLDING && result.failedTestCount == 0) {
+        out.println("travis_fold:end:" + desc.name + "\r");
+      }
       out.println("")
     }
 
@@ -67,7 +72,7 @@ tasks.withType(Test) {
       def skipStyle = ANSI_YELLOW
       def summaryStyle = ANSI_WHITE
 
-      switch(result.resultType){
+      switch (result.resultType) {
         case TestResult.ResultType.SUCCESS:
           summaryStyle = ANSI_GREEN;
           break;
@@ -76,14 +81,14 @@ tasks.withType(Test) {
           break;
       }
 
-      out.println( "--------------------------------------------------------------------------");
-      out.println( "Results: " + summaryStyle + "${result.resultType}" + ANSI_RESET
+      out.println("--------------------------------------------------------------------------");
+      out.println("Results: " + summaryStyle + "${result.resultType}" + ANSI_RESET
         + " (${result.testCount} tests, "
         + ANSI_GREEN + "${result.successfulTestCount} passed" + ANSI_RESET
         + ", " + failStyle + "${result.failedTestCount} failed" + ANSI_RESET
         + ", " + skipStyle + "${result.skippedTestCount} skipped" + ANSI_RESET
         + ")");
-      out.println( "--------------------------------------------------------------------------");
+      out.println("--------------------------------------------------------------------------");
     }
   }
 
@@ -226,8 +231,8 @@ dependencies {
   implementation("org.eclipse.jgit:org.eclipse.jgit:${jgitVersionn}")
   implementation("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
   implementation("com.google.guava:guava:${guavaVersion}")
-  implementation("io.springfox:springfox-swagger-ui:${swaggerVersion}")
-  implementation("io.springfox:springfox-swagger2:${swaggerVersion}")
+  implementation("io.springfox:springfox-swagger-ui:${springfoxSwaggerVersion}")
+  implementation("io.springfox:springfox-swagger2:${springfoxSwaggerVersion}")
   implementation("io.swagger.core.v3:swagger-core:${swaggerCoreVersion}")
   implementation("javax.inject:javax.inject:${javaxInjectVersion}")
   implementation("com.yahoo.elide:elide-core:${elideVersion}")

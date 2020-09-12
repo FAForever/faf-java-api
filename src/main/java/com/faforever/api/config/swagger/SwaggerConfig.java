@@ -1,7 +1,6 @@
 package com.faforever.api.config.swagger;
 
 import com.faforever.api.config.FafApiProperties;
-import com.google.common.base.Predicate;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +12,8 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-import static com.google.common.base.Predicates.or;
+import java.util.function.Predicate;
+
 import static springfox.documentation.builders.PathSelectors.regex;
 
 @Configuration
@@ -44,20 +44,19 @@ public class SwaggerConfig {
   }
 
   private Predicate<String> paths() {
-    return or(
-      regex("/oauth/(.*token.*|.*authorize)"),
-      regex("/data/.*"),
-      regex("/health.*"),
-      regex("/clans/.*"),
-      regex("/achievements/.*"),
-      regex("/avatars/.*"),
-      regex("/events/.*"),
-      regex("/users/.*"),
-      regex("/mods/.*"),
-      regex("/maps/.*"),
-      regex("/exe/.*"),
-      regex("/leaderboards/.*"),
-      regex("/featuredMods/.*"),
-      regex("/voting/.*"));
+    return regex("/oauth/(.*token.*|.*authorize)")
+      .or(regex("/data/.*"))
+      .or(regex("/health.*"))
+      .or(regex("/clans/.*"))
+      .or(regex("/achievements/.*"))
+      .or(regex("/avatars/.*"))
+      .or(regex("/events/.*"))
+      .or(regex("/users/.*"))
+      .or(regex("/mods/.*"))
+      .or(regex("/maps/.*"))
+      .or(regex("/exe/.*"))
+      .or(regex("/leaderboards/.*"))
+      .or(regex("/featuredMods/.*"))
+      .or(regex("/voting/.*"));
   }
 }
