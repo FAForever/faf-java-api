@@ -2,7 +2,6 @@ package com.faforever.api.user;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.Steam;
-import com.google.common.collect.ImmutableMap;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
@@ -16,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -55,7 +55,7 @@ public class SteamService {
 
     Steam steam = properties.getSteam();
 
-    String answer = new RestTemplate().getForObject(steam.getGetOwnedGamesUrlFormat(), String.class, ImmutableMap.of(
+    String answer = new RestTemplate().getForObject(steam.getGetOwnedGamesUrlFormat(), String.class, Map.of(
       "key", steam.getApiKey(),
       "steamId", steamId,
       "format", "json",

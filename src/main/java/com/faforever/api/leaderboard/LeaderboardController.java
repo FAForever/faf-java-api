@@ -3,7 +3,6 @@ package com.faforever.api.leaderboard;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.error.NotFoundApiException;
-import com.google.common.collect.ImmutableMap;
 import com.yahoo.elide.jsonapi.models.Data;
 import com.yahoo.elide.jsonapi.models.JsonApiDocument;
 import com.yahoo.elide.jsonapi.models.Resource;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -39,15 +39,15 @@ public class LeaderboardController {
                                                          @RequestParam(value = "page[size]", required = false) Integer pageSize) {
     List<Resource> values = StreamSupport.stream(leaderboardService.getLadder1v1Leaderboard(page, pageSize).spliterator(), false)
       .map(entry -> new Resource(LADDER_1V1_LEADERBOARD_ENTRY, String.valueOf(entry.getId()),
-        ImmutableMap.<String, Object>builder()
-          .put("name", entry.getPlayerName())
-          .put("mean", entry.getMean())
-          .put("deviation", entry.getDeviation())
-          .put("numGames", entry.getNumGames())
-          .put("wonGames", entry.getWonGames())
-          .put("rank", entry.getRank())
-          .put("rating", (int) (entry.getMean() - 3 * entry.getDeviation()))
-          .build(),
+        Map.of(
+          "name", entry.getPlayerName(),
+          "mean", entry.getMean(),
+          "deviation", entry.getDeviation(),
+          "numGames", entry.getNumGames(),
+          "wonGames", entry.getWonGames(),
+          "rank", entry.getRank(),
+          "rating", (int) (entry.getMean() - 3 * entry.getDeviation())
+        ),
         null, null, null))
       .collect(Collectors.toList());
 
@@ -61,14 +61,14 @@ public class LeaderboardController {
                                                       @RequestParam(value = "page[size]", required = false) Integer pageSize) {
     List<Resource> values = StreamSupport.stream(leaderboardService.getGlobalLeaderboard(page, pageSize).spliterator(), false)
       .map(entry -> new Resource(GLOBAL_LEADERBOARD_ENTRY, String.valueOf(entry.getId()),
-        ImmutableMap.<String, Object>builder()
-          .put("name", entry.getPlayerName())
-          .put("mean", entry.getMean())
-          .put("deviation", entry.getDeviation())
-          .put("numGames", entry.getNumGames())
-          .put("rank", entry.getRank())
-          .put("rating", (int) (entry.getMean() - 3 * entry.getDeviation()))
-          .build(),
+        Map.of(
+          "name", entry.getPlayerName(),
+          "mean", entry.getMean(),
+          "deviation", entry.getDeviation(),
+          "numGames", entry.getNumGames(),
+          "rank", entry.getRank(),
+          "rating", (int) (entry.getMean() - 3 * entry.getDeviation())
+        ),
         null, null, null))
       .collect(Collectors.toList());
 
@@ -84,15 +84,15 @@ public class LeaderboardController {
       throw new NotFoundApiException(new Error(ErrorCode.ENTITY_NOT_FOUND, playerId));
     }
 
-    Resource resource = new Resource(LADDER_1V1_LEADERBOARD_ENTRY, playerId.toString(), ImmutableMap.<String, Object>builder()
-      .put("name", entry.getPlayerName())
-      .put("mean", entry.getMean())
-      .put("deviation", entry.getDeviation())
-      .put("numGames", entry.getNumGames())
-      .put("wonGames", entry.getWonGames())
-      .put("rank", entry.getRank())
-      .put("rating", (int) (entry.getMean() - 3 * entry.getDeviation()))
-      .build(),
+    Resource resource = new Resource(LADDER_1V1_LEADERBOARD_ENTRY, playerId.toString(), Map.of(
+      "name", entry.getPlayerName(),
+      "mean", entry.getMean(),
+      "deviation", entry.getDeviation(),
+      "numGames", entry.getNumGames(),
+      "wonGames", entry.getWonGames(),
+      "rank", entry.getRank(),
+      "rating", (int) (entry.getMean() - 3 * entry.getDeviation())
+    ),
       null, null, null);
 
     return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(resource)));
@@ -107,14 +107,14 @@ public class LeaderboardController {
       throw new NotFoundApiException(new Error(ErrorCode.ENTITY_NOT_FOUND, playerId));
     }
 
-    Resource resource = new Resource(GLOBAL_LEADERBOARD_ENTRY, playerId.toString(), ImmutableMap.<String, Object>builder()
-      .put("name", entry.getPlayerName())
-      .put("mean", entry.getMean())
-      .put("deviation", entry.getDeviation())
-      .put("numGames", entry.getNumGames())
-      .put("rank", entry.getRank())
-      .put("rating", (int) (entry.getMean() - 3 * entry.getDeviation()))
-      .build(),
+    Resource resource = new Resource(GLOBAL_LEADERBOARD_ENTRY, playerId.toString(), Map.of(
+      "name", entry.getPlayerName(),
+      "mean", entry.getMean(),
+      "deviation", entry.getDeviation(),
+      "numGames", entry.getNumGames(),
+      "rank", entry.getRank(),
+      "rating", (int) (entry.getMean() - 3 * entry.getDeviation())
+    ),
       null, null, null);
 
     return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(resource)));

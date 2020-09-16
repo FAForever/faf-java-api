@@ -1,6 +1,5 @@
 package com.faforever.api.config;
 
-import com.google.common.collect.ImmutableSet;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -101,7 +100,7 @@ public class FafApiProperties {
     /**
      * Allowed file extensions of uploaded maps.
      */
-    private Set<String> allowedExtensions = ImmutableSet.of("zip");
+    private Set<String> allowedExtensions = Set.of("zip");
   }
 
   @Data
@@ -109,7 +108,7 @@ public class FafApiProperties {
     private String previewUrlFormat;
     private String downloadUrlFormat;
     /** Allowed file extensions of uploaded mods. */
-    private Set<String> allowedExtensions = ImmutableSet.of("zip");
+    private Set<String> allowedExtensions = Set.of("zip");
     /** The directory in which uploaded mod files are stored. */
     private Path targetDirectory = Paths.get("static/mods");
     /** The directory in which thumbnails of uploaded mod files are stored. */
@@ -126,7 +125,7 @@ public class FafApiProperties {
   @Data
   public static class Avatar {
     private String downloadUrlFormat;
-    private Set<String> allowedExtensions = ImmutableSet.of("png");
+    private Set<String> allowedExtensions = Set.of("png");
     private Path targetDirectory;
     private int maxSizeBytes = 4096;
     private int maxNameLength = 100;

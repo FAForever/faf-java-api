@@ -4,7 +4,6 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.data.domain.UserGroup;
 import com.faforever.api.player.PlayerService;
 import com.faforever.api.security.FafUserDetails;
-import com.google.common.collect.ImmutableMap;
 import com.yahoo.elide.jsonapi.models.Data;
 import com.yahoo.elide.jsonapi.models.JsonApiDocument;
 import com.yahoo.elide.jsonapi.models.Resource;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -52,19 +52,19 @@ public class MeController {
     return new JsonApiDocument(new Data<>(
       new Resource("me",
         "me",
-        ImmutableMap.<String, Object>builder()
-          .put("userId", player.getId())
-          .put("userName", player.getLogin())
-          .put("email", player.getEmail())
-          .put("clan", player.getClan() == null ? Optional.empty() : Clan.builder()
+        Map.of(
+          "userId", player.getId(),
+          "userName", player.getLogin(),
+          "email", player.getEmail(),
+          "clan", player.getClan() == null ? Optional.empty() : Clan.builder()
             .id(player.getClan().getId())
             .membershipId(player.getClanMembership().getId())
             .tag(player.getClan().getTag())
             .name(player.getClan().getName())
-            .build())
-          .put("groups", groups)
-          .put("permissions", grantedAuthorities)
-          .build(),
+            .build(),
+          "groups", groups,
+          "permissions", grantedAuthorities
+        ),
         null,
         null,
         null

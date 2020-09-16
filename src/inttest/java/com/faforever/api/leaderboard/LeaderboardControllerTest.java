@@ -23,7 +23,7 @@ public class LeaderboardControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(asyncDispatch(mvcResult))
       .andExpect(status().isOk())
-      .andExpect(content().string("{\"data\":[{\"type\":\"ladder1v1LeaderboardEntry\",\"id\":\"1\",\"attributes\":{\"name\":\"USER\",\"mean\":1500.0,\"deviation\":120.0,\"numGames\":5,\"wonGames\":1,\"rank\":1,\"rating\":1140}},{\"type\":\"ladder1v1LeaderboardEntry\",\"id\":\"2\",\"attributes\":{\"name\":\"MODERATOR\",\"mean\":1200.0,\"deviation\":90.0,\"numGames\":5,\"wonGames\":2,\"rank\":2,\"rating\":930}},{\"type\":\"ladder1v1LeaderboardEntry\",\"id\":\"3\",\"attributes\":{\"name\":\"ADMIN\",\"mean\":1000.0,\"deviation\":100.0,\"numGames\":5,\"wonGames\":3,\"rank\":3,\"rating\":700}}]}"));
+      .andExpect(content().json("{\"data\":[{\"type\":\"ladder1v1LeaderboardEntry\",\"id\":\"1\",\"attributes\":{\"name\":\"USER\",\"mean\":1500.0,\"deviation\":120.0,\"numGames\":5,\"wonGames\":1,\"rank\":1,\"rating\":1140}},{\"type\":\"ladder1v1LeaderboardEntry\",\"id\":\"2\",\"attributes\":{\"name\":\"MODERATOR\",\"mean\":1200.0,\"deviation\":90.0,\"numGames\":5,\"wonGames\":2,\"rank\":2,\"rating\":930}},{\"type\":\"ladder1v1LeaderboardEntry\",\"id\":\"3\",\"attributes\":{\"name\":\"ADMIN\",\"mean\":1000.0,\"deviation\":100.0,\"numGames\":5,\"wonGames\":3,\"rank\":3,\"rating\":700}}]}"));
   }
 
   @Test
@@ -33,7 +33,7 @@ public class LeaderboardControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(asyncDispatch(mvcResult))
       .andExpect(status().isOk())
-      .andExpect(content().string("{\"data\":[{\"type\":\"ladder1v1LeaderboardEntry\",\"id\":\"1\",\"attributes\":{\"name\":\"USER\",\"mean\":1500.0,\"deviation\":120.0,\"numGames\":5,\"wonGames\":1,\"rank\":1,\"rating\":1140}}]}"));
+      .andExpect(content().json("{\"data\":[{\"type\":\"ladder1v1LeaderboardEntry\",\"id\":\"1\",\"attributes\":{\"name\":\"USER\",\"mean\":1500.0,\"deviation\":120.0,\"numGames\":5,\"wonGames\":1,\"rank\":1,\"rating\":1140}}]}"));
   }
 
   @Test
@@ -43,7 +43,7 @@ public class LeaderboardControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(asyncDispatch(mvcResult))
       .andExpect(status().isOk())
-      .andExpect(content().string("{\"data\":[{\"type\":\"ladder1v1LeaderboardEntry\",\"id\":\"2\",\"attributes\":{\"name\":\"MODERATOR\",\"mean\":1200.0,\"deviation\":90.0,\"numGames\":5,\"wonGames\":2,\"rank\":2,\"rating\":930}}]}"));
+      .andExpect(content().json("{\"data\":[{\"type\":\"ladder1v1LeaderboardEntry\",\"id\":\"2\",\"attributes\":{\"name\":\"MODERATOR\",\"mean\":1200.0,\"deviation\":90.0,\"numGames\":5,\"wonGames\":2,\"rank\":2,\"rating\":930}}]}"));
   }
 
   @Test
@@ -53,7 +53,7 @@ public class LeaderboardControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(asyncDispatch(mvcResult))
       .andExpect(status().isOk())
-      .andExpect(content().string("{\"data\":[{\"type\":\"globalLeaderboardEntry\",\"id\":\"1\",\"attributes\":{\"name\":\"USER\",\"mean\":1500.0,\"deviation\":120.0,\"numGames\":5,\"rank\":1,\"rating\":1140}},{\"type\":\"globalLeaderboardEntry\",\"id\":\"2\",\"attributes\":{\"name\":\"MODERATOR\",\"mean\":1200.0,\"deviation\":90.0,\"numGames\":5,\"rank\":2,\"rating\":930}},{\"type\":\"globalLeaderboardEntry\",\"id\":\"3\",\"attributes\":{\"name\":\"ADMIN\",\"mean\":1000.0,\"deviation\":100.0,\"numGames\":5,\"rank\":3,\"rating\":700}}]}"));
+      .andExpect(content().json("{\"data\":[{\"type\":\"globalLeaderboardEntry\",\"id\":\"1\",\"attributes\":{\"name\":\"USER\",\"mean\":1500.0,\"deviation\":120.0,\"numGames\":5,\"rank\":1,\"rating\":1140}},{\"type\":\"globalLeaderboardEntry\",\"id\":\"2\",\"attributes\":{\"name\":\"MODERATOR\",\"mean\":1200.0,\"deviation\":90.0,\"numGames\":5,\"rank\":2,\"rating\":930}},{\"type\":\"globalLeaderboardEntry\",\"id\":\"3\",\"attributes\":{\"name\":\"ADMIN\",\"mean\":1000.0,\"deviation\":100.0,\"numGames\":5,\"rank\":3,\"rating\":700}}]}"));
   }
 
   @Test
@@ -63,7 +63,7 @@ public class LeaderboardControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(asyncDispatch(mvcResult))
       .andExpect(status().isOk())
-      .andExpect(content().string("{\"data\":[{\"type\":\"globalLeaderboardEntry\",\"id\":\"1\",\"attributes\":{\"name\":\"USER\",\"mean\":1500.0,\"deviation\":120.0,\"numGames\":5,\"rank\":1,\"rating\":1140}}]}"));
+      .andExpect(content().json("{\"data\":[{\"type\":\"globalLeaderboardEntry\",\"id\":\"1\",\"attributes\":{\"name\":\"USER\",\"mean\":1500.0,\"deviation\":120.0,\"numGames\":5,\"rank\":1,\"rating\":1140}}]}"));
   }
 
   @Test
@@ -73,6 +73,6 @@ public class LeaderboardControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(asyncDispatch(mvcResult))
       .andExpect(status().isOk())
-      .andExpect(content().string("{\"data\":[{\"type\":\"globalLeaderboardEntry\",\"id\":\"2\",\"attributes\":{\"name\":\"MODERATOR\",\"mean\":1200.0,\"deviation\":90.0,\"numGames\":5,\"rank\":2,\"rating\":930}}]}"));
+      .andExpect(content().json("{\"data\":[{\"type\":\"globalLeaderboardEntry\",\"id\":\"2\",\"attributes\":{\"name\":\"MODERATOR\",\"mean\":1200.0,\"deviation\":90.0,\"numGames\":5,\"rank\":2,\"rating\":930}}]}"));
   }
 }

@@ -2,8 +2,6 @@ package com.faforever.api.event;
 
 import com.faforever.api.data.JsonApiMediaType;
 import com.faforever.api.security.OAuthScope;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
 import com.yahoo.elide.jsonapi.models.Data;
 import com.yahoo.elide.jsonapi.models.JsonApiDocument;
 import com.yahoo.elide.jsonapi.models.Resource;
@@ -18,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -39,11 +38,12 @@ public class EventsController {
   }
 
   private Resource toResource(UpdatedEventResponse updatedEventResponse) {
-    Builder<String, Object> attributesBuilder = ImmutableMap.<String, Object>builder()
-      .put("eventId", updatedEventResponse.getEventId())
-      .put("currentCount", updatedEventResponse.getCurrentCount());
+    Map<String, Object> attributes = Map.of(
+      "eventId", updatedEventResponse.getEventId(),
+      "currentCount", updatedEventResponse.getCurrentCount()
+    );
 
     return new Resource("updatedEvent", String.valueOf(updatedEventResponse.getId()),
-      attributesBuilder.build(), null, null, null);
+      attributes, null, null, null);
   }
 }

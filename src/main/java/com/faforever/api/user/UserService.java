@@ -16,7 +16,6 @@ import com.faforever.api.security.FafPasswordEncoder;
 import com.faforever.api.security.FafTokenService;
 import com.faforever.api.security.FafTokenType;
 import com.faforever.api.security.FafUserDetails;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -125,7 +124,7 @@ public class UserService {
 
     String token = fafTokenService.createToken(FafTokenType.REGISTRATION,
       Duration.ofSeconds(properties.getRegistration().getLinkExpirationSeconds()),
-      ImmutableMap.of(
+      Map.of(
         KEY_USERNAME, username,
         KEY_EMAIL, email
       ));
@@ -291,7 +290,7 @@ public class UserService {
 
     String token = fafTokenService.createToken(FafTokenType.PASSWORD_RESET,
       Duration.ofSeconds(properties.getPasswordReset().getLinkExpirationSeconds()),
-      ImmutableMap.of(KEY_USER_ID, String.valueOf(user.getId())));
+      Map.of(KEY_USER_ID, String.valueOf(user.getId())));
 
     String passwordResetUrl = String.format(properties.getPasswordReset().getPasswordResetUrlFormat(), user.getLogin(), token);
 
@@ -341,7 +340,7 @@ public class UserService {
 
     String token = fafTokenService.createToken(FafTokenType.LINK_TO_STEAM,
       Duration.ofHours(6),
-      ImmutableMap.of(
+      Map.of(
         KEY_USER_ID, String.valueOf(user.getId()),
         KEY_STEAM_LINK_CALLBACK_URL, callbackUrl
       )

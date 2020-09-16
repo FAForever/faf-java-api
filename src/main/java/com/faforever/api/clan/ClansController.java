@@ -6,7 +6,6 @@ import com.faforever.api.clan.result.PlayerResult;
 import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.player.PlayerService;
-import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -67,7 +66,7 @@ public class ClansController {
                                               Authentication authentication) throws IOException {
     Player player = playerService.getPlayer(authentication);
     Clan clan = clanService.create(name, tag, description, player);
-    return ImmutableMap.of("id", clan.getId(), "type", "clan");
+    return Map.of("id", clan.getId(), "type", "clan");
   }
 
   @ApiOperation("Generate invitation link")
@@ -81,7 +80,7 @@ public class ClansController {
     Authentication authentication) throws IOException {
     Player player = playerService.getPlayer(authentication);
     String jwtToken = clanService.generatePlayerInvitationToken(player, newMemberId, clanId);
-    return ImmutableMap.of("jwtToken", jwtToken);
+    return Map.of("jwtToken", jwtToken);
   }
 
   @ApiOperation("Check invitation link and add Member to Clan")

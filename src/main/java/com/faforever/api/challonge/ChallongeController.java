@@ -2,7 +2,6 @@ package com.faforever.api.challonge;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.Challonge;
-import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -24,6 +23,7 @@ import org.springframework.web.util.DefaultUriTemplateHandler;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
@@ -64,7 +64,7 @@ public class ChallongeController {
   @Cacheable(cacheNames = CHALLONGE_READ_CACHE_NAME)
   @RequestMapping(path = "/**", method = GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public CompletableFuture<ResponseEntity<String>> get(HttpServletRequest request) {
-    return CompletableFuture.completedFuture(restTemplate.getForEntity(translateRoute(request), String.class, ImmutableMap.of()));
+    return CompletableFuture.completedFuture(restTemplate.getForEntity(translateRoute(request), String.class, Map.of()));
   }
 
   @Async

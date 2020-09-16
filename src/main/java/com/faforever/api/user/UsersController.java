@@ -9,7 +9,6 @@ import com.faforever.api.security.OAuthScope;
 import com.faforever.api.user.UserService.SteamLinkResult;
 import com.faforever.api.utils.RemoteAddressUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -108,7 +107,7 @@ public class UsersController {
   @RequestMapping(path = "/buildSteamLinkUrl", method = RequestMethod.POST, produces = APPLICATION_JSON_VALUE)
   public Map<String, Serializable> buildSteamLinkUrl(Authentication authentication, @RequestParam("callbackUrl") String callbackUrl) {
     String steamUrl = userService.buildSteamLinkUrl(userService.getUser(authentication), callbackUrl);
-    return ImmutableMap.of("steamUrl", steamUrl);
+    return Map.of("steamUrl", steamUrl);
   }
 
   @ApiOperation("Processes the Steam redirect and creates the steam link in the user account.")
