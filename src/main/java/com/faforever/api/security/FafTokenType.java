@@ -8,5 +8,6 @@ import lombok.Getter;
 public enum FafTokenType {
   REGISTRATION,
   PASSWORD_RESET,
-  LINK_TO_STEAM
+  LINK_TO_STEAM,
+  PASSWORD_RESET_STEAM
 }

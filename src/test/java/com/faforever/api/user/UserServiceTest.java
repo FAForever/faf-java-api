@@ -7,6 +7,7 @@ import com.faforever.api.data.domain.NameRecord;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.email.EmailService;
 import com.faforever.api.error.ApiException;
+import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.rating.GlobalRatingRepository;
@@ -14,8 +15,7 @@ import com.faforever.api.rating.Ladder1v1RatingRepository;
 import com.faforever.api.security.FafPasswordEncoder;
 import com.faforever.api.security.FafTokenService;
 import com.faforever.api.security.FafTokenType;
-import com.faforever.api.user.UserService.SteamLinkResult;
-import com.google.common.collect.ImmutableMap;
+import com.faforever.api.user.UserService.CallbackResult;
 import com.google.common.hash.Hashing;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -37,12 +38,12 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
-import static com.faforever.api.user.UserService.KEY_STEAM_LINK_CALLBACK_URL;
+import static com.faforever.api.user.UserService.KEY_PASSWORD;
+import static com.faforever.api.user.UserService.KEY_STEAM_CALLBACK_URL;
 import static com.faforever.api.user.UserService.KEY_USER_ID;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasItemInArray;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -64,10 +65,12 @@ public class UserServiceTest {
   private static final String TEST_NEW_EMAIL = "junit@example.com";
   private static final String TEST_CURRENT_PASSWORD = "oldPassword";
   private static final String TEST_NEW_PASSWORD = "newPassword";
+  private static final String TEST_CALLBACK_URL = "http://example.com/callback";
   private static final String TOKEN_VALUE = "someToken";
   private static final String PASSWORD_RESET_URL_FORMAT = "http://www.example.com/resetPassword/username=%s&token=%s";
   private static final String ACTIVATION_URL_FORMAT = "http://www.example.com/%s";
   private static final String STEAM_ID = "someSteamId";
+  private static final String STEAM_LOGIN_URL = "steamLoginUrl";
   private static final String IP_ADDRESS = "127.0.0.1";
   private static final FafPasswordEncoder fafPasswordEncoder = new FafPasswordEncoder();
   private static final CompletableFuture<Object> COMPLETED_FUTURE = CompletableFuture.completedFuture(null);
@@ -176,7 +179,7 @@ public class UserServiceTest {
   public void activate() {
     final String TEST_IP_ADDRESS = IP_ADDRESS;
 
-    when(fafTokenService.resolveToken(FafTokenType.REGISTRATION, TOKEN_VALUE)).thenReturn(ImmutableMap.of(
+    when(fafTokenService.resolveToken(FafTokenType.REGISTRATION, TOKEN_VALUE)).thenReturn(Map.of(
       UserService.KEY_USERNAME, TEST_USERNAME,
       UserService.KEY_EMAIL, TEST_CURRENT_EMAIL
     ));
@@ -396,7 +399,6 @@ public class UserServiceTest {
   @Test
   public void resetPasswordUnknownUsernameAndEmail() {
     when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
-    when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
 
     ApiException exception = assertThrows(ApiException.class, () -> instance.requestPasswordReset(TEST_CURRENT_EMAIL));
     assertThat(exception, hasErrorCode(ErrorCode.UNKNOWN_IDENTIFIER));
@@ -405,7 +407,7 @@ public class UserServiceTest {
   @Test
   public void claimPasswordResetToken() {
     when(fafTokenService.resolveToken(FafTokenType.PASSWORD_RESET, TOKEN_VALUE))
-      .thenReturn(ImmutableMap.of(KEY_USER_ID, "5"));
+      .thenReturn(Map.of(KEY_USER_ID, "5"));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(userRepository.findById(5)).thenReturn(Optional.of(user));
@@ -422,11 +424,11 @@ public class UserServiceTest {
   @Test
   @SuppressWarnings("unchecked")
   public void buildSteamLinkUrl() {
-    when(steamService.buildLoginUrl(any())).thenReturn("steamLoginUrl");
+    when(steamService.buildLoginUrl(any())).thenReturn(STEAM_LOGIN_URL);
     when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    String url = instance.buildSteamLinkUrl(user, "http://example.com/callback");
+    String url = instance.buildSteamLinkUrl(user, TEST_CALLBACK_URL);
 
     ArgumentCaptor<String> loginUrlCaptor = ArgumentCaptor.forClass(String.class);
     verify(steamService).buildLoginUrl(loginUrlCaptor.capture());
@@ -439,11 +441,38 @@ public class UserServiceTest {
       attributesCaptor.capture()
     );
 
-    assertThat(url, is("steamLoginUrl"));
+    assertThat(url, is(STEAM_LOGIN_URL));
     assertThat(loginUrlCaptor.getValue(), is(TOKEN_VALUE));
-    assertThat(attributesCaptor.getValue(), is(ImmutableMap.of(
+    assertThat(attributesCaptor.getValue(), is(Map.of(
       KEY_USER_ID, String.valueOf(user.getId()),
-      "callbackUrl", "http://example.com/callback"
+      KEY_STEAM_CALLBACK_URL, TEST_CALLBACK_URL
+    )));
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void buildSteamPasswordResetUrl() {
+    when(steamService.buildLoginUrl(any())).thenReturn(STEAM_LOGIN_URL);
+    when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
+
+    String url = instance.buildSteamPasswordResetUrl(TEST_CALLBACK_URL, TEST_NEW_PASSWORD);
+
+    ArgumentCaptor<String> loginUrlCaptor = ArgumentCaptor.forClass(String.class);
+    verify(steamService).buildLoginUrl(loginUrlCaptor.capture());
+
+    ArgumentCaptor<Map<String, String>> attributesCaptor = ArgumentCaptor.forClass(Map.class);
+
+    verify(fafTokenService).createToken(
+      eq(FafTokenType.PASSWORD_RESET_STEAM),
+      eq(Duration.ofHours(6)),
+      attributesCaptor.capture()
+    );
+
+    assertThat(url, is(STEAM_LOGIN_URL));
+    assertThat(loginUrlCaptor.getValue(), is(TOKEN_VALUE));
+    assertThat(attributesCaptor.getValue(), is(Map.of(
+      KEY_STEAM_CALLBACK_URL, TEST_CALLBACK_URL,
+      KEY_PASSWORD, TEST_NEW_PASSWORD
     )));
   }
 
@@ -452,16 +481,16 @@ public class UserServiceTest {
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     user.setSteamId(STEAM_ID);
 
-    ApiException exception = assertThrows(ApiException.class, () -> instance.buildSteamLinkUrl(user, "http://example.com/callback"));
+    ApiException exception = assertThrows(ApiException.class, () -> instance.buildSteamLinkUrl(user, TEST_CALLBACK_URL));
     assertThat(exception, hasErrorCode(ErrorCode.STEAM_ID_UNCHANGEABLE));
   }
 
   @Test
   public void linkToSteam() {
     when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE))
-      .thenReturn(ImmutableMap.of(
+      .thenReturn(Map.of(
         KEY_USER_ID, "5",
-        KEY_STEAM_LINK_CALLBACK_URL, "callbackUrl"
+        KEY_STEAM_CALLBACK_URL, TEST_CALLBACK_URL
       ));
     when(steamService.ownsForgedAlliance(any())).thenReturn(true);
 
@@ -469,9 +498,9 @@ public class UserServiceTest {
     when(userRepository.findById(5)).thenReturn(Optional.of(user));
     when(userRepository.findOneBySteamId(STEAM_ID)).thenReturn(Optional.empty());
 
-    SteamLinkResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
+    CallbackResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
 
-    assertThat(result.getCallbackUrl(), is("callbackUrl"));
+    assertThat(result.getCallbackUrl(), is(TEST_CALLBACK_URL));
     assertThat(result.getErrors(), is(empty()));
     assertThat(user.getSteamId(), is(STEAM_ID));
     verifyNoMoreInteractions(eventPublisher);
@@ -479,11 +508,16 @@ public class UserServiceTest {
 
   @Test
   public void linkToSteamUnknownUser() {
-    when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE)).thenReturn(ImmutableMap.of(KEY_USER_ID, "5"));
+    when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE))
+      .thenReturn(Map.of(
+        KEY_USER_ID, "5",
+        KEY_STEAM_CALLBACK_URL, TEST_CALLBACK_URL
+      ));
     when(userRepository.findById(5)).thenReturn(Optional.empty());
 
-    ApiException exception = assertThrows(ApiException.class, () -> instance.linkToSteam(TOKEN_VALUE, STEAM_ID));
-    assertThat(exception, hasErrorCode(ErrorCode.TOKEN_INVALID));
+    CallbackResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
+    assertThat(result.getCallbackUrl(), is(TEST_CALLBACK_URL));
+    assertThat(result.getErrors(), contains(new Error(ErrorCode.TOKEN_INVALID)));
 
     verifyNoMoreInteractions(eventPublisher);
   }
@@ -491,31 +525,28 @@ public class UserServiceTest {
   @Test
   public void linkToSteamNoGame() {
     when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE))
-      .thenReturn(ImmutableMap.of(
+      .thenReturn(Map.of(
         KEY_USER_ID, "5",
-        KEY_STEAM_LINK_CALLBACK_URL, "callbackUrl"
+        KEY_STEAM_CALLBACK_URL, TEST_CALLBACK_URL
       ));
     when(steamService.ownsForgedAlliance(any())).thenReturn(false);
-    when(userRepository.findOneBySteamId(STEAM_ID)).thenReturn(Optional.empty());
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(userRepository.findById(5)).thenReturn(Optional.of(user));
 
-    SteamLinkResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
+    CallbackResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
 
-    assertThat(result.getCallbackUrl(), is("callbackUrl"));
-    assertThat(result.getErrors(), hasSize(1));
-    assertThat(result.getErrors().get(0).getErrorCode(), is(ErrorCode.STEAM_LINK_NO_FA_GAME));
-    assertThat(result.getErrors().get(0).getArgs(), is(new Object[0]));
+    assertThat(result.getCallbackUrl(), is(TEST_CALLBACK_URL));
+    assertThat(result.getErrors(), contains(new Error(ErrorCode.STEAM_LINK_NO_FA_GAME)));
     verifyNoMoreInteractions(eventPublisher);
   }
 
   @Test
   public void linkToSteamAlreadyLinked() {
     when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE))
-      .thenReturn(ImmutableMap.of(
+      .thenReturn(Map.of(
         KEY_USER_ID, "6",
-        KEY_STEAM_LINK_CALLBACK_URL, "callbackUrl"
+        KEY_STEAM_CALLBACK_URL, TEST_CALLBACK_URL
       ));
     when(steamService.ownsForgedAlliance(any())).thenReturn(true);
     User otherUser = new User();
@@ -525,12 +556,10 @@ public class UserServiceTest {
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(userRepository.findById(6)).thenReturn(Optional.of(user));
 
-    SteamLinkResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
+    CallbackResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
 
-    assertThat(result.getCallbackUrl(), is("callbackUrl"));
-    assertThat(result.getErrors(), hasSize(1));
-    assertThat(result.getErrors().get(0).getErrorCode(), is(ErrorCode.STEAM_ID_ALREADY_LINKED));
-    assertThat(result.getErrors().get(0).getArgs(), hasItemInArray(otherUser.getLogin()));
+    assertThat(result.getCallbackUrl(), is(TEST_CALLBACK_URL));
+    assertThat(result.getErrors(), contains(new Error(ErrorCode.STEAM_ID_ALREADY_LINKED, otherUser.getLogin())));
     verifyNoMoreInteractions(eventPublisher);
   }
 
@@ -541,6 +570,52 @@ public class UserServiceTest {
     instance.resynchronizeAccount(user);
 
     verify(eventPublisher).publishEvent(any(UserUpdatedEvent.class));
+  }
+
+  @Test
+  public void testPerformPasswordResetViaSteam(
+    @Mock HttpServletRequest httpServletRequest
+  ) {
+    when(fafTokenService.resolveToken(FafTokenType.PASSWORD_RESET_STEAM, TOKEN_VALUE))
+      .thenReturn(Map.of(
+        KEY_STEAM_CALLBACK_URL, TEST_CALLBACK_URL,
+        KEY_PASSWORD, TEST_NEW_PASSWORD
+      ));
+    when(steamService.parseSteamIdFromLoginRedirect(httpServletRequest))
+      .thenReturn(STEAM_ID);
+
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
+    when(userRepository.findOneBySteamId(STEAM_ID)).thenReturn(Optional.of(user));
+
+    instance.performPasswordResetViaSteam(httpServletRequest, TOKEN_VALUE);
+
+    ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+    verify(userRepository).save(captor.capture());
+    assertEquals(captor.getValue().getPassword(), fafPasswordEncoder.encode(TEST_NEW_PASSWORD));
+    verify(anopeUserRepository).updatePassword(TEST_USERNAME, Hashing.md5().hashString(TEST_NEW_PASSWORD, StandardCharsets.UTF_8).toString());
+    verifyNoMoreInteractions(eventPublisher);
+  }
+
+  @Test
+  public void testPerformPasswordResetViaSteamUnknownUser(
+    @Mock HttpServletRequest httpServletRequest
+  ) {
+    when(fafTokenService.resolveToken(FafTokenType.PASSWORD_RESET_STEAM, TOKEN_VALUE))
+      .thenReturn(Map.of(
+        KEY_STEAM_CALLBACK_URL, TEST_CALLBACK_URL,
+        KEY_PASSWORD, TEST_NEW_PASSWORD
+      ));
+    when(steamService.parseSteamIdFromLoginRedirect(httpServletRequest))
+      .thenReturn(STEAM_ID);
+
+    when(userRepository.findOneBySteamId(STEAM_ID)).thenReturn(Optional.empty());
+
+    CallbackResult result = instance.performPasswordResetViaSteam(httpServletRequest, TOKEN_VALUE);
+
+    assertThat(result.getCallbackUrl(), is(TEST_CALLBACK_URL));
+    assertThat(result.getErrors(), contains(new Error(ErrorCode.UNKNOWN_STEAM_ID)));
+
+    verifyNoMoreInteractions(eventPublisher);
   }
 
 }

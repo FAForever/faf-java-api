@@ -6,11 +6,12 @@ import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.security.OAuthScope;
-import com.faforever.api.user.UserService.SteamLinkResult;
+import com.faforever.api.user.UserService.CallbackResult;
 import com.faforever.api.utils.RemoteAddressUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -98,7 +99,7 @@ public class UsersController {
   @RequestMapping(path = "/performPasswordReset", method = RequestMethod.POST, produces = APPLICATION_JSON_VALUE)
   public void performPasswordReset(HttpServletResponse response,
                                    @RequestParam("token") String token,
-                                   @RequestParam("newPassword") String newPassword) throws IOException {
+                                   @RequestParam("newPassword") String newPassword) {
     userService.performPasswordReset(token, newPassword);
   }
 
@@ -110,21 +111,32 @@ public class UsersController {
     return Map.of("steamUrl", steamUrl);
   }
 
+  @ApiOperation("Request a password reset link via Steam.")
+  @RequestMapping(path = "/requestPasswordResetViaSteam", method = RequestMethod.POST, produces = APPLICATION_JSON_VALUE)
+  public Map<String, Serializable> buildSteamPasswordResetUrl(@RequestParam("callbackUrl") String callbackUrl,
+                                                              @RequestParam("newPassword") String newPassword) {
+    String steamUrl = userService.buildSteamPasswordResetUrl(callbackUrl, newPassword);
+    return Map.of("steamUrl", steamUrl);
+  }
+
+  @ApiOperation("Sets a new password for an account via Steam redirect.")
+  @RequestMapping(path = "/performPasswordResetViaSteam", method = RequestMethod.POST, produces = APPLICATION_JSON_VALUE)
+  public void performPasswordResetViaSteam(HttpServletRequest request,
+                                           HttpServletResponse response,
+                                           @RequestParam("token") String token) {
+    steamService.validateSteamRedirect(request);
+    CallbackResult result = userService.performPasswordResetViaSteam(request, token);
+    redirectCallbackResult(response, result);
+  }
+
   @ApiOperation("Processes the Steam redirect and creates the steam link in the user account.")
   @RequestMapping(path = "/linkToSteam", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
   public void linkToSteam(HttpServletRequest request,
                           HttpServletResponse response,
                           @RequestParam("token") String token) throws IOException {
-    SteamLinkResult result = userService.linkToSteam(token, steamService.parseSteamIdFromLoginRedirect(request));
-    if (!result.getErrors().isEmpty()) {
-      UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(result.getCallbackUrl());
-      String errorsJson = objectMapper.writeValueAsString(result.getErrors());
-      uriBuilder.queryParam("errors", errorsJson);
-      response.sendRedirect(uriBuilder.toUriString());
-      return;
-    }
-
-    response.sendRedirect(result.getCallbackUrl());
+    steamService.validateSteamRedirect(request);
+    CallbackResult result = userService.linkToSteam(token, steamService.parseSteamIdFromLoginRedirect(request));
+    redirectCallbackResult(response, result);
   }
 
   @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
@@ -132,5 +144,18 @@ public class UsersController {
   @RequestMapping(path = "/resyncAccount", method = RequestMethod.POST, produces = APPLICATION_JSON_VALUE)
   public void resynchronizeAccount(Authentication authentication) {
     userService.resynchronizeAccount(userService.getUser(authentication));
+  }
+
+  @SneakyThrows
+  private void redirectCallbackResult(HttpServletResponse response, CallbackResult result) {
+    if (result.getErrors().isEmpty()) {
+      response.sendRedirect(result.getCallbackUrl());
+    } else {
+      UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(result.getCallbackUrl());
+      String errorsJson = objectMapper.writeValueAsString(result.getErrors());
+      uriBuilder.queryParam("errors", errorsJson);
+      response.sendRedirect(uriBuilder.toUriString());
+      return;
+    }
   }
 }

@@ -2,51 +2,43 @@ package com.faforever.api.user;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.Steam;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SteamService {
   private final FafApiProperties properties;
-
-  public SteamService(FafApiProperties properties) {
-    this.properties = properties;
-  }
+  private final RestTemplate restTemplate;
 
   String buildLoginUrl(String redirectUrl) {
-    log.trace("Building steam login url for redirect url: {}", redirectUrl);
+    log.debug("Building steam login url for redirect url: {}", redirectUrl);
 
-    List<NameValuePair> steamArgs = Arrays.asList(
-      new BasicNameValuePair("openid.ns", "http://specs.openid.net/auth/2.0"),
-      new BasicNameValuePair("openid.mode", "checkid_setup"),
-      new BasicNameValuePair("openid.return_to", redirectUrl),
-      new BasicNameValuePair("openid.realm", properties.getSteam().getRealm()),
-      new BasicNameValuePair("openid.identity", "http://specs.openid.net/auth/2.0/identifier_select"),
-      new BasicNameValuePair("openid.claimed_id", "http://specs.openid.net/auth/2.0/identifier_select")
-    );
-    String queryArgs = URLEncodedUtils.format(steamArgs, StandardCharsets.UTF_8);
-
-    return String.format(properties.getSteam().getLoginUrlFormat(), queryArgs);
+    return UriComponentsBuilder.fromHttpUrl(properties.getSteam().getLoginUrlFormat())
+      .queryParam("openid.ns", "http://specs.openid.net/auth/2.0")
+      .queryParam("openid.mode", "checkid_setup")
+      .queryParam("openid.return_to", redirectUrl)
+      .queryParam("openid.realm", properties.getSteam().getRealm())
+      .queryParam("openid.identity", "http://specs.openid.net/auth/2.0/identifier_select")
+      .queryParam("openid.claimed_id", "http://specs.openid.net/auth/2.0/identifier_select")
+      .toUriString();
   }
 
   String parseSteamIdFromLoginRedirect(HttpServletRequest request) {
     log.trace("Parsing steam id from request: {}", request);
 
     String identityUrl = request.getParameter("openid.identity");
-    return identityUrl.substring(identityUrl.lastIndexOf("/") + 1, identityUrl.length());
+    return identityUrl.substring(identityUrl.lastIndexOf("/") + 1);
   }
 
   @SneakyThrows
@@ -65,5 +57,19 @@ public class SteamService {
 
     JSONObject response = result.getJSONObject("response");
     return response.has("game_count") && response.getInt("game_count") > 0;
+  }
+
+  void validateSteamRedirect(HttpServletRequest request) {
+    log.debug("Checking valid OpenID 2.0 redirect headers against Steam API");
+
+    UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(properties.getSteam().getLoginUrlFormat());
+    request.getParameterMap().forEach(builder::queryParam);
+    builder.replaceQueryParam("openid.mode", "check_authentication");
+
+    String result = restTemplate.getForObject(builder.toUriString(), String.class);
+
+    if (!Objects.equals(result, "ns:http://specs.openid.net/auth/2.0\nis_valid:true")) {
+      throw new IllegalArgumentException("Steam redirect could not be validated!");
+    }
   }
 }

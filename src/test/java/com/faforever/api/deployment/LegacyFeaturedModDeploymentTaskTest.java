@@ -6,13 +6,12 @@ import com.faforever.api.data.domain.FeaturedMod;
 import com.faforever.api.deployment.git.GitWrapper;
 import com.faforever.api.featuredmods.FeaturedModFile;
 import com.faforever.api.featuredmods.FeaturedModService;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -27,6 +26,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -133,7 +133,7 @@ public class LegacyFeaturedModDeploymentTaskTest {
     when(featuredModService.getFeaturedMods()).thenReturn(Collections.singletonList(
       new FeaturedMod().setTechnicalName("faf")
     ));
-    when(featuredModService.getFileIds("faf")).thenReturn(ImmutableMap.of(
+    when(featuredModService.getFileIds("faf")).thenReturn(Map.of(
       "ForgedAlliance.exe", (short) 1,
       "someDir.nx3", (short) 2
     ));
