@@ -6,7 +6,6 @@ import com.faforever.api.error.ErrorCode;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -102,7 +101,7 @@ public class FafTokenServiceTest {
 
   @Test
   public void createTokenWithAttributes() throws Exception {
-    Map<String, String> attributes = ImmutableMap.of("attribute1", "value1", "attribute2", "value2");
+    Map<String, String> attributes = Map.of("attribute1", "value1", "attribute2", "value2");
     String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(100), attributes);
 
     Jwt jwt = JwtHelper.decodeAndVerify(token, rsaVerifier);
@@ -127,7 +126,7 @@ public class FafTokenServiceTest {
 
   @Test
   public void resolveTokenWithAttributes() throws Exception {
-    Map<String, String> attributes = ImmutableMap.of("attribute1", "value1", "attribute2", "value2");
+    Map<String, String> attributes = Map.of("attribute1", "value1", "attribute2", "value2");
 
     String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(100), attributes);
     Map<String, String> result = instance.resolveToken(FafTokenType.REGISTRATION, token);
