@@ -21,21 +21,24 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static com.faforever.api.error.ErrorCode.TOKEN_INVALID;
+import static com.faforever.api.error.ErrorCode.UNKNOWN_STEAM_ID;
 
 @Service
 @Slf4j
@@ -43,12 +46,14 @@ public class UserService {
   static final String KEY_USERNAME = "username";
   static final String KEY_EMAIL = "email";
   static final String KEY_USER_ID = "id";
-  static final String KEY_STEAM_LINK_CALLBACK_URL = "callbackUrl";
+  static final String KEY_STEAM_CALLBACK_URL = "callbackUrl";
+  static final String KEY_PASSWORD = "password";
 
   private static final Pattern USERNAME_PATTERN = Pattern.compile("[A-Za-z][A-Za-z0-9_-]{2,15}$");
   private static final String USER_REGISTRATIONS_COUNT = "user.registrations.count";
   private static final String USER_PASSWORD_RESET_COUNT = "user.password.reset.count";
   private static final String STEP_TAG = "step";
+  private static final String MODE_TAG = "step";
 
   private final EmailService emailService;
   private final PlayerRepository playerRepository;
@@ -66,9 +71,14 @@ public class UserService {
   private final Counter userActivationCounter;
   private final Counter userSteamLinkRequestedCounter;
   private final Counter userSteamLinkDoneCounter;
+  private final Counter userSteamLinkFailedCounter;
   private final Counter userNameChangeCounter;
   private final Counter userPasswordResetRequestCounter;
+  private final Counter userPasswordResetViaSteamRequestCounter;
   private final Counter userPasswordResetDoneCounter;
+  private final Counter userPasswordResetFailedCounter;
+  private final Counter userPasswordResetDoneViaSteamCounter;
+  private final Counter userPasswordResetFailedViaSteamCounter;
   private final ApplicationEventPublisher eventPublisher;
 
   public UserService(EmailService emailService,
@@ -102,9 +112,14 @@ public class UserService {
     userActivationCounter = meterRegistry.counter(USER_REGISTRATIONS_COUNT, STEP_TAG, "activation");
     userSteamLinkRequestedCounter = meterRegistry.counter(USER_REGISTRATIONS_COUNT, STEP_TAG, "steamLinkRequested");
     userSteamLinkDoneCounter = meterRegistry.counter(USER_REGISTRATIONS_COUNT, STEP_TAG, "steamLinkDone");
+    userSteamLinkFailedCounter = meterRegistry.counter(USER_REGISTRATIONS_COUNT, STEP_TAG, "steamLinkFailed");
     userNameChangeCounter = meterRegistry.counter("user.name.change.count");
-    userPasswordResetRequestCounter = meterRegistry.counter(USER_PASSWORD_RESET_COUNT, STEP_TAG, "request");
-    userPasswordResetDoneCounter = meterRegistry.counter(USER_PASSWORD_RESET_COUNT, STEP_TAG, "done");
+    userPasswordResetRequestCounter = meterRegistry.counter(USER_PASSWORD_RESET_COUNT, STEP_TAG, "request", MODE_TAG, "email");
+    userPasswordResetViaSteamRequestCounter = meterRegistry.counter(USER_PASSWORD_RESET_COUNT, STEP_TAG, "request", MODE_TAG, "steam");
+    userPasswordResetDoneCounter = meterRegistry.counter(USER_PASSWORD_RESET_COUNT, STEP_TAG, "done", MODE_TAG, "email");
+    userPasswordResetFailedCounter = meterRegistry.counter(USER_PASSWORD_RESET_COUNT, STEP_TAG, "failed", MODE_TAG, "email");
+    userPasswordResetDoneViaSteamCounter = meterRegistry.counter(USER_PASSWORD_RESET_COUNT, STEP_TAG, "done", MODE_TAG, "steam");
+    userPasswordResetFailedViaSteamCounter = meterRegistry.counter(USER_PASSWORD_RESET_COUNT, STEP_TAG, "failed", MODE_TAG, "steam");
   }
 
   void register(String username, String email) {
@@ -304,10 +319,64 @@ public class UserService {
 
     int userId = Integer.parseInt(claims.get(KEY_USER_ID));
     User user = userRepository.findById(userId)
-      .orElseThrow(() -> ApiException.of(TOKEN_INVALID));
+      .orElseThrow(() -> {
+        userPasswordResetFailedCounter.increment();
+        return ApiException.of(TOKEN_INVALID);
+      });
 
     setPassword(user, newPassword);
     userPasswordResetDoneCounter.increment();
+  }
+
+  CallbackResult requestPasswordResetViaSteam(String steamId) {
+    log.debug("Preparing password reset request for Steam ID: {}", steamId);
+
+    return userRepository.findOneBySteamId(steamId)
+      .map(steamUser ->
+        Pair.of(
+          steamUser,
+          fafTokenService.createToken(FafTokenType.PASSWORD_RESET,
+            Duration.ofSeconds(properties.getPasswordReset().getLinkExpirationSeconds()),
+            Map.of(UserService.KEY_USER_ID, String.valueOf(1)))
+        )
+      )
+      .map(steamUserAndTokenPair -> {
+          User user = steamUserAndTokenPair.getLeft();
+          String token = steamUserAndTokenPair.getRight();
+
+          String callbackUrl = String.format(properties.getPasswordReset().getPasswordResetUrlFormat(), user.getLogin(), token);
+          return new CallbackResult(callbackUrl, List.of());
+        }
+      )
+      .orElseThrow(() -> ApiException.of(UNKNOWN_STEAM_ID, steamId));
+  }
+
+  CallbackResult performPasswordResetViaSteam(HttpServletRequest request, String token) {
+    log.debug("Trying to reset password with token: {}", token);
+    List<Error> errors = new ArrayList<>();
+
+    Map<String, String> attributes = fafTokenService.resolveToken(FafTokenType.PASSWORD_RESET, token);
+
+    try {
+      String newPassword = attributes.get(KEY_PASSWORD);
+      String steamId = steamService.parseSteamIdFromLoginRedirect(request);
+
+      User user = userRepository.findOneBySteamId(steamId)
+        .orElseThrow(() -> ApiException.of(UNKNOWN_STEAM_ID));
+
+      setPassword(user, newPassword);
+    } catch (ApiException e) {
+      errors.addAll(Arrays.asList(e.getErrors()));
+    }
+
+    if (errors.isEmpty()) {
+      userPasswordResetViaSteamRequestCounter.increment();
+    } else {
+      userPasswordResetFailedViaSteamCounter.increment();
+    }
+
+    String callbackUrl = attributes.get(KEY_STEAM_CALLBACK_URL);
+    return new CallbackResult(callbackUrl, errors);
   }
 
   private void setPassword(User user, String password) {
@@ -342,43 +411,56 @@ public class UserService {
       Duration.ofHours(6),
       Map.of(
         KEY_USER_ID, String.valueOf(user.getId()),
-        KEY_STEAM_LINK_CALLBACK_URL, callbackUrl
+        KEY_STEAM_CALLBACK_URL, callbackUrl
       )
     );
 
     userSteamLinkRequestedCounter.increment();
-    return steamService.buildLoginUrl(String.format(properties.getLinkToSteam().getSteamRedirectUrlFormat(), token));
+    return steamService.buildLoginUrl(String.format(properties.getSteam().getLinkToSteamRedirectUrlFormat(), token));
   }
 
-  public SteamLinkResult linkToSteam(String token, String steamId) {
+  public String buildSteamPasswordResetUrl() {
+    log.debug("Building Steam password reset url");
+    userPasswordResetRequestCounter.increment();
+    return steamService.buildLoginUrl(properties.getSteam().getSteamPasswordResetRedirectUrlFormat());
+  }
+
+  public CallbackResult linkToSteam(String token, String steamId) {
     log.debug("linkToSteam requested for steamId '{}' with token: {}", steamId, token);
     List<Error> errors = new ArrayList<>();
     Map<String, String> attributes = fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, token);
 
-    User user = userRepository.findById(Integer.parseInt(attributes.get(KEY_USER_ID)))
-      .orElseThrow(() -> ApiException.of(TOKEN_INVALID));
+    try {
+      User user = userRepository.findById(Integer.parseInt(attributes.get(KEY_USER_ID)))
+        .orElseThrow(() -> ApiException.of(TOKEN_INVALID));
 
-    if (!steamService.ownsForgedAlliance(steamId)) {
-      errors.add(new Error(ErrorCode.STEAM_LINK_NO_FA_GAME));
-    }
+      if (!steamService.ownsForgedAlliance(steamId)) {
+        throw ApiException.of(ErrorCode.STEAM_LINK_NO_FA_GAME);
+      }
 
-    Optional<User> userWithSameSteamIdOptional = userRepository.findOneBySteamId(steamId);
-    userWithSameSteamIdOptional.ifPresent(userWithSameId ->
-      errors.add(new Error(ErrorCode.STEAM_ID_ALREADY_LINKED, userWithSameId.getLogin()))
-    );
+      userRepository.findOneBySteamId(steamId)
+        .ifPresent(userWithSameId -> {
+          throw ApiException.of(ErrorCode.STEAM_ID_ALREADY_LINKED, userWithSameId.getLogin());
+        });
 
-    if (errors.isEmpty()) {
       user.setSteamId(steamId);
       userRepository.save(user);
+    } catch (ApiException e) {
+      errors.addAll(Arrays.asList(e.getErrors()));
     }
 
-    String callbackUrl = attributes.get(KEY_STEAM_LINK_CALLBACK_URL);
-    userSteamLinkDoneCounter.increment();
-    return new SteamLinkResult(callbackUrl, errors);
+    if (errors.isEmpty()) {
+      userSteamLinkDoneCounter.increment();
+    } else {
+      userSteamLinkFailedCounter.increment();
+    }
+
+    String callbackUrl = attributes.get(KEY_STEAM_CALLBACK_URL);
+    return new CallbackResult(callbackUrl, errors);
   }
 
   @Value
-  static class SteamLinkResult {
+  static class CallbackResult {
     String callbackUrl;
     List<Error> errors;
   }

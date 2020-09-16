@@ -1,14 +1,12 @@
 package com.faforever.api.error;
 
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Value;
 
-@Getter
-@ToString
+@Value
 public class Error {
 
-  private final ErrorCode errorCode;
-  private final Object[] args;
+  ErrorCode errorCode;
+  Object[] args;
 
   public Error(ErrorCode errorCode, Object... args) {
     this.errorCode = errorCode;

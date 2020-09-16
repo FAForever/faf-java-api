@@ -50,8 +50,8 @@ faf-api:
   steam:
     realm: ${STEAM_REALM}
     api-key: ${STEAM_API_KEY}
-  link-to-steam:
-    steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL}
+    link-to-steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL_FORMAT}
+    steam-password-reset-redirect-url-format: ${STEAM_PASSWORD_RESET_REDIRECT_URL_FORMAT}
 
 spring:
   datasource:
