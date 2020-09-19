@@ -28,7 +28,6 @@ public class FafApiProperties {
   private Deployment deployment = new Deployment();
   private Registration registration = new Registration();
   private PasswordReset passwordReset = new PasswordReset();
-  private LinkToSteam linkToSteam = new LinkToSteam();
   private Steam steam = new Steam();
   private Mail mail = new Mail();
   private Challonge challonge = new Challonge();
@@ -188,17 +187,14 @@ public class FafApiProperties {
   }
 
   @Data
-  public static class LinkToSteam {
-    private String steamRedirectUrlFormat;
-  }
-
-  @Data
   public static class Steam {
-    String realm;
-    String apiKey;
-    String forgedAllianceAppId = "9420";
-    String loginUrlFormat = "https://steamcommunity.com/openid/login?%s";
-    String getOwnedGamesUrlFormat = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001?key={key}&steamid={steamId}&format={format}&appids_filter[0]={faAppId}";
+    private String realm;
+    private String apiKey;
+    private String forgedAllianceAppId = "9420";
+    private String loginUrlFormat = "https://steamcommunity.com/openid/login";
+    private String getOwnedGamesUrlFormat = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001?key={key}&steamid={steamId}&format={format}&appids_filter[0]={faAppId}";
+    private String linkToSteamRedirectUrlFormat;
+    private String steamPasswordResetRedirectUrlFormat;
   }
 
   @Data

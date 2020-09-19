@@ -9,7 +9,6 @@ import com.faforever.api.error.ErrorCode;
 import com.faforever.api.security.FafTokenService;
 import com.faforever.api.security.FafTokenType;
 import com.faforever.api.security.OAuthScope;
-import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -20,6 +19,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.MultiValueMap;
 
 import java.time.Duration;
+import java.util.Map;
 
 import static junitx.framework.Assert.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -109,7 +109,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   public void activateWithSuccess() throws Exception {
     String token = fafTokenService.createToken(FafTokenType.REGISTRATION,
       Duration.ofSeconds(100),
-      ImmutableMap.of(
+      Map.of(
         UserService.KEY_USERNAME, NEW_USER,
         UserService.KEY_EMAIL, NEW_EMAIL
       ));
@@ -268,7 +268,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   public void performPasswordReset() throws Exception {
     String token = fafTokenService.createToken(FafTokenType.PASSWORD_RESET,
       Duration.ofSeconds(100),
-      ImmutableMap.of(UserService.KEY_USER_ID, String.valueOf(1)));
+      Map.of(UserService.KEY_USER_ID, String.valueOf(1)));
 
     mockMvc.perform(
       post("/users/performPasswordReset")
@@ -328,9 +328,9 @@ public class UsersControllerTest extends AbstractIntegrationTest {
     String token = fafTokenService.createToken(
       FafTokenType.LINK_TO_STEAM,
       Duration.ofSeconds(100),
-      ImmutableMap.of(
+      Map.of(
         UserService.KEY_USER_ID, "1",
-        UserService.KEY_STEAM_LINK_CALLBACK_URL, callbackUrl
+        UserService.KEY_STEAM_CALLBACK_URL, callbackUrl
       ));
 
     when(steamService.parseSteamIdFromLoginRedirect(any())).thenReturn(steamId);
@@ -356,9 +356,9 @@ public class UsersControllerTest extends AbstractIntegrationTest {
     String token = fafTokenService.createToken(
       FafTokenType.LINK_TO_STEAM,
       Duration.ofSeconds(100),
-      ImmutableMap.of(
+      Map.of(
         UserService.KEY_USER_ID, "1",
-        UserService.KEY_STEAM_LINK_CALLBACK_URL, callbackUrl
+        UserService.KEY_STEAM_CALLBACK_URL, callbackUrl
       ));
 
     when(steamService.parseSteamIdFromLoginRedirect(any())).thenReturn(steamId);

@@ -43,14 +43,14 @@ faf-api:
     subject: ${REGISTRATION_EMAIL_SUBJECT:FAF user registration}
     html-format: ${REGISTRATION_EMAIL_BODY:Registration email body}
   password-reset:
-    password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT:https://localhost:8020/account/password/confirmReset?username=%s&token=%s}
+    password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT:http://localhost:8020/account/password/confirmReset?username=%s&token=%s}
     subject: ${PASSWORD_RESET_EMAIL_SUBJECT:FAF password reset}
     html-format: ${PASSWORD_RESET_EMAIL_BODY:Registration email body}
   steam:
     realm: ${STEAM_REALM:http://localhost}
     api-key: ${STEAM_API_KEY:banana}
-  link-to-steam:
-    steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL:http://localhost:8010/users/linkToSteam?token=%s}
+    link-to-steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL_FORMAT:http://localhost:8010/users/linkToSteam?token=%s}
+    steam-password-reset-redirect-url-format: ${STEAM_PASSWORD_RESET_REDIRECT_URL_FORMAT:http://localhost:8010/users/requestPasswordResetViaSteam}
 
 spring:
   datasource:

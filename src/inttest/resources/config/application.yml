@@ -63,11 +63,11 @@ faf-api:
     activation-url-format: "http://localhost/users/activate?token=%s"
     subject: "Integration test registration"
     html-format: "Integration test registration html body"
-  link-to-steam:
-    steam-redirect-url-format: "http://localhost:8010/users/linkToSteam?token=%s"
   steam:
     realm: "http://localhost"
     api-key: "banana"
+    link-to-steam-redirect-url-format: "http://localhost:8010/users/linkToSteam?token=%s"
+    steam-password-reset-redirect-url-format: "http://localhost:8010/users/passwordReset?token=%s"
   replay:
     download-url-format: "http://localhost/replays/%s"
   mautic:
