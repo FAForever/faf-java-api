@@ -29,7 +29,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
-import javax.servlet.http.HttpServletRequest;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -38,7 +37,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
-import static com.faforever.api.user.UserService.KEY_PASSWORD;
 import static com.faforever.api.user.UserService.KEY_STEAM_CALLBACK_URL;
 import static com.faforever.api.user.UserService.KEY_USER_ID;
 import static org.hamcrest.CoreMatchers.is;
@@ -555,51 +553,4 @@ public class UserServiceTest {
 
     verify(eventPublisher).publishEvent(any(UserUpdatedEvent.class));
   }
-
-  @Test
-  public void testPerformPasswordResetViaSteam(
-    @Mock HttpServletRequest httpServletRequest
-  ) {
-    when(fafTokenService.resolveToken(FafTokenType.PASSWORD_RESET, TOKEN_VALUE))
-      .thenReturn(Map.of(
-        KEY_STEAM_CALLBACK_URL, TEST_CALLBACK_URL,
-        KEY_PASSWORD, TEST_NEW_PASSWORD
-      ));
-    when(steamService.parseSteamIdFromLoginRedirect(httpServletRequest))
-      .thenReturn(STEAM_ID);
-
-    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    when(userRepository.findOneBySteamId(STEAM_ID)).thenReturn(Optional.of(user));
-
-    instance.performPasswordResetViaSteam(httpServletRequest, TOKEN_VALUE);
-
-    ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
-    verify(userRepository).save(captor.capture());
-    assertEquals(captor.getValue().getPassword(), fafPasswordEncoder.encode(TEST_NEW_PASSWORD));
-    verify(anopeUserRepository).updatePassword(TEST_USERNAME, Hashing.md5().hashString(TEST_NEW_PASSWORD, StandardCharsets.UTF_8).toString());
-    verifyNoMoreInteractions(eventPublisher);
-  }
-
-  @Test
-  public void testPerformPasswordResetViaSteamUnknownUser(
-    @Mock HttpServletRequest httpServletRequest
-  ) {
-    when(fafTokenService.resolveToken(FafTokenType.PASSWORD_RESET, TOKEN_VALUE))
-      .thenReturn(Map.of(
-        KEY_STEAM_CALLBACK_URL, TEST_CALLBACK_URL,
-        KEY_PASSWORD, TEST_NEW_PASSWORD
-      ));
-    when(steamService.parseSteamIdFromLoginRedirect(httpServletRequest))
-      .thenReturn(STEAM_ID);
-
-    when(userRepository.findOneBySteamId(STEAM_ID)).thenReturn(Optional.empty());
-
-    CallbackResult result = instance.performPasswordResetViaSteam(httpServletRequest, TOKEN_VALUE);
-
-    assertThat(result.getCallbackUrl(), is(TEST_CALLBACK_URL));
-    assertThat(result.getErrors(), contains(new Error(ErrorCode.UNKNOWN_STEAM_ID)));
-
-    verifyNoMoreInteractions(eventPublisher);
-  }
-
 }

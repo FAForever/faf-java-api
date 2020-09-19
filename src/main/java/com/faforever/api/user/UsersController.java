@@ -145,16 +145,6 @@ public class UsersController {
     redirectCallbackResult(response, result);
   }
 
-  @ApiOperation("Sets a new password for an account via Steam redirect.")
-  @GetMapping(path = "/performPasswordResetViaSteam", produces = APPLICATION_JSON_VALUE)
-  public void performPasswordResetViaSteam(HttpServletRequest request,
-                                           HttpServletResponse response,
-                                           @RequestParam("token") String token) {
-    steamService.validateSteamRedirect(request);
-    CallbackResult result = userService.performPasswordResetViaSteam(request, token);
-    redirectCallbackResult(response, result);
-  }
-
   @ApiOperation("Processes the Steam redirect and creates the steam link in the user account.")
   @GetMapping(path = "/linkToSteam", produces = APPLICATION_JSON_VALUE)
   public void linkToSteam(HttpServletRequest request,

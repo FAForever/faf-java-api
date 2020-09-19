@@ -21,13 +21,11 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -332,51 +330,18 @@ public class UserService {
     log.debug("Preparing password reset request for Steam ID: {}", steamId);
 
     return userRepository.findOneBySteamId(steamId)
-      .map(steamUser ->
-        Pair.of(
-          steamUser,
-          fafTokenService.createToken(FafTokenType.PASSWORD_RESET,
+      .map(steamUser -> {
+          String token = fafTokenService.createToken(
+            FafTokenType.PASSWORD_RESET,
             Duration.ofSeconds(properties.getPasswordReset().getLinkExpirationSeconds()),
-            Map.of(UserService.KEY_USER_ID, String.valueOf(steamUser.getId())))
-        )
-      )
-      .map(steamUserAndTokenPair -> {
-          User user = steamUserAndTokenPair.getLeft();
-          String token = steamUserAndTokenPair.getRight();
+            Map.of(UserService.KEY_USER_ID, String.valueOf(steamUser.getId()))
+          );
 
-          String callbackUrl = String.format(properties.getPasswordReset().getPasswordResetUrlFormat(), user.getLogin(), token);
+          String callbackUrl = String.format(properties.getPasswordReset().getPasswordResetUrlFormat(), steamUser.getLogin(), token);
           return new CallbackResult(callbackUrl, List.of());
         }
       )
       .orElseThrow(() -> ApiException.of(UNKNOWN_STEAM_ID, steamId));
-  }
-
-  CallbackResult performPasswordResetViaSteam(HttpServletRequest request, String token) {
-    log.debug("Trying to reset password with token: {}", token);
-    List<Error> errors = new ArrayList<>();
-
-    Map<String, String> attributes = fafTokenService.resolveToken(FafTokenType.PASSWORD_RESET, token);
-
-    try {
-      String newPassword = attributes.get(KEY_PASSWORD);
-      String steamId = steamService.parseSteamIdFromLoginRedirect(request);
-
-      User user = userRepository.findOneBySteamId(steamId)
-        .orElseThrow(() -> ApiException.of(UNKNOWN_STEAM_ID));
-
-      setPassword(user, newPassword);
-    } catch (ApiException e) {
-      errors.addAll(Arrays.asList(e.getErrors()));
-    }
-
-    if (errors.isEmpty()) {
-      userPasswordResetViaSteamRequestCounter.increment();
-    } else {
-      userPasswordResetFailedViaSteamCounter.increment();
-    }
-
-    String callbackUrl = attributes.get(KEY_STEAM_CALLBACK_URL);
-    return new CallbackResult(callbackUrl, errors);
   }
 
   private void setPassword(User user, String password) {
