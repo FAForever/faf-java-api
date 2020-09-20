@@ -12,6 +12,6 @@ public class SwaggerUiRedirect {
 
   @RequestMapping(method = RequestMethod.GET)
   public RedirectView redirectToSwaggerUi(RedirectAttributes attributes) {
-    return new RedirectView("swagger-ui.html");
+    return new RedirectView("swagger-ui/index.html");
   }
 }
