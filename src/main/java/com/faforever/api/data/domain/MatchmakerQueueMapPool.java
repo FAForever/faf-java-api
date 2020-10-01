@@ -1,8 +1,6 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.security.elide.permission.WriteMatchmakerMapCheck;
-import com.yahoo.elide.annotation.Audit;
-import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
@@ -13,12 +11,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import java.util.Set;
 
 @CreatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @DeletePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
@@ -33,6 +28,7 @@ public class MatchmakerQueueMapPool extends AbstractEntity {
   private MatchmakerQueue matchmakerQueue;
   private Double minRating;
   private Double maxRating;
+  private MapPool mapPool;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "matchmaker_queue_id")
@@ -52,4 +48,9 @@ public class MatchmakerQueueMapPool extends AbstractEntity {
     return maxRating;
   }
 
+  @OneToOne
+  @JoinColumn(name = "map_pool_id")
+  public MapPool getMapPool() {
+    return mapPool;
+  }
 }
