@@ -2,32 +2,36 @@ package com.faforever.api.data.domain;
 
 
 import lombok.Setter;
-import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 
 import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToOne;
 
 @MappedSuperclass
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Setter
 public abstract class Rating {
-
   private int id;
+  private int ranking;
   private Double mean;
   private Double deviation;
   private Player player;
-  private double rating;
+  private Double rating;
+  private int numberOfGames;
 
   @Id
   @Column(name = "id")
   public int getId() {
     return id;
+  }
+
+  @Column(name = "ranking")
+  public int getRanking() {
+    return ranking;
   }
 
   @Column(name = "mean")
@@ -46,8 +50,14 @@ public abstract class Rating {
     return player;
   }
 
-  @Formula("mean - 3 * deviation")
-  public double getRating() {
+  @Column(name = "rating", updatable = false, insertable = false)
+  @Generated(GenerationTime.ALWAYS)
+  public Double getRating() {
     return rating;
+  }
+
+  @Column(name = "num_games", updatable = false)
+  public int getNumberOfGames() {
+    return numberOfGames;
   }
 }

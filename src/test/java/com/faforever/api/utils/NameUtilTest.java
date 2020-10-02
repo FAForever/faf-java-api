@@ -1,6 +1,6 @@
 package com.faforever.api.utils;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -17,7 +17,7 @@ public class NameUtilTest {
 
   @Test
   public void generateFileName() throws Exception {
-    final String fileName = NameUtil.normalizeFileName(" :*?<>|\"{}:[]la/ \\la??");
-    assertThat(fileName, is("{}_[]la___la"));
+    final String fileName = NameUtil.normalizeFileName("a :*?<>|\"{}:[]la/ \\la??0");
+    assertThat(fileName, is("a_____________la___la__0"));
   }
 }

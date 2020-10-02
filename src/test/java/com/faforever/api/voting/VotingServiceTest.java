@@ -7,16 +7,17 @@ import com.faforever.api.data.domain.VotingChoice;
 import com.faforever.api.data.domain.VotingQuestion;
 import com.faforever.api.data.domain.VotingSubject;
 import com.faforever.api.error.ApiException;
-import com.faforever.api.error.ApiExceptionWithCode;
+import com.faforever.api.error.ApiExceptionMatcher;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.game.GamePlayerStatsRepository;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.ExpectedExceptionSupport;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.OffsetDateTime;
 import java.util.Arrays;
@@ -25,11 +26,12 @@ import java.util.HashSet;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith({MockitoExtension.class, ExpectedExceptionSupport.class})
 public class VotingServiceTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -44,7 +46,7 @@ public class VotingServiceTest {
   @Mock
   private VotingChoiceRepository votingChoiceRepository;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     instance = new VotingService(voteRepository, votingSubjectRepository, gamePlayerStatsRepository, votingChoiceRepository);
   }
@@ -79,7 +81,7 @@ public class VotingServiceTest {
 
     vote.setVotingSubject(votingSubject);
 
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.VOTING_SUBJECT_DOES_NOT_EXIST));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.VOTING_SUBJECT_DOES_NOT_EXIST));
 
     instance.saveVote(vote, new Player());
     verify(voteRepository, never()).save(vote);
@@ -145,8 +147,7 @@ public class VotingServiceTest {
 
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
-    when(votingChoiceRepository.findById(votingChoice.getId())).thenReturn(Optional.of(votingChoice));
-    when(votingChoiceRepository.findById(votingChoice2.getId())).thenReturn(Optional.of(votingChoice2));
+    when(votingChoiceRepository.findById(anyInt())).thenReturn(Optional.of(votingChoice)).thenReturn(Optional.of(votingChoice2));
 
     instance.saveVote(vote, player);
     verify(voteRepository).save(vote);
@@ -181,7 +182,7 @@ public class VotingServiceTest {
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
 
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.VOTING_CHOICE_DOES_NOT_EXIST));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.VOTING_CHOICE_DOES_NOT_EXIST));
 
     instance.saveVote(vote, player);
     verify(voteRepository, never()).save(vote);
@@ -221,8 +222,7 @@ public class VotingServiceTest {
 
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
-    when(votingChoiceRepository.findById(votingChoice.getId())).thenReturn(Optional.of(votingChoice));
-    when(votingChoiceRepository.findById(votingChoice2.getId())).thenReturn(Optional.of(votingChoice2));
+    when(votingChoiceRepository.findById(anyInt())).thenReturn(Optional.of(votingChoice)).thenReturn(Optional.of(votingChoice2));
 
     try {
       instance.saveVote(vote, player);
@@ -264,8 +264,7 @@ public class VotingServiceTest {
 
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
-    when(votingChoiceRepository.findById(votingChoice.getId())).thenReturn(Optional.of(votingChoice));
-    when(votingChoiceRepository.findById(votingChoice2.getId())).thenReturn(Optional.of(votingChoice2));
+    when(votingChoiceRepository.findById(anyInt())).thenReturn(Optional.of(votingChoice)).thenReturn(Optional.of(votingChoice2));
 
     try {
       instance.saveVote(vote, player);

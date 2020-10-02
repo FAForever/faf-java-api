@@ -20,11 +20,11 @@ public class ExtendedAuditLogger extends AuditLogger {
   @Override
   public void commit(RequestScope requestScope) throws IOException {
     try {
-      for (LogMessage message : messages.get()) {
+      for (LogMessage message : MESSAGES.get()) {
         auditService.logMessage(message.getMessage());
       }
     } finally {
-      messages.get().clear();
+      MESSAGES.get().clear();
     }
   }
 }

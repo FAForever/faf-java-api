@@ -25,7 +25,7 @@ import javax.persistence.Table;
 public class LobbyGroup {
   private int userId;
   private LegacyAccessLevel accessLevel;
-  private User user;
+  private Player user;
 
   @Column(name = "\"group\"")
   public LegacyAccessLevel getAccessLevel() {
@@ -40,7 +40,7 @@ public class LobbyGroup {
 
   @OneToOne
   @JoinColumn(name = "user_id", insertable = false, updatable = false)
-  public User getUser() {
+  public Player getUser() {
     return user;
   }
 }

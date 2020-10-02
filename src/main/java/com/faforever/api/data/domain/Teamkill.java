@@ -1,6 +1,6 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.data.checks.permission.IsModerator;
+import com.faforever.api.security.elide.permission.ReadTeamkillReportCheck;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import lombok.Setter;
@@ -21,7 +21,7 @@ import java.time.OffsetDateTime;
 @Table(name = "teamkills")
 @Include(rootLevel = true, type = Teamkill.TYPE_NAME)
 @Immutable
-@ReadPermission(expression = IsModerator.EXPRESSION)
+@ReadPermission(expression = ReadTeamkillReportCheck.EXPRESSION)
 public class Teamkill {
   public static final String TYPE_NAME = "teamkill";
 

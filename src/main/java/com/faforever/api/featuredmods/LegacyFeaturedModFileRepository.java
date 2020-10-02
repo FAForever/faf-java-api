@@ -19,9 +19,21 @@ public class LegacyFeaturedModFileRepository implements Repository<FeaturedModFi
     this.entityManager = entityManager;
   }
 
-  @SuppressWarnings("unchecked")
+  public FeaturedModFile getFile(String modName, Integer version, String fileName) {
+    List<FeaturedModFile> files = getFiles(modName, version, fileName);
+    Assert.isTrue(
+      files.size() == 1,
+      String.format("Unexpected result size %d for modName: %s, version: %d, filename: %s", files.size(), modName, version, fileName)
+    );
+    return files.get(0);
+  }
+
   public List<FeaturedModFile> getFiles(String modName, Integer version) {
-    // Please shoot me.
+    return getFiles(modName, version, null);
+  }
+
+  @SuppressWarnings("unchecked")
+  public List<FeaturedModFile> getFiles(String modName, Integer version, String fileName) {
     String innerModName = "ladder1v1".equals(modName) ? "faf" : modName;
     verifyModName(innerModName);
 
@@ -35,7 +47,7 @@ public class LegacyFeaturedModFileRepository implements Repository<FeaturedModFi
         "  file.fileId  AS `fileId`," +
         "  file.id      AS `id`," +
         "  file.name    AS `fileName`," +
-        "  'updates_%1$s_files'    AS `folderName`" +
+        "  'updates_%1$s_files' AS `folderName` " +
         "FROM updates_%1$s_files file" +
         "  INNER JOIN" +
         "  (" +
@@ -49,10 +61,17 @@ public class LegacyFeaturedModFileRepository implements Repository<FeaturedModFi
         "    ON file.fileId = latest.fileId" +
         "       AND file.version = latest.version" +
         "  INNER JOIN updates_%1$s b" +
-        "    ON b.id = file.fileId;", innerModName, (version == null ? "" : "WHERE version <= :version")), FeaturedModFile.class);
+        "    ON b.id = file.fileId %3$s ",
+      innerModName,
+      (version == null ? "" : "WHERE version <= :version"),
+      (fileName == null ? "" : " AND filename = :filename")
+    ), FeaturedModFile.class);
 
     if (version != null) {
       query.setParameter("version", version);
+    }
+    if (fileName != null) {
+      query.setParameter("filename", fileName);
     }
     return (List<FeaturedModFile>) query.getResultList();
   }

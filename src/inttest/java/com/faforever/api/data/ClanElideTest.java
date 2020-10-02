@@ -8,7 +8,7 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.player.PlayerRepository;
 import lombok.SneakyThrows;
 import org.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -32,9 +32,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultUser.sql")
+@Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/truncateTables.sql")
+@Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultData.sql")
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepClanData.sql")
-@Sql(executionPhase = ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:sql/cleanClanData.sql")
 public class ClanElideTest extends AbstractIntegrationTest {
   private static final String AUTH_CLAN_LEADER = "CLAN_LEADER";
   private static final String AUTH_CLAN_MEMBER = "CLAN_MEMBER";
@@ -110,7 +110,7 @@ public class ClanElideTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       patch("/data/clan/1")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(generateTransferLeadershipContent(1, 12))) // magic value from prepClanData.sql
       .andExpect(status().isNoContent());
 
@@ -124,7 +124,7 @@ public class ClanElideTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       patch("/data/clan/1")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(generateTransferLeadershipContent(1, 12))) // magic value from prepClanData.sql
       .andExpect(status().isForbidden())
       .andExpect(jsonPath("$.errors[0]", is("ForbiddenAccessException")));
@@ -137,7 +137,7 @@ public class ClanElideTest extends AbstractIntegrationTest {
   public void cannotTransferLeadershipToNonClanMember() throws Exception {
     mockMvc.perform(
       patch("/data/clan/1")
-        .header(HttpHeaders.CONTENT_TYPE, DataController.JSON_API_MEDIA_TYPE)
+        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(generateTransferLeadershipContent(1, 1))) // magic value from prepClanData.sql
       .andExpect(status().is4xxClientError()); // TODO: Catch javax.validation.ConstraintViolationException and wrap it into a regular ApiException
   }
@@ -165,11 +165,11 @@ public class ClanElideTest extends AbstractIntegrationTest {
   @Test
   @WithUserDetails(AUTH_CLAN_LEADER)
   public void canDeleteClanAsLeader() throws Exception {
-    Optional<Clan> clanOptional = clanRepository.findOneByName("Alpha Clan");
-    assertTrue(clanOptional.isPresent());
+    Clan clan = clanRepository.findOneByName("Alpha Clan")
+      .orElseThrow(() -> new IllegalStateException("Alpha Clan could not be found"));
 
     List<Player> clanMember = new ArrayList<>();
-    clanOptional.get().getMemberships().stream()
+    clan.getMemberships().stream()
       .map(ClanMembership::getPlayer)
       .forEach(clanMember::add);
 
@@ -178,7 +178,6 @@ public class ClanElideTest extends AbstractIntegrationTest {
       .andExpect(status().isNoContent()); // TODO: Catch javax.validation.ConstraintViolationException and wrap it into a regular ApiException
 
     assertFalse(clanRepository.findOneByName("Alpha Clan").isPresent());
-    clanMember.forEach(player -> assertNull(playerRepository.getOne(player.getId()).getClan()));
   }
 
   @Test

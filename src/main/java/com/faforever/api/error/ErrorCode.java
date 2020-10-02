@@ -47,7 +47,7 @@ public enum ErrorCode {
   PASSWORD_CHANGE_FAILED_WRONG_PASSWORD(138, "Password change failed", "Your current password did not match."),
   USERNAME_CHANGE_TOO_EARLY(139, "Username change not allowed", "Only one name change per 30 days is allowed. {0, number} more days to go."),
   EMAIL_CHANGE_FAILED(140, "Email change failed", "An unknown error happened while updating the database."),
-  STEAM_ID_UNCHANGEABLE(141, "Linking to Steam failed", "Your account is already bound to another Steam ID."),
+  STEAM_ID_UNCHANGEABLE(141, "Linking to Steam failed", "Your Account is already linked to Steam. Just login with our client and start playing."),
   FEATURED_MOD_UNKNOWN(142, "Unknown featured mod", "There is no featured mod with ID ''{0}''."),
   MAP_SCENARIO_LUA_MISSING(143, "Invalid Map File", "Zip file does not contain a *_scenario.lua"),
   MAP_MISSING_MAP_FOLDER_INSIDE_ZIP(144, "No folder inside Zip", "Zip file must contain a folder with all map data"),
@@ -55,7 +55,7 @@ public enum ErrorCode {
   INVALID_METADATA(146, "Invalid metadata", "Metadata is not valid: {0}"),
   MAP_RENAME_FAILED(147, "Cannot rename to correct name failed ", "Cannot rename file ''{0}''"),
   MAP_INVALID_ZIP(148, "Invalid zip file", "The zip file should only contain one folder at the root level"),
-  CLAN_CREATE_CREATOR_IS_IN_A_CLAN(149, "You are already in a clan", "Clan creator is already member of a clan"),
+  CLAN_CREATE_FOUNDER_IS_IN_A_CLAN(149, "You are already in a clan", "Clan founder is already member of a clan"),
   CLAN_ACCEPT_TOKEN_EXPIRE(150, "Token Expire", "The Invitation Link expire"),
   CLAN_ACCEPT_WRONG_PLAYER(151, "Wrong Player", "Your are not the invited player"),
   CLAN_ACCEPT_PLAYER_IN_A_CLAN(152, "Player is in a clan", "You are already in a clan"),
@@ -68,7 +68,7 @@ public enum ErrorCode {
   MOD_UID_EXISTS(159, "Duplicate mod UID", "A mod with UID ''{0}'' already exists."),
   MOD_STRUCTURE_INVALID(160, "Invalid file structure for mod", "Files in the the root level of the zip file are not allowed. Please ensure all files reside inside a folder."),
   MOD_VERSION_NOT_A_NUMBER(161, "Mod version is not a number", "The mod version has to be a whole number like 123, but was ''{0}''"),
-  USERNAME_RESERVED(162, "Invalid account data", "The username ''{0}'' can only be claimed by the original owner within {1, number} months after it has been freed."),
+  USERNAME_RESERVED(162, "Username reserved", "The username ''{0}'' is currently reserved for its previous owner. The reservation expires in {1, number} months."),
   UNKNOWN_IDENTIFIER(163, "Unable to resolve user", "The identifier does neither match a username nor an email: {0}"),
   ALREADY_REGISTERED(164, "Registration failed", "You can't create a new account because you already have one."),
   EMAIL_CHANGE_FAILED_WRONG_PASSWORD(138, "Email change failed", "Your current password did not match."),
@@ -90,8 +90,17 @@ public enum ErrorCode {
   VOTING_SUBJECT_DOES_NOT_EXIST(180, "Voting subject does not exist", "There is no voting subject with the ID ''{0}''."),
   VOTING_CHOICE_DOES_NOT_EXIST(181, "Invalid choice", "There is no voting choice with the ID ''{0}''."),
   STEAM_ID_ALREADY_LINKED(182, " Steam account already linked to a FAF account", "You linked this account already to user with name ''{0}''."),
-  MAP_NAME_INVALID(183, "Map name invalid", "The name of the map in the scenario file can only contain printable ASCII characters and blanks."),
-  MOD_NAME_INVALID(184, "Mod name invalid", "The name of the mod in the scenario file can only contain printable ASCII characters and blanks.");
+  MAP_NAME_INVALID_CHARACTER(183, "Map name invalid", "Only latin characters, numbers, blanks and the minus are allowed."),
+  MOD_NAME_INVALID(184, "Mod name invalid", "The name of the mod in the scenario file can only contain printable ASCII characters and blanks."),
+  MAP_NAME_INVALID_MINUS_OCCURENCE(185, "Map name invalid", "Only a maximum of {0} minus characters are allowed."),
+  MAP_SCRIPT_LINE_MISSING(186, "Missing scenario.lua line", "The scenario.lua has to contain the following line: {0}"),
+  MAP_NAME_TOO_SHORT(187, "Map name invalid", "The map name must have at least {0, number} characters, was: {1, number}"),
+  MAP_NAME_DOES_NOT_START_WITH_LETTER(188, "Map name invalid", "The map name has to begin with a letter"),
+  PARSING_LUA_FILE_FAILED(189, "Parsing lua files failed", "During the parsing of the lua file an error occured: {0}"),
+  NO_RUSH_RADIUS_MISSING(190, "No rush radius missing", "The scenario file must specify a no rush radius"),
+  INVALID_FEATURED_MOD(191, "Invalid featured mod name", "The featured mod name ''{0}'' is not allowed in this context."),
+  API_KEY_INVALID(192, "Api key is invalid", "The api key is invalid."),
+  UNKNOWN_STEAM_ID(193, "Unable to resolve steam id", "The Steam ID ''{0}'' does not match any account.");
 
 
   private final int code;

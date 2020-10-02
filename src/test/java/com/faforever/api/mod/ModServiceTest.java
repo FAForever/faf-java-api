@@ -1,22 +1,27 @@
 package com.faforever.api.mod;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.data.domain.BanInfo;
+import com.faforever.api.data.domain.BanLevel;
 import com.faforever.api.data.domain.Mod;
 import com.faforever.api.data.domain.ModVersion;
 import com.faforever.api.data.domain.Player;
-import com.faforever.api.error.ApiExceptionWithCode;
+import com.faforever.api.error.ApiExceptionMatcher;
 import com.faforever.api.error.ErrorCode;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.ExpectedExceptionSupport;
+import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Example;
+import org.springframework.web.client.HttpClientErrorException.Forbidden;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -29,10 +34,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith({MockitoExtension.class, ExternalResourceSupport.class, ExpectedExceptionSupport.class})
 public class ModServiceTest {
 
   private static final String TEST_MOD = "/mods/No Friendly Fire.zip";
@@ -50,13 +56,11 @@ public class ModServiceTest {
   @Mock
   private ModVersionRepository modVersionRepository;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     FafApiProperties properties = new FafApiProperties();
     properties.getMod().setTargetDirectory(temporaryFolder.getRoot().toPath().resolve("mods"));
     properties.getMod().setThumbnailTargetDirectory(temporaryFolder.getRoot().toPath().resolve("thumbnails"));
-
-    when(modRepository.save(any(Mod.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
     instance = new ModService(properties, modRepository, modVersionRepository);
   }
@@ -67,6 +71,8 @@ public class ModServiceTest {
     Path uploadedFile = prepareMod(TEST_MOD);
 
     Player uploader = new Player();
+
+    when(modRepository.save(any(Mod.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
     instance.processUploadedMod(uploadedFile, uploader);
 
@@ -103,9 +109,24 @@ public class ModServiceTest {
     Path uploadedFile = prepareMod(TEST_MOD);
 
     when(modVersionRepository.existsByUid("26778D4E-BA75-5CC2-CBA8-63795BDE74AA")).thenReturn(true);
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.MOD_UID_EXISTS));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.MOD_UID_EXISTS));
 
     instance.processUploadedMod(uploadedFile, new Player());
+  }
+
+  @Test
+  public void testUploaderVaultBanned() throws Exception {
+    Path uploadedFile = prepareMod(TEST_MOD);
+
+    Player uploader = mock(Player.class);
+    when(uploader.getActiveBanOf(BanLevel.VAULT)).thenReturn(Optional.of(
+      new BanInfo()
+        .setLevel(BanLevel.VAULT)
+    ));
+
+    expectedException.expect(Forbidden.class);
+
+    instance.processUploadedMod(uploadedFile, uploader);
   }
 
   @Test
@@ -113,10 +134,10 @@ public class ModServiceTest {
     Path uploadedFile = prepareMod(TEST_MOD);
 
     Player uploader = new Player();
-    when(modRepository.existsByDisplayNameIgnoreCaseAndUploaderIsNot("No Friendly Fire", uploader)).thenReturn(true);
+    when(modRepository.existsByDisplayNameAndUploaderIsNot("No Friendly Fire", uploader)).thenReturn(true);
     when(modRepository.findOneByDisplayName("No Friendly Fire")).thenReturn(Optional.of(new Mod()));
 
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.MOD_NOT_ORIGINAL_AUTHOR));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.MOD_NOT_ORIGINAL_AUTHOR));
 
     instance.processUploadedMod(uploadedFile, uploader);
   }
@@ -127,7 +148,7 @@ public class ModServiceTest {
 
     Player uploader = new Player();
 
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.MOD_STRUCTURE_INVALID));
+    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.MOD_STRUCTURE_INVALID));
 
     instance.processUploadedMod(uploadedFile, uploader);
   }

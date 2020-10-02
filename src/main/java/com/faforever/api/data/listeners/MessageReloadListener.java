@@ -26,7 +26,7 @@ public class MessageReloadListener {
   public void reload(Message message) {
     TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
       public void afterCommit() {
-        repositoryMessageSource.reload();
+        repositoryMessageSource.afterPropertiesSet();
       }
     });
   }

@@ -1,7 +1,6 @@
 package com.faforever.api.featuredmods;
 
 import com.faforever.api.data.domain.FeaturedMod;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.yahoo.elide.jsonapi.models.Data;
 import com.yahoo.elide.jsonapi.models.JsonApiDocument;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -41,7 +41,7 @@ public class FeaturedModsController {
       return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(Collections.emptyList())));
     }
 
-    ImmutableMap<Integer, FeaturedMod> mods = Maps.uniqueIndex(featuredModService.getFeaturedMods(), FeaturedMod::getId);
+    Map<Integer, FeaturedMod> mods = Maps.uniqueIndex(featuredModService.getFeaturedMods(), FeaturedMod::getId);
     FeaturedMod featuredMod = mods.get(modId);
 
     Integer innerVersion = "latest".equals(version) ? null : Integer.valueOf(version);
@@ -55,7 +55,7 @@ public class FeaturedModsController {
 
   private Function<FeaturedModFile, Resource> modFileMapper() {
     return file -> new Resource("featuredModFile", String.valueOf(file.getId()),
-      ImmutableMap.<String, Object>of(
+      Map.of(
         "group", file.getGroup(),
         "md5", file.getMd5(),
         "name", file.getName(),

@@ -16,9 +16,12 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
 import javax.transaction.Transactional.TxType;
@@ -26,18 +29,9 @@ import javax.validation.ValidationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -54,7 +48,7 @@ import static java.nio.file.Files.createDirectories;
  */
 @Slf4j
 @Component
-@Lazy
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class LegacyFeaturedModDeploymentTask implements Runnable {
 
   private static final String NON_WORD_CHARACTER_PATTERN = "[^\\w]";
@@ -62,6 +56,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   private final GitWrapper gitWrapper;
   private final FeaturedModService featuredModService;
   private final FafApiProperties apiProperties;
+  private final RestTemplate restTemplate;
 
   @Setter
   private FeaturedMod featuredMod;
@@ -69,10 +64,11 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   @Setter
   private Consumer<String> statusDescriptionListener;
 
-  public LegacyFeaturedModDeploymentTask(GitWrapper gitWrapper, FeaturedModService featuredModService, FafApiProperties apiProperties) {
+  public LegacyFeaturedModDeploymentTask(GitWrapper gitWrapper, FeaturedModService featuredModService, FafApiProperties apiProperties, RestTemplate restTemplate) {
     this.gitWrapper = gitWrapper;
     this.featuredModService = featuredModService;
     this.apiProperties = apiProperties;
+    this.restTemplate = restTemplate;
   }
 
   @Override
@@ -103,7 +99,10 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     Deployment deployment = apiProperties.getDeployment();
     Path targetFolder = Paths.get(deployment.getFeaturedModsTargetDirectory(), String.format(deployment.getFilesDirectoryFormat(), modName));
     List<StagedFile> files = packageDirectories(repositoryDirectory, version, fileIds, targetFolder);
-    createPatchedExe(version, fileIds, targetFolder).ifPresent(files::add);
+
+    if ("faf".equals(modName)) {
+      createPatchedExe(version, fileIds, targetFolder).ifPresent(files::add);
+    }
 
     if (files.isEmpty()) {
       log.warn("Could not find any files to deploy. Is the configuration correct?");
@@ -112,8 +111,23 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     files.forEach(this::finalizeFile);
 
     updateDatabase(files, version, modName);
+    invokeDeploymentWebhook(featuredMod);
 
     log.info("Deployment of '{}' version '{}' was successful", modName, version);
+  }
+
+  void invokeDeploymentWebhook(FeaturedMod featuredMod) {
+    if (featuredMod.getDeploymentWebhook() == null) {
+      log.debug("No deployment webhook configured.");
+      return;
+    }
+
+    log.debug("Invoking deployment webhook on: {}", featuredMod.getDeploymentWebhook());
+    try {
+      restTemplate.getForObject(featuredMod.getDeploymentWebhook(), String.class);
+    } catch (RestClientException e) {
+      log.error("Invoking webhook failed on: {}", featuredMod.getDeploymentWebhook(), e);
+    }
   }
 
   /**
@@ -141,7 +155,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   }
 
   private short readModVersion(Path modPath) {
-    return (short) Integer.parseInt(new ModReader().readDirectory(modPath).getVersion().toString());
+    return Short.parseShort(new ModReader().readDirectory(modPath).getVersion().toString());
   }
 
   private void verifyVersion(int version, boolean allowOverride, String modName) {

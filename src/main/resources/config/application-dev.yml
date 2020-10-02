@@ -1,7 +1,8 @@
 faf-api:
   version: dev
   jwt:
-    secret: ${JWT_SECRET:banana}
+    secretKeyPath: ${JWT_PRIVATE_KEY_PATH:test-pki-private.key}
+    publicKeyPath: ${JWT_PUBLIC_KEY_PATH:test-pki-public.key}
   map:
     target-directory: ${MAP_UPLOAD_PATH:build/cache/map/maps}
     directory-preview-path-small: ${MAP_PREVIEW_PATH_SMALL:build/cache/map_previews/small}
@@ -13,7 +14,7 @@ faf-api:
     download-url-format: ${MOD_DOWNLOAD_URL_FORMAT:http://test.content.faforever.com/faf/vault/mods/%s}
     preview-url-format: ${MOD_PREVIEW_URL_FORMAT:http://test.content.faforever.com/faf/vault/mods/%s}
   replay:
-    download-url-format: ${REPLAY_DOWNLOAD_URL_FORMAT:http://content.test.faforever.com/faf/vault/replay_vault/replay.php?id=%s}
+    download-url-format: ${REPLAY_DOWNLOAD_URL_FORMAT:http://content.test.faforever.com/replays/%s}
   tutorial:
     thumbnail-url-format: ${TUTORIAL_THUMBNAIL_URL_FORMAT:http://content.test.faforever.com/faf/tutorials/thumbs/%s}
   avatar:
@@ -29,26 +30,27 @@ faf-api:
     forged-alliance-exe-path: ${FORGED_ALLIANCE_EXE_PATH}
     repositories-directory: ${REPOSITORIES_DIRECTORY:build/cache/repos}
     featured-mods-target-directory: ${FEATURED_MODS_TARGET_DIRECTORY:build/cache/deployment}
+    testing-exe-upload-key: ${TESTING_EXE_UPLOAD_KEY:banana}
+    forged-alliance-beta-exe-path: ${EXE_UPLOAD_BETA_PATH:build/exe/beta}
+    forged-alliance-develop-exe-path: ${EXE_UPLOAD_DEVELOP_PATH:build/exe/develop}
   clan:
     website-url-format: ${CLAN_WEBSITE_URL_FORMAT:http://clans.test.faforever.com/clan/%s}
   mail:
     from-email-name: ${EMAIL_FROM_NAME:FAForever}
     from-email-address: ${EMAIL_FROM_ADDRESS:faf@example.com}
   registration:
-    activation-url-format: ${ACTIVATION_URL_FORMAT:http://localhost:8010/users/activate?token=%s}
-    success-redirect-url: ${ACTIVATION_SUCCESS_REDIRECT_URL:http://localhost:8020/account_activated}
+    activation-url-format: ${ACTIVATION_URL_FORMAT:http://localhost:8020/account/activate?username=%s&token=%s}
     subject: ${REGISTRATION_EMAIL_SUBJECT:FAF user registration}
     html-format: ${REGISTRATION_EMAIL_BODY:Registration email body}
   password-reset:
-    password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT:http://localhost:8010/users/claimPasswordResetToken?token=%s}
-    success-redirect-url: ${PASSWORD_RESET_SUCCESS_REDIRECT_URL:http://localhost:8020/password_resetted}
+    password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT:http://localhost:8020/account/password/confirmReset?username=%s&token=%s}
     subject: ${PASSWORD_RESET_EMAIL_SUBJECT:FAF password reset}
     html-format: ${PASSWORD_RESET_EMAIL_BODY:Registration email body}
   steam:
     realm: ${STEAM_REALM:http://localhost}
     api-key: ${STEAM_API_KEY:banana}
-  link-to-steam:
-    steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL:http://localhost:8010/users/linkToSteam?token=%s}
+    link-to-steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL_FORMAT:http://localhost:8010/users/linkToSteam?token=%s}
+    steam-password-reset-redirect-url-format: ${STEAM_PASSWORD_RESET_REDIRECT_URL_FORMAT:http://localhost:8010/users/requestPasswordResetViaSteam}
 
 spring:
   datasource:
@@ -71,4 +73,5 @@ spring:
               password: ${ADMIN_CLIENT_PASSWORD:banana}
 logging:
   level:
-    com.faforever.api: trace
+    com.faforever.api: debug
+

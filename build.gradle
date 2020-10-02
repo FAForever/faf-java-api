@@ -2,19 +2,20 @@ buildscript {
   repositories {
     jcenter()
     mavenCentral()
-    maven { url 'http://repo.spring.io/plugins-release' }
+    maven { url 'https://repo.spring.io/plugins-release' }
+    maven { url "https://plugins.gradle.org/m2/" }
   }
   dependencies {
     classpath("org.springframework.build.gradle:propdeps-plugin:${propdepsVersion}")
     classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-    classpath("org.kt3k.gradle.plugin:coveralls-gradle-plugin:${coverallsGradlePluginVersion}")
+    classpath("gradle.plugin.org.kt3k.gradle.plugin:coveralls-gradle-plugin:${coverallsGradlePluginVersion}")
   }
 }
 
 // source: https://github.com/mendhak/Gradle-Travis-Colored-Output/blob/master/ColoredOutput.gradle
 tasks.withType(Test) {
 
-  boolean TRAVIS_FOLDING = project.hasProperty('TRAVIS_FOLDING') ? project.TRAVIS_FOLDING : true
+  boolean TRAVIS_FOLDING = project.hasProperty('TRAVIS_FOLDING') ? project.TRAVIS_FOLDING : false
   String ANSI_BOLD_WHITE = "\u001B[0;1m";
   String ANSI_RESET = "\u001B[0m";
   String ANSI_BLACK = "\u001B[30m";
@@ -30,34 +31,29 @@ tasks.withType(Test) {
   String X_MARK = "\u274C";
 
   beforeSuite { suite ->
-    if (suite.name.startsWith("Test Run") || suite.name.startsWith("Gradle Worker")) {
-      return;
-    }
+    if (suite.name.startsWith("Test Run") || suite.name.startsWith("Gradle Worker")) return
 
     if (suite.parent != null && suite.className != null) {
       if (TRAVIS_FOLDING) {
         out.println("travis_fold:start:" + suite.name + "\r");
       }
-      out.println(ANSI_BOLD_WHITE + suite.name + ANSI_RESET);
+      out.println(ANSI_BOLD_WHITE + suite.name + ANSI_RESET)
     }
 
   }
-
   afterTest { descriptor, result ->
+    String indent = '    '
     def indicator = ANSI_WHITE
 
-    if (result.failedTestCount > 0) {
-      indicator = ANSI_RED + X_MARK;
-    } else if (result.skippedTestCount > 0) {
-      indicator = ANSI_YELLOW + NEUTRAL_FACE;
-    } else {
-      indicator = ANSI_GREEN + CHECK_MARK;
-    }
+    if (result.failedTestCount > 0) indicator = ANSI_RED + X_MARK
+    else if (result.skippedTestCount > 0) indicator = ANSI_YELLOW + NEUTRAL_FACE
+    else indicator = ANSI_GREEN + CHECK_MARK
 
-    out.println('    ' + indicator + ANSI_RESET + " " + descriptor.name);
+    out.println(indent + indicator + ANSI_RESET + " " + descriptor.name);
 
     if (result.failedTestCount > 0) {
-      out.println(' ');
+      String exceptions = result.getException().toString()
+      out.println(indent + exceptions.split("\\n").join("\n" + indent))
     }
   }
 
@@ -67,19 +63,14 @@ tasks.withType(Test) {
       if (TRAVIS_FOLDING && result.failedTestCount == 0) {
         out.println("travis_fold:end:" + desc.name + "\r");
       }
-      out.println("");
+      out.println("")
     }
 
+
     if (!desc.parent) { // will match the outermost suite
-      def failStyle = ANSI_RED;
-      def skipStyle = ANSI_YELLOW;
-      def summaryStyle = ANSI_WHITE;
-      if (result.failedTestCount > 0) {
-        failStyle = ANSI_RED;
-      }
-      if (result.skippedTestCount > 0) {
-        skipStyle = ANSI_YELLOW;
-      }
+      def failStyle = ANSI_RED
+      def skipStyle = ANSI_YELLOW
+      def summaryStyle = ANSI_WHITE
 
       switch (result.resultType) {
         case TestResult.ResultType.SUCCESS:
@@ -112,20 +103,17 @@ apply plugin: 'idea'
 group = 'faforever'
 version = 'snapshot'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 11
+targetCompatibility = 11
 
 repositories {
   mavenCentral()
-  maven { url "http://repo.jenkins-ci.org/public/" }
+  maven { url "https://repo.jenkins-ci.org/public/" }
   maven { url "https://jitpack.io" }
-  maven { url "http://dl.bintray.com/typesafe/maven-releases" }
+  maven { url "https://dl.bintray.com/typesafe/maven-releases" }
 }
 
 compileJava.dependsOn(processResources)
-task wrapper(type: Wrapper) {
-  gradleVersion = '4.2.1'
-}
 
 configurations {
   compile.exclude module: "spring-boot-starter-tomcat"
@@ -151,8 +139,8 @@ sourceSets {
   inttest {
     java.srcDir 'src/inttest/java'
     resources.srcDir 'src/inttest/resources'
-    compileClasspath += main.output + test.output
-    runtimeClasspath += main.output + test.output
+    compileClasspath += sourceSets.test.compileClasspath
+    runtimeClasspath += sourceSets.test.runtimeClasspath
   }
 }
 
@@ -166,9 +154,16 @@ task inttest(type: Test) {
   group = LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Runs the integration tests."
 
-  testClassesDir = sourceSets.inttest.output.classesDir
+  setTestClassesDirs(files(sourceSets.inttest.output))
   classpath = sourceSets.inttest.runtimeClasspath
+
+  useJUnitPlatform()
+
   mustRunAfter test
+}
+
+bootJar {
+  layered()
 }
 
 // JACOCO & COVERALLS
@@ -176,7 +171,7 @@ task inttest(type: Test) {
 apply plugin: 'jacoco'
 apply plugin: 'com.github.kt3k.coveralls'
 jacocoTestReport {
-  executionData = files(["$buildDir/jacoco/test.exec", "$buildDir/jacoco/inttest.exec"])
+  executionData.from = files(["$buildDir/jacoco/test.exec", "$buildDir/jacoco/inttest.exec"])
   reports {
     xml.enabled = true
   }
@@ -201,65 +196,70 @@ configurations.all {
 
 build.dependsOn inttest
 
-dependencyManagement {
-  dependencies {
-    dependency("org.mockito:mockito-core:${mockitoVersion}")
+test {
+  useJUnitPlatform()
+  testLogging {
+    events("passed", "skipped", "failed")
   }
 }
 
 dependencies {
-  runtime("io.micrometer:micrometer-registry-prometheus")
+  implementation("org.projectlombok:lombok")
+  annotationProcessor("org.projectlombok:lombok")
+  testAnnotationProcessor("org.projectlombok:lombok")
+  annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+  testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
-  compile("org.springframework.boot:spring-boot-starter-jdbc")
-  compile("org.springframework.boot:spring-boot-starter-data-jpa")
-  compile("org.springframework.boot:spring-boot-starter-web")
-  compile("org.springframework.boot:spring-boot-starter-jetty")
-  compile("org.springframework.boot:spring-boot-starter-security")
-  compile("org.springframework.boot:spring-boot-starter-thymeleaf")
-  compile("org.springframework.boot:spring-boot-starter-mail")
-  compile("de.codecentric:spring-boot-admin-starter-client:${springBootAdminClientVersion}")
+  runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
-  compile("com.github.ben-manes.caffeine:caffeine")
-  compile("com.github.FAForever:faf-java-commons:${fafCommonsVersion}")
-  compile("org.kohsuke:github-api:${githubApiVersion}")
-  compile("org.jolokia:jolokia-core")
-  compile("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springSecurityOauth2AutoConfigureVersion}")
-  compile("org.springframework.security.oauth:spring-security-oauth2:${springSecurityOauth2Version}")
-  compile("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
-  compile("org.eclipse.jgit:org.eclipse.jgit:${jgitVersionn}")
-  compile("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
-  compile("com.google.guava:guava:${guavaVersion}")
-  compile("io.springfox:springfox-swagger-ui:${swaggerVersion}")
-  compile("io.springfox:springfox-swagger2:${swaggerVersion}")
-  compile("io.swagger:swagger-core:${swaggerCoreVersion}")
-  compile("javax.inject:javax.inject:${javaxInjectVersion}")
-  // When switching from Java 8 to 9, I got "class file for javax.interceptor.interceptorbinding not found". Adding this fixed it, but IDK what caused it.
-  compile("javax.interceptor:javax.interceptor-api:${javaxInterceptorApiVersion}")
-  compile("com.yahoo.elide:elide-core:${elideVersion}")
-  compile("com.yahoo.elide:elide-swagger:${elideVersion}")
-  compile("com.yahoo.elide:elide-datastore-hibernate5:${elideVersion}")
-//  compile("org.glassfish.jersey.core:jersey-common:2.26")
+  implementation("org.springframework.boot:spring-boot-starter-jdbc")
+  implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+  implementation("org.springframework.boot:spring-boot-starter-web")
+  implementation("org.springframework.boot:spring-boot-starter-jetty")
+  implementation("org.springframework.boot:spring-boot-starter-security")
+  implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+  implementation("org.springframework.boot:spring-boot-starter-mail")
+  implementation("org.springframework.boot:spring-boot-starter-validation")
+  implementation("de.codecentric:spring-boot-admin-starter-client:${springBootAdminClientVersion}")
 
-  compile("org.luaj:luaj-jse:${luajVersion}")
-  compile("com.github.micheljung:nocatch:${nocatchVersion}")
-  compile("junit-addons:junit-addons:${junitAddonsVersion}")
-  compile("com.googlecode.zohhak:zohhak:${zohhakVersion}")
-  compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonDatatypeJsr310Version}")
-  compile("com.mandrillapp.wrapper.lutung:lutung:${lutungVersion}")
-  compile("org.apache.commons:commons-compress:${commonsCompressVersion}")
-  compile("org.json:json:${jsonVersion}")
+  implementation("com.github.ben-manes.caffeine:caffeine")
+  implementation("com.github.FAForever:faf-java-commons:${fafCommonsVersion}")
+  implementation("org.kohsuke:github-api:${githubApiVersion}")
+  implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springSecurityOauth2AutoConfigureVersion}")
+  implementation("org.springframework.security.oauth:spring-security-oauth2:${springSecurityOauth2Version}")
+  implementation("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
+  implementation("org.eclipse.jgit:org.eclipse.jgit:${jgitVersionn}")
+  implementation("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
+  implementation("com.google.guava:guava:${guavaVersion}")
+  implementation("io.springfox:springfox-boot-starter:${springfoxSwaggerVersion}")
+  implementation("javax.inject:javax.inject:${javaxInjectVersion}")
+  implementation("com.yahoo.elide:elide-core:${elideVersion}")
+  implementation("com.yahoo.elide:elide-swagger:${elideVersion}")
+  implementation("com.yahoo.elide:elide-datastore-hibernate5:${elideVersion}")
 
-  compile("com.github.jasminb:jsonapi-converter:${jsonapiConverterVersion}")
-  runtime("mysql:mysql-connector-java:${mysqlConnectorVersion}")
+  implementation("org.luaj:luaj-jse:${luajVersion}")
+  implementation("com.github.micheljung:nocatch:${nocatchVersion}")
+  implementation("org.apache.commons:commons-compress:${commonsCompressVersion}")
+  implementation("org.json:json:${jsonVersion}")
+
+  implementation("com.github.jasminb:jsonapi-converter:${jsonapiConverterVersion}")
+  runtimeOnly("mysql:mysql-connector-java:${mysqlConnectorVersion}")
 
   optional("org.springframework.boot:spring-boot-configuration-processor")
 
-  testCompile("org.springframework.boot:spring-boot-starter-test")
-  testCompile("org.springframework.restdocs:spring-restdocs-mockmvc")
-  testCompile("org.springframework.security:spring-security-test")
-  testCompile("com.h2database:h2:${h2Version}")
-  testCompile("com.jayway.jsonpath:json-path:${jsonPath}")
-  testCompile("com.jayway.jsonpath:json-path-assert:${jsonPathAssert}")
+  testImplementation("org.springframework.boot:spring-boot-starter-test")
+  testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
+  testImplementation("org.springframework.security:spring-security-test")
+  testImplementation("org.junit.jupiter:junit-jupiter")
+  testImplementation("org.junit.jupiter:junit-jupiter-params")
+  testImplementation("junit-addons:junit-addons:${junitAddonsVersion}")
+  testImplementation("org.mockito:mockito-junit-jupiter")
+  testImplementation("org.junit.jupiter:junit-jupiter-migrationsupport")
+  testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
+  testImplementation("com.h2database:h2:${h2Version}")
+  testImplementation("com.jayway.jsonpath:json-path:${jsonPath}")
+  testImplementation("com.jayway.jsonpath:json-path-assert:${jsonPathAssert}")
 
   codacy("com.github.codacy:codacy-coverage-reporter:${codacyCoverageReporterVersion}")
 }
+

@@ -1,6 +1,8 @@
 package com.faforever.api.mod;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.data.domain.BanDurationType;
+import com.faforever.api.data.domain.BanLevel;
 import com.faforever.api.data.domain.Mod;
 import com.faforever.api.data.domain.ModType;
 import com.faforever.api.data.domain.ModVersion;
@@ -10,15 +12,20 @@ import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.utils.FilePermissionUtil;
 import com.faforever.api.utils.NameUtil;
+import com.faforever.commons.io.Unzipper;
 import com.faforever.commons.mod.ModReader;
 import com.google.common.primitives.Ints;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -32,6 +39,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import static java.text.MessageFormat.format;
 
 @Service
 @Slf4j
@@ -53,7 +62,12 @@ public class ModService {
   @Transactional
   @CacheEvict(value = {Mod.TYPE_NAME, ModVersion.TYPE_NAME}, allEntries = true)
   public void processUploadedMod(Path uploadedFile, Player uploader) {
+    checkUploaderVaultBan(uploader);
+
     log.debug("Player '{}' uploaded a mod", uploader);
+
+    validateZipFileSafety(uploadedFile);
+
     ModReader modReader = new ModReader();
     com.faforever.commons.mod.Mod modInfo = modReader.readZip(uploadedFile);
     validateModInfo(modInfo);
@@ -105,6 +119,26 @@ public class ModService {
   }
 
   /**
+   * Make sure that the zip file does not contain a zip bomb or zip slip attacks
+   */
+  @SneakyThrows
+  private void validateZipFileSafety(Path uploadedFile) {
+    log.debug("Validating file safety of uploaded file {}", uploadedFile);
+    Path tempDirectory = Files.createTempDirectory("validate_zip");
+
+    try {
+      // Unzipping directory already invokes the checks we want to perform
+      Unzipper.from(uploadedFile)
+        .to(tempDirectory)
+        .unzip();
+
+    } finally {
+      log.debug("Delete unzipped files in folder {}", tempDirectory);
+      FileUtils.deleteDirectory(tempDirectory.toFile());
+    }
+  }
+
+  /**
    * Ensure that all files of the zip are inside at least one root folder. Otherwise the mods will overwrite each other
    * on client side.
    */
@@ -129,15 +163,26 @@ public class ModService {
         .setDisplayName(displayName)
       );
 
-    return modVersionRepository.exists(Example.of(probe, ExampleMatcher.matching().withIgnoreCase()));
+    return modVersionRepository.exists(Example.of(probe, ExampleMatcher.matching()));
   }
 
   private boolean modUidExists(String uuid) {
     return modVersionRepository.existsByUid(uuid);
   }
 
+  private void checkUploaderVaultBan(Player uploader) {
+    uploader.getActiveBanOf(BanLevel.VAULT)
+      .ifPresent((banInfo) -> {
+        String message = banInfo.getDuration() == BanDurationType.PERMANENT ?
+          "You are permanently banned from uploading mods to the vault." :
+          format("You are banned from uploading mods to the vault until {0}.", banInfo.getExpiresAt());
+        throw HttpClientErrorException.create(message, HttpStatus.FORBIDDEN, "Upload forbidden",
+          HttpHeaders.EMPTY, null, null);
+      });
+  }
+
   private boolean canUploadMod(String displayName, Player uploader) {
-    return !modRepository.existsByDisplayNameIgnoreCaseAndUploaderIsNot(displayName, uploader);
+    return !modRepository.existsByDisplayNameAndUploaderIsNot(displayName, uploader);
   }
 
   private void validateModInfo(com.faforever.commons.mod.Mod modInfo) {

@@ -1,7 +1,8 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.data.checks.permission.IsModerator;
+import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.listeners.TutorialEnricherListener;
+import com.faforever.api.security.elide.permission.WriteTutorialCheck;
 import com.github.jasminb.jsonapi.annotations.Type;
 import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Audit.Action;
@@ -27,12 +28,12 @@ import javax.validation.constraints.NotNull;
 @Table(name = "tutorial")
 @Setter
 @Include(rootLevel = true, type = Tutorial.TYPE_NAME)
-@DeletePermission(expression = IsModerator.EXPRESSION)
-@UpdatePermission(expression = IsModerator.EXPRESSION)
-@CreatePermission(expression = IsModerator.EXPRESSION)
+@DeletePermission(expression = WriteTutorialCheck.EXPRESSION)
+@UpdatePermission(expression = WriteTutorialCheck.EXPRESSION)
+@CreatePermission(expression = WriteTutorialCheck.EXPRESSION)
 @Audit(action = Action.DELETE, logStatement = "Tutorial with name `{0}` and ID `{1}` deleted", logExpressions = {"${tutorial.title}", "${tutorial.id}"})
 @Audit(action = Action.CREATE, logStatement = "Tutorial with name `{0}` and ID `{1}` created", logExpressions = {"${tutorial.title}", "${tutorial.id}"})
-@ReadPermission(expression = "Prefab.Role.All")
+@ReadPermission(expression = Prefab.ALL)
 @EntityListeners(TutorialEnricherListener.class)
 @Type(Tutorial.TYPE_NAME)
 public class Tutorial extends AbstractEntity {

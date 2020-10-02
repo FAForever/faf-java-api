@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import springfox.documentation.spring.web.DocumentationCache;
+import springfox.documentation.spring.web.plugins.DocumentationPluginsManager;
 import springfox.documentation.swagger.web.InMemorySwaggerResourcesProvider;
 import springfox.documentation.swagger.web.SwaggerResource;
 
@@ -12,8 +13,10 @@ import java.util.List;
 @Component
 @Primary
 public class ElideSwaggerResourceProvider extends InMemorySwaggerResourcesProvider {
-  public ElideSwaggerResourceProvider(Environment environment, DocumentationCache documentationCache) {
-    super(environment, documentationCache);
+  public ElideSwaggerResourceProvider(Environment environment,
+                                      DocumentationCache documentationCache,
+                                      DocumentationPluginsManager documentationPluginsManager) {
+    super(environment, documentationCache, documentationPluginsManager);
   }
 
   @Override

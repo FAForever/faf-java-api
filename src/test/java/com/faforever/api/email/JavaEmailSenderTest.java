@@ -1,12 +1,12 @@
 package com.faforever.api.email;
 
 import com.sun.mail.smtp.SMTPMessage;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 
@@ -18,7 +18,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class JavaEmailSenderTest {
 
   private JavaEmailSender instance;
@@ -26,7 +26,7 @@ public class JavaEmailSenderTest {
   @Mock
   private JavaMailSender mailSender;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     instance = new JavaEmailSender(mailSender);
   }

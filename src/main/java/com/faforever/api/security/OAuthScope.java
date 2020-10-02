@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public enum OAuthScope {
 
-  PUBLIC_PROFILE(OAuthScope._PUBLIC_PROFILE, "Read your public player data"),
+  PUBLIC_PROFILE(OAuthScope._PUBLIC_PROFILE, "Read your public account data"),
   CREATE_USER(OAuthScope._CREATE_USER, "Create users"),
   READ_ACHIEVEMENTS(OAuthScope._READ_ACHIEVEMENTS, "Read your achievements"),
   WRITE_ACHIEVEMENTS(OAuthScope._WRITE_ACHIEVEMENTS, "Write your achievements"),
@@ -17,8 +17,10 @@ public enum OAuthScope {
   UPLOAD_AVATAR(OAuthScope._UPLOAD_AVATAR, "Upload avatars"),
   WRITE_ACCOUNT_DATA(OAuthScope._WRITE_ACCOUNT_DATA, "Edit account data"),
   EDIT_CLAN_DATA(OAuthScope._EDIT_CLAN_DATA, "Edit clan data"),
-  VOTE(OAuthScope._VOTE, "Vote");
-
+  VOTE(OAuthScope._VOTE, "Vote"),
+  READ_SENSIBLE_USERDATA(OAuthScope._READ_SENSIBLE_USERDATA, "View sensible user data (email addresses, ip addresses, etc.)"),
+  ADMINISTRATIVE_ACTION(OAuthScope._ADMINISTRATIVE_ACTION, "Administrative actions"),
+  MANAGE_VAULT(OAuthScope._MANAGE_VAULT, "Manage vault");
 
   public static final String _PUBLIC_PROFILE = "public_profile";
   public static final String _CREATE_USER = "create_user";
@@ -32,6 +34,9 @@ public enum OAuthScope {
   public static final String _WRITE_ACCOUNT_DATA = "write_account_data";
   public static final String _EDIT_CLAN_DATA = "edit_clan_data";
   public static final String _VOTE = "vote";
+  public static final String _READ_SENSIBLE_USERDATA = "read_sensible_userdata";
+  public static final String _ADMINISTRATIVE_ACTION = "administrative_actions";
+  public static final String _MANAGE_VAULT = "manage_vault";
 
   private static final Map<String, OAuthScope> fromString;
 

@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:mysql://${DATABASE_ADDRESS:localhost}/${DATABASE_NAME:faf}?useSSL=false
     name: ${DATABASE_NAME:faf}
-    username: ${DATABASE_USERNAME:faf-java-api}
+    username: ${DATABASE_USERNAME:root}
     password: ${DATABASE_PASSWORD:banana}
   jpa:
     show-sql: true
@@ -18,11 +18,17 @@ spring:
   h2:
     console:
       enabled: true
-
+  mail:
+    host: false
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: DEFAULT
 
 faf-api:
   jwt:
-    secret: banana
+    secret-key-path: test-pki-private.key
+    public-key-path: test-pki-public.key
   map:
     target-directory: "build/cache/map/maps"
     directory-preview-path-small: "build/cache/map_previews/small"
@@ -46,28 +52,40 @@ faf-api:
   mail:
     from-email-name: "integration-test@faforever.com"
     from-email-address: "integration-test@faforever.com"
+  mod:
+    download-url-format: "http://localhost/mod/download-url/%s"
+    preview-url-format: "http://localhost/mod/preview-url/%s"
   password-reset:
     password-reset-url-format: "http://localhost:8010/users/claimPasswordResetToken/%s"
-    success-redirect-url: "http://localhost/password_resetted"
     subject: "Integration test password reset"
     html-format: "Integration test password reset html body"
   registration:
     activation-url-format: "http://localhost/users/activate?token=%s"
-    success-redirect-url: "http://localhost/account_activated"
     subject: "Integration test registration"
     html-format: "Integration test registration html body"
-  link-to-steam:
-    steam-redirect-url-format: "http://localhost:8010/users/linkToSteam?token=%s"
   steam:
     realm: "http://localhost"
     api-key: "banana"
+    link-to-steam-redirect-url-format: "http://localhost:8010/users/linkToSteam?token=%s"
+    steam-password-reset-redirect-url-format: "http://localhost:8010/users/passwordReset?token=%s"
   replay:
-    download-url-format: "http://localhost/faf/vault/replay_vault/replay.php?id=%s"
+    download-url-format: "http://localhost/replays/%s"
   mautic:
     client-id: banana
     client-secret: banana
+  deployment:
+    featured-mods-target-directory: "build/cache/mods"
+    repositories-directory: ""
+    forged-alliance-exe-path: "build/exe/faf"
+    testing-exe-upload-key: banana
+    forged-alliance-beta-exe-path: build/exe/beta
+    forged-alliance-develop-exe-path: build/exe/develop
+  featured-mod:
+    file-url-format: "file://%s/%s"
 
 
 logging:
   level:
     org.springframework.security: DEBUG
+    org.springframework.transaction.interceptor: trace
+    org.springframework.orm.jpa.JpaTransactionManager: trace

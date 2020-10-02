@@ -22,6 +22,10 @@ public class FeaturedModService {
     this.legacyFeaturedModFileRepository = legacyFeaturedModFileRepository;
   }
 
+  public FeaturedModFile getFile(String modName, Integer version, String fileName) {
+    return legacyFeaturedModFileRepository.getFile(modName, version, fileName);
+  }
+
   @Cacheable(FEATURED_MOD_FILES_CACHE_NAME)
   public List<FeaturedModFile> getFiles(String modName, @Nullable Integer version) {
     return legacyFeaturedModFileRepository.getFiles(modName, version);

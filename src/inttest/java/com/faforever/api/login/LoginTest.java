@@ -2,8 +2,8 @@ package com.faforever.api.login;
 
 import com.faforever.api.AbstractIntegrationTest;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -18,7 +18,7 @@ public class LoginTest extends AbstractIntegrationTest {
   private MultiValueMap<String, String> params;
 
   @Override
-  @Before
+  @BeforeEach
   public void setUp() {
     super.setUp();
     params = new LinkedMultiValueMap<>();

@@ -15,17 +15,18 @@ import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.player.PlayerService;
 import com.faforever.api.security.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 
 @Service
+@RequiredArgsConstructor
 public class ClanService {
 
   private final ClanRepository clanRepository;
@@ -36,39 +37,23 @@ public class ClanService {
   private final PlayerService playerService;
   private final ClanMembershipRepository clanMembershipRepository;
 
-  @Inject
-  public ClanService(ClanRepository clanRepository,
-                     PlayerRepository playerRepository,
-                     FafApiProperties fafApiProperties,
-                     JwtService jwtService,
-                     PlayerService playerService,
-                     ClanMembershipRepository clanMembershipRepository,
-                     ObjectMapper objectMapper) {
-    this.clanRepository = clanRepository;
-    this.playerRepository = playerRepository;
-    this.fafApiProperties = fafApiProperties;
-    this.jwtService = jwtService;
-    this.playerService = playerService;
-    this.clanMembershipRepository = clanMembershipRepository;
-    this.objectMapper = objectMapper;
-  }
-
   @SneakyThrows
   Clan create(String name, String tag, String description, Player creator) {
-    if (!creator.getClanMemberships().isEmpty()) {
-      throw new ApiException(new Error(ErrorCode.CLAN_CREATE_CREATOR_IS_IN_A_CLAN));
+    if (creator.getClanMembership() != null) {
+      throw new ApiException(new Error(ErrorCode.CLAN_CREATE_FOUNDER_IS_IN_A_CLAN));
     }
     if (clanRepository.findOneByName(name).isPresent()) {
       throw new ApiException(new Error(ErrorCode.CLAN_NAME_EXISTS, name));
     }
     if (clanRepository.findOneByTag(tag).isPresent()) {
-      throw new ApiException(new Error(ErrorCode.CLAN_TAG_EXISTS, name));
+      throw new ApiException(new Error(ErrorCode.CLAN_TAG_EXISTS, tag));
     }
 
     Clan clan = new Clan();
     clan.setName(name);
     clan.setTag(tag);
     clan.setDescription(description);
+    clan.setRequiresInvitation(true);
 
     clan.setFounder(creator);
     clan.setLeader(creator);

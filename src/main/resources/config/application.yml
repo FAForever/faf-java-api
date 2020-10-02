@@ -9,7 +9,7 @@ faf-api:
   challonge:
     key: ${CHALLONGE_KEY:}
   database:
-    schema-version: ${DATABASE_SCHEMA_VERSION:62}
+    schema-version: ${DATABASE_SCHEMA_VERSION:102}
   mautic:
     base-url: ${MAUTIC_BASE_URL:false}
     client-id: ${MAUTIC_CLIENT_ID:false}
@@ -23,6 +23,10 @@ faf-api:
   rating:
     default-mean: 1500
     default-deviation: 500
+  nodebb:
+    base-url: ${NODEBB_BASE_URL:false}
+    admin-user-id: ${NODEBB_ADMIN_USERID:1}
+    master-token: ${NODEBB_MASTER_TOKEN:false}
 
 spring:
   application:
@@ -59,6 +63,15 @@ spring:
     port: ${MAIL_PORT:false}
     username: ${MAIL_USERNAME:false}
     password: ${MAIL_PASSWORD:false}
+  http:
+    encoding:
+      charset: utf-8
+      enabled: true
+      force: true
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: DEFAULT
 
 server:
   # Mind that this is configured in the docker compose file as well (that is, in the gradle script that generates it)
@@ -67,6 +80,7 @@ server:
     context-path: ${CONTEXT_PATH:/}
   jetty:
     max-http-post-size: 314572800
+  use-forward-headers: true
 
 management:
   server:
@@ -74,9 +88,10 @@ management:
     address: ${MANAGEMENT_ADDRESS:}
   endpoints:
     web:
-      base-path: ${MANAGEMENT_BASE_PATH:/manage}
       exposure:
         include: '*'
 logging:
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%36.36X{requestId:- no request context}]){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"
   level:
     com.faforever: ${LOG_LEVEL:info}

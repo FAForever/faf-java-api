@@ -10,11 +10,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.jwt.JwtHelper;
-import org.springframework.security.jwt.crypto.sign.MacSigner;
+import org.springframework.security.jwt.crypto.sign.RsaSigner;
+import org.springframework.security.jwt.crypto.sign.RsaVerifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
@@ -28,11 +31,16 @@ public class FafTokenService {
   static final String KEY_LIFETIME = "lifetime";
 
   private final ObjectMapper objectMapper;
-  private final MacSigner macSigner;
+  private final RsaSigner rsaSigner;
+  private final RsaVerifier rsaVerifier;
 
-  public FafTokenService(ObjectMapper objectMapper, FafApiProperties properties) {
+  public FafTokenService(ObjectMapper objectMapper, FafApiProperties properties) throws IOException {
+    String secretKey = Files.readString(properties.getJwt().getSecretKeyPath());
+    String publicKey = Files.readString(properties.getJwt().getPublicKeyPath());
+
     this.objectMapper = objectMapper;
-    this.macSigner = new MacSigner(properties.getJwt().getSecret());
+    this.rsaSigner = new RsaSigner(secretKey);
+    this.rsaVerifier = new RsaVerifier(publicKey);
   }
 
   /**
@@ -53,7 +61,7 @@ public class FafTokenService {
 
     log.debug("Creating token of type '{}' expiring at '{}' with attributes: {}", type, expiresAt, attributes);
 
-    return JwtHelper.encode(objectMapper.writeValueAsString(claims), macSigner).getEncoded();
+    return JwtHelper.encode(objectMapper.writeValueAsString(claims), rsaSigner).getEncoded();
   }
 
   /**
@@ -67,7 +75,7 @@ public class FafTokenService {
     Map<String, String> claims;
 
     try {
-      claims = objectMapper.readValue(JwtHelper.decodeAndVerify(token, macSigner).getClaims(), new TypeReference<Map<String, String>>() {
+      claims = objectMapper.readValue(JwtHelper.decodeAndVerify(token, rsaVerifier).getClaims(), new TypeReference<Map<String, String>>() {
       });
     } catch (JsonProcessingException | IllegalArgumentException e) {
       log.warn("Unparseable token: {}", token);
@@ -99,7 +107,7 @@ public class FafTokenService {
 
     Instant expiresAt = Instant.parse(claims.get(KEY_LIFETIME));
     if (expiresAt.isBefore(Instant.now())) {
-      log.debug("Token of expected type '{}' is invalid: {}", expectedTokenType, token);
+      log.debug("Token already expired at '{}' for token: {}", expiresAt, token);
       throw new ApiException(new Error(ErrorCode.TOKEN_EXPIRED));
     }
 

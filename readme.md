@@ -16,13 +16,17 @@ This is the official FAForever API. Amongst others, the API offers the following
  
 ## How to run
 
+### Setup database
+
+The application requires a database scheme in the right version. To create this database please checkout the project [faf-stack](https://github.com/FAForever/faf-stack), open a shell terminal (git bash on Windows) and run the script `scripts/init-db.sh`. This will setup the database in the latest version and configure the users for you.
+
 ### From source
 
 In order to run the application from source code:
 
 1. Clone the repository
 1. Import the project into IntelliJ. For some reason, IntelliJ deletes launch configurations after import. Please revert such deleted files first (Version Control (Alt+F9) -> Local Changes)
-1. Configure your JDK 8 if you haven't already
+1. Configure your JDK if you haven't already
 1. Make sure you have the _IntelliJ Lombok plugin_ installed
 1. Set up a [FAF database](https://github.com/FAForever/db).
 1. Launch `FafApiApplication`
@@ -32,6 +36,16 @@ In order to run the application from source code:
 Given the number of required configuration values, it's easiest to run the API using [faf-stack](https://github.com/FAForever/faf-stack):
 
     docker-compose up -d faf-java-api
+
+## Database dependency
+
+Due to potential issues with Hibernate, the application checks on startup if the flyway migration version matches the expected version and otherwise fails to boot.
+
+* To increment the db version you need to change it in two places:
+  * application.yml: `faf-api.database.schema-version` (just an integer of the version)
+  * .github/workflows/build.yaml: Global variable `FAF_DB_VERSION` (git tag of the db release, usually prefixed with a `v`)
+* In some cases it might make sense to override the required version on the server. Use the env variable `DATABASE_SCHEMA_VERSION`
+ 
 
 ## Sample routes
 

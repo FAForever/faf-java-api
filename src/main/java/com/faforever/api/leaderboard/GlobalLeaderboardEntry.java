@@ -41,7 +41,7 @@ public class GlobalLeaderboardEntry {
     return deviation;
   }
 
-  @Column(name = "numGames")
+  @Column(name = "num_games")
   public short getNumGames() {
     return numGames;
   }

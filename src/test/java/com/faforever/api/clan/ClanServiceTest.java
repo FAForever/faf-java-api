@@ -13,22 +13,23 @@ import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.player.PlayerService;
 import com.faforever.api.security.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.ExpectedExceptionSupport;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.jwt.Jwt;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Optional;
 
-import static com.faforever.api.error.ApiExceptionWithCode.apiExceptionWithCode;
+import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -37,11 +38,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith({MockitoExtension.class, ExpectedExceptionSupport.class})
 public class ClanServiceTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-  private ClanService instance;
   @Mock
   private ClanRepository clanRepository;
   @Mock
@@ -54,11 +54,10 @@ public class ClanServiceTest {
   private PlayerService playerService;
   @Mock
   private ClanMembershipRepository clanMembershipRepository;
-
-  @Before
-  public void setUp() throws Exception {
-    instance = new ClanService(clanRepository, playerRepository, fafApiProperties, jwtService, playerService, clanMembershipRepository, new ObjectMapper());
-  }
+  @Spy
+  private ObjectMapper objectMapper = new ObjectMapper();
+  @InjectMocks
+  private ClanService instance;
 
   @Test
   public void createClanWhereLeaderIsAlreadyInAClan() {
@@ -67,12 +66,12 @@ public class ClanServiceTest {
     String description = "A cool clan for testing";
     Player creator = new Player();
     creator.setId(1);
-    creator.getClanMemberships().add(new ClanMembership());
+    creator.setClanMembership(new ClanMembership());
     try {
       instance.create(clanName, tag, description, creator);
       fail();
     } catch (ApiException e) {
-      assertThat(e, apiExceptionWithCode(ErrorCode.CLAN_CREATE_CREATOR_IS_IN_A_CLAN));
+      assertThat(e, hasErrorCode(ErrorCode.CLAN_CREATE_FOUNDER_IS_IN_A_CLAN));
     }
     verify(clanRepository, Mockito.never()).save(any(Clan.class));
   }
@@ -91,7 +90,7 @@ public class ClanServiceTest {
       instance.create(clanName, tag, description, creator);
       fail();
     } catch (ApiException e) {
-      assertThat(e, apiExceptionWithCode(ErrorCode.CLAN_NAME_EXISTS));
+      assertThat(e, hasErrorCode(ErrorCode.CLAN_NAME_EXISTS));
     }
 
     ArgumentCaptor<Clan> clanCaptor = ArgumentCaptor.forClass(Clan.class);
@@ -114,7 +113,7 @@ public class ClanServiceTest {
       instance.create(clanName, tag, description, creator);
       fail();
     } catch (ApiException e) {
-      assertThat(e, apiExceptionWithCode(ErrorCode.CLAN_TAG_EXISTS));
+      assertThat(e, hasErrorCode(ErrorCode.CLAN_TAG_EXISTS));
     }
 
     ArgumentCaptor<Clan> clanCaptor = ArgumentCaptor.forClass(Clan.class);
@@ -155,7 +154,7 @@ public class ClanServiceTest {
       instance.generatePlayerInvitationToken(requester, 45, 42);
       fail();
     } catch (ApiException e) {
-      assertThat(e, apiExceptionWithCode(ErrorCode.CLAN_NOT_EXISTS));
+      assertThat(e, hasErrorCode(ErrorCode.CLAN_NOT_EXISTS));
     }
     verify(jwtService, Mockito.never()).sign(any());
   }
@@ -179,7 +178,7 @@ public class ClanServiceTest {
       instance.generatePlayerInvitationToken(requester, newMember.getId(), clan.getId());
       fail();
     } catch (ApiException e) {
-      assertThat(e, apiExceptionWithCode(ErrorCode.CLAN_NOT_LEADER));
+      assertThat(e, hasErrorCode(ErrorCode.CLAN_NOT_LEADER));
     }
     verify(jwtService, Mockito.never()).sign(any());
   }
@@ -197,7 +196,7 @@ public class ClanServiceTest {
       instance.generatePlayerInvitationToken(requester, 42, clan.getId());
       fail();
     } catch (ApiException e) {
-      assertThat(e, apiExceptionWithCode(ErrorCode.CLAN_GENERATE_LINK_PLAYER_NOT_FOUND));
+      assertThat(e, hasErrorCode(ErrorCode.CLAN_GENERATE_LINK_PLAYER_NOT_FOUND));
     }
     verify(jwtService, Mockito.never()).sign(any());
   }
@@ -245,7 +244,7 @@ public class ClanServiceTest {
       instance.acceptPlayerInvitationToken(stringToken, null);
       fail();
     } catch (ApiException e) {
-      assertThat(e, apiExceptionWithCode(ErrorCode.CLAN_ACCEPT_TOKEN_EXPIRE));
+      assertThat(e, hasErrorCode(ErrorCode.CLAN_ACCEPT_TOKEN_EXPIRE));
     }
     verify(clanMembershipRepository, Mockito.never()).save(any(ClanMembership.class));
   }
@@ -265,7 +264,7 @@ public class ClanServiceTest {
       instance.acceptPlayerInvitationToken(stringToken, null);
       fail();
     } catch (ApiException e) {
-      assertThat(e, apiExceptionWithCode(ErrorCode.CLAN_NOT_EXISTS));
+      assertThat(e, hasErrorCode(ErrorCode.CLAN_NOT_EXISTS));
     }
     verify(clanMembershipRepository, Mockito.never()).save(any(ClanMembership.class));
   }
@@ -321,7 +320,7 @@ public class ClanServiceTest {
       instance.acceptPlayerInvitationToken(stringToken, null);
       fail();
     } catch (ApiException e) {
-      assertThat(e, apiExceptionWithCode(ErrorCode.CLAN_ACCEPT_WRONG_PLAYER));
+      assertThat(e, hasErrorCode(ErrorCode.CLAN_ACCEPT_WRONG_PLAYER));
     }
     verify(clanMembershipRepository, Mockito.never()).save(any(ClanMembership.class));
   }
@@ -334,8 +333,7 @@ public class ClanServiceTest {
 
     Player newMember = new Player();
     newMember.setId(2);
-    newMember.setClanMemberships(
-      Collections.singleton(new ClanMembership().setClan(clan).setPlayer(newMember)));
+    newMember.setClanMembership(new ClanMembership().setClan(clan).setPlayer(newMember));
 
     long expire = System.currentTimeMillis() + 1000 * 3;
     Jwt jwtToken = Mockito.mock(Jwt.class);
@@ -352,7 +350,7 @@ public class ClanServiceTest {
       instance.acceptPlayerInvitationToken(stringToken, null);
       fail();
     } catch (ApiException e) {
-      assertThat(e, apiExceptionWithCode(ErrorCode.CLAN_ACCEPT_PLAYER_IN_A_CLAN));
+      assertThat(e, hasErrorCode(ErrorCode.CLAN_ACCEPT_PLAYER_IN_A_CLAN));
     }
     verify(clanMembershipRepository, Mockito.never()).save(any(ClanMembership.class));
   }

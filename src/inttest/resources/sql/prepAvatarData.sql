@@ -1,11 +1,12 @@
-DELETE FROM avatars;
-DELETE FROM avatars_list;
+INSERT INTO avatars_list (id, filename, tooltip)
+VALUES (1, 'avatar1.png', 'Avatar No. 1'),
+       (2, 'avatar2.png', 'Avatar No. 2'),
+       (3, 'donator.png', 'Donator Avatar'),
+       (4, 'avatar space.png', 'Space Avatar');
 
-INSERT INTO avatars_list (id, url, tooltip) VALUES
-  (1, 'http://localhost/faf/avatars/avatar1.png', 'Avatar No. 1'),
-  (2, 'http://localhost/faf/avatars/avatar2.png', 'Avatar No. 2');
+INSERT INTO avatars (id, idUser, idAvatar, selected)
+VALUES (1, 5, 1, 1),
+       (2, 5, 2, 0);
 
-INSERT INTO avatars (id, idUser, idAvatar, selected) VALUES
-  (1, 1, 2, 1),
-  (2, 2, 2, 0);
-COMMIT;
+INSERT INTO group_permission_assignment (group_id, permission_id)
+VALUES (2, 9); -- MODERATOR -> UPDATE_AVATAR

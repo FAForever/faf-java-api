@@ -1,6 +1,3 @@
-DELETE FROM clan_membership;
-DELETE FROM clan;
-
 INSERT INTO login (id, login, email, password) VALUES
   (10, 'CLAN_FOUNDER', 'clan_founder@faforever.com', 'not used'),
   (11, 'CLAN_LEADER', 'clan_leader@faforever.com', 'not used'),

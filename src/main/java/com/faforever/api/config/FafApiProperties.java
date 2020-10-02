@@ -1,6 +1,5 @@
 package com.faforever.api.config;
 
-import com.google.common.collect.ImmutableSet;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -29,7 +28,6 @@ public class FafApiProperties {
   private Deployment deployment = new Deployment();
   private Registration registration = new Registration();
   private PasswordReset passwordReset = new PasswordReset();
-  private LinkToSteam linkToSteam = new LinkToSteam();
   private Steam steam = new Steam();
   private Mail mail = new Mail();
   private Challonge challonge = new Challonge();
@@ -39,6 +37,7 @@ public class FafApiProperties {
   private Anope anope = new Anope();
   private Rating rating = new Rating();
   private Tutorial tutorial = new Tutorial();
+  private Nodebb nodebb = new Nodebb();
 
   @Data
   public static class OAuth2 {
@@ -50,7 +49,8 @@ public class FafApiProperties {
     /**
      * The secret used for JWT token generation.
      */
-    private String secret;
+    private Path secretKeyPath;
+    private Path publicKeyPath;
     private int accessTokenValiditySeconds = 3600;
     private int refreshTokenValiditySeconds = 3600;
   }
@@ -99,7 +99,7 @@ public class FafApiProperties {
     /**
      * Allowed file extensions of uploaded maps.
      */
-    private Set<String> allowedExtensions = ImmutableSet.of("zip");
+    private Set<String> allowedExtensions = Set.of("zip");
   }
 
   @Data
@@ -107,7 +107,7 @@ public class FafApiProperties {
     private String previewUrlFormat;
     private String downloadUrlFormat;
     /** Allowed file extensions of uploaded mods. */
-    private Set<String> allowedExtensions = ImmutableSet.of("zip");
+    private Set<String> allowedExtensions = Set.of("zip");
     /** The directory in which uploaded mod files are stored. */
     private Path targetDirectory = Paths.get("static/mods");
     /** The directory in which thumbnails of uploaded mod files are stored. */
@@ -124,7 +124,7 @@ public class FafApiProperties {
   @Data
   public static class Avatar {
     private String downloadUrlFormat;
-    private Set<String> allowedExtensions = ImmutableSet.of("png");
+    private Set<String> allowedExtensions = Set.of("png");
     private Path targetDirectory;
     private int maxSizeBytes = 4096;
     private int maxNameLength = 100;
@@ -157,46 +157,44 @@ public class FafApiProperties {
     private String repositoriesDirectory;
     private String filesDirectoryFormat = "updates_%s_files";
     private String forgedAllianceExePath;
+    private String testingExeUploadKey;
+    private String allowedExeExtension = "exe";
+    private String forgedAllianceBetaExePath;
+    private String forgedAllianceDevelopExePath;
   }
 
   @Data
   public static class Mail {
     private String fromEmailAddress;
     private String fromEmailName;
-    private String mandrillApiKey;
     private Smtp smtp;
   }
 
   @Data
   public static class Registration {
-    private long linkExpirationSeconds = Duration.ofDays(1).getSeconds();
+    private long linkExpirationSeconds = Duration.ofDays(7).getSeconds();
     private String activationUrlFormat;
     private String subject;
     private String htmlFormat;
-    private String successRedirectUrl;
   }
 
   @Data
   public static class PasswordReset {
-    private long linkExpirationSeconds = Duration.ofDays(1).getSeconds();
+    private long linkExpirationSeconds = Duration.ofDays(7).getSeconds();
     private String passwordResetUrlFormat;
     private String subject;
     private String htmlFormat;
-    private String successRedirectUrl;
-  }
-
-  @Data
-  public static class LinkToSteam {
-    private String steamRedirectUrlFormat;
   }
 
   @Data
   public static class Steam {
-    String realm;
-    String apiKey;
-    String forgedAllianceAppId = "9420";
-    String loginUrlFormat = "https://steamcommunity.com/openid/login?%s";
-    String getOwnedGamesUrlFormat = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001?key={key}&steamid={steamId}&format={format}&appids_filter[0]={faAppId}";
+    private String realm;
+    private String apiKey;
+    private String forgedAllianceAppId = "9420";
+    private String loginUrlFormat = "https://steamcommunity.com/openid/login";
+    private String getOwnedGamesUrlFormat = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001?key={key}&steamid={steamId}&format={format}&appids_filter[0]={faAppId}";
+    private String linkToSteamRedirectUrlFormat;
+    private String steamPasswordResetRedirectUrlFormat;
   }
 
   @Data
@@ -236,12 +234,12 @@ public class FafApiProperties {
   }
 
   @Data
-  public class Anope {
+  public static class Anope {
     private String databaseName;
   }
 
   @Data
-  public class Rating {
+  public static class Rating {
     private int defaultMean;
     private int defaultDeviation;
   }
@@ -249,5 +247,15 @@ public class FafApiProperties {
   @Data
   public static class Tutorial {
     private String thumbnailUrlFormat;
+  }
+
+  @Data
+  public static class Nodebb {
+    private String baseUrl;
+    /**
+     * The nodeBB user id to be impersonated. Id 1 as initial admin should be sufficient.
+     */
+    private int adminUserId;
+    private String masterToken;
   }
 }

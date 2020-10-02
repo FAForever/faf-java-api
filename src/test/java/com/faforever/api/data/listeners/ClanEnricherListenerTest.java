@@ -3,8 +3,8 @@ package com.faforever.api.data.listeners;
 import com.faforever.api.clan.ClanFactory;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Clan;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -12,9 +12,8 @@ import static org.junit.Assert.assertThat;
 public class ClanEnricherListenerTest {
   private ClanEnricherListener instance;
 
-
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     instance = new ClanEnricherListener();
 
     FafApiProperties fafApiProperties = new FafApiProperties();
@@ -24,7 +23,7 @@ public class ClanEnricherListenerTest {
   }
 
   @Test
-  public void enrich() throws Exception {
+  void enrich() throws Exception {
     Clan clan = ClanFactory.builder().id(54).build();
 
     instance.enrich(clan);

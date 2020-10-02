@@ -1,0 +1,51 @@
+name: Build
+on: [push]
+env:
+  FAF_DB_VERSION: v102
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: adoptopenjdk:11-jdk-hotspot-bionic
+    services:
+      faf-db:
+        image: mysql:5.7
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping --silent"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          MYSQL_ROOT_PASSWORD: banana
+          MYSQL_DATABASE: faf
+          MYSQL_USER: faf-java-api
+          MYSQL_PASSWORD: banana
+    steps:
+      - name: Install tools
+        run: apt update && apt install -y git wget
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run flyway db migrations
+        env:
+          FLYWAY_URL: jdbc:mysql://faf-db/faf?useSSL=false
+          FLYWAY_USER: root
+          FLYWAY_PASSWORD: banana
+          FLYWAY_LOCATIONS: filesystem:db/migrations
+        run: |-
+          git clone --depth 1 --branch $FAF_DB_VERSION https://github.com/FAForever/db
+          wget -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/6.5.3/flyway-commandline-6.5.3-linux-x64.tar.gz | tar xvz && ln -s `pwd`/flyway-6.5.3/flyway /usr/local/bin
+          flyway migrate
+      - name: Gradle build
+        env:
+          GRADLE_CLI_OPTS: "--console=plain --stacktrace --quiet"
+          DATABASE_ADDRESS: faf-db
+        run: "chmod +x ./gradlew && ./gradlew ${GRADLE_CLI_OPTS} build"
+      - name: Build and push Docker images
+        if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/tags')
+        uses: docker/build-push-action@v1.1.1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: faforever/faf-java-api
+          tag_with_ref: true

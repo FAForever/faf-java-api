@@ -1,14 +1,18 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.checks.Prefab;
+import com.faforever.api.data.converter.VictoryConditionConverter;
 import com.faforever.api.data.listeners.GameEnricher;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
 import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
@@ -19,6 +23,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.time.OffsetDateTime;
@@ -35,6 +40,7 @@ public class Game {
   private int id;
   private OffsetDateTime startTime;
   private OffsetDateTime endTime;
+  private Integer replayTicks;
   private VictoryCondition victoryCondition;
   private FeaturedMod featuredMod;
   private Player host;
@@ -57,7 +63,13 @@ public class Game {
     return startTime;
   }
 
+  @Column(name = "replay_ticks")
+  public Integer getReplayTicks() {
+    return replayTicks;
+  }
+
   @Column(name = "gameType")
+  @Convert(converter = VictoryConditionConverter.class)
   public VictoryCondition getVictoryCondition() {
     return victoryCondition;
   }
@@ -109,13 +121,15 @@ public class Game {
   }
 
   @OneToMany(mappedBy = "game")
-  @UpdatePermission(expression = "Prefab.Role.All")
+  @UpdatePermission(expression = Prefab.ALL)
   public List<GameReview> getReviews() {
     return reviews;
   }
 
-  @OneToOne(mappedBy = "game")
-  @UpdatePermission(expression = "Prefab.Role.All")
+  @OneToOne(fetch = FetchType.LAZY)
+  @PrimaryKeyJoinColumn
+  @UpdatePermission(expression = Prefab.ALL)
+  @BatchSize(size = 1000)
   public GameReviewsSummary getReviewsSummary() {
     return reviewsSummary;
   }

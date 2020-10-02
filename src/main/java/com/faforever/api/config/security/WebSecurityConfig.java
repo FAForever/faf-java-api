@@ -1,7 +1,6 @@
 package com.faforever.api.config.security;
 
 import com.faforever.api.config.ApplicationProfile;
-import com.google.common.collect.ImmutableMap;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -22,12 +21,10 @@ import org.springframework.security.web.authentication.ExceptionMappingAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Configuration
@@ -82,31 +79,24 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .and().authorizeRequests()
           .antMatchers(HttpMethod.OPTIONS).permitAll()
           // Swagger UI
-          .antMatchers("/swagger-ui.html").permitAll()
+          .antMatchers("/swagger-ui").permitAll()
           .antMatchers("/swagger-resources/**").permitAll()
           .antMatchers("/v2/api-docs/**").permitAll()
-          .antMatchers("/").permitAll();
+          .antMatchers("/").permitAll()
+          // Webapp folder
+          .antMatchers("/css/*").permitAll()
+          .antMatchers("/favicon.ico").permitAll()
+          .antMatchers("/robots.txt").permitAll();
     // @formatter:on
   }
 
   @Bean
-  public WebMvcConfigurer corsConfigurer() {
-    return new WebMvcConfigurerAdapter() {
-      @Override
-      public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-          .allowedMethods("*");
-      }
-    };
-  }
-
-  @Bean
   public AuthenticationFailureHandler authenticationFailureHandler() {
-    ImmutableMap<Object, String> exceptionMappings = ImmutableMap.<Object, String>builder()
-      .put(InternalAuthenticationServiceException.class.getCanonicalName(), "/login?error=serverError")
-      .put(BadCredentialsException.class.getCanonicalName(), "/login?error=badCredentials")
-      .put(LockedException.class.getCanonicalName(), "/login?error=locked")
-      .build();
+    Map<Object, String> exceptionMappings = Map.of(
+      InternalAuthenticationServiceException.class.getCanonicalName(), "/login?error=serverError",
+      BadCredentialsException.class.getCanonicalName(), "/login?error=badCredentials",
+      LockedException.class.getCanonicalName(), "/login?error=locked"
+    );
 
     final ExceptionMappingAuthenticationFailureHandler result = new ExceptionMappingAuthenticationFailureHandler();
     result.setExceptionMappings(exceptionMappings);

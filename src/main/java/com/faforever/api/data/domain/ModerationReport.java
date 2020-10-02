@@ -3,8 +3,8 @@ package com.faforever.api.data.domain;
 import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.IsInAwaitingState;
 import com.faforever.api.data.checks.Prefab;
-import com.faforever.api.data.checks.permission.IsModerator;
 import com.faforever.api.security.FafUserDetails;
+import com.faforever.api.security.elide.permission.AdminModerationReportCheck;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Audit.Action;
@@ -43,7 +43,7 @@ import java.util.Set;
 @Setter
 @ToString(exclude = {"reportedUsers", "bans"})
 @Include(rootLevel = true, type = ModerationReport.TYPE_NAME)
-@ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + IsModerator.EXPRESSION)
+@ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + AdminModerationReportCheck.EXPRESSION)
 @DeletePermission(expression = Prefab.NONE)
 @CreatePermission(expression = Prefab.ALL)
 @Audit(action = Action.CREATE, logStatement = "Moderation report `{0}` has been reported", logExpressions = "${moderationReport}")
@@ -65,7 +65,7 @@ public class ModerationReport extends AbstractEntity implements OwnableEntity {
   @Column(name = "report_status")
   @Enumerated(EnumType.STRING)
   @CreatePermission(expression = Prefab.NONE)
-  @UpdatePermission(expression = IsModerator.EXPRESSION)
+  @UpdatePermission(expression = AdminModerationReportCheck.EXPRESSION)
   public ModerationReportStatus getReportStatus() {
     return reportStatus;
   }
@@ -100,15 +100,15 @@ public class ModerationReport extends AbstractEntity implements OwnableEntity {
 
   @Column(name = "moderator_notice")
   @CreatePermission(expression = Prefab.NONE)
-  @UpdatePermission(expression = IsModerator.EXPRESSION)
+  @UpdatePermission(expression = AdminModerationReportCheck.EXPRESSION)
   public String getModeratorNotice() {
     return moderatorNotice;
   }
 
   @Column(name = "moderator_private_note")
-  @ReadPermission(expression = IsModerator.EXPRESSION)
+  @ReadPermission(expression = AdminModerationReportCheck.EXPRESSION)
   @CreatePermission(expression = Prefab.NONE)
-  @UpdatePermission(expression = IsModerator.EXPRESSION)
+  @UpdatePermission(expression = AdminModerationReportCheck.EXPRESSION)
   public String getModeratorPrivateNote() {
     return moderatorPrivateNote;
   }
@@ -116,7 +116,7 @@ public class ModerationReport extends AbstractEntity implements OwnableEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "last_moderator", referencedColumnName = "id")
   @CreatePermission(expression = Prefab.NONE)
-  @UpdatePermission(expression = IsModerator.EXPRESSION)
+  @UpdatePermission(expression = AdminModerationReportCheck.EXPRESSION)
   public Player getLastModerator() {
     return lastModerator;
   }
@@ -138,7 +138,7 @@ public class ModerationReport extends AbstractEntity implements OwnableEntity {
   }
 
   @OneToMany(mappedBy = "moderationReport")
-  @ReadPermission(expression = IsModerator.EXPRESSION)
+  @ReadPermission(expression = AdminModerationReportCheck.EXPRESSION)
   // Permission is managed by BanInfo class
   @UpdatePermission(expression = Prefab.ALL)
   public Collection<BanInfo> getBans() {
@@ -169,7 +169,7 @@ public class ModerationReport extends AbstractEntity implements OwnableEntity {
     final Object caller = scope.getUser().getOpaqueUser();
     if (caller instanceof FafUserDetails) {
       final FafUserDetails fafUser = (FafUserDetails) caller;
-      if (fafUser.hasPermission(IsModerator.EXPRESSION)) {
+      if (fafUser.hasPermission(GroupPermission.ROLE_ADMIN_MODERATION_REPORT)) {
         final Player lastModerator = new Player();
         lastModerator.setId(fafUser.getId());
         this.lastModerator = lastModerator;

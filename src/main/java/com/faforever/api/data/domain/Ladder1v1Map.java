@@ -1,6 +1,6 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.data.checks.permission.HasLadder1v1Update;
+import com.faforever.api.security.elide.permission.WriteMatchmakerMapCheck;
 import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.CreatePermission;
@@ -19,8 +19,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-@CreatePermission(expression = HasLadder1v1Update.EXPRESSION)
-@DeletePermission(expression = HasLadder1v1Update.EXPRESSION)
+@CreatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
+@DeletePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @Entity
 @Setter
 @Table(name = "ladder_map")
@@ -28,6 +28,7 @@ import javax.persistence.Table;
 @Immutable
 @Audit(action = Action.CREATE, logStatement = "Added map `{0}` with version `{1}` to the ladder pool", logExpressions = {"${ladder1v1Map.mapVersion.map.displayName}", "${ladder1v1Map.mapVersion.version}"})
 @Audit(action = Action.DELETE, logStatement = "Removed map `{0}` with version `{1}` from the ladder pool", logExpressions = {"${ladder1v1Map.mapVersion.map.displayName}", "${ladder1v1Map.mapVersion.version}"})
+@Deprecated // use MapPool instead
 public class Ladder1v1Map {
   private int id;
   private MapVersion mapVersion;
@@ -41,7 +42,7 @@ public class Ladder1v1Map {
 
   @OneToOne
   @JoinColumn(name = "idmap")
-  @UpdatePermission(expression = HasLadder1v1Update.EXPRESSION)
+  @UpdatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
   public MapVersion getMapVersion() {
     return mapVersion;
   }

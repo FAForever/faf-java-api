@@ -6,53 +6,53 @@ import com.faforever.api.data.domain.Ladder1v1Rating;
 import com.faforever.api.data.domain.NameRecord;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.email.EmailService;
-import com.faforever.api.error.ApiExceptionWithCode;
+import com.faforever.api.error.ApiException;
+import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
-import com.faforever.api.mautic.MauticService;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.rating.GlobalRatingRepository;
 import com.faforever.api.rating.Ladder1v1RatingRepository;
 import com.faforever.api.security.FafPasswordEncoder;
 import com.faforever.api.security.FafTokenService;
 import com.faforever.api.security.FafTokenType;
-import com.faforever.api.user.UserService.SteamLinkResult;
-import com.google.common.collect.ImmutableMap;
+import com.faforever.api.user.UserService.CallbackResult;
 import com.google.common.hash.Hashing;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import io.micrometer.core.instrument.MeterRegistry;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static com.faforever.api.user.UserService.KEY_PASSWORD;
-import static com.faforever.api.user.UserService.KEY_STEAM_LINK_CALLBACK_URL;
+import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
+import static com.faforever.api.user.UserService.KEY_STEAM_CALLBACK_URL;
 import static com.faforever.api.user.UserService.KEY_USER_ID;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasItemInArray;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
   public static final String INVALID_PASSWORD = "invalid password";
   private static final String TEST_SECRET = "banana";
@@ -63,15 +63,16 @@ public class UserServiceTest {
   private static final String TEST_NEW_EMAIL = "junit@example.com";
   private static final String TEST_CURRENT_PASSWORD = "oldPassword";
   private static final String TEST_NEW_PASSWORD = "newPassword";
+  private static final String TEST_CALLBACK_URL = "http://example.com/callback";
   private static final String TOKEN_VALUE = "someToken";
-  private static final String PASSWORD_RESET_URL_FORMAT = "http://www.example.com/resetPassword/%s";
+  private static final String PASSWORD_RESET_URL_FORMAT = "http://www.example.com/resetPassword/username=%s&token=%s";
   private static final String ACTIVATION_URL_FORMAT = "http://www.example.com/%s";
   private static final String STEAM_ID = "someSteamId";
+  private static final String STEAM_LOGIN_URL = "steamLoginUrl";
   private static final String IP_ADDRESS = "127.0.0.1";
-  private static FafPasswordEncoder fafPasswordEncoder = new FafPasswordEncoder();
+  private static final FafPasswordEncoder fafPasswordEncoder = new FafPasswordEncoder();
+  private static final CompletableFuture<Object> COMPLETED_FUTURE = CompletableFuture.completedFuture(null);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   private UserService instance;
   @Mock
   private EmailService emailService;
@@ -88,11 +89,13 @@ public class UserServiceTest {
   @Mock
   private FafTokenService fafTokenService;
   @Mock
-  private MauticService mauticService;
-  @Mock
   private GlobalRatingRepository globalRatingRepository;
   @Mock
   private Ladder1v1RatingRepository ladder1v1RatingRepository;
+  @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+  private MeterRegistry meterRegistry;
+  @Mock
+  private ApplicationEventPublisher eventPublisher;
 
   private FafApiProperties properties;
 
@@ -104,87 +107,84 @@ public class UserServiceTest {
       .setId(id);
   }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     properties = new FafApiProperties();
-    properties.getJwt().setSecret(TEST_SECRET);
-    properties.getLinkToSteam().setSteamRedirectUrlFormat("%s");
-    instance = new UserService(emailService, playerRepository, userRepository, nameRecordRepository, properties, anopeUserRepository, fafTokenService, steamService, Optional.of(mauticService), globalRatingRepository, ladder1v1RatingRepository);
-
-    when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
-    when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
-
-    when(mauticService.createOrUpdateContact(any(), any(), any(), any(), any()))
-      .thenReturn(CompletableFuture.completedFuture(null));
+    properties.getSteam().setLinkToSteamRedirectUrlFormat("%s");
+    properties.getSteam().setSteamPasswordResetRedirectUrlFormat("%s");
+    instance = new UserService(emailService,
+      playerRepository,
+      userRepository,
+      nameRecordRepository,
+      properties,
+      anopeUserRepository,
+      fafTokenService,
+      steamService,
+      globalRatingRepository,
+      ladder1v1RatingRepository,
+      meterRegistry,
+      eventPublisher);
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void register() {
     properties.getRegistration().setActivationUrlFormat(ACTIVATION_URL_FORMAT);
 
-    instance.register(TEST_USERNAME, TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
+    when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
+
+    instance.register(TEST_USERNAME, TEST_CURRENT_EMAIL);
 
     verify(emailService).validateEmailAddress(TEST_CURRENT_EMAIL);
-    verify(userRepository).existsByEmailIgnoreCase(TEST_CURRENT_EMAIL);
+    verify(userRepository).existsByEmail(TEST_CURRENT_EMAIL);
 
     ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
     verify(emailService).sendActivationMail(eq(TEST_USERNAME), eq(TEST_CURRENT_EMAIL), urlCaptor.capture());
-    assertThat(urlCaptor.getValue(), is(String.format(ACTIVATION_URL_FORMAT, TOKEN_VALUE)));
+    assertThat(urlCaptor.getValue(), is(String.format(ACTIVATION_URL_FORMAT, TEST_USERNAME, TOKEN_VALUE)));
 
-    verifyZeroInteractions(mauticService);
+    verifyNoMoreInteractions(eventPublisher);
   }
 
   @Test
   public void registerEmailAlreadyRegistered() {
-    when(userRepository.existsByEmailIgnoreCase(TEST_CURRENT_EMAIL)).thenReturn(true);
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.EMAIL_REGISTERED));
+    when(userRepository.existsByEmail(TEST_CURRENT_EMAIL)).thenReturn(true);
 
-    instance.register("junit", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
+    ApiException exception = assertThrows(ApiException.class, () -> instance.register("junit", TEST_CURRENT_EMAIL));
+    assertThat(exception, hasErrorCode(ErrorCode.EMAIL_REGISTERED));
   }
 
-  @Test
-  public void registerInvalidUsernameWithComma() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
-    instance.register("junit,", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
-  }
-
-  @Test
-  public void registerInvalidUsernameStartsUnderscore() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
-    instance.register("_junit", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
-  }
-
-  @Test
-  public void registerInvalidUsernameTooShort() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
-    instance.register("ju", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
+  @ParameterizedTest
+  @ValueSource(strings = {"junit,", "_junit", "ju"})
+  public void registerInvalidUsername(String invalidUsername) {
+    ApiException exception = assertThrows(ApiException.class, () -> instance.register(invalidUsername, TEST_CURRENT_EMAIL));
+    assertThat(exception, hasErrorCode(ErrorCode.USERNAME_INVALID));
   }
 
   @Test
   public void registerUsernameTaken() {
-    when(userRepository.existsByLoginIgnoreCase("junit")).thenReturn(true);
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_TAKEN));
-    instance.register("junit", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
+    when(userRepository.existsByLogin("junit")).thenReturn(true);
+    ApiException exception = assertThrows(ApiException.class, () -> instance.register("junit", TEST_CURRENT_EMAIL));
+    assertThat(exception, hasErrorCode(ErrorCode.USERNAME_TAKEN));
   }
 
   @Test
   public void registerUsernameReserved() {
     when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(1));
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_RESERVED));
-    instance.register("junit", TEST_CURRENT_EMAIL, TEST_CURRENT_PASSWORD);
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.register("junit", TEST_CURRENT_EMAIL));
+    assertThat(exception, hasErrorCode(ErrorCode.USERNAME_RESERVED));
   }
 
   @Test
   public void activate() {
     final String TEST_IP_ADDRESS = IP_ADDRESS;
-    when(fafTokenService.resolveToken(FafTokenType.REGISTRATION, TOKEN_VALUE)).thenReturn(ImmutableMap.of(
-      UserService.KEY_USERNAME, TEST_USERNAME,
-      UserService.KEY_EMAIL, TEST_CURRENT_EMAIL,
-      UserService.KEY_PASSWORD, fafPasswordEncoder.encode(TEST_NEW_PASSWORD)
-    ));
 
-    instance.activate(TOKEN_VALUE, TEST_IP_ADDRESS);
+    when(fafTokenService.resolveToken(FafTokenType.REGISTRATION, TOKEN_VALUE)).thenReturn(Map.of(
+      UserService.KEY_USERNAME, TEST_USERNAME,
+      UserService.KEY_EMAIL, TEST_CURRENT_EMAIL
+    ));
+    when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
+
+    instance.activate(TOKEN_VALUE, TEST_NEW_PASSWORD, TEST_IP_ADDRESS);
 
     ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
     verify(userRepository).save(captor.capture());
@@ -197,7 +197,7 @@ public class UserServiceTest {
     assertThat(user.getPassword(), is(fafPasswordEncoder.encode(TEST_NEW_PASSWORD)));
     assertThat(user.getRecentIpAddress(), is(TEST_IP_ADDRESS));
 
-    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME), eq(IP_ADDRESS), any(OffsetDateTime.class));
+    verify(eventPublisher).publishEvent(any(UserUpdatedEvent.class));
   }
 
   @Test
@@ -210,20 +210,22 @@ public class UserServiceTest {
     assertEquals(captor.getValue().getPassword(), fafPasswordEncoder.encode(TEST_NEW_PASSWORD));
     verify(anopeUserRepository).updatePassword(TEST_USERNAME, Hashing.md5().hashString(TEST_NEW_PASSWORD, StandardCharsets.UTF_8).toString());
 
-    verifyZeroInteractions(mauticService);
+    verifyNoMoreInteractions(eventPublisher);
   }
 
   @Test
   public void changePasswordInvalidPassword() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.PASSWORD_CHANGE_FAILED_WRONG_PASSWORD));
-
     User user = createUser(TEST_USERID, TEST_USERNAME, INVALID_PASSWORD, TEST_CURRENT_EMAIL);
-    instance.changePassword(TEST_CURRENT_PASSWORD, TEST_NEW_PASSWORD, user);
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.changePassword(TEST_CURRENT_PASSWORD, TEST_NEW_PASSWORD, user));
+    assertThat(exception, hasErrorCode(ErrorCode.PASSWORD_CHANGE_FAILED_WRONG_PASSWORD));
   }
 
   @Test
   public void changeEmail() {
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
+
+    when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
 
     instance.changeEmail(TEST_CURRENT_PASSWORD, TEST_NEW_EMAIL, user, IP_ADDRESS);
     verify(emailService).validateEmailAddress(TEST_NEW_EMAIL);
@@ -231,21 +233,24 @@ public class UserServiceTest {
     verify(userRepository).save(captor.capture());
     assertEquals(captor.getValue().getEmail(), TEST_NEW_EMAIL);
 
-    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME), eq(IP_ADDRESS), any(OffsetDateTime.class));
+    verify(eventPublisher).publishEvent(any(UserUpdatedEvent.class));
   }
 
   @Test
   public void changeEmailInvalidPassword() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.EMAIL_CHANGE_FAILED_WRONG_PASSWORD));
-
     User user = createUser(TEST_USERID, TEST_USERNAME, INVALID_PASSWORD, TEST_CURRENT_EMAIL);
-    instance.changeEmail(TEST_CURRENT_PASSWORD, TEST_NEW_PASSWORD, user, IP_ADDRESS);
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.changeEmail(TEST_CURRENT_PASSWORD, TEST_NEW_PASSWORD, user, IP_ADDRESS));
+    assertThat(exception, hasErrorCode(ErrorCode.EMAIL_CHANGE_FAILED_WRONG_PASSWORD));
   }
 
   @Test
   public void changeLogin() {
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(nameRecordRepository.getDaysSinceLastNewRecord(anyInt(), anyInt())).thenReturn(Optional.empty());
+
+    when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
+
 
     instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
     ArgumentCaptor<User> captorUser = ArgumentCaptor.forClass(User.class);
@@ -255,83 +260,89 @@ public class UserServiceTest {
     verify(nameRecordRepository).save(captorNameRecord.capture());
     assertEquals(captorNameRecord.getValue().getName(), TEST_USERNAME);
 
-    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME_CHANGED), eq(IP_ADDRESS), any(OffsetDateTime.class));
+    verify(eventPublisher).publishEvent(any(UserUpdatedEvent.class));
   }
 
   @Test
   public void changeLoginWithUsernameInUse() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_TAKEN));
-
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    when(userRepository.existsByLoginIgnoreCase(TEST_USERNAME_CHANGED)).thenReturn(true);
-    instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
+    when(userRepository.existsByLogin(TEST_USERNAME_CHANGED)).thenReturn(true);
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS));
+    assertThat(exception, hasErrorCode(ErrorCode.USERNAME_TAKEN));
   }
 
   @Test
   public void changeLoginWithUsernameInUseButForced() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_TAKEN));
-
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    when(userRepository.existsByLoginIgnoreCase(TEST_USERNAME_CHANGED)).thenReturn(true);
-    instance.changeLoginForced(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
+    when(userRepository.existsByLogin(TEST_USERNAME_CHANGED)).thenReturn(true);
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.changeLoginForced(TEST_USERNAME_CHANGED, user, IP_ADDRESS));
+    assertThat(exception, hasErrorCode(ErrorCode.USERNAME_TAKEN));
   }
 
   @Test
   public void changeLoginWithInvalidUsername() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
-
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    instance.changeLogin("$%&", user, IP_ADDRESS);
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.changeLogin("$%&", user, IP_ADDRESS));
+    assertThat(exception, hasErrorCode(ErrorCode.USERNAME_INVALID));
   }
 
   @Test
   public void changeLoginWithInvalidUsernameButForced() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_INVALID));
-
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    instance.changeLoginForced("$%&", user, IP_ADDRESS);
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.changeLoginForced("$%&", user, IP_ADDRESS));
+    assertThat(exception, hasErrorCode(ErrorCode.USERNAME_INVALID));
   }
 
   @Test
   public void changeLoginTooEarly() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_CHANGE_TOO_EARLY));
     when(nameRecordRepository.getDaysSinceLastNewRecord(anyInt(), anyInt())).thenReturn(Optional.of(BigInteger.valueOf(5)));
-
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS));
+    assertThat(exception, hasErrorCode(ErrorCode.USERNAME_CHANGE_TOO_EARLY));
   }
 
   @Test
   public void changeLoginTooEarlyButForce() {
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
+
+    when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
+
     instance.changeLoginForced(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
-    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME_CHANGED), eq(IP_ADDRESS), any(OffsetDateTime.class));
+    verify(eventPublisher).publishEvent(any(UserUpdatedEvent.class));
   }
 
   @Test
   public void changeLoginUsernameReserved() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.USERNAME_RESERVED));
     when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(TEST_USERID + 1));
-
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS));
+    assertThat(exception, hasErrorCode(ErrorCode.USERNAME_RESERVED));
   }
 
   @Test
   public void changeLoginUsernameReservedButForced() {
+    when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
+
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     instance.changeLoginForced(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
-    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME_CHANGED), eq(IP_ADDRESS), any(OffsetDateTime.class));
+    verify(eventPublisher).publishEvent(any(UserUpdatedEvent.class));
   }
 
   @Test
   public void changeLoginUsernameReservedBySelf() {
-    when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(TEST_USERID));
+    when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(new Integer(TEST_USERID)));
+    when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     instance.changeLogin(TEST_USERNAME_CHANGED, user, IP_ADDRESS);
 
-    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME_CHANGED), eq(IP_ADDRESS), any(OffsetDateTime.class));
+    verify(eventPublisher).publishEvent(any(UserUpdatedEvent.class));
   }
 
   @Test
@@ -341,21 +352,22 @@ public class UserServiceTest {
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
 
-    when(userRepository.findOneByLoginIgnoreCase(TEST_USERNAME)).thenReturn(Optional.of(user));
-    instance.resetPassword(TEST_USERNAME, TEST_NEW_PASSWORD);
+    when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
+    when(userRepository.findOneByLogin(TEST_USERNAME)).thenReturn(Optional.of(user));
 
-    verify(userRepository).findOneByLoginIgnoreCase(TEST_USERNAME);
+    instance.requestPasswordReset(TEST_USERNAME);
+
+    verify(userRepository).findOneByLogin(TEST_USERNAME);
 
     ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
     verify(emailService).sendPasswordResetMail(eq(TEST_USERNAME), eq(TEST_CURRENT_EMAIL), urlCaptor.capture());
-    assertThat(urlCaptor.getValue(), is(String.format(PASSWORD_RESET_URL_FORMAT, TOKEN_VALUE)));
+    assertThat(urlCaptor.getValue(), is(String.format(PASSWORD_RESET_URL_FORMAT, TEST_USERNAME, TOKEN_VALUE)));
 
     ArgumentCaptor<Map<String, String>> attributesMapCaptor = ArgumentCaptor.forClass(Map.class);
     verify(fafTokenService).createToken(eq(FafTokenType.PASSWORD_RESET), any(), attributesMapCaptor.capture());
     Map<String, String> tokenAttributes = attributesMapCaptor.getValue();
-    assertThat(tokenAttributes.size(), is(2));
+    assertThat(tokenAttributes.size(), is(1));
     assertThat(tokenAttributes.get(KEY_USER_ID), is(String.valueOf(TEST_USERID)));
-    assertThat(tokenAttributes.get(KEY_PASSWORD), is(String.valueOf(TEST_NEW_PASSWORD)));
   }
 
   @Test
@@ -365,57 +377,57 @@ public class UserServiceTest {
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
 
-    when(userRepository.findOneByEmailIgnoreCase(TEST_CURRENT_EMAIL)).thenReturn(Optional.of(user));
-    instance.resetPassword(TEST_CURRENT_EMAIL, TEST_NEW_PASSWORD);
+    when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
+    when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.of(user));
 
-    verify(userRepository).findOneByEmailIgnoreCase(TEST_CURRENT_EMAIL);
+    instance.requestPasswordReset(TEST_CURRENT_EMAIL);
+
+    verify(userRepository).findOneByEmail(TEST_CURRENT_EMAIL);
 
     ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
     verify(emailService).sendPasswordResetMail(eq(TEST_USERNAME), eq(TEST_CURRENT_EMAIL), urlCaptor.capture());
-    assertThat(urlCaptor.getValue(), is(String.format(PASSWORD_RESET_URL_FORMAT, TOKEN_VALUE)));
+    assertThat(urlCaptor.getValue(), is(String.format(PASSWORD_RESET_URL_FORMAT, TEST_USERNAME, TOKEN_VALUE)));
 
     ArgumentCaptor<Map<String, String>> attributesMapCaptor = ArgumentCaptor.forClass(Map.class);
     verify(fafTokenService).createToken(eq(FafTokenType.PASSWORD_RESET), any(), attributesMapCaptor.capture());
     Map<String, String> tokenAttributes = attributesMapCaptor.getValue();
-    assertThat(tokenAttributes.size(), is(2));
+    assertThat(tokenAttributes.size(), is(1));
     assertThat(tokenAttributes.get(KEY_USER_ID), is(String.valueOf(TEST_USERID)));
-    assertThat(tokenAttributes.get(KEY_PASSWORD), is(String.valueOf(TEST_NEW_PASSWORD)));
   }
 
   @Test
   public void resetPasswordUnknownUsernameAndEmail() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.UNKNOWN_IDENTIFIER));
+    when(userRepository.findOneByEmail(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
 
-    when(userRepository.findOneByEmailIgnoreCase(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
-    when(userRepository.findOneByEmailIgnoreCase(TEST_CURRENT_EMAIL)).thenReturn(Optional.empty());
-    instance.resetPassword(TEST_CURRENT_EMAIL, TEST_NEW_PASSWORD);
+    ApiException exception = assertThrows(ApiException.class, () -> instance.requestPasswordReset(TEST_CURRENT_EMAIL));
+    assertThat(exception, hasErrorCode(ErrorCode.UNKNOWN_IDENTIFIER));
   }
 
   @Test
   public void claimPasswordResetToken() {
     when(fafTokenService.resolveToken(FafTokenType.PASSWORD_RESET, TOKEN_VALUE))
-      .thenReturn(ImmutableMap.of(KEY_USER_ID, "5",
-        KEY_PASSWORD, TEST_NEW_PASSWORD));
+      .thenReturn(Map.of(KEY_USER_ID, "5"));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(userRepository.findById(5)).thenReturn(Optional.of(user));
 
-    instance.claimPasswordResetToken(TOKEN_VALUE);
+    instance.performPasswordReset(TOKEN_VALUE, TEST_NEW_PASSWORD);
 
     ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
     verify(userRepository).save(captor.capture());
     assertEquals(captor.getValue().getPassword(), fafPasswordEncoder.encode(TEST_NEW_PASSWORD));
     verify(anopeUserRepository).updatePassword(TEST_USERNAME, Hashing.md5().hashString(TEST_NEW_PASSWORD, StandardCharsets.UTF_8).toString());
-    verifyZeroInteractions(mauticService);
+    verifyNoMoreInteractions(eventPublisher);
   }
 
   @Test
   @SuppressWarnings("unchecked")
   public void buildSteamLinkUrl() {
-    when(steamService.buildLoginUrl(any())).thenReturn("steamLoginUrl");
+    when(steamService.buildLoginUrl(any())).thenReturn(STEAM_LOGIN_URL);
+    when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
-    String url = instance.buildSteamLinkUrl(user, "http://example.com/callback");
+    String url = instance.buildSteamLinkUrl(user, TEST_CALLBACK_URL);
 
     ArgumentCaptor<String> loginUrlCaptor = ArgumentCaptor.forClass(String.class);
     verify(steamService).buildLoginUrl(loginUrlCaptor.capture());
@@ -424,117 +436,121 @@ public class UserServiceTest {
 
     verify(fafTokenService).createToken(
       eq(FafTokenType.LINK_TO_STEAM),
-      eq(Duration.ofHours(1)),
+      eq(Duration.ofHours(6)),
       attributesCaptor.capture()
     );
 
-    assertThat(url, is("steamLoginUrl"));
+    assertThat(url, is(STEAM_LOGIN_URL));
     assertThat(loginUrlCaptor.getValue(), is(TOKEN_VALUE));
-    assertThat(attributesCaptor.getValue(), is(ImmutableMap.of(
+    assertThat(attributesCaptor.getValue(), is(Map.of(
       KEY_USER_ID, String.valueOf(user.getId()),
-      "callbackUrl", "http://example.com/callback"
+      KEY_STEAM_CALLBACK_URL, TEST_CALLBACK_URL
     )));
   }
 
   @Test
-  public void buildSteamLinkUrlAlreadLinked() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.STEAM_ID_UNCHANGEABLE));
+  @SuppressWarnings("unchecked")
+  public void buildSteamPasswordResetUrl() {
+    when(steamService.buildLoginUrl(any())).thenReturn(STEAM_LOGIN_URL);
 
+    String url = instance.buildSteamPasswordResetUrl();
+
+    assertThat(url, is(STEAM_LOGIN_URL));
+  }
+
+  @Test
+  public void buildSteamLinkUrlAlreadyLinked() {
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     user.setSteamId(STEAM_ID);
 
-    instance.buildSteamLinkUrl(user, "http://example.com/callback");
+    ApiException exception = assertThrows(ApiException.class, () -> instance.buildSteamLinkUrl(user, TEST_CALLBACK_URL));
+    assertThat(exception, hasErrorCode(ErrorCode.STEAM_ID_UNCHANGEABLE));
   }
 
   @Test
   public void linkToSteam() {
     when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE))
-      .thenReturn(ImmutableMap.of(
+      .thenReturn(Map.of(
         KEY_USER_ID, "5",
-        KEY_STEAM_LINK_CALLBACK_URL, "callbackUrl"
+        KEY_STEAM_CALLBACK_URL, TEST_CALLBACK_URL
       ));
     when(steamService.ownsForgedAlliance(any())).thenReturn(true);
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(userRepository.findById(5)).thenReturn(Optional.of(user));
-    when(userRepository.findOneBySteamIdIgnoreCase(STEAM_ID)).thenReturn(Optional.empty());
+    when(userRepository.findOneBySteamId(STEAM_ID)).thenReturn(Optional.empty());
 
-    SteamLinkResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
+    CallbackResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
 
-    assertThat(result.getCallbackUrl(), is("callbackUrl"));
+    assertThat(result.getCallbackUrl(), is(TEST_CALLBACK_URL));
     assertThat(result.getErrors(), is(empty()));
     assertThat(user.getSteamId(), is(STEAM_ID));
-    verifyZeroInteractions(mauticService);
+    verifyNoMoreInteractions(eventPublisher);
   }
 
   @Test
   public void linkToSteamUnknownUser() {
-    expectedException.expect(ApiExceptionWithCode.apiExceptionWithCode(ErrorCode.TOKEN_INVALID));
-
-    when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE)).thenReturn(ImmutableMap.of(KEY_USER_ID, "5"));
+    when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE))
+      .thenReturn(Map.of(
+        KEY_USER_ID, "5",
+        KEY_STEAM_CALLBACK_URL, TEST_CALLBACK_URL
+      ));
     when(userRepository.findById(5)).thenReturn(Optional.empty());
 
-    instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
-    verifyZeroInteractions(mauticService);
+    CallbackResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
+    assertThat(result.getCallbackUrl(), is(TEST_CALLBACK_URL));
+    assertThat(result.getErrors(), contains(new Error(ErrorCode.TOKEN_INVALID)));
+
+    verifyNoMoreInteractions(eventPublisher);
   }
 
   @Test
   public void linkToSteamNoGame() {
     when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE))
-      .thenReturn(ImmutableMap.of(
+      .thenReturn(Map.of(
         KEY_USER_ID, "5",
-        KEY_STEAM_LINK_CALLBACK_URL, "callbackUrl"
+        KEY_STEAM_CALLBACK_URL, TEST_CALLBACK_URL
       ));
     when(steamService.ownsForgedAlliance(any())).thenReturn(false);
-    when(userRepository.findOneBySteamIdIgnoreCase(STEAM_ID)).thenReturn(Optional.empty());
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(userRepository.findById(5)).thenReturn(Optional.of(user));
 
-    SteamLinkResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
+    CallbackResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
 
-    assertThat(result.getCallbackUrl(), is("callbackUrl"));
-    assertThat(result.getErrors(), hasSize(1));
-    assertThat(result.getErrors().get(0).getErrorCode(), is(ErrorCode.STEAM_LINK_NO_FA_GAME));
-    assertThat(result.getErrors().get(0).getArgs(), is(new Object[0]));
-    verifyZeroInteractions(mauticService);
+    assertThat(result.getCallbackUrl(), is(TEST_CALLBACK_URL));
+    assertThat(result.getErrors(), contains(new Error(ErrorCode.STEAM_LINK_NO_FA_GAME)));
+    verifyNoMoreInteractions(eventPublisher);
   }
 
   @Test
   public void linkToSteamAlreadyLinked() {
     when(fafTokenService.resolveToken(FafTokenType.LINK_TO_STEAM, TOKEN_VALUE))
-      .thenReturn(ImmutableMap.of(
+      .thenReturn(Map.of(
         KEY_USER_ID, "6",
-        KEY_STEAM_LINK_CALLBACK_URL, "callbackUrl"
+        KEY_STEAM_CALLBACK_URL, TEST_CALLBACK_URL
       ));
     when(steamService.ownsForgedAlliance(any())).thenReturn(true);
     User otherUser = new User();
     otherUser.setLogin("axel12");
-    when(userRepository.findOneBySteamIdIgnoreCase(STEAM_ID)).thenReturn(Optional.of(otherUser));
+    when(userRepository.findOneBySteamId(STEAM_ID)).thenReturn(Optional.of(otherUser));
 
     User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
     when(userRepository.findById(6)).thenReturn(Optional.of(user));
 
-    SteamLinkResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
+    CallbackResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
 
-    assertThat(result.getCallbackUrl(), is("callbackUrl"));
-    assertThat(result.getErrors(), hasSize(1));
-    assertThat(result.getErrors().get(0).getErrorCode(), is(ErrorCode.STEAM_ID_ALREADY_LINKED));
-    assertThat(result.getErrors().get(0).getArgs(), hasItemInArray(otherUser.getLogin()));
-    verifyZeroInteractions(mauticService);
+    assertThat(result.getCallbackUrl(), is(TEST_CALLBACK_URL));
+    assertThat(result.getErrors(), contains(new Error(ErrorCode.STEAM_ID_ALREADY_LINKED, otherUser.getLogin())));
+    verifyNoMoreInteractions(eventPublisher);
   }
 
   @Test
-  public void mauticUpdateFailureDoesNotThrowException() {
-    when(mauticService.createOrUpdateContact(any(), any(), any(), any(), any()))
-      .thenAnswer(invocation -> {
-        CompletableFuture<Object> future = new CompletableFuture<>();
-        future.completeExceptionally(new IOException("This exception should be logged but cause no harm."));
-        return future;
-      });
+  public void testResyncAccount() {
+    User user = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL);
 
-    activate();
+    instance.resynchronizeAccount(user);
 
-    verify(mauticService).createOrUpdateContact(eq(TEST_NEW_EMAIL), eq(String.valueOf(TEST_USERID)), eq(TEST_USERNAME), eq(IP_ADDRESS), any(OffsetDateTime.class));
+    verify(eventPublisher).publishEvent(any(UserUpdatedEvent.class));
   }
 }
