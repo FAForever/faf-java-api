@@ -4,6 +4,7 @@ import com.faforever.api.security.elide.permission.WriteMatchmakerMapCheck;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
+import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 
 import javax.annotation.Nullable;
@@ -38,18 +39,21 @@ public class MatchmakerQueueMapPool extends AbstractEntity {
 
   @Nullable
   @Column(name = "min_rating")
+  @UpdatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
   public Double getMinRating() {
     return minRating;
   }
 
   @Nullable
   @Column(name = "max_rating")
+  @UpdatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
   public Double getMaxRating() {
     return maxRating;
   }
 
   @OneToOne
   @JoinColumn(name = "map_pool_id")
+  @UpdatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
   public MapPool getMapPool() {
     return mapPool;
   }
