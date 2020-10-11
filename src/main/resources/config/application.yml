@@ -55,8 +55,8 @@ spring:
     active: ${API_PROFILE:dev}
   servlet:
     multipart:
-      max-file-size: 300MB
-      max-request-size: 300MB
+      max-file-size: 350MB
+      max-request-size: 350MB
       file-size-threshold: 5MB
   mail:
     host: ${MAIL_HOST:false}
@@ -79,7 +79,7 @@ server:
   servlet:
     context-path: ${CONTEXT_PATH:/}
   jetty:
-    max-http-post-size: 314572800
+    max-http-post-size: 367001600
   use-forward-headers: true
 
 management:
