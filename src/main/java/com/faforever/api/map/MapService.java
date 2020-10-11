@@ -92,7 +92,7 @@ public class MapService {
     validateMapName(mapName);
     MapNameBuilder mapNameBuilder = new MapNameBuilder(mapName);
 
-    Integer nextVersion = mapRepository.findOneByDisplayName(mapNameBuilder.getDisplayName())
+    int nextVersion = mapRepository.findOneByDisplayName(mapNameBuilder.getDisplayName())
       .map(map -> map.getVersions().stream()
         .mapToInt(MapVersion::getVersion)
         .map(i -> i + 1)
@@ -167,7 +167,7 @@ public class MapService {
 
     Path rootTempFolder = contentService.createTempDir();
 
-    try {
+    try (mapDataInputStream) {
       Path unzippedFileFolder = unzipToTemporaryDirectory(mapDataInputStream, rootTempFolder);
       Path mapFolder = validateMapFolderStructure(unzippedFileFolder);
       validateRequiredFiles(mapFolder, MANDATORY_FILES);
@@ -197,7 +197,6 @@ public class MapService {
 
       zipMapData(mapFolderAfterRenaming, mapNameBuilder.buildFinalZipPath(mapLua.getMapVersion$()));
     } finally {
-      mapDataInputStream.close();
       FileSystemUtils.deleteRecursively(rootTempFolder);
     }
   }
@@ -219,6 +218,8 @@ public class MapService {
     log.debug("Unzipping uploaded file ''{}'' to: {}", mapDataInputStream, unzippedDirectory);
 
     Unzipper.from(mapDataInputStream)
+      .zipBombByteCountThreshold(5_000_000)
+      .zipBombProtectionFactor(200)
       .to(unzippedDirectory)
       .unzip();
 
@@ -234,7 +235,7 @@ public class MapService {
 
     try (Stream<Path> mapFolderStream = Files.list(zipContentFolder)) {
       mapFolder = mapFolderStream
-        .filter(path -> Files.isDirectory(path))
+        .filter(Files::isDirectory)
         .findFirst()
         .orElseThrow(() -> ApiException.of(ErrorCode.MAP_MISSING_MAP_FOLDER_INSIDE_ZIP));
     }
@@ -285,24 +286,24 @@ public class MapService {
     validateLuaPathVariable(mapLua, FILE_DECLARATION_SAVE, mapNameBuilder, FILE_ENDING_SAVE).ifPresent(errors::add);
     validateLuaPathVariable(mapLua, FILE_DECLARATION_SCRIPT, mapNameBuilder, FILE_ENDING_SCRIPT).ifPresent(errors::add);
 
-    if (!mapLua.getDescription().isPresent()) {
+    if (mapLua.getDescription().isEmpty()) {
       errors.add(new Error(ErrorCode.MAP_DESCRIPTION_MISSING));
     }
     if (mapLua.hasInvalidTeam()) {
       errors.add(new Error(ErrorCode.MAP_FIRST_TEAM_FFA));
     }
-    if (!mapLua.getType().isPresent()) {
+    if (mapLua.getType().isEmpty()) {
       errors.add(new Error(ErrorCode.MAP_TYPE_MISSING));
     }
-    if (!mapLua.getSize().isPresent()) {
+    if (mapLua.getSize().isEmpty()) {
       errors.add(new Error(ErrorCode.MAP_SIZE_MISSING));
     }
 
-    if (!mapLua.getMapVersion().isPresent()) {
+    if (mapLua.getMapVersion().isEmpty()) {
       errors.add(new Error(ErrorCode.MAP_VERSION_MISSING));
     }
 
-    if (!mapLua.getNoRushRadius().isPresent()) {
+    if (mapLua.getNoRushRadius().isEmpty()) {
       // The game can start without it, but the GPG map editor will crash on opening such a map.
       errors.add(new Error(ErrorCode.NO_RUSH_RADIUS_MISSING));
     }
