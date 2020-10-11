@@ -39,7 +39,7 @@ spring:
     hikari:
       connection-test-query: SELECT 1 FROM DUAL
       minimum-idle: 2
-      maximum-pool-size: 8
+      maximum-pool-size: 12
   jpa:
     hibernate:
       naming:
