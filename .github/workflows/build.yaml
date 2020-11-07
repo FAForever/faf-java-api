@@ -5,7 +5,7 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: adoptopenjdk:11-jdk-hotspot-bionic
+    container: adoptopenjdk:15-jdk-hotspot-bionic
     services:
       faf-db:
         image: mysql:5.7

@@ -1,10 +1,10 @@
-FROM adoptopenjdk/openjdk11:alpine-jre as builder
+FROM adoptopenjdk/openjdk15:alpine-jre as builder
 WORKDIR /application
 ARG JAR_FILE=build/libs/faf-java-api-*.jar
 COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
-FROM adoptopenjdk/openjdk11:alpine-jre
+FROM adoptopenjdk/openjdk15:alpine-jre
 VOLUME /tmp
 WORKDIR /application
 COPY --from=builder /application/dependencies/ ./
