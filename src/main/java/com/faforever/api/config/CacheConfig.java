@@ -27,7 +27,7 @@ import org.springframework.web.servlet.HandlerMapping;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
 import static com.faforever.api.challonge.ChallongeController.CHALLONGE_READ_CACHE_NAME;
 import static com.faforever.api.featuredmods.FeaturedModService.FEATURED_MOD_FILES_CACHE_NAME;
@@ -82,10 +82,10 @@ public class CacheConfig {
         String entity = getEntity((HttpServletRequest) context.getArgs()[1]);
 
         if (!cacheManager.getCacheNames().contains(entity)) {
-          return Collections.singletonList(ElideConfig.DEFAULT_CACHE_NAME);
+          return List.of(ElideConfig.DEFAULT_CACHE_NAME);
         }
 
-        return Collections.singletonList(entity);
+        return List.of(entity);
       }
     };
   }
