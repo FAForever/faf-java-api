@@ -28,7 +28,7 @@ public class LeaderboardRating extends AbstractEntity implements OwnableEntity {
   private Player player;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "player_id")
+  @JoinColumn(name = "login_id")
   public Player getPlayer() {
     return player;
   }
