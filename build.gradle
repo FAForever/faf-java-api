@@ -2,13 +2,17 @@ buildscript {
   repositories {
     jcenter()
     mavenCentral()
-    maven { url 'https://repo.spring.io/plugins-release' }
-    maven { url "https://plugins.gradle.org/m2/" }
   }
   dependencies {
-    classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
     classpath("gradle.plugin.org.kt3k.gradle.plugin:coveralls-gradle-plugin:${coverallsGradlePluginVersion}")
   }
+}
+
+plugins {
+  id "java"
+  id "org.springframework.boot" version "${springBootVersion}"
+  id "io.spring.dependency-management" version "${springDependencyManagementVersion}"
+  id "idea"
 }
 
 // source: https://github.com/mendhak/Gradle-Travis-Colored-Output/blob/master/ColoredOutput.gradle
@@ -92,11 +96,6 @@ tasks.withType(Test) {
   }
 
 }
-
-apply plugin: 'java'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
-apply plugin: 'idea'
 
 group = 'faforever'
 version = 'snapshot'
