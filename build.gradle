@@ -6,7 +6,6 @@ buildscript {
     maven { url "https://plugins.gradle.org/m2/" }
   }
   dependencies {
-    classpath("org.springframework.build.gradle:propdeps-plugin:${propdepsVersion}")
     classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
     classpath("gradle.plugin.org.kt3k.gradle.plugin:coveralls-gradle-plugin:${coverallsGradlePluginVersion}")
   }
@@ -97,7 +96,6 @@ tasks.withType(Test) {
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
-apply plugin: 'propdeps'
 apply plugin: 'idea'
 
 group = 'faforever'
@@ -244,8 +242,6 @@ dependencies {
 
   implementation("com.github.jasminb:jsonapi-converter:${jsonapiConverterVersion}")
   runtimeOnly("mysql:mysql-connector-java:${mysqlConnectorVersion}")
-
-  optional("org.springframework.boot:spring-boot-configuration-processor")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
