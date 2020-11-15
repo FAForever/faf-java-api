@@ -2,6 +2,7 @@ package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Column;
@@ -12,8 +13,10 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.OffsetDateTime;
+import java.util.Set;
 
 @Entity
 @Table(name = "game_player_stats")
@@ -37,6 +40,7 @@ public class GamePlayerStats {
   private OffsetDateTime scoreTime;
   private Game game;
   private GameOutcome result;
+  private Set<LeaderboardRatingJournal> ratingChanges;
 
   @Id
   @Column(name = "id")
@@ -75,21 +79,25 @@ public class GamePlayerStats {
     return startSpot;
   }
 
+  @Deprecated
   @Column(name = "mean")
   public Double getBeforeMean() {
     return beforeMean;
   }
 
+  @Deprecated
   @Column(name = "deviation")
   public Double getBeforeDeviation() {
     return beforeDeviation;
   }
 
+  @Deprecated
   @Column(name = "after_mean")
   public Double getAfterMean() {
     return afterMean;
   }
 
+  @Deprecated
   @Column(name = "after_deviation")
   public Double getAfterDeviation() {
     return afterDeviation;
@@ -115,5 +123,11 @@ public class GamePlayerStats {
   @Enumerated(EnumType.STRING)
   public GameOutcome getResult() {
     return result;
+  }
+
+  @OneToMany(mappedBy = "gamePlayerStats")
+  @BatchSize(size = 1000)
+  public Set<LeaderboardRatingJournal> getRatingChanges() {
+    return ratingChanges;
   }
 }

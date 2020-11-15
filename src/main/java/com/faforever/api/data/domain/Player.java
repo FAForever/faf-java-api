@@ -39,13 +39,13 @@ public class Player extends Login {
   private Set<ModerationReport> reportedOnModerationReports;
 
   @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
-  @BatchSize(size = 1000)
+  @Deprecated
   public Ladder1v1Rating getLadder1v1Rating() {
     return ladder1v1Rating;
   }
 
   @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
-  @BatchSize(size = 1000)
+  @Deprecated
   public GlobalRating getGlobalRating() {
     return globalRating;
   }
@@ -65,6 +65,7 @@ public class Player extends Login {
   // Permission is managed by NameRecord class
   @UpdatePermission(expression = Prefab.ALL)
   @OneToMany(mappedBy = "player")
+  @BatchSize(size = 1000)
   public Set<NameRecord> getNames() {
     return this.names;
   }

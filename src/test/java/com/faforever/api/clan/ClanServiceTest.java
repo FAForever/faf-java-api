@@ -142,7 +142,7 @@ public class ClanServiceTest {
     assertEquals(creator, clanCaptor.getValue().getLeader());
     assertEquals(creator, clanCaptor.getValue().getFounder());
     assertEquals(1, clanCaptor.getValue().getMemberships().size());
-    assertEquals(creator, clanCaptor.getValue().getMemberships().get(0).getPlayer());
+    assertEquals(creator, clanCaptor.getValue().getMemberships().stream().findFirst().get().getPlayer());
   }
 
   @Test

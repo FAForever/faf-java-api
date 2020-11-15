@@ -104,6 +104,7 @@ public class Game {
   }
 
   @OneToMany(mappedBy = "game")
+  @BatchSize(size = 1000)
   public List<GamePlayerStats> getPlayerStats() {
     return playerStats;
   }
@@ -122,6 +123,7 @@ public class Game {
 
   @OneToMany(mappedBy = "game")
   @UpdatePermission(expression = Prefab.ALL)
+  @BatchSize(size = 1000)
   public List<GameReview> getReviews() {
     return reviews;
   }

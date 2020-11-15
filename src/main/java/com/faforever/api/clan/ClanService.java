@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -62,7 +62,7 @@ public class ClanService {
     membership.setClan(clan);
     membership.setPlayer(creator);
 
-    clan.setMemberships(Collections.singletonList(membership));
+    clan.setMemberships(Set.of(membership));
 
     // clan membership is saved over cascading, otherwise validation will fail
     clanRepository.save(clan);

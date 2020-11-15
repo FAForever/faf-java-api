@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.Column;
 import javax.persistence.FetchType;
@@ -79,12 +80,14 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
   @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
   // Permission is managed by BanInfo class
   @UpdatePermission(expression = AdminAccountBanCheck.EXPRESSION)
+  @BatchSize(size = 1000)
   public Set<BanInfo> getBans() {
     return this.bans;
   }
 
   @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
   @UpdatePermission(expression = AdminAccountNoteCheck.EXPRESSION)
+  @BatchSize(size = 1000)
   public Set<UserNote> getUserNotes() {
     return this.userNotes;
   }
@@ -109,6 +112,7 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
   @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadUserGroupCheck.EXPRESSION)
   @UpdatePermission(expression = Prefab.ALL)
   @ManyToMany(mappedBy = "members")
+  @BatchSize(size = 1000)
   public Set<UserGroup> getUserGroups() {
     return userGroups;
   }

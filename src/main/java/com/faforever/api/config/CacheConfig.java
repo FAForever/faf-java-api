@@ -7,6 +7,8 @@ import com.faforever.api.data.domain.AvatarAssignment;
 import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.Event;
 import com.faforever.api.data.domain.FeaturedMod;
+import com.faforever.api.data.domain.Leaderboard;
+import com.faforever.api.data.domain.LeaderboardRating;
 import com.faforever.api.data.domain.Map;
 import com.faforever.api.data.domain.MapStatistics;
 import com.faforever.api.data.domain.MapVersion;
@@ -65,7 +67,9 @@ public class CacheConfig {
       new CaffeineCache(LEADERBOARD_RANKED_1V1_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
       new CaffeineCache(LEADERBOARD_GLOBAL_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
       new CaffeineCache(FEATURED_MOD_FILES_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
-      new CaffeineCache(CLIENTS_CACHE_NAME, newBuilder().expireAfterWrite(5, SECONDS).build())
+      new CaffeineCache(CLIENTS_CACHE_NAME, newBuilder().expireAfterWrite(5, SECONDS).build()),
+      new CaffeineCache(Leaderboard.TYPE_NAME, newBuilder().expireAfterWrite(1, MINUTES).build()),
+      new CaffeineCache(LeaderboardRating.TYPE_NAME, newBuilder().expireAfterWrite(1, MINUTES).build())
     ));
     return cacheManager;
   }

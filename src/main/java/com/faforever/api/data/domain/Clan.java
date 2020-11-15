@@ -11,6 +11,7 @@ import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -25,7 +26,7 @@ import javax.persistence.Transient;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "clan")
@@ -47,7 +48,7 @@ public class Clan extends AbstractEntity implements OwnableEntity {
   private String description;
   private String tagColor;
   private String websiteUrl;
-  private List<ClanMembership> memberships;
+  private Set<ClanMembership> memberships;
   private Boolean requiresInvitation;
 
   @Column(name = "name")
@@ -94,7 +95,8 @@ public class Clan extends AbstractEntity implements OwnableEntity {
   // Permission is managed by ClanMembership class
   @UpdatePermission(expression = Prefab.ALL)
   @NotEmpty(message = "At least the leader should be in the clan")
-  public List<ClanMembership> getMemberships() {
+  @BatchSize(size = 1000)
+  public Set<ClanMembership> getMemberships() {
     return this.memberships;
   }
 
