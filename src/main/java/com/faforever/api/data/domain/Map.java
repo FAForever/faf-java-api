@@ -1,14 +1,15 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.listeners.MapChangeListener;
 import com.yahoo.elide.annotation.Include;
+import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.CascadeType;
@@ -23,6 +24,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
@@ -45,8 +47,7 @@ public class Map extends AbstractEntity implements OwnableEntity {
   private Player author;
   private MapStatistics statistics;
   private MapVersion latestVersion;
-  private int numberOfReviews;
-  private float averageReviewScore;
+  private MapReviewsSummary reviewsSummary;
 
   @Column(name = "display_name", unique = true)
   @Size(max = 100)
@@ -65,16 +66,6 @@ public class Map extends AbstractEntity implements OwnableEntity {
   @NotNull
   public String getBattleType() {
     return battleType;
-  }
-
-  @Column(name = "reviews")
-  public int getNumberOfReviews() {
-    return numberOfReviews;
-  }
-
-  @Column(name = "average_review_score")
-  public float getAverageReviewScore() {
-    return averageReviewScore;
   }
 
   @OneToMany(mappedBy = "map", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -101,14 +92,20 @@ public class Map extends AbstractEntity implements OwnableEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumnsOrFormulas({
       @JoinColumnOrFormula(
-          formula = @JoinFormula(
-              value = "(SELECT map_version.id FROM map_version WHERE map_version.map_id = id ORDER BY map_version.version DESC LIMIT 1)",
-              referencedColumnName = "id")
+        formula = @JoinFormula(
+          value = "(SELECT map_version.id FROM map_version WHERE map_version.map_id = id ORDER BY map_version.version DESC LIMIT 1)",
+          referencedColumnName = "id")
       )
   })
   @BatchSize(size = 1000)
   public MapVersion getLatestVersion() {
     return latestVersion;
+  }
+
+  @OneToOne(mappedBy = "map")
+  @UpdatePermission(expression = Prefab.ALL)
+  public MapReviewsSummary getReviewsSummary() {
+    return reviewsSummary;
   }
 
   @Transient

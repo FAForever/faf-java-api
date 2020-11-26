@@ -1,6 +1,8 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.checks.Prefab;
 import com.yahoo.elide.annotation.Include;
+import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.JoinColumnOrFormula;
@@ -14,6 +16,7 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.Valid;
@@ -35,8 +38,7 @@ public class Mod extends AbstractEntity implements OwnableEntity {
   private List<ModVersion> versions;
   private ModVersion latestVersion;
   private Player uploader;
-  private int numberOfReviews;
-  private float averageReviewScore;
+  private ModReviewsSummary reviewsSummary;
 
   @Column(name = "display_name")
   @Size(max = 100)
@@ -50,16 +52,6 @@ public class Mod extends AbstractEntity implements OwnableEntity {
   @NotNull
   public String getAuthor() {
     return author;
-  }
-
-  @Column(name = "reviews")
-  public int getNumberOfReviews() {
-    return numberOfReviews;
-  }
-
-  @Column(name = "average_review_score")
-  public float getAverageReviewScore() {
-    return averageReviewScore;
   }
 
   @ManyToOne
@@ -85,6 +77,12 @@ public class Mod extends AbstractEntity implements OwnableEntity {
   })
   public ModVersion getLatestVersion() {
     return latestVersion;
+  }
+
+  @OneToOne(mappedBy = "mod")
+  @UpdatePermission(expression = Prefab.ALL)
+  public ModReviewsSummary getReviewsSummary() {
+    return reviewsSummary;
   }
 
   @Transient

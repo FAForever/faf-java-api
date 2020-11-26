@@ -16,10 +16,10 @@ import javax.persistence.Table;
 
 @Entity
 @Setter
-@Table(name = "map_version_reviews_summary")
-@Include(type = "mapVersionReviewsSummary")
+@Table(name = "map_reviews_summary")
+@Include(type = "mapReviewsSummary")
 @Immutable
-public class MapVersionReviewsSummary {
+public class MapReviewsSummary {
   private int id;
   private float positive;
   private float negative;
@@ -27,7 +27,7 @@ public class MapVersionReviewsSummary {
   private int reviews;
   @Nullable
   private Float lowerBound;
-  private MapVersion mapVersion;
+  private Map map;
 
   @Id
   @Column(name = "id")
@@ -62,9 +62,9 @@ public class MapVersionReviewsSummary {
   }
 
   @OneToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "map_version_id", insertable = false, updatable = false)
+  @JoinColumn(name = "map_id", insertable = false, updatable = false)
   @BatchSize(size = 1000)
-  public MapVersion getMapVersion() {
-    return mapVersion;
+  public Map getMap() {
+    return map;
   }
 }

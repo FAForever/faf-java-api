@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
 
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -24,11 +25,12 @@ public class ModVersionReviewsSummary {
   private float negative;
   private float score;
   private int reviews;
-  private float lowerBound;
+  @Nullable
+  private Float lowerBound;
   private ModVersion modVersion;
 
   @Id
-  @Column(name = "mod_version_id")
+  @Column(name = "id")
   public int getId() {
     return id;
   }
@@ -54,6 +56,7 @@ public class ModVersionReviewsSummary {
   }
 
   @Column(name = "lower_bound")
+  @Nullable
   public float getLowerBound() {
     return lowerBound;
   }
