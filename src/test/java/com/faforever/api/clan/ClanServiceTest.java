@@ -145,7 +145,7 @@ public class ClanServiceTest {
       assertThat(clan.getFounder(), is(player));
       assertThat(clan.getLeader(), is(player));
       assertThat(clan.getMemberships().size(), is(1));
-      assertThat(clan.getMemberships().get(0).getPlayer(), is(player));
+      assertThat(clan.getMemberships().iterator().next().getPlayer(), is(player));
 
       verify(playerService).getCurrentPlayer();
       verify(clanRepository).findOneByName(any());
