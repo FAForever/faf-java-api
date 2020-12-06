@@ -8,6 +8,10 @@ import com.faforever.api.player.PlayerRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.MethodMode;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.web.servlet.MvcResult;
@@ -25,6 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@DirtiesContext(methodMode = MethodMode.BEFORE_METHOD)
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/truncateTables.sql")
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultData.sql")
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepClanData.sql")
@@ -110,6 +115,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
+  @DirtiesContext(methodMode = MethodMode.BEFORE_METHOD)
   public void createClanWithExistingName() throws Exception {
     Player player = playerRepository.getById(USERID_USER);
 
@@ -132,6 +138,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
+  @DirtiesContext(methodMode = MethodMode.BEFORE_METHOD)
   public void createClanWithExistingTag() throws Exception {
     Player player = playerRepository.getById(USERID_USER);
 
@@ -154,6 +161,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
+  @DirtiesContext(methodMode = MethodMode.BEFORE_METHOD)
   public void createSecondClan() throws Exception {
     Player player = playerRepository.getById(USERID_CLAN_MEMBER);
 
