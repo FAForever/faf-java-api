@@ -12,6 +12,13 @@ import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
+import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
+import org.apache.lucene.analysis.ngram.NGramTokenizerFactory;
+import org.hibernate.search.annotations.AnalyzerDef;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Parameter;
+import org.hibernate.search.annotations.TokenFilterDef;
+import org.hibernate.search.annotations.TokenizerDef;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,6 +33,16 @@ import java.time.OffsetDateTime;
 @Entity
 @Table(name = "avatars")
 @Include(rootLevel = true, type = AvatarAssignment.TYPE_NAME)
+@Indexed
+@AnalyzerDef(name = "case_insensitive",
+  tokenizer = @TokenizerDef(factory = NGramTokenizerFactory.class, params = {
+    @Parameter(name = "minGramSize", value = "3"),
+    @Parameter(name = "maxGramSize", value = "10")
+  }),
+  filters = {
+    @TokenFilterDef(factory = LowerCaseFilterFactory.class)
+  }
+)
 @CreatePermission(expression = WriteAvatarCheck.EXPRESSION)
 @DeletePermission(expression = WriteAvatarCheck.EXPRESSION)
 @Audit(action = Action.CREATE, logStatement = "Avatar ''{0}'' has been assigned to player ''{1}''", logExpressions = {"${avatarAssignment.avatar.id}", "${avatarAssignment.player.id}"})

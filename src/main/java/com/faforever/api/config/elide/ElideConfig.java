@@ -26,9 +26,11 @@ import com.faforever.api.security.elide.permission.WriteUserGroupCheck;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yahoo.elide.Elide;
 import com.yahoo.elide.ElideSettingsBuilder;
+import com.yahoo.elide.core.DataStore;
 import com.yahoo.elide.core.EntityDictionary;
 import com.yahoo.elide.core.filter.dialect.CaseSensitivityStrategy;
 import com.yahoo.elide.core.filter.dialect.RSQLFilterDialect;
+import com.yahoo.elide.datastores.search.SearchDataStore;
 import com.yahoo.elide.jsonapi.JsonApiMapper;
 import com.yahoo.elide.security.checks.Check;
 import com.yahoo.elide.utils.coerce.CoerceUtil;
@@ -41,6 +43,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -129,5 +133,17 @@ public class ElideConfig {
     checks.put(WriteUserGroupCheck.EXPRESSION, WriteUserGroupCheck.class);
 
     return new EntityDictionary(checks);
+  }
+
+  @Bean
+  public Elide initElideSearch(SpringHibernateDataStore springHibernateDataStore) {
+    DataStore store = springHibernateDataStore;
+
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("searchDataStore");
+
+    boolean indexOnStartup = true;
+    DataStore searchStore = new SearchDataStore(store, emf, indexOnStartup);
+
+    return new Elide(new ElideSettingsBuilder(searchStore).build());
   }
 }
