@@ -20,6 +20,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -51,6 +52,7 @@ public class Game {
   private String replayUrl;
   private List<GameReview> reviews;
   private GameReviewsSummary reviewsSummary;
+  private MatchmakerQueue matchmakerQueue;
 
   @Id
   @Column(name = "id")
@@ -134,5 +136,15 @@ public class Game {
   @BatchSize(size = 1000)
   public GameReviewsSummary getReviewsSummary() {
     return reviewsSummary;
+  }
+
+  @JoinTable(name = "matchmaker_queue_game",
+    joinColumns = @JoinColumn(name = "game_stats_id"),
+    inverseJoinColumns = @JoinColumn(name = "matchmaker_queue_id")
+  )
+  @ManyToOne
+  @Nullable
+  public MatchmakerQueue getMatchmakerQueue() {
+    return matchmakerQueue;
   }
 }
