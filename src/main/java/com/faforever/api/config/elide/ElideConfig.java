@@ -61,7 +61,12 @@ public class ElideConfig {
 
     registerAdditionalConverters();
 
-    return new Elide(new ElideSettingsBuilder(springHibernateDataStore)
+    // Wrap store in search store
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("searchDataStore");
+    boolean indexOnStartup = true;
+    DataStore searchStore = new SearchDataStore(springHibernateDataStore, emf, indexOnStartup);
+
+    return new Elide(new ElideSettingsBuilder(searchStore)
       .withJsonApiMapper(new JsonApiMapper(entityDictionary, objectMapper))
       .withAuditLogger(extendedAuditLogger)
       .withEntityDictionary(entityDictionary)
@@ -133,17 +138,5 @@ public class ElideConfig {
     checks.put(WriteUserGroupCheck.EXPRESSION, WriteUserGroupCheck.class);
 
     return new EntityDictionary(checks);
-  }
-
-  @Bean
-  public Elide initElideSearch(SpringHibernateDataStore springHibernateDataStore) {
-    DataStore store = springHibernateDataStore;
-
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("searchDataStore");
-
-    boolean indexOnStartup = true;
-    DataStore searchStore = new SearchDataStore(store, emf, indexOnStartup);
-
-    return new Elide(new ElideSettingsBuilder(searchStore).build());
   }
 }
