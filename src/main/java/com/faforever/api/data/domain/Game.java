@@ -20,7 +20,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -28,7 +27,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.time.OffsetDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "game_stats")
@@ -48,11 +47,10 @@ public class Game {
   private MapVersion mapVersion;
   private String name;
   private Validity validity;
-  private List<GamePlayerStats> playerStats;
+  private Set<GamePlayerStats> playerStats;
   private String replayUrl;
-  private List<GameReview> reviews;
+  private Set<GameReview> reviews;
   private GameReviewsSummary reviewsSummary;
-  private MatchmakerQueue matchmakerQueue;
 
   @Id
   @Column(name = "id")
@@ -107,7 +105,7 @@ public class Game {
 
   @OneToMany(mappedBy = "game")
   @BatchSize(size = 1000)
-  public List<GamePlayerStats> getPlayerStats() {
+  public Set<GamePlayerStats> getPlayerStats() {
     return playerStats;
   }
 
@@ -126,7 +124,7 @@ public class Game {
   @OneToMany(mappedBy = "game")
   @UpdatePermission(expression = Prefab.ALL)
   @BatchSize(size = 1000)
-  public List<GameReview> getReviews() {
+  public Set<GameReview> getReviews() {
     return reviews;
   }
 
@@ -138,13 +136,22 @@ public class Game {
     return reviewsSummary;
   }
 
-  @JoinTable(name = "matchmaker_queue_game",
-    joinColumns = @JoinColumn(name = "game_stats_id"),
-    inverseJoinColumns = @JoinColumn(name = "matchmaker_queue_id")
-  )
-  @ManyToOne
-  @Nullable
-  public MatchmakerQueue getMatchmakerQueue() {
-    return matchmakerQueue;
-  }
+  /**
+   * This ManyToOne relationship leads to a double left outer join through Elide causing an additional full table
+   * scan on the matchmaker_queue table. Even though it has only 3 records, it causes MySql 5.7 and MySQL to run
+   * a list of all games > 1 min on prod where it was ~1 second before.
+   *
+   * This can be fixed by migrating to MariaDB.
+   */
+//  private Integer matchmakerQueueId;
+//
+//  @JoinTable(name = "matchmaker_queue_game",
+//    joinColumns = @JoinColumn(name = "game_stats_id"),
+//    inverseJoinColumns = @JoinColumn(name = "matchmaker_queue_id")
+//  )
+//  @ManyToOne(fetch = FetchType.LAZY)
+//  @Nullable
+//  public Integer getMatchmakerQueueId() {
+//    return matchmakerQueueId;
+//  }
 }
