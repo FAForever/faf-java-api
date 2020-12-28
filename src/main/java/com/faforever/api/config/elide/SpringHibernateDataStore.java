@@ -24,7 +24,6 @@ import org.hibernate.ScrollMode;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
@@ -45,9 +44,7 @@ public class SpringHibernateDataStore implements DataStore {
   private static final Logger logger = LoggerFactory.getLogger(SpringHibernateDataStore.class);
 
   protected final PlatformTransactionManager txManager;
-  protected final AutowireCapableBeanFactory beanFactory;
   protected final EntityManager entityManager;
-  protected final boolean isSpringDependencyInjection;
   protected final boolean isScrollEnabled;
   protected final ScrollMode scrollMode;
   protected final HibernateTransactionSupplier transactionSupplier;
@@ -62,13 +59,10 @@ public class SpringHibernateDataStore implements DataStore {
    * @param scrollMode Scroll mode to use for scrolling driver
    */
   public SpringHibernateDataStore(PlatformTransactionManager txManager,
-                                  AutowireCapableBeanFactory beanFactory,
                                   EntityManager entityManager,
-                                  boolean isSpringDependencyInjection,
                                   boolean isScrollEnabled,
                                   ScrollMode scrollMode) {
-    this(txManager, beanFactory, entityManager, isSpringDependencyInjection,
-      isScrollEnabled, scrollMode, SpringHibernateTransaction::new);
+    this(txManager, entityManager, isScrollEnabled, scrollMode, SpringHibernateTransaction::new);
   }
 
   /**
@@ -83,16 +77,12 @@ public class SpringHibernateDataStore implements DataStore {
    * @param transactionSupplier Supplier for transaction
    */
   protected SpringHibernateDataStore(PlatformTransactionManager txManager,
-                                     AutowireCapableBeanFactory beanFactory,
                                      EntityManager entityManager,
-                                     boolean isSpringDependencyInjection,
                                      boolean isScrollEnabled,
                                      ScrollMode scrollMode,
                                      HibernateTransactionSupplier transactionSupplier) {
     this.txManager = txManager;
-    this.beanFactory = beanFactory;
     this.entityManager = entityManager;
-    this.isSpringDependencyInjection = isSpringDependencyInjection;
     this.isScrollEnabled = isScrollEnabled;
     this.scrollMode = scrollMode;
     this.transactionSupplier = transactionSupplier;
@@ -100,11 +90,6 @@ public class SpringHibernateDataStore implements DataStore {
 
   @Override
   public void populateEntityDictionary(EntityDictionary dictionary) {
-    if (isSpringDependencyInjection) {
-      logger.info("Spring Dependency Injection is enabled, "
-        + "each time an object of entityClass type is instantiated by Elide, "
-        + "Spring will try to inject beans.");
-    }
     Set<EntityType<?>> entities = entityManager.getMetamodel().getEntities();
     /* bind all entities */
     entities.stream()
