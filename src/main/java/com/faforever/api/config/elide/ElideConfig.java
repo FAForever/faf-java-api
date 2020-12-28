@@ -26,12 +26,13 @@ import com.faforever.api.security.elide.permission.WriteUserGroupCheck;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yahoo.elide.Elide;
 import com.yahoo.elide.ElideSettingsBuilder;
-import com.yahoo.elide.core.EntityDictionary;
+import com.yahoo.elide.core.dictionary.EntityDictionary;
+import com.yahoo.elide.core.dictionary.Injector;
 import com.yahoo.elide.core.filter.dialect.CaseSensitivityStrategy;
 import com.yahoo.elide.core.filter.dialect.RSQLFilterDialect;
+import com.yahoo.elide.core.security.checks.Check;
+import com.yahoo.elide.core.utils.coerce.CoerceUtil;
 import com.yahoo.elide.jsonapi.JsonApiMapper;
-import com.yahoo.elide.security.checks.Check;
-import com.yahoo.elide.utils.coerce.CoerceUtil;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
 import org.hibernate.ScrollMode;
@@ -58,7 +59,7 @@ public class ElideConfig {
     registerAdditionalConverters();
 
     return new Elide(new ElideSettingsBuilder(springHibernateDataStore)
-      .withJsonApiMapper(new JsonApiMapper(entityDictionary, objectMapper))
+      .withJsonApiMapper(new JsonApiMapper(objectMapper))
       .withAuditLogger(extendedAuditLogger)
       .withEntityDictionary(entityDictionary)
       .withJoinFilterDialect(rsqlFilterDialect)
@@ -102,7 +103,7 @@ public class ElideConfig {
   }
 
   @Bean
-  public EntityDictionary entityDictionary() {
+  public EntityDictionary entityDictionary(AutowireCapableBeanFactory beanFactory) {
     ConcurrentHashMap<String, Class<? extends Check>> checks = new ConcurrentHashMap<>();
     checks.put(IsAuthenticated.EXPRESSION, IsAuthenticated.Inline.class);
     checks.put(IsEntityOwner.EXPRESSION, IsEntityOwner.Inline.class);
@@ -128,6 +129,20 @@ public class ElideConfig {
     checks.put(WriteTutorialCheck.EXPRESSION, WriteTutorialCheck.class);
     checks.put(WriteUserGroupCheck.EXPRESSION, WriteUserGroupCheck.class);
 
-    return new EntityDictionary(checks);
+    final EntityDictionary entityDictionary = new EntityDictionary(checks, new Injector() {
+      @Override
+      public void inject(Object entity) {
+        beanFactory.autowireBean(entity);
+      }
+
+      @Override
+      public <T> T instantiate(Class<T> cls) {
+        return beanFactory.createBean(cls);
+      }
+    });
+
+    entityDictionary.scanForSecurityChecks();
+
+    return entityDictionary;
   }
 }

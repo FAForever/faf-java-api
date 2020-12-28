@@ -79,4 +79,5 @@ spring:
               password: ${ADMIN_CLIENT_PASSWORD}
 
 logging:
-  path: ${LOG_FILE_DIRECTORY:/tmp}
+  file:
+    path: ${LOG_FILE_DIRECTORY:/tmp}

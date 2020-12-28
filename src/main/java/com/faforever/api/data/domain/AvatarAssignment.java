@@ -1,7 +1,6 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsEntityOwner;
-import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.security.elide.permission.WriteAvatarCheck;
 import com.github.jasminb.jsonapi.annotations.Relationship;
 import com.github.jasminb.jsonapi.annotations.Type;
@@ -50,7 +49,7 @@ public class AvatarAssignment extends AbstractEntity implements OwnableEntity {
   }
 
   @Column(name = "expires_at")
-  @UpdatePermission(expression = WriteAvatarCheck.EXPRESSION + " or " + Prefab.UPDATE_ON_CREATE)
+  @UpdatePermission(expression = WriteAvatarCheck.EXPRESSION)
   @Audit(action = Action.UPDATE, logStatement = "Expiration of avatar assignment ''{0}'' has been set to ''{1}''", logExpressions = {"${avatarAssignment.id}", "${avatarAssignment.expiresAt}"})
   public OffsetDateTime getExpiresAt() {
     return expiresAt;
@@ -59,7 +58,6 @@ public class AvatarAssignment extends AbstractEntity implements OwnableEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "idAvatar")
   @NotNull
-  @UpdatePermission(expression = Prefab.UPDATE_ON_CREATE)
   public Avatar getAvatar() {
     return avatar;
   }
@@ -67,7 +65,6 @@ public class AvatarAssignment extends AbstractEntity implements OwnableEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "idUser")
   @NotNull
-  @UpdatePermission(expression = Prefab.UPDATE_ON_CREATE)
   public Player getPlayer() {
     return player;
   }

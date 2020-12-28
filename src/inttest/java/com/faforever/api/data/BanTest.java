@@ -7,16 +7,20 @@ import com.faforever.commons.api.dto.BanInfo;
 import com.faforever.commons.api.dto.BanLevel;
 import com.faforever.commons.api.dto.ModerationReport;
 import com.faforever.commons.api.dto.Player;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
+
+import java.time.OffsetDateTime;
 
 import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
 import static com.faforever.api.data.domain.GroupPermission.ROLE_ADMIN_ACCOUNT_BAN;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -125,6 +129,24 @@ public class BanTest extends AbstractIntegrationTest {
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isCreated());
+  }
+
+  @Test
+  public void canRevokeBanWithScopeAndRole() throws Exception {
+    final BanInfo banToRevoke = (BanInfo) new BanInfo()
+      .setRevokeReason("Revoke reason")
+      .setRevokeTime(OffsetDateTime.now())
+      .setId("3");
+    mockMvc.perform(patch("/data/banInfo/3")
+      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN))
+      .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
+      .content(createJsonApiContent(banToRevoke)))
+      .andExpect(status().isNoContent());
+    mockMvc.perform(
+      get("/data/banInfo/3")
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN)))
+      .andExpect(jsonPath("$.data.attributes.revokeReason", Matchers.is("Revoke reason")))
+      .andExpect(jsonPath("$.data.relationships.revokeAuthor.data.id", Matchers.is("5")));
   }
 
   @Test

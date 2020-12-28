@@ -1,7 +1,9 @@
 package com.faforever.api.data;
 
+import com.faforever.api.security.ElideUser;
 import com.yahoo.elide.Elide;
 import com.yahoo.elide.ElideResponse;
+import com.yahoo.elide.core.security.User;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.http.MediaType;
@@ -24,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MultivaluedHashMap;
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
 import static com.faforever.api.data.JsonApiMediaType.JSON_API_PATCH_MEDIA_TYPE;
@@ -36,6 +39,7 @@ import static com.faforever.api.data.JsonApiMediaType.JSON_API_PATCH_MEDIA_TYPE;
 public class DataController {
 
   public static final String PATH_PREFIX = "/data";
+  public static final String API_VERSION = "";
 
   private final Elide elide;
 
@@ -43,8 +47,8 @@ public class DataController {
     this.elide = elide;
   }
 
-  private static Object getPrincipal(final Authentication authentication) {
-    return authentication != null ? authentication.getPrincipal() : null;
+  private static User getPrincipal(final Authentication authentication) {
+    return new ElideUser(authentication);
   }
 
   //!!! No @Transactional - transactions are being handled by Elide
@@ -57,7 +61,8 @@ public class DataController {
       getBaseUrlEndpoint(),
       getJsonApiPath(request),
       new MultivaluedHashMap<>(allRequestParams),
-      getPrincipal(authentication)
+      getPrincipal(authentication),
+      API_VERSION
     );
     return wrapResponse(response);
   }
@@ -74,7 +79,9 @@ public class DataController {
       getJsonApiPath(request),
       body,
       new MultivaluedHashMap<>(allRequestParams),
-      getPrincipal(authentication)
+      getPrincipal(authentication),
+      API_VERSION,
+      UUID.randomUUID()
     );
     return wrapResponse(response);
   }
@@ -93,7 +100,9 @@ public class DataController {
       getJsonApiPath(request),
       body,
       new MultivaluedHashMap<>(allRequestParams),
-      getPrincipal(authentication)
+      getPrincipal(authentication),
+      API_VERSION,
+      UUID.randomUUID()
     );
     return wrapResponse(response);
   }
@@ -112,7 +121,9 @@ public class DataController {
       getJsonApiPath(request),
       body,
       new MultivaluedHashMap<>(allRequestParams),
-      getPrincipal(authentication)
+      getPrincipal(authentication),
+      API_VERSION,
+      UUID.randomUUID()
     );
     return wrapResponse(response);
   }
@@ -129,7 +140,9 @@ public class DataController {
       getJsonApiPath(request),
       body,
       new MultivaluedHashMap<>(allRequestParams),
-      getPrincipal(authentication)
+      getPrincipal(authentication),
+      API_VERSION,
+      UUID.randomUUID()
     );
     return wrapResponse(response);
   }

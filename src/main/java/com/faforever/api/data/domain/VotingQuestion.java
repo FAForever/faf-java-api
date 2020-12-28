@@ -58,7 +58,6 @@ public class VotingQuestion extends AbstractEntity {
   private List<VotingChoice> winners;
   private Set<VotingChoice> votingChoices;
 
-  @UpdatePermission(expression = Prefab.UPDATE_ON_CREATE)
   @Column(name = "alternative_voting")
   public Boolean isAlternativeQuestion() {
     return alternativeQuestion;

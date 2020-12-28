@@ -8,7 +8,6 @@ import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
-import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
@@ -31,7 +30,6 @@ import java.util.Set;
 @Entity
 @Table(name = "clan")
 @Include(rootLevel = true, type = Clan.TYPE_NAME)
-@SharePermission
 @DeletePermission(expression = IsEntityOwner.EXPRESSION)
 @CreatePermission(expression = Prefab.ALL)
 @Setter
