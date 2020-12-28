@@ -3,6 +3,7 @@ package com.faforever.api.data.checks;
 import com.faforever.api.data.domain.ClanMembership;
 import com.faforever.api.security.ElideUser;
 import com.faforever.api.security.FafUserDetails;
+import com.yahoo.elide.annotation.SecurityCheck;
 import com.yahoo.elide.core.security.ChangeSpec;
 import com.yahoo.elide.core.security.RequestScope;
 import com.yahoo.elide.core.security.checks.OperationCheck;
@@ -13,6 +14,7 @@ import java.util.Optional;
 public class IsClanMembershipDeletable {
   public static final String EXPRESSION = "IsClanMembershipDeletable";
 
+  @SecurityCheck(EXPRESSION)
   public static class Inline extends OperationCheck<ClanMembership> {
 
     @Override
