@@ -26,7 +26,7 @@ public class MapVersionReview extends Review {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "map_version_id")
-  @UpdatePermission(expression = Prefab.ALL_AND_UPDATE_ON_CREATE)
+  @UpdatePermission(expression = Prefab.ALL)
   public MapVersion getMapVersion() {
     return mapVersion;
   }

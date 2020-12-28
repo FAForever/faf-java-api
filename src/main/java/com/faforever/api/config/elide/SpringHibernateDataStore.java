@@ -17,9 +17,9 @@
 package com.faforever.api.config.elide;
 
 import com.google.common.base.Preconditions;
-import com.yahoo.elide.core.DataStore;
-import com.yahoo.elide.core.DataStoreTransaction;
-import com.yahoo.elide.core.EntityDictionary;
+import com.yahoo.elide.core.datastore.DataStore;
+import com.yahoo.elide.core.datastore.DataStoreTransaction;
+import com.yahoo.elide.core.dictionary.EntityDictionary;
 import org.hibernate.ScrollMode;
 import org.hibernate.Session;
 import org.slf4j.Logger;
@@ -118,10 +118,6 @@ public class SpringHibernateDataStore implements DataStore {
           dictionary.lookupEntityClass(mappedClass);
           // Bind if successful
           dictionary.bindEntity(mappedClass);
-          if (isSpringDependencyInjection) {
-            // Bind Spring Dependency Injection
-            dictionary.bindInitializer(beanFactory::autowireBean, mappedClass);
-          }
         } catch (IllegalArgumentException e) {
           // Ignore this entity
           // Turns out that hibernate may include non-entity types in this list when using things

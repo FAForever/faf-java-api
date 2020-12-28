@@ -1,9 +1,10 @@
 package com.faforever.api.security.elide.permission;
 
+import com.faforever.api.security.ElideUser;
 import com.faforever.api.security.FafUserDetails;
 import com.faforever.api.security.OAuthScope;
-import com.yahoo.elide.security.User;
-import com.yahoo.elide.security.checks.UserCheck;
+import com.yahoo.elide.core.security.User;
+import com.yahoo.elide.core.security.checks.UserCheck;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -53,12 +54,12 @@ abstract class FafUserCheck extends UserCheck {
   }
 
   protected boolean checkUserPermission(User user, String... userPermissionRole) {
-    if (!(user.getOpaqueUser() instanceof FafUserDetails)) {
-      log.warn("UserCheck applied on wrong User type: {}", user);
+    if (!(user instanceof ElideUser) || ((ElideUser) user).getFafUserDetails().isEmpty()) {
+      log.warn("UserCheck applied on wrong User type: {}", user.getPrincipal());
       return false;
     }
 
-    FafUserDetails userDetails = (FafUserDetails) user.getOpaqueUser();
+    FafUserDetails userDetails = ((ElideUser) user).getFafUserDetails().get();
 
     Set<String> grantedUserRoles = userDetails.getAuthorities().stream()
       .map(GrantedAuthority::getAuthority)

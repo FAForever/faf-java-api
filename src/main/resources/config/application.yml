@@ -31,9 +31,6 @@ faf-api:
 spring:
   application:
     name: FAF Java API
-  mvc:
-    favicon:
-      enabled: false
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
@@ -63,11 +60,6 @@ spring:
     port: ${MAIL_PORT:false}
     username: ${MAIL_USERNAME:false}
     password: ${MAIL_PASSWORD:false}
-  http:
-    encoding:
-      charset: utf-8
-      enabled: true
-      force: true
   data:
     jpa:
       repositories:
@@ -78,9 +70,13 @@ server:
   port: ${API_PORT:8010}
   servlet:
     context-path: ${CONTEXT_PATH:/}
+    encoding:
+      charset: utf-8
+      enabled: true
+      force: true
   jetty:
-    max-http-post-size: 367001600
-  use-forward-headers: true
+    max-http-form-post-size: 367001600
+  forward-headers-strategy: native
 
 management:
   server:

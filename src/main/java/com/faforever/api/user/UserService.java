@@ -212,7 +212,7 @@ public class UserService {
   }
 
   void changePassword(String currentPassword, String newPassword, User user) {
-    if (!Objects.equals(user.getPassword(), passwordEncoder.encode(currentPassword))) {
+    if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
       throw ApiException.of(ErrorCode.PASSWORD_CHANGE_FAILED_WRONG_PASSWORD);
     }
 

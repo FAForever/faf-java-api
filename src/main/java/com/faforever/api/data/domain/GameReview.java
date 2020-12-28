@@ -26,7 +26,7 @@ public class GameReview extends Review {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "game_id")
-  @UpdatePermission(expression = Prefab.ALL_AND_UPDATE_ON_CREATE)
+  @UpdatePermission(expression = Prefab.ALL)
   public Game getGame() {
     return game;
   }

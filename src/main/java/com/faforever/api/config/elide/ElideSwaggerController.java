@@ -1,8 +1,8 @@
 package com.faforever.api.config.elide;
 
 import com.faforever.api.data.DataController;
-import com.yahoo.elide.contrib.swagger.SwaggerBuilder;
-import com.yahoo.elide.core.EntityDictionary;
+import com.yahoo.elide.core.dictionary.EntityDictionary;
+import com.yahoo.elide.swagger.SwaggerBuilder;
 import io.swagger.models.Info;
 import io.swagger.models.Swagger;
 import org.springframework.beans.factory.annotation.Autowired;

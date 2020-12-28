@@ -6,7 +6,6 @@ import com.faforever.api.security.elide.permission.AdminModerationReportCheck;
 import com.github.jasminb.jsonapi.annotations.Type;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
-import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
@@ -23,8 +22,6 @@ import java.util.Set;
 @Entity
 @Table(name = "login")
 @Include(rootLevel = true, type = Player.TYPE_NAME)
-// Needed to change leader of a clan
-@SharePermission
 @Setter
 @Type(Player.TYPE_NAME)
 public class Player extends Login {
