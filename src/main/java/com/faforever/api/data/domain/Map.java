@@ -5,11 +5,23 @@ import com.faforever.api.data.listeners.MapChangeListener;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
+import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
+import org.apache.lucene.analysis.ngram.NGramTokenizerFactory;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.AnalyzerDef;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Parameter;
+import org.hibernate.search.annotations.Store;
+import org.hibernate.search.annotations.TokenFilterDef;
+import org.hibernate.search.annotations.TokenizerDef;
 import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.CascadeType;
@@ -36,6 +48,16 @@ import java.util.List;
 @Include(rootLevel = true, type = Map.TYPE_NAME)
 @Immutable
 @EntityListeners(MapChangeListener.class)
+@Indexed
+@AnalyzerDef(name = "case_insensitive",
+  tokenizer = @TokenizerDef(factory = NGramTokenizerFactory.class, params = {
+    @Parameter(name = "minGramSize", value = "3"),
+    @Parameter(name = "maxGramSize", value = "10")
+  }),
+  filters = {
+    @TokenFilterDef(factory = LowerCaseFilterFactory.class)
+  }
+)
 public class Map extends AbstractEntity implements OwnableEntity {
 
   public static final String TYPE_NAME = "map";
@@ -52,6 +74,8 @@ public class Map extends AbstractEntity implements OwnableEntity {
   @Column(name = "display_name", unique = true)
   @Size(max = 100)
   @NotNull
+  @Field(index = Index.YES, analyze = Analyze.YES,
+    store = Store.NO, analyzer = @Analyzer(definition = "case_insensitive"))
   public String getDisplayName() {
     return displayName;
   }
