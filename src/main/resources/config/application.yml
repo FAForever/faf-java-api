@@ -44,6 +44,13 @@ spring:
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      search:
+        jmx_enabled: true
+        default:
+          directory_provider: filesystem
+          indexBase: /var/solr
+        generate_statistics: true
+        lucene_version: LUCENE_CURRENT
     properties:
       hibernate:
         current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
