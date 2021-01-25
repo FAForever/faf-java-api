@@ -34,7 +34,6 @@ import java.util.List;
 @Entity
 @Table(name = "avatars_list")
 @Include(rootLevel = true, type = Avatar.TYPE_NAME)
-@Indexed
 @Setter
 @Type(Avatar.TYPE_NAME)
 @EntityListeners(AvatarEnricherListener.class)
@@ -56,13 +55,11 @@ public class Avatar extends AbstractEntity {
   @Column(name = "filename")
   @NotNull
   @Field(index = Index.YES, analyze = Analyze.YES,
-    store = Store.NO, analyzer = @Analyzer(definition = "case_insensitive"))
+    store = Store.NO)
   public String getFilename() { return filename; }
 
   @Column(name = "tooltip")
   @UpdatePermission(expression = WriteAvatarCheck.EXPRESSION)
-  @Field(index = Index.YES, analyze = Analyze.YES,
-    store = Store.NO, analyzer = @Analyzer(definition = "case_insensitive"))
   public String getTooltip() {
     return tooltip;
   }

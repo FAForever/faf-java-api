@@ -42,15 +42,6 @@ import java.util.List;
 @Immutable
 @Setter
 @Indexed
-@AnalyzerDef(name = "case_insensitive",
-  tokenizer = @TokenizerDef(factory = NGramTokenizerFactory.class, params = {
-    @Parameter(name = "minGramSize", value = "3"),
-    @Parameter(name = "maxGramSize", value = "10")
-  }),
-  filters = {
-    @TokenFilterDef(factory = LowerCaseFilterFactory.class)
-  }
-)
 public class Mod extends AbstractEntity implements OwnableEntity {
 
   public static final String TYPE_NAME = "mod";

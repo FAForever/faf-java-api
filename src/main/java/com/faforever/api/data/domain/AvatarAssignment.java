@@ -33,7 +33,6 @@ import java.time.OffsetDateTime;
 @Entity
 @Table(name = "avatars")
 @Include(rootLevel = true, type = AvatarAssignment.TYPE_NAME)
-@Indexed
 @CreatePermission(expression = WriteAvatarCheck.EXPRESSION)
 @DeletePermission(expression = WriteAvatarCheck.EXPRESSION)
 @Audit(action = Action.CREATE, logStatement = "Avatar ''{0}'' has been assigned to player ''{1}''", logExpressions = {"${avatarAssignment.avatar.id}", "${avatarAssignment.player.id}"})
