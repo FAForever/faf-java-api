@@ -44,15 +44,6 @@ import java.util.List;
 @Table(name = "map_version")
 @Include(rootLevel = true, type = MapVersion.TYPE_NAME)
 @Indexed
-@AnalyzerDef(name = "case_insensitive",
-  tokenizer = @TokenizerDef(factory = NGramTokenizerFactory.class, params = {
-    @Parameter(name = "minGramSize", value = "3"),
-    @Parameter(name = "maxGramSize", value = "10")
-  }),
-  filters = {
-    @TokenFilterDef(factory = LowerCaseFilterFactory.class)
-  }
-)
 public class MapVersion extends AbstractEntity implements OwnableEntity {
 
   public static final String TYPE_NAME = "mapVersion";

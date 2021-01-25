@@ -35,15 +35,6 @@ import java.util.List;
 @Table(name = "avatars_list")
 @Include(rootLevel = true, type = Avatar.TYPE_NAME)
 @Indexed
-@AnalyzerDef(name = "case_insensitive",
-  tokenizer = @TokenizerDef(factory = NGramTokenizerFactory.class, params = {
-    @Parameter(name = "minGramSize", value = "3"),
-    @Parameter(name = "maxGramSize", value = "10")
-  }),
-  filters = {
-    @TokenFilterDef(factory = LowerCaseFilterFactory.class)
-  }
-)
 @Setter
 @Type(Avatar.TYPE_NAME)
 @EntityListeners(AvatarEnricherListener.class)

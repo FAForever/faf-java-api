@@ -34,15 +34,6 @@ import java.time.OffsetDateTime;
 @Table(name = "avatars")
 @Include(rootLevel = true, type = AvatarAssignment.TYPE_NAME)
 @Indexed
-@AnalyzerDef(name = "case_insensitive",
-  tokenizer = @TokenizerDef(factory = NGramTokenizerFactory.class, params = {
-    @Parameter(name = "minGramSize", value = "3"),
-    @Parameter(name = "maxGramSize", value = "10")
-  }),
-  filters = {
-    @TokenFilterDef(factory = LowerCaseFilterFactory.class)
-  }
-)
 @CreatePermission(expression = WriteAvatarCheck.EXPRESSION)
 @DeletePermission(expression = WriteAvatarCheck.EXPRESSION)
 @Audit(action = Action.CREATE, logStatement = "Avatar ''{0}'' has been assigned to player ''{1}''", logExpressions = {"${avatarAssignment.avatar.id}", "${avatarAssignment.player.id}"})
