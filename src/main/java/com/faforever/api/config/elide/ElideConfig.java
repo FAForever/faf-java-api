@@ -56,17 +56,12 @@ public class ElideConfig {
   public static final String DEFAULT_CACHE_NAME = "Elide.defaultCache";
 
   @Bean
-  public Elide elide(SpringHibernateDataStore springHibernateDataStore, ObjectMapper objectMapper, EntityDictionary entityDictionary, ExtendedAuditLogger extendedAuditLogger) {
+  public Elide elide(DataStore dataStore, ObjectMapper objectMapper, EntityDictionary entityDictionary, ExtendedAuditLogger extendedAuditLogger) {
     RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary, new CaseSensitivityStrategy.UseColumnCollation());
 
     registerAdditionalConverters();
 
-    // Wrap store in search store
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("searchDataStore");
-    boolean indexOnStartup = true;
-    DataStore searchStore = new SearchDataStore(springHibernateDataStore, emf, indexOnStartup);
-
-    return new Elide(new ElideSettingsBuilder(searchStore)
+    return new Elide(new ElideSettingsBuilder(dataStore)
       .withJsonApiMapper(new JsonApiMapper(entityDictionary, objectMapper))
       .withAuditLogger(extendedAuditLogger)
       .withEntityDictionary(entityDictionary)
@@ -80,6 +75,11 @@ public class ElideConfig {
                                                     AutowireCapableBeanFactory beanFactory,
                                                     EntityManager entityManager) {
     return new SpringHibernateDataStore(txManager, beanFactory, entityManager, false, true, ScrollMode.FORWARD_ONLY);
+  }
+
+  @Bean
+  DataStore searchStore(SpringHibernateDataStore shds, EntityManagerFactory entityManagerFactory, boolean indexOnStartup) {
+    return new SearchDataStore(shds, entityManagerFactory,true);
   }
 
   /**
