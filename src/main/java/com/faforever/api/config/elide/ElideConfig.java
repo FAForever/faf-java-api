@@ -44,8 +44,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.PersistenceContext;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -57,12 +55,12 @@ public class ElideConfig {
   public static final String DEFAULT_CACHE_NAME = "Elide.defaultCache";
 
   @Bean
-  public Elide elide(DataStore dataStore, ObjectMapper objectMapper, EntityDictionary entityDictionary, ExtendedAuditLogger extendedAuditLogger) {
+  public Elide elide(SearchDataStore searchStore, ObjectMapper objectMapper, EntityDictionary entityDictionary, ExtendedAuditLogger extendedAuditLogger) {
     RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary, new CaseSensitivityStrategy.UseColumnCollation());
 
     registerAdditionalConverters();
 
-    return new Elide(new ElideSettingsBuilder(dataStore)
+    return new Elide(new ElideSettingsBuilder(searchStore)
       .withJsonApiMapper(new JsonApiMapper(entityDictionary, objectMapper))
       .withAuditLogger(extendedAuditLogger)
       .withEntityDictionary(entityDictionary)
@@ -79,8 +77,8 @@ public class ElideConfig {
   }
 
   @Bean
-  DataStore searchStore(SpringHibernateDataStore shds, EntityManagerFactory entityManagerFactory) {
-    return new SearchDataStore(shds, entityManagerFactory,true);
+  SearchDataStore searchStore(SpringHibernateDataStore springHibernateDataStore, EntityManagerFactory entityManagerFactory) {
+    return new SearchDataStore(springHibernateDataStore, entityManagerFactory,true);
   }
 
   /**
