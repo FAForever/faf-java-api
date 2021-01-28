@@ -45,6 +45,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.PersistenceContext;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -78,7 +79,7 @@ public class ElideConfig {
   }
 
   @Bean
-  DataStore searchStore(SpringHibernateDataStore shds, EntityManagerFactory entityManagerFactory, boolean indexOnStartup) {
+  DataStore searchStore(SpringHibernateDataStore shds, EntityManagerFactory entityManagerFactory) {
     return new SearchDataStore(shds, entityManagerFactory,true);
   }
 
