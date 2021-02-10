@@ -2,6 +2,7 @@ faf-api:
   jwt:
     secretKeyPath: ${JWT_PRIVATE_KEY_PATH}
     publicKeyPath: ${JWT_PUBLIC_KEY_PATH}
+    hydraJwksUrl: ${JWT_HYDRA_JWKS_URL}
   map:
     target-directory: ${MAP_UPLOAD_PATH}
     directory-preview-path-small: ${MAP_PREVIEW_PATH_SMALL}

@@ -3,6 +3,7 @@ faf-api:
   jwt:
     secretKeyPath: ${JWT_PRIVATE_KEY_PATH:test-pki-private.key}
     publicKeyPath: ${JWT_PUBLIC_KEY_PATH:test-pki-public.key}
+    hydraJwksUrl: ${JWT_HYDRA_JWKS_URL:https://hydra.test.faforever.com/.well-known/jwks.json}
   map:
     target-directory: ${MAP_UPLOAD_PATH:build/cache/map/maps}
     directory-preview-path-small: ${MAP_PREVIEW_PATH_SMALL:build/cache/map_previews/small}

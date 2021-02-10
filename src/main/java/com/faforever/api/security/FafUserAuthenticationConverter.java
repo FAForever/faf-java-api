@@ -1,5 +1,6 @@
 package com.faforever.api.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -7,12 +8,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.provider.token.DefaultUserAuthenticationConverter;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Converts a {@link FafUserDetails} from and to an {@link Authentication} for use in a JWT token.
  */
+@Slf4j
 public class FafUserAuthenticationConverter extends DefaultUserAuthenticationConverter {
 
   public static final String USER_ID_KEY = "user_id";
@@ -32,16 +36,30 @@ public class FafUserAuthenticationConverter extends DefaultUserAuthenticationCon
 
   @Override
   public Authentication extractAuthentication(Map<String, ?> map) {
-    if (!map.containsKey(USER_ID_KEY)) {
-      return null;
+    if (map.containsKey(USER_ID_KEY)) {
+      log.debug("Access token is FAF legacy token");
+
+      int id = (Integer) map.get(USER_ID_KEY);
+      String username = (String) map.get(USERNAME);
+      boolean accountNonLocked = Optional.ofNullable((Boolean) map.get(NON_LOCKED)).orElse(true);
+      Collection<? extends GrantedAuthority> authorities = getAuthorities(map);
+      UserDetails user = new FafUserDetails(id, username, "N/A", accountNonLocked, authorities);
+
+      return new UsernamePasswordAuthenticationToken(user, "N/A", authorities);
+    } else {
+      log.debug("Access token is FAF OpenID Connect token");
+
+      int id = Integer.parseInt((String) map.get("sub"));
+      var ext = (Map<String, Object>) map.get("ext");
+      var roles = (List<String>) ext.get("roles");
+
+      var authorities = roles.stream()
+        .map(role -> (GrantedAuthority) () -> "ROLE_" + role)
+        .collect(Collectors.toList());
+
+      UserDetails user = new FafUserDetails(id, "username", "N/A", false, authorities);
+      return new UsernamePasswordAuthenticationToken(user, "N/A", authorities);
     }
 
-    int id = (Integer) map.get(USER_ID_KEY);
-    String username = (String) map.get(USERNAME);
-    boolean accountNonLocked = Optional.ofNullable((Boolean) map.get(NON_LOCKED)).orElse(true);
-    Collection<? extends GrantedAuthority> authorities = getAuthorities(map);
-    UserDetails user = new FafUserDetails(id, username, "N/A", accountNonLocked, authorities);
-
-    return new UsernamePasswordAuthenticationToken(user, "N/A", authorities);
   }
 }

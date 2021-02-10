@@ -1,6 +1,7 @@
 package com.faforever.api.config.security.oauth2;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.security.FafMultiTokenStore;
 import com.faforever.api.security.FafUserAuthenticationConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +10,6 @@ import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConv
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
-import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,8 +33,8 @@ public class OAuthJwtConfig {
   }
 
   @Bean
-  public TokenStore tokenStore(JwtAccessTokenConverter jwtAccessTokenConverter) {
-    return new JwtTokenStore(jwtAccessTokenConverter);
+  public TokenStore tokenStore(FafApiProperties properties, JwtAccessTokenConverter jwtAccessTokenConverter) {
+    return new FafMultiTokenStore(properties, jwtAccessTokenConverter);
   }
 
   @Bean
