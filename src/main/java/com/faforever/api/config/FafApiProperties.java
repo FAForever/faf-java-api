@@ -53,6 +53,7 @@ public class FafApiProperties {
     private Path publicKeyPath;
     private int accessTokenValiditySeconds = 3600;
     private int refreshTokenValiditySeconds = 3600;
+    private String hydraJwksUrl;
   }
 
   @Data
