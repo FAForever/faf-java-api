@@ -29,6 +29,8 @@ faf-api:
   jwt:
     secret-key-path: test-pki-private.key
     public-key-path: test-pki-public.key
+    faf-hydra-jwks-url: https://accounts.google.com/.well-known/openid-configuration
+    faf-hydra-issuer: https://hydra.test.faforever.com/
   map:
     target-directory: "build/cache/map/maps"
     directory-preview-path-small: "build/cache/map_previews/small"

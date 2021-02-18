@@ -1,8 +1,13 @@
 package com.faforever.api.security;
 
 import com.faforever.api.config.FafApiProperties;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.jwt.Jwt;
+import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
+import org.springframework.security.oauth2.common.util.JsonParser;
+import org.springframework.security.oauth2.common.util.JsonParserFactory;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
@@ -12,9 +17,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
 
 @Component
 public class FafMultiTokenStore implements TokenStore {
+  private JsonParser objectMapper = JsonParserFactory.create();
+
   /**
    * The token store for token created by this API (using custom OAuth 2.0 without OpenID Connect)
    */
@@ -31,7 +40,7 @@ public class FafMultiTokenStore implements TokenStore {
     this.fafApiProperties = fafApiProperties;
 
     classicTokenStore = new JwtTokenStore(jwtAccessTokenConverter);
-    hydraTokenStore = new JwkTokenStore(fafApiProperties.getJwt().getHydraJwksUrl(), jwtAccessTokenConverter);
+    hydraTokenStore = new JwkTokenStore(fafApiProperties.getJwt().getFafHydraJwksUrl(), jwtAccessTokenConverter);
   }
 
   @Override
@@ -41,10 +50,13 @@ public class FafMultiTokenStore implements TokenStore {
 
   @Override
   public OAuth2Authentication readAuthentication(String token) {
-    try {
-      return classicTokenStore.readAuthentication(token);
-    } catch (Exception e) {
+    Jwt unverifiedJwt = JwtHelper.decode(token);
+    Map<String, Object> claims = objectMapper.parseMap(unverifiedJwt.getClaims());
+
+    if (Objects.equals(claims.get("iss"), fafApiProperties.getJwt().getFafHydraIssuer())) {
       return hydraTokenStore.readAuthentication(token);
+    } else {
+      return classicTokenStore.readAuthentication(token);
     }
   }
 
@@ -57,7 +69,7 @@ public class FafMultiTokenStore implements TokenStore {
   public OAuth2AccessToken readAccessToken(String tokenValue) {
     try {
       return classicTokenStore.readAccessToken(tokenValue);
-    } catch (Exception e) {
+    } catch (AccessDeniedException e) {
       return hydraTokenStore.readAccessToken(tokenValue);
     }
   }
