@@ -47,9 +47,15 @@ public class FafUserAuthenticationConverter extends DefaultUserAuthenticationCon
 
       return new UsernamePasswordAuthenticationToken(user, "N/A", authorities);
     } else {
-      log.debug("Access token is FAF OpenID Connect token");
+      Object sub = map.get("sub");
 
-      int id = Integer.parseInt((String) map.get("sub"));
+      if (sub == null) {
+        log.debug("Access token has no user associated");
+        return null;
+      }
+
+      log.debug("Access token is FAF OpenID Connect token");
+      int id = Integer.parseInt((String) sub);
       var ext = (Map<String, Object>) map.get("ext");
       var roles = (List<String>) ext.get("roles");
 
