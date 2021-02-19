@@ -1,7 +1,6 @@
 package com.faforever.api.security;
 
 import com.faforever.api.config.FafApiProperties;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -69,7 +68,7 @@ public class FafMultiTokenStore implements TokenStore {
   public OAuth2AccessToken readAccessToken(String tokenValue) {
     try {
       return classicTokenStore.readAccessToken(tokenValue);
-    } catch (AccessDeniedException e) {
+    } catch (Exception e) {
       return hydraTokenStore.readAccessToken(tokenValue);
     }
   }
