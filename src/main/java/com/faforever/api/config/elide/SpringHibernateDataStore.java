@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 import com.yahoo.elide.core.datastore.DataStore;
 import com.yahoo.elide.core.datastore.DataStoreTransaction;
 import com.yahoo.elide.core.dictionary.EntityDictionary;
+import com.yahoo.elide.core.utils.TypeHelper;
 import org.hibernate.ScrollMode;
 import org.hibernate.Session;
 import org.slf4j.Logger;
@@ -53,7 +54,6 @@ public class SpringHibernateDataStore implements DataStore {
    * Constructor.
    *
    * @param txManager Spring PlatformTransactionManager
-   * @param beanFactory Spring AutowireCapableBeanFactory
    * @param entityManager EntityManager
    * @param isScrollEnabled Whether or not scrolling is enabled on driver
    * @param scrollMode Scroll mode to use for scrolling driver
@@ -70,7 +70,6 @@ public class SpringHibernateDataStore implements DataStore {
    * Useful for extending the store and relying on existing code to instantiate custom hibernate transaction.
    *
    * @param txManager Spring PlatformTransactionManager
-   * @param beanFactory Spring AutowireCapableBeanFactory
    * @param entityManager EntityManager factory
    * @param isScrollEnabled Whether or not scrolling is enabled on driver
    * @param scrollMode Scroll mode to use for scrolling driver
@@ -100,7 +99,7 @@ public class SpringHibernateDataStore implements DataStore {
           // Ignore this result.
           // We are just checking to see if it throws an exception meaning that
           // provided class was _not_ an entity.
-          dictionary.lookupEntityClass(mappedClass);
+          dictionary.lookupEntityClass(TypeHelper.getClassType(mappedClass));
           // Bind if successful
           dictionary.bindEntity(mappedClass);
         } catch (IllegalArgumentException e) {
