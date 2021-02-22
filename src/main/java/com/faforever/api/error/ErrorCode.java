@@ -100,7 +100,8 @@ public enum ErrorCode {
   NO_RUSH_RADIUS_MISSING(190, "No rush radius missing", "The scenario file must specify a no rush radius"),
   INVALID_FEATURED_MOD(191, "Invalid featured mod name", "The featured mod name ''{0}'' is not allowed in this context."),
   API_KEY_INVALID(192, "Api key is invalid", "The api key is invalid."),
-  UNKNOWN_STEAM_ID(193, "Unable to resolve steam id", "The Steam ID ''{0}'' does not match any account.");
+  UNKNOWN_STEAM_ID(193, "Unable to resolve steam id", "The Steam ID ''{0}'' does not match any account."),
+  RECAPTCHA_VALIDATION_FAILED(194, "Recaptcha validation failed", "The response code from the recaptcha did not pass the verification.");
 
 
   private final int code;

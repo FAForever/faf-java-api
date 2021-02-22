@@ -29,7 +29,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -64,27 +63,12 @@ public class UsersControllerTest extends AbstractIntegrationTest {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("username", NEW_USER);
     params.add("email", NEW_EMAIL);
-    params.add("password", NEW_PASSWORD);
 
     mockMvc.perform(post("/users/register")
-      .with(getOAuthTokenWithoutUser(OAuthScope._CREATE_USER))
       .params(params)
     ).andExpect(status().isOk());
 
     verify(emailSender, times(1)).sendMail(anyString(), anyString(), eq(NEW_EMAIL), anyString(), anyString());
-  }
-
-  @Test
-  public void registerMissingCreateUserScope() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
-    params.add("username", NEW_USER);
-    params.add("email", NEW_EMAIL);
-    params.add("password", NEW_PASSWORD);
-
-    mockMvc.perform(post("/users/register").params(params))
-      .andExpect(status().isForbidden());
-
-    verify(emailSender, never()).sendMail(anyString(), anyString(), eq(NEW_EMAIL), anyString(), anyString());
   }
 
   @Test

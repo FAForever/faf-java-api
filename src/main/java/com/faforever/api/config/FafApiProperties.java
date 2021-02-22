@@ -38,6 +38,7 @@ public class FafApiProperties {
   private Rating rating = new Rating();
   private Tutorial tutorial = new Tutorial();
   private Nodebb nodebb = new Nodebb();
+  private Recaptcha recaptcha = new Recaptcha();
 
   @Data
   public static class OAuth2 {
@@ -259,5 +260,11 @@ public class FafApiProperties {
      */
     private int adminUserId;
     private String masterToken;
+  }
+
+  @Data
+  public static class Recaptcha {
+    private boolean enabled;
+    private String secret;
   }
 }

@@ -36,18 +36,20 @@ public class UsersController {
   private final FafApiProperties fafApiProperties;
   private final UserService userService;
   private final SteamService steamService;
+  private final RecaptchaService recaptchaService;
   private final ObjectMapper objectMapper;
 
   @ApiOperation("Registers a new account that needs to be activated.")
   @PostMapping(path = "/register", produces = APPLICATION_JSON_VALUE)
-  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._CREATE_USER + "')")
   public void register(HttpServletRequest request,
                        @RequestParam("username") String username,
-                       @RequestParam("email") String email) {
+                       @RequestParam("email") String email,
+                       @RequestParam(value = "recaptchaResponse", required = false) String recaptchaResponse) {
     if (request.isUserInRole("USER")) {
       throw new ApiException(new Error(ErrorCode.ALREADY_REGISTERED));
     }
 
+    recaptchaService.validateResponse(recaptchaResponse);
     userService.register(username, email);
   }
 
