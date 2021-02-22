@@ -84,7 +84,8 @@ faf-api:
     forged-alliance-develop-exe-path: build/exe/develop
   featured-mod:
     file-url-format: "file://%s/%s"
-
+  recaptcha:
+    enabled: false
 
 logging:
   level:

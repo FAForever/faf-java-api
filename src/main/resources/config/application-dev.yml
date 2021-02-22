@@ -53,6 +53,9 @@ faf-api:
     api-key: ${STEAM_API_KEY:banana}
     link-to-steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL_FORMAT:http://localhost:8010/users/linkToSteam?token=%s}
     steam-password-reset-redirect-url-format: ${STEAM_PASSWORD_RESET_REDIRECT_URL_FORMAT:http://localhost:8010/users/requestPasswordResetViaSteam}
+  recaptcha:
+    enabled: ${RECAPTCHA_ENABLED:false}
+    secret: ${RECAPTCHA_SECRET}
 
 spring:
   datasource:
