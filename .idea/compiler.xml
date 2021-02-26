@@ -13,7 +13,7 @@
         <module name="faforever.faf-java-api.main" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="15">
       <module name="faf-java-api.inttest" target="11" />
       <module name="faf-java-api.main" target="11" />
       <module name="faf-java-api.test" target="11" />
