@@ -1,19 +1,23 @@
 /**
  * Contains JPA entity classes, adapted to the needs of JSON-API.
  */
+
 @AnalyzerDef(name = "case_insensitive",
-  tokenizer = @TokenizerDef(factory = NGramTokenizerFactory.class, params = {
-    @Parameter(name = "minGramSize", value = "3"),
-    @Parameter(name = "maxGramSize", value = "10")
-  }),
+  tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class),
   filters = {
-    @TokenFilterDef(factory = LowerCaseFilterFactory.class)
-  }
-)
+    @TokenFilterDef(factory = StandardFilterFactory.class),
+    @TokenFilterDef(factory = LowerCaseFilterFactory.class),
+    @TokenFilterDef(factory = NGramFilterFactory.class,
+      params = {
+        @Parameter(name = "minGramSize", value = "1"),
+        @Parameter(name = "maxGramSize", value = "40")})
+})
 package com.faforever.api.data.domain;
 
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
-import org.apache.lucene.analysis.ngram.NGramTokenizerFactory;
+import org.apache.lucene.analysis.ngram.NGramFilterFactory;
+import org.apache.lucene.analysis.standard.StandardFilterFactory;
+import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
 import org.hibernate.search.annotations.AnalyzerDef;
 import org.hibernate.search.annotations.Parameter;
 import org.hibernate.search.annotations.TokenFilterDef;
