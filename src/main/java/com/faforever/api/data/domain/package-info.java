@@ -9,8 +9,8 @@
     @TokenFilterDef(factory = LowerCaseFilterFactory.class),
     @TokenFilterDef(factory = NGramFilterFactory.class,
       params = {
-        @Parameter(name = "minGramSize", value = "1"),
-        @Parameter(name = "maxGramSize", value = "40")})
+        @Parameter(name = "minGramSize", value = "3"),
+        @Parameter(name = "maxGramSize", value = "9")})
 })
 package com.faforever.api.data.domain;
 
