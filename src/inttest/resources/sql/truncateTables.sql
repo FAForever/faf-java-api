@@ -62,7 +62,6 @@ DELETE FROM `patchs_table`;
 DELETE FROM `player_achievements`;
 DELETE FROM `player_events`;
 DELETE FROM `reported_user`;
--- DELETE FROM `schema_version`;
 DELETE FROM `table_map_comments`;
 DELETE FROM `table_map_features`;
 DELETE FROM `teamkills`;

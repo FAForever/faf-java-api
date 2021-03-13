@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "schema_version")
+@Table(name = "flyway_schema_history")
 @Setter
 public class SchemaVersion {
 

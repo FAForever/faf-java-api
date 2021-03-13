@@ -1,7 +1,8 @@
 name: Build
 on: [push]
 env:
-  FAF_DB_VERSION: v107
+  FLYWAY_VERSION: 7.5.4
+  FAF_DB_VERSION: v108
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -34,7 +35,7 @@ jobs:
           FLYWAY_LOCATIONS: filesystem:db/migrations
         run: |-
           git clone --depth 1 --branch $FAF_DB_VERSION https://github.com/FAForever/db
-          wget -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/6.5.3/flyway-commandline-6.5.3-linux-x64.tar.gz | tar xvz && ln -s `pwd`/flyway-6.5.3/flyway /usr/local/bin
+          wget -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/${FLYWAY_VERSION}/flyway-commandline-${FLYWAY_VERSION}-linux-x64.tar.gz | tar xvz && ln -s `pwd`/flyway-${FLYWAY_VERSION}/flyway /usr/local/bin
           flyway migrate
       - name: Gradle build
         env:
