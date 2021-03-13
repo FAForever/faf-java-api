@@ -33,7 +33,13 @@ spring:
     name: FAF Java API
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    hikari:
+    configuration:
+      connection-test-query: SELECT 1 FROM DUAL
+      minimum-idle: 2
+      maximum-pool-size: 12
+  league-datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    configuration:
       connection-test-query: SELECT 1 FROM DUAL
       minimum-idle: 2
       maximum-pool-size: 12

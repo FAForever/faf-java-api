@@ -4,21 +4,20 @@ import com.faforever.api.security.ExtendedAuditLogger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yahoo.elide.Elide;
 import com.yahoo.elide.ElideSettingsBuilder;
+import com.yahoo.elide.core.datastore.DataStore;
 import com.yahoo.elide.core.dictionary.EntityDictionary;
 import com.yahoo.elide.core.dictionary.Injector;
 import com.yahoo.elide.core.filter.dialect.CaseSensitivityStrategy;
 import com.yahoo.elide.core.filter.dialect.RSQLFilterDialect;
 import com.yahoo.elide.core.utils.coerce.CoerceUtil;
+import com.yahoo.elide.datastores.multiplex.MultiplexManager;
 import com.yahoo.elide.jsonapi.JsonApiMapper;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
-import org.hibernate.ScrollMode;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.PlatformTransactionManager;
 
-import javax.persistence.EntityManager;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -30,24 +29,26 @@ public class ElideConfig {
   public static final String DEFAULT_CACHE_NAME = "Elide.defaultCache";
 
   @Bean
-  public Elide elide(SpringHibernateDataStore springHibernateDataStore, ObjectMapper objectMapper, EntityDictionary entityDictionary, ExtendedAuditLogger extendedAuditLogger) {
+  MultiplexManager multiplexDataStore(
+    DataStore fafDatastore,
+    DataStore leagueDatastore
+  ) {
+    return new MultiplexManager(fafDatastore, leagueDatastore);
+  }
+
+  @Bean
+  public Elide elide(DataStore multiplexDataStore, ObjectMapper objectMapper, EntityDictionary entityDictionary, ExtendedAuditLogger extendedAuditLogger) {
     RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary, new CaseSensitivityStrategy.UseColumnCollation());
 
     registerAdditionalConverters();
 
-    return new Elide(new ElideSettingsBuilder(springHibernateDataStore)
+    return new Elide(new ElideSettingsBuilder(multiplexDataStore)
       .withJsonApiMapper(new JsonApiMapper(objectMapper))
       .withAuditLogger(extendedAuditLogger)
       .withEntityDictionary(entityDictionary)
       .withJoinFilterDialect(rsqlFilterDialect)
       .withSubqueryFilterDialect(rsqlFilterDialect)
       .build());
-  }
-
-  @Bean
-  SpringHibernateDataStore springHibernateDataStore(PlatformTransactionManager txManager,
-                                                    EntityManager entityManager) {
-    return new SpringHibernateDataStore(txManager, entityManager, true, ScrollMode.FORWARD_ONLY);
   }
 
   /**
