@@ -16,12 +16,36 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultData.sql")
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepMapData.sql")
 public class MapPoolElideTest extends AbstractIntegrationTest {
-  private static final String NEW_LADDER_MAP_BODY = "{\"data\":[{\"type\":\"mapVersion\",\"id\":\"2\"}]}";
+  private static final String NEW_LADDER_MAP_BODY = """
+    {
+    "data": {
+      "type": "mapPoolAssignment",
+      "attributes": {
+        "weight": 1,
+        "mapParams": "{\\"type\\": \\"none\\"}"
+      },
+      "relationships": {
+        "mapPool": {
+          "data": {
+            "type": "mapPool",
+            "id": "1"
+          }
+        },
+        "mapVersion": {
+          "data": {
+            "type": "mapVersion",
+            "id": "1"
+          }
+        }
+      }
+    }
+    }""";
+
 
   @Test
   public void cannotCreateMapPoolItemWithoutScope() throws Exception {
     mockMvc.perform(
-      post("/data/mapPool/1/relationships/mapVersions")
+      post("/data/mapPoolAssignment")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
@@ -31,7 +55,7 @@ public class MapPoolElideTest extends AbstractIntegrationTest {
   @Test
   public void cannotCreateMapPoolItemWithoutRole() throws Exception {
     mockMvc.perform(
-      post("/data/mapPool/1/relationships/mapVersions")
+      post("/data/mapPoolAssignment")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
@@ -41,37 +65,34 @@ public class MapPoolElideTest extends AbstractIntegrationTest {
   @Test
   public void canCreateMapPoolItemWithScopeAndRole() throws Exception {
     mockMvc.perform(
-      post("/data/mapPool/1/relationships/mapVersions")
+      post("/data/mapPoolAssignment")
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
-      .andExpect(status().isNoContent());
+      .andExpect(status().isCreated());
   }
 
   @Test
   public void canDeleteMapPoolItemWithScopeAndRole() throws Exception {
     mockMvc.perform(
-      delete("/data/mapPool/1/relationships/mapVersions/1")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
-        .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
+      delete("/data/mapPoolAssignment/1")
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP)))
       .andExpect(status().isNoContent());
   }
 
   @Test
   public void cannotDeleteMapPoolItemWithoutScope() throws Exception {
     mockMvc.perform(
-      delete("/data/mapPool/1/relationships/mapVersions/1")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
-        .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
+      delete("/data/mapPoolAssignment/1")
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP)))
       .andExpect(status().isForbidden());
   }
 
   @Test
   public void cannotDeleteMapPoolItemWithoutRole() throws Exception {
     mockMvc.perform(
-      delete("/data/mapPool/1")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
-        .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
+      delete("/data/mapPoolAssignment/1")
+        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES)))
       .andExpect(status().isForbidden());
   }
 }
