@@ -27,7 +27,8 @@ public class GameElideTest extends AbstractIntegrationTest {
     )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data[*]", hasSize(1)))
-      .andExpect(jsonPath("$.data[0].attributes.victoryCondition", is("DEMORALIZATION")));
+      .andExpect(jsonPath("$.data[0].attributes.victoryCondition", is("DEMORALIZATION")))
+      .andExpect(jsonPath("$.data[0].attributes.replayAvailable", is(false)));
   }
 
   @Test

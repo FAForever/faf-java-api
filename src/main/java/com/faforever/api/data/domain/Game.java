@@ -51,6 +51,7 @@ public class Game {
   private String replayUrl;
   private Set<GameReview> reviews;
   private GameReviewsSummary reviewsSummary;
+  private Boolean replayAvailable;
 
   @Id
   @Column(name = "id")
@@ -134,6 +135,11 @@ public class Game {
   @BatchSize(size = 1000)
   public GameReviewsSummary getReviewsSummary() {
     return reviewsSummary;
+  }
+
+  @Column(name = "replay_available")
+  public Boolean isReplayAvailable() {
+    return replayAvailable;
   }
 
   /**
