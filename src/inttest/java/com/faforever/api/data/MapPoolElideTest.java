@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultData.sql")
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepMapData.sql")
 public class MapPoolElideTest extends AbstractIntegrationTest {
-  private static final String NEW_LADDER_MAP_BODY = "{\"data\":[{\"type\":\"mapVersion\",\"id\":\"2\"}]}";
+  private static final String NEW_LADDER_MAP_BODY = "{\"data\":{\"type\":\"mapPoolAssignment\",\"relationships\":{\"mapVersion\":{\"data\":{\"type\":\"mapVersion\",\"id\":\"2\"}}}}}";
 
   @Test
   public void cannotCreateMapPoolItemWithoutScope() throws Exception {

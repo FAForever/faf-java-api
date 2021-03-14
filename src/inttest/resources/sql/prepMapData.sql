@@ -23,6 +23,7 @@ INSERT INTO matchmaker_queue_map_pool (matchmaker_queue_id, map_pool_id, min_rat
   (1, 4, 1300, 1800),
   (1, 5, 1800, null);
 
-INSERT INTO map_pool_map_version (map_pool_id, map_version_id) VALUES
-  (1,1),
-  (2,2);
+INSERT INTO map_pool_map_version (map_pool_id, map_version_id, map_params) VALUES
+  (1, 1, null),
+  (1, null, '{"type": "neroxis", "size": 512, "spawns": 2, "version": "1.4.3"}'),
+  (2, 2, null);

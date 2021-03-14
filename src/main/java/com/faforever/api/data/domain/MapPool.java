@@ -7,12 +7,12 @@ import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
 
@@ -26,7 +26,7 @@ import java.util.Set;
 public class MapPool extends AbstractEntity {
   private String name;
   private MatchmakerQueueMapPool matchmakerQueueMapPool;
-  private Set<MapVersion> mapVersions;
+  private Set<MapPoolAssignment> mapPoolAssignments;
 
   @NotNull
   public String getName() {
@@ -38,13 +38,9 @@ public class MapPool extends AbstractEntity {
     return matchmakerQueueMapPool;
   }
 
-  @ManyToMany
-  @JoinTable(name = "map_pool_map_version",
-    joinColumns = @JoinColumn(name = "map_pool_id"),
-    inverseJoinColumns = @JoinColumn(name = "map_version_id")
-  )
-  @NotNull
-  public Set<MapVersion> getMapVersions() {
-    return mapVersions;
+  @OneToMany(mappedBy = "mapPool", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Valid
+  public Set<MapPoolAssignment> getMapPoolAssignments() {
+    return mapPoolAssignments;
   }
 }
