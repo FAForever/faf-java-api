@@ -21,7 +21,7 @@ public class MapPoolElideTest extends AbstractIntegrationTest {
   "data": {
     "type": "mapPoolAssignment",
     "attributes": {
-      "mapParams": "",
+      "mapParams": null,
       "weight": 1
     },
     "relationships": {
