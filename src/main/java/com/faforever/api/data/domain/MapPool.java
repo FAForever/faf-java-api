@@ -9,6 +9,9 @@ import lombok.Setter;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -25,6 +28,9 @@ import java.util.Set;
 public class MapPool extends AbstractEntity {
   private String name;
   private MatchmakerQueueMapPool matchmakerQueueMapPool;
+  @Deprecated
+  // Scheduled for removal once Downlord's FAF Client v1.4.3 or higher is widely adopted
+  private Set<MapVersion> mapVersions;
   private Set<MapPoolAssignment> mapPoolAssignments;
 
   @NotNull
@@ -37,8 +43,21 @@ public class MapPool extends AbstractEntity {
     return matchmakerQueueMapPool;
   }
 
+  @ManyToMany
+  @JoinTable(name = "map_pool_map_version",
+    joinColumns = @JoinColumn(name = "map_pool_id"),
+    inverseJoinColumns = @JoinColumn(name = "map_version_id")
+  )
+  @NotNull
+  @Deprecated
+  // Scheduled for removal once Downlord's FAF Client v1.4.3 or higher is widely adopted
+  public Set<MapVersion> getMapVersions() {
+    return mapVersions;
+  }
+
   @OneToMany(mappedBy = "mapPool", cascade = CascadeType.ALL, orphanRemoval = true)
   public Set<MapPoolAssignment> getMapPoolAssignments() {
     return mapPoolAssignments;
   }
+
 }
