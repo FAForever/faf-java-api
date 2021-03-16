@@ -7,6 +7,7 @@ import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,19 +28,11 @@ import javax.persistence.Table;
 @CreatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @UpdatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @DeletePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
-public class MapPoolAssignment {
-  private int id;
+public class MapPoolAssignment extends AbstractEntity {
   private MapPool mapPool;
   private MapVersion mapVersion;
-  private int weight;
+  private Integer weight;
   private String mapParams;
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
-  public Integer getId() {
-    return id;
-  }
 
   @OneToOne
   @JoinColumn(name = "map_pool_id")
