@@ -16,29 +16,30 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultData.sql")
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepMapData.sql")
 public class MapPoolElideTest extends AbstractIntegrationTest {
-  private static final String NEW_LADDER_MAP_BODY = "{" +
-    "\"data\": {" +
-    "  \"type\": \"mapPoolAssignment\"," +
-    "  \"attributes\": {" +
-    "    \"weight\": 1," +
-    "    \"mapParams\": \"{\\\"type\\\": \\\"none\\\"}\"" +
-    "  }," +
-    "  \"relationships\": {" +
-    "    \"mapPool\": {" +
-    "      \"data\": {" +
-    "        \"type\": \"mapPool\"," +
-    "        \"id\": \"1\"" +
-    "      }" +
-    "    }," +
-    "    \"mapVersion\": {" +
-    "      \"data\": {" +
-    "        \"type\": \"mapVersion\"," +
-    "        \"id\": \"1\"" +
-    "      }" +
-    "    }" +
-    "  }" +
-    "}" +
-    "}";
+  private static final String NEW_LADDER_MAP_BODY = """
+    {
+    "data": {
+      "type": "mapPoolAssignment",
+      "attributes": {
+        "weight": 1,
+        "mapParams": "{\\"type\\": \\"none\\"}"
+      },
+      "relationships": {
+        "mapPool": {
+          "data": {
+            "type": "mapPool",
+            "id": "1"
+          }
+        },
+        "mapVersion": {
+          "data": {
+            "type": "mapVersion",
+            "id": "1"
+          }
+        }
+      }
+    }
+    }""";
 
 
   @Test
