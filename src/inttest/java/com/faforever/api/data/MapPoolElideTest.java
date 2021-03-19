@@ -22,7 +22,7 @@ public class MapPoolElideTest extends AbstractIntegrationTest {
       "type": "mapPoolAssignment",
       "attributes": {
         "weight": 1,
-        "mapParams": "{\\"type\\": \\"none\\"}"
+        "mapParams": {"type":"neroxis","size":512,"spawns":2,"version":"0.0.0"}
       },
       "relationships": {
         "mapPool": {
