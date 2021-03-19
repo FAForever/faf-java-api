@@ -24,7 +24,7 @@ public class JsonConverter implements AttributeConverter<Map<String, Object>, St
     try {
       jsonAsString = objectMapper.writeValueAsString(jsonPayload);
     } catch (final JsonProcessingException e) {
-      log.error("Failed to convert Json object to String", e);
+      log.error("Failed to convert Json object {} to String", jsonPayload, e);
     }
 
     return jsonAsString;
@@ -38,7 +38,7 @@ public class JsonConverter implements AttributeConverter<Map<String, Object>, St
       try {
         jsonPayload = objectMapper.readValue(jsonAsString, Map.class);
       } catch (final IOException e) {
-        log.error("Failed to read stringified Json", e);
+        log.error("Failed to read stringified Json {}", jsonAsString, e);
       }
     }
 
