@@ -1,6 +1,5 @@
 package com.faforever.api.data.converter;
 
-import com.faforever.api.data.domain.VictoryCondition;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Map;
 
 @Slf4j
