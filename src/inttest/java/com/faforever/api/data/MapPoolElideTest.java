@@ -8,8 +8,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/truncateTables.sql")
@@ -22,7 +27,7 @@ public class MapPoolElideTest extends AbstractIntegrationTest {
       "type": "mapPoolAssignment",
       "attributes": {
         "weight": 1,
-        "mapParams": "{\\"type\\": \\"none\\"}"
+        "mapParams": {"type":"neroxis","size":512,"spawns":2,"version":"0.0.0"}
       },
       "relationships": {
         "mapPool": {
@@ -41,6 +46,33 @@ public class MapPoolElideTest extends AbstractIntegrationTest {
     }
     }""";
 
+
+  @Test
+  public void getMapPoolAssignmentWithMapVersion() throws Exception {
+    mockMvc.perform(get("/data/mapPoolAssignment/1"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data.id", is("1")))
+      .andExpect(jsonPath("$.data.type", is("mapPoolAssignment")))
+      .andExpect(jsonPath("$.data.attributes.weight", is(1)))
+      .andExpect(jsonPath("$.data.attributes.mapParams", nullValue()))
+      .andExpect(jsonPath("$.data.relationships.mapPool.data.id", is("1")))
+      .andExpect(jsonPath("$.data.relationships.mapVersion.data.id", is("1")));
+  }
+
+  @Test
+  public void getMapPoolAssignmentWithMapParams() throws Exception {
+    mockMvc.perform(get("/data/mapPoolAssignment/2"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data.id", is("2")))
+      .andExpect(jsonPath("$.data.type", is("mapPoolAssignment")))
+      .andExpect(jsonPath("$.data.attributes.weight", is(1)))
+      .andExpect(jsonPath("$.data.attributes.mapParams.type", is("neroxis")))
+      .andExpect(jsonPath("$.data.attributes.mapParams.version", is("1.4.3")))
+      .andExpect(jsonPath("$.data.attributes.mapParams.size", is(512)))
+      .andExpect(jsonPath("$.data.attributes.mapParams.spawns", is(2)))
+      .andExpect(jsonPath("$.data.relationships.mapPool.data.id", is("1")))
+      .andExpect(jsonPath("$.data.relationships.mapVersion.data", is(nullValue())));
+  }
 
   @Test
   public void cannotCreateMapPoolItemWithoutScope() throws Exception {
@@ -69,7 +101,15 @@ public class MapPoolElideTest extends AbstractIntegrationTest {
         .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
-      .andExpect(status().isCreated());
+      .andExpect(status().isCreated())
+      .andExpect(jsonPath("$.data.type", is("mapPoolAssignment")))
+      .andExpect(jsonPath("$.data.attributes.weight", is(1)))
+      .andExpect(jsonPath("$.data.attributes.mapParams.type", is("neroxis")))
+      .andExpect(jsonPath("$.data.attributes.mapParams.version", is("0.0.0")))
+      .andExpect(jsonPath("$.data.attributes.mapParams.size", is(512)))
+      .andExpect(jsonPath("$.data.attributes.mapParams.spawns", is(2)))
+      .andExpect(jsonPath("$.data.relationships.mapPool.data.id", is("1")))
+      .andExpect(jsonPath("$.data.relationships.mapVersion.data.id", is("1")));;
   }
 
   @Test

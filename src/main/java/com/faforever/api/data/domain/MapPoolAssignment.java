@@ -1,5 +1,6 @@
 package com.faforever.api.data.domain;
 
+import com.faforever.api.data.converter.JsonConverter;
 import com.faforever.api.security.elide.permission.WriteMatchmakerMapCheck;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
@@ -7,14 +8,11 @@ import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 
 import javax.persistence.OneToOne;
@@ -32,7 +30,7 @@ public class MapPoolAssignment extends AbstractEntity {
   private MapPool mapPool;
   private MapVersion mapVersion;
   private Integer weight;
-  private String mapParams;
+  private java.util.Map<String, Object> mapParams;
 
   @OneToOne
   @JoinColumn(name = "map_pool_id")
@@ -54,5 +52,6 @@ public class MapPoolAssignment extends AbstractEntity {
   }
 
   @Column(name = "map_params")
-  public String getMapParams() { return mapParams; }
+  @Convert(converter = JsonConverter.class)
+  public java.util.Map<String, Object> getMapParams() { return mapParams; }
 }
