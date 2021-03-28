@@ -1,12 +1,9 @@
 package com.faforever.api.security;
 
-import com.yahoo.elide.audit.AuditLogger;
-import com.yahoo.elide.audit.LogMessage;
-import com.yahoo.elide.core.RequestScope;
+import com.yahoo.elide.core.audit.AuditLogger;
+import com.yahoo.elide.core.audit.LogMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 
 @Slf4j
 @Component
@@ -18,7 +15,7 @@ public class ExtendedAuditLogger extends AuditLogger {
   }
 
   @Override
-  public void commit(RequestScope requestScope) throws IOException {
+  public void commit() {
     try {
       for (LogMessage message : MESSAGES.get()) {
         auditService.logMessage(message.getMessage());

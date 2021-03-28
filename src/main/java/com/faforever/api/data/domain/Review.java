@@ -37,7 +37,7 @@ public class Review extends AbstractEntity implements OwnableEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
-  @UpdatePermission(expression = Prefab.ALL_AND_UPDATE_ON_CREATE)
+  @UpdatePermission(expression = Prefab.ALL)
   public Player getPlayer() {
     return player;
   }

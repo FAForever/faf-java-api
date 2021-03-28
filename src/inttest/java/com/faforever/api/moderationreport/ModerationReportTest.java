@@ -349,6 +349,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     mockMvc.perform(
       get("/data/moderationReport/2")
         .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
+      .andExpect(status().isOk())
       .andExpect(jsonPath("$.data.attributes.reportDescription", is("Report description")))
       .andExpect(jsonPath("$.data.attributes.gameIncidentTimecode", is("Incident timecode")))
       .andExpect(jsonPath("$.data.attributes.reportStatus", is(ModerationReportStatus.PROCESSING.name())))

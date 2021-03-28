@@ -1,8 +1,9 @@
 package com.faforever.api.data.checks;
 
-import com.yahoo.elide.security.ChangeSpec;
-import com.yahoo.elide.security.RequestScope;
-import com.yahoo.elide.security.checks.OperationCheck;
+import com.yahoo.elide.annotation.SecurityCheck;
+import com.yahoo.elide.core.security.ChangeSpec;
+import com.yahoo.elide.core.security.RequestScope;
+import com.yahoo.elide.core.security.checks.OperationCheck;
 
 import java.util.Optional;
 
@@ -11,7 +12,7 @@ public class BooleanChange {
   public static final String TO_FALSE_EXPRESSION = "boolean changed to false";
   public static final String TO_TRUE_EXPRESSION = "boolean changed to true";
 
-
+  @SecurityCheck(TO_FALSE_EXPRESSION)
   public static class ToFalse extends OperationCheck<Object> {
 
     @Override
@@ -28,6 +29,7 @@ public class BooleanChange {
 
   }
 
+  @SecurityCheck(TO_TRUE_EXPRESSION)
   public static class ToTrue extends OperationCheck<Object> {
 
     @Override

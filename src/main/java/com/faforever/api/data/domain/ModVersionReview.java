@@ -26,7 +26,7 @@ public class ModVersionReview extends Review {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "mod_version_id")
-  @UpdatePermission(expression = Prefab.ALL_AND_UPDATE_ON_CREATE)
+  @UpdatePermission(expression = Prefab.ALL)
   public ModVersion getModVersion() {
     return modVersion;
   }
