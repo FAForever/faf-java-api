@@ -109,7 +109,9 @@ public class UsersController {
 
   @ApiOperation("Sends a password reset request to the username OR email linked by this account.")
   @PostMapping(path = "/requestPasswordReset", produces = APPLICATION_JSON_VALUE)
-  public void requestPasswordReset(@RequestParam("identifier") String identifier) {
+  public void requestPasswordReset(@RequestParam("identifier") String identifier,
+                                   @RequestParam(value = "recaptchaResponse", required = false) String recaptchaResponse) {
+    recaptchaService.validateResponse(recaptchaResponse);
     userService.requestPasswordReset(identifier);
   }
 
