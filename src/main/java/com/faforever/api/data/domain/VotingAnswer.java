@@ -1,9 +1,7 @@
 package com.faforever.api.data.domain;
 
-import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.Prefab;
 import com.yahoo.elide.annotation.Include;
-import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.EqualsAndHashCode;
 import lombok.Setter;
@@ -19,7 +17,6 @@ import jakarta.persistence.Transient;
 @Entity
 @Table(name = "voting_answer")
 @Include(name = VotingAnswer.TYPE_NAME, rootLevel = false)
-@ReadPermission(expression = IsEntityOwner.EXPRESSION)
 @UpdatePermission(expression = Prefab.NONE)
 @EqualsAndHashCode(of = {"vote", "votingChoice"}, callSuper = false)
 @Setter

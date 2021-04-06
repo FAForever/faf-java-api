@@ -144,13 +144,13 @@ public class ModerationReportTest extends AbstractIntegrationTest {
     final ModerationReport updatedModerationReport = (ModerationReport) new ModerationReport()
       .setReportStatus(null)
       .setReportDescription("New report description")
-      .setId("2");
+      .setId("3");
     mockMvc.perform(
-      patch("/data/moderationReport/2")
+      patch("/data/moderationReport/3")
         .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(updatedModerationReport)))
-      .andExpect(status().isForbidden());
+      .andExpect(status().isNotFound());
   }
 
   @Test
