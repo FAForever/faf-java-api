@@ -154,6 +154,11 @@ task inttest(type: Test) {
   setTestClassesDirs(files(sourceSets.inttest.output))
   classpath = sourceSets.inttest.runtimeClasspath
 
+  testLogging {
+    events("passed", "skipped", "failed", "standard_out", "standard_error")
+    exceptionFormat = 'full'
+  }
+
   useJUnitPlatform()
 
   mustRunAfter test
@@ -247,6 +252,8 @@ dependencies {
   testImplementation("junit-addons:junit-addons:${junitAddonsVersion}")
   testImplementation("com.jayway.jsonpath:json-path:${jsonPath}")
   testImplementation("com.jayway.jsonpath:json-path-assert:${jsonPathAssert}")
+  testImplementation("org.testcontainers:junit-jupiter:${testContainersVersion}")
+  testImplementation("org.testcontainers:mysql:1.15.0")
 
   codacy("com.github.codacy:codacy-coverage-reporter:${codacyCoverageReporterVersion}")
 }
