@@ -18,7 +18,7 @@ import java.time.OffsetDateTime;
 @Table(name = "league_season")
 @Include(type = LeagueSeason.TYPE_NAME)
 public class LeagueSeason {
-  public static final String TYPE_NAME = "leagueSeasonV2";
+  public static final String TYPE_NAME = "leagueSeason";
 
   private Integer id;
   private League league;

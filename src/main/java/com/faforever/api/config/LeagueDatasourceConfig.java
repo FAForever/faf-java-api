@@ -19,6 +19,9 @@ import javax.sql.DataSource;
 @Configuration
 public class LeagueDatasourceConfig {
 
+  public static final String LEAGUE_DATA_SOURCE = "leagueDataSource";
+  public static final String LEAGUE_TRANSACTION_MANAGER = "leagueTransactionManager";
+
   @Bean
   @ConfigurationProperties("spring.league-datasource")
   public DataSourceProperties leagueDataSourceProperties() {
@@ -31,10 +34,10 @@ public class LeagueDatasourceConfig {
     return leagueDataSourceProperties().initializeDataSourceBuilder().build();
   }
 
-  @Bean(name = "leagueEntityManagerFactory")
+  @Bean
   public LocalContainerEntityManagerFactoryBean leagueEntityManagerFactory(
     EntityManagerFactoryBuilder builder,
-    @Qualifier("leagueDataSource") DataSource leagueDataSource
+    @Qualifier(LEAGUE_DATA_SOURCE) DataSource leagueDataSource
   ) {
     return builder
       .dataSource(leagueDataSource)
@@ -46,14 +49,14 @@ public class LeagueDatasourceConfig {
 
   @Bean
   public PlatformTransactionManager leagueTransactionManager(
-    final @Qualifier("leagueEntityManagerFactory") LocalContainerEntityManagerFactoryBean leagueEntityManagerFactory
+    @Qualifier("leagueEntityManagerFactory") LocalContainerEntityManagerFactoryBean leagueEntityManagerFactory
   ) {
     return new JpaTransactionManager(leagueEntityManagerFactory.getObject());
   }
 
   @Bean
-  DataStore leagueDatastore(
-    @Qualifier("leagueTransactionManager") PlatformTransactionManager leagueTransactionManager,
+  DataStore leagueDataStore(
+    @Qualifier(LEAGUE_TRANSACTION_MANAGER) PlatformTransactionManager leagueTransactionManager,
     @Qualifier("leagueEntityManagerFactory") EntityManager entityManager
   ) {
     return new SpringHibernateDataStore(leagueTransactionManager, entityManager, true, ScrollMode.FORWARD_ONLY);

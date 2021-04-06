@@ -13,7 +13,7 @@ import javax.persistence.Table;
 @Table(name = "leaderboard")
 @Include(type = com.faforever.api.league.domain.Leaderboard.TYPE_NAME)
 public class Leaderboard {
-  public static final String TYPE_NAME = "leaderboardV2";
+  public static final String TYPE_NAME = "leagueLeaderboard";
 
   private Integer id;
   private String technicalName;

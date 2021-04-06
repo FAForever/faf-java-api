@@ -17,7 +17,7 @@ import javax.persistence.Table;
 @Table(name = "league_season_division")
 @Include(type = LeagueSeasonDivision.TYPE_NAME)
 public class LeagueSeasonDivision {
-  public static final String TYPE_NAME = "leagueSeasonDivisionV2";
+  public static final String TYPE_NAME = "leagueSeasonDivision";
 
   private Integer id;
   private LeagueSeason leagueSeason;

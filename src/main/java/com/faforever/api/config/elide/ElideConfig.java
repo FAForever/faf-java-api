@@ -30,10 +30,10 @@ public class ElideConfig {
 
   @Bean
   MultiplexManager multiplexDataStore(
-    DataStore fafDatastore,
-    DataStore leagueDatastore
+    DataStore fafDataStore,
+    DataStore leagueDataStore
   ) {
-    return new MultiplexManager(fafDatastore, leagueDatastore);
+    return new MultiplexManager(fafDataStore, leagueDataStore);
   }
 
   @Bean
