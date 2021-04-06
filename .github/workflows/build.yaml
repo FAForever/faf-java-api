@@ -2,7 +2,7 @@ name: Build
 on: [ push, pull_request ]
 env:
   FLYWAY_VERSION: 7.5.4
-  FAF_DB_VERSION: v114
+  FAF_DB_VERSION: v115
 jobs:
   test:
     runs-on: ubuntu-latest
