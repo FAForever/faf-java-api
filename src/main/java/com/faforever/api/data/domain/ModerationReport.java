@@ -1,6 +1,8 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsEntityOwner;
+import com.faforever.api.data.checks.IsEntityOwnerFilter;
+import com.faforever.api.data.checks.IsEntityOwnerFilter.OwnerAttribute;
 import com.faforever.api.data.checks.IsInAwaitingState;
 import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.hook.ModerationReportHook;
@@ -45,7 +47,7 @@ import static com.yahoo.elide.annotation.LifeCycleHookBinding.TransactionPhase.P
 @Setter
 @ToString(exclude = {"reportedUsers", "bans"})
 @Include(name = ModerationReport.TYPE_NAME)
-@ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + AdminModerationReportCheck.EXPRESSION)
+@ReadPermission(expression = IsEntityOwnerFilter.EXPRESSION + " OR " + AdminModerationReportCheck.EXPRESSION)
 @DeletePermission(expression = Prefab.NONE)
 @CreatePermission(expression = Prefab.ALL)
 @Audit(action = Action.CREATE, logStatement = "Moderation report `{0}` has been reported", logExpressions = "${moderationReport}")
@@ -55,6 +57,7 @@ import static com.yahoo.elide.annotation.LifeCycleHookBinding.TransactionPhase.P
 public class ModerationReport extends AbstractEntity<ModerationReport> implements OwnableEntity {
   public static final String TYPE_NAME = "moderationReport";
   private ModerationReportStatus reportStatus;
+  @OwnerAttribute
   private Player reporter;
   private String reportDescription;
   private String gameIncidentTimecode;

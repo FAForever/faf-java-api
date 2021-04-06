@@ -9,6 +9,10 @@ import com.yahoo.elide.core.security.checks.OperationCheck;
 
 import java.util.Optional;
 
+/**
+ * Operation check that will check if the entity's owner is callee
+ * For entity's read filtration use {@link IsEntityOwnerFilter}
+ */
 public class IsEntityOwner {
 
   public static final String EXPRESSION = "is entity owner";
