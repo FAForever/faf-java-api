@@ -47,6 +47,7 @@ public class Map extends AbstractEntity implements OwnableEntity {
   private Player author;
   private MapStatistics statistics;
   private MapVersion latestVersion;
+  private Integer timesPlayed;
   private MapReviewsSummary reviewsSummary;
 
   @Column(name = "display_name", unique = true)
@@ -66,6 +67,12 @@ public class Map extends AbstractEntity implements OwnableEntity {
   @NotNull
   public String getBattleType() {
     return battleType;
+  }
+
+  @Column(name = "times_played")
+  @NotNull
+  public Integer getTimesPlayed() {
+    return timesPlayed;
   }
 
   @OneToMany(mappedBy = "map", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

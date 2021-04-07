@@ -91,6 +91,7 @@ public class MapVersion extends AbstractEntity implements OwnableEntity {
   }
 
   @Column(name = "times_played")
+  @NotNull
   public Integer getTimesPlayed() {
     return timesPlayed;
   }
