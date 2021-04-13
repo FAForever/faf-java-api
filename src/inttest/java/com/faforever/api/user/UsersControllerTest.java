@@ -80,7 +80,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
     params.add("password", NEW_PASSWORD);
 
     MvcResult result = mockMvc.perform(post("/users/register")
-      .with(getOAuthTokenWithoutUser(OAuthScope._CREATE_USER))
+      .with(getOAuthTokenWithoutUser())
       .params(params)
     ).andExpect(status().is4xxClientError())
       .andReturn();
