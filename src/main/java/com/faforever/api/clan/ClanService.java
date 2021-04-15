@@ -74,7 +74,7 @@ public class ClanService {
     Clan clan = clanRepository.findById(clanId)
       .orElseThrow(() -> new ApiException(new Error(ErrorCode.CLAN_NOT_EXISTS, clanId)));
 
-    if (requester.getId() != clan.getLeader().getId()) {
+    if (!requester.getId().equals(clan.getLeader().getId())) {
       throw new ApiException(new Error(ErrorCode.CLAN_NOT_LEADER, clanId));
     }
 
