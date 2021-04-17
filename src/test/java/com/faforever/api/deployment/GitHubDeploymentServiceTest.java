@@ -19,7 +19,7 @@ import org.springframework.context.ApplicationContext;
 import java.util.Collections;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -113,7 +113,7 @@ public class GitHubDeploymentServiceTest {
     // Couldn't be mocked since calling ghDeployment.getId() threw an NPE
     GHDeployment ghDeployment = new GHDeployment() {
       @Override
-      public int getId() {
+      public long getId() {
         return 1;
       }
 
@@ -134,7 +134,9 @@ public class GitHubDeploymentServiceTest {
 
     GHDeploymentStatusBuilder builder = mock(GHDeploymentStatusBuilder.class);
     when(builder.description(any())).thenReturn(builder);
-    when(ghRepository.createDeployStatus(anyInt(), any())).thenReturn(builder);
+    GHDeployment deploymentMock = mock(GHDeployment.class);
+    when(ghRepository.getDeployment(anyLong())).thenReturn(deploymentMock);
+    when(deploymentMock.createStatus(any())).thenReturn(builder);
     when(deployment.getRepository()).thenReturn(ghRepository);
 
     LegacyFeaturedModDeploymentTask task = mock(LegacyFeaturedModDeploymentTask.class);

@@ -105,7 +105,6 @@ targetCompatibility = 15
 
 repositories {
   mavenCentral()
-  maven { url "https://repo.jenkins-ci.org/public/" }
   maven { url "https://jitpack.io" }
   maven { url "https://dl.bintray.com/typesafe/maven-releases" }
 }

@@ -73,7 +73,7 @@ public class GitHubDeploymentService {
     }
 
     GHRepository repository = deployment.getRepository();
-    int deploymentId = ghDeployment.getId();
+    long deploymentId = ghDeployment.getId();
 
     try {
       performDeployment(ghDeployment, repository, deploymentId);
@@ -83,7 +83,7 @@ public class GitHubDeploymentService {
     }
   }
 
-  private void performDeployment(GHDeployment ghDeployment, GHRepository repository, int deploymentId) throws IOException {
+  private void performDeployment(GHDeployment ghDeployment, GHRepository repository, long deploymentId) throws IOException {
     String modName = ghDeployment.getPayload();
     FeaturedMod featuredMod = featuredModService.findModByTechnicalName(modName)
       .orElseThrow(() -> new IllegalArgumentException("No such mod: " + modName));
@@ -97,9 +97,10 @@ public class GitHubDeploymentService {
   }
 
   @SneakyThrows
-  private void updateDeploymentStatus(int deploymentId, GHRepository repository, GHDeploymentState state, String description) {
+  private void updateDeploymentStatus(long deploymentId, GHRepository repository, GHDeploymentState state, String description) {
     log.debug("Updating deployment status to '{}' with description: {}", state, description);
-    repository.createDeployStatus(deploymentId, state)
+    repository.getDeployment(deploymentId)
+      .createStatus(state)
       .description(description)
       .create();
   }
