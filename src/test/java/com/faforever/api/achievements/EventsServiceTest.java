@@ -4,14 +4,12 @@ import com.faforever.api.data.domain.Achievement;
 import com.faforever.api.data.domain.AchievementState;
 import com.faforever.api.data.domain.AchievementType;
 import com.faforever.api.data.domain.PlayerAchievement;
+import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ErrorCode;
 import org.hamcrest.CoreMatchers;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.ExpectedExceptionSupport;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,20 +19,20 @@ import java.util.Optional;
 import static com.faforever.api.data.domain.AchievementState.REVEALED;
 import static com.faforever.api.data.domain.AchievementState.UNLOCKED;
 import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith({MockitoExtension.class, ExpectedExceptionSupport.class})
+@ExtendWith(MockitoExtension.class)
 public class EventsServiceTest {
 
   private static final int PLAYER_ID = 1;
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+
   private AchievementService instance;
   @Mock
   private AchievementRepository achievementRepository;
@@ -109,9 +107,8 @@ public class EventsServiceTest {
   public void incrementNonIncremental() throws Exception {
     mockAchievement("111", AchievementType.STANDARD, null);
 
-    expectedException.expect(hasErrorCode(ErrorCode.ACHIEVEMENT_NOT_INCREMENTAL));
-
-    instance.increment(PLAYER_ID, "111", 3);
+    ApiException result = assertThrows(ApiException.class, () -> instance.increment(PLAYER_ID, "111", 3));
+    assertThat(result, hasErrorCode(ErrorCode.ACHIEVEMENT_NOT_INCREMENTAL));
 
     verify(playerAchievementRepository, never()).findOneByAchievementIdAndPlayerId(any(), anyInt());
   }
@@ -205,9 +202,8 @@ public class EventsServiceTest {
   public void unlockIncremental() throws Exception {
     mockAchievement("111", AchievementType.INCREMENTAL, 1);
 
-    expectedException.expect(hasErrorCode(ErrorCode.ACHIEVEMENT_NOT_STANDARD));
-
-    instance.unlock(PLAYER_ID, "111");
+    ApiException result = assertThrows(ApiException.class, () -> instance.unlock(PLAYER_ID, "111"));
+    assertThat(result, hasErrorCode(ErrorCode.ACHIEVEMENT_NOT_STANDARD));
 
     verify(playerAchievementRepository, never()).findOneByAchievementIdAndPlayerId(any(), anyInt());
   }

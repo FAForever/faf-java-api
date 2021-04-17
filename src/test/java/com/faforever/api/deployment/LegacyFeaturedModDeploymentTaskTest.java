@@ -6,12 +6,10 @@ import com.faforever.api.data.domain.FeaturedMod;
 import com.faforever.api.deployment.git.GitWrapper;
 import com.faforever.api.featuredmods.FeaturedModFile;
 import com.faforever.api.featuredmods.FeaturedModService;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -30,24 +28,25 @@ import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyShort;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@ExtendWith({MockitoExtension.class, ExternalResourceSupport.class})
+@ExtendWith(MockitoExtension.class)
 public class LegacyFeaturedModDeploymentTaskTest {
 
-  @Rule
-  public TemporaryFolder repositoriesFolder = new TemporaryFolder();
-  @Rule
-  public TemporaryFolder targetFolder = new TemporaryFolder();
+  @TempDir
+  public Path repositoriesFolder;
+  @TempDir
+  public Path targetFolder;
+
   private LegacyFeaturedModDeploymentTask instance;
   @Mock
   private GitWrapper gitWrapper;
@@ -62,8 +61,8 @@ public class LegacyFeaturedModDeploymentTaskTest {
   public void setUp() {
     properties = new FafApiProperties();
     Deployment deployment = properties.getDeployment();
-    deployment.setRepositoriesDirectory(repositoriesFolder.getRoot().getAbsolutePath());
-    deployment.setFeaturedModsTargetDirectory(targetFolder.getRoot().getAbsolutePath());
+    deployment.setRepositoriesDirectory(repositoriesFolder.toString());
+    deployment.setFeaturedModsTargetDirectory(targetFolder.toString());
 
     instance = new LegacyFeaturedModDeploymentTask(gitWrapper, featuredModService, properties, restTemplate);
   }
@@ -97,7 +96,7 @@ public class LegacyFeaturedModDeploymentTaskTest {
     ));
     when(featuredModService.getFileIds("faf")).thenReturn(Collections.emptyMap());
 
-    Path dummyExe = repositoriesFolder.getRoot().toPath().resolve("TemplateForgedAlliance.exe");
+    Path dummyExe = repositoriesFolder.resolve("TemplateForgedAlliance.exe");
     createDummyExe(dummyExe);
     properties.getDeployment().setForgedAllianceExePath(dummyExe.toAbsolutePath().toString());
 
@@ -138,7 +137,7 @@ public class LegacyFeaturedModDeploymentTaskTest {
       "someDir.nx3", (short) 2
     ));
 
-    Path dummyExe = repositoriesFolder.getRoot().toPath().resolve("TemplateForgedAlliance.exe");
+    Path dummyExe = repositoriesFolder.resolve("TemplateForgedAlliance.exe");
     createDummyExe(dummyExe);
     properties.getDeployment().setForgedAllianceExePath(dummyExe.toAbsolutePath().toString());
 
@@ -161,8 +160,8 @@ public class LegacyFeaturedModDeploymentTaskTest {
     assertThat(files.get(1).getName(), is("someDir.1337.nx3"));
     assertThat(files.get(1).getVersion(), is(1337));
 
-    assertThat(Files.exists(targetFolder.getRoot().toPath().resolve("updates_faf_files/someDir.1337.nx3")), is(true));
-    assertThat(Files.exists(targetFolder.getRoot().toPath().resolve("updates_faf_files/ForgedAlliance.1337.exe")), is(true));
+    assertThat(Files.exists(targetFolder.resolve("updates_faf_files/someDir.1337.nx3")), is(true));
+    assertThat(Files.exists(targetFolder.resolve("updates_faf_files/ForgedAlliance.1337.exe")), is(true));
   }
 
   @Test

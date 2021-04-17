@@ -1,17 +1,13 @@
 package com.faforever.api.security;
 
 import com.faforever.api.config.FafApiProperties;
-import com.faforever.api.error.ApiExceptionMatcher;
+import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ErrorCode;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.ExpectedExceptionSupport;
-import org.junit.rules.ExpectedException;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.RsaSigner;
@@ -23,11 +19,12 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 
+import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(ExpectedExceptionSupport.class)
 public class FafTokenServiceTest {
   private static final String TEST_SECRET_KEY =
     "-----BEGIN RSA PRIVATE KEY-----\n" +
@@ -61,8 +58,6 @@ public class FafTokenServiceTest {
   private final RsaSigner rsaSigner;
   private final RsaVerifier rsaVerifier;
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   private ObjectMapper objectMapper;
   private FafTokenService instance;
 
@@ -117,7 +112,7 @@ public class FafTokenServiceTest {
   }
 
   @Test
-  public void resolveToken() throws Exception {
+  public void resolveToken() {
     String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(100), Collections.emptyMap());
     Map<String, String> result = instance.resolveToken(FafTokenType.REGISTRATION, token);
 
@@ -125,7 +120,7 @@ public class FafTokenServiceTest {
   }
 
   @Test
-  public void resolveTokenWithAttributes() throws Exception {
+  public void resolveTokenWithAttributes() {
     Map<String, String> attributes = Map.of("attribute1", "value1", "attribute2", "value2");
 
     String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(100), attributes);
@@ -137,24 +132,24 @@ public class FafTokenServiceTest {
   }
 
   @Test
-  public void resolveTokenExpired() throws Exception {
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.TOKEN_EXPIRED));
-
+  public void resolveTokenExpired() {
     String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(-1), Collections.emptyMap());
-    instance.resolveToken(FafTokenType.REGISTRATION, token);
+
+    ApiException result = assertThrows(ApiException.class, () -> instance.resolveToken(FafTokenType.REGISTRATION, token));
+    assertThat(result, hasErrorCode(ErrorCode.TOKEN_EXPIRED));
   }
 
   @Test
-  public void resolveTokenInvalidType() throws Exception {
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.TOKEN_INVALID));
-
+  public void resolveTokenInvalidType() {
     String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(-1), Collections.emptyMap());
-    instance.resolveToken(FafTokenType.PASSWORD_RESET, token);
+
+    ApiException result = assertThrows(ApiException.class, () -> instance.resolveToken(FafTokenType.PASSWORD_RESET, token));
+    assertThat(result, hasErrorCode(ErrorCode.TOKEN_INVALID));
   }
 
   @Test
-  public void resolveGibberishToken() throws Exception {
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.TOKEN_INVALID));
-    instance.resolveToken(FafTokenType.PASSWORD_RESET, "gibberish token");
+  public void resolveGibberishToken() {
+    ApiException result = assertThrows(ApiException.class, () -> instance.resolveToken(FafTokenType.PASSWORD_RESET, "gibberish token"));
+    assertThat(result, hasErrorCode(ErrorCode.TOKEN_INVALID));
   }
 }

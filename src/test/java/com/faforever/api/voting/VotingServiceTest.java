@@ -7,15 +7,11 @@ import com.faforever.api.data.domain.VotingChoice;
 import com.faforever.api.data.domain.VotingQuestion;
 import com.faforever.api.data.domain.VotingSubject;
 import com.faforever.api.error.ApiException;
-import com.faforever.api.error.ApiExceptionMatcher;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.game.GamePlayerStatsRepository;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.ExpectedExceptionSupport;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -25,16 +21,17 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 
-import static org.junit.Assert.assertTrue;
+import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith({MockitoExtension.class, ExpectedExceptionSupport.class})
+@ExtendWith(MockitoExtension.class)
 public class VotingServiceTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private VotingService instance;
   @Mock
@@ -81,9 +78,9 @@ public class VotingServiceTest {
 
     vote.setVotingSubject(votingSubject);
 
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.VOTING_SUBJECT_DOES_NOT_EXIST));
+    ApiException result = assertThrows(ApiException.class, () -> instance.saveVote(vote, new Player()));
+    assertThat(result, hasErrorCode(ErrorCode.VOTING_SUBJECT_DOES_NOT_EXIST));
 
-    instance.saveVote(vote, new Player());
     verify(voteRepository, never()).save(vote);
   }
 
@@ -105,11 +102,9 @@ public class VotingServiceTest {
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.of(new Vote()));
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
 
-    try {
-      instance.saveVote(vote, player);
-    } catch (ApiException e) {
-      assertTrue(Arrays.stream(e.getErrors()).anyMatch(error -> error.getErrorCode().equals(ErrorCode.VOTED_TWICE)));
-    }
+    ApiException result = assertThrows(ApiException.class, () -> instance.saveVote(vote, player));
+    assertTrue(Arrays.stream(result.getErrors()).anyMatch(error -> error.getErrorCode().equals(ErrorCode.VOTED_TWICE)));
+
     verify(voteRepository, never()).save(vote);
   }
 
@@ -182,9 +177,10 @@ public class VotingServiceTest {
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
 
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.VOTING_CHOICE_DOES_NOT_EXIST));
 
-    instance.saveVote(vote, player);
+    ApiException result = assertThrows(ApiException.class, () -> instance.saveVote(vote, player));
+    assertThat(result, hasErrorCode(ErrorCode.VOTING_CHOICE_DOES_NOT_EXIST));
+
     verify(voteRepository, never()).save(vote);
   }
 

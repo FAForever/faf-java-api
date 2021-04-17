@@ -3,26 +3,24 @@ package com.faforever.api.email;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.PasswordReset;
 import com.faforever.api.config.FafApiProperties.Registration;
-import com.faforever.api.error.ApiExceptionMatcher;
+import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.ExpectedExceptionSupport;
-import org.junit.rules.ExpectedException;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith({MockitoExtension.class, ExpectedExceptionSupport.class})
+@ExtendWith(MockitoExtension.class)
 public class EmailServiceTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
+  public static final String ACTION_URL = "https://example.com";
   private EmailService instance;
   private FafApiProperties properties;
 
@@ -32,7 +30,7 @@ public class EmailServiceTest {
   private EmailSender emailSender;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     properties = new FafApiProperties();
     properties.getMail().setFromEmailAddress("foo@bar.com");
     properties.getMail().setFromEmailName("foobar");
@@ -41,39 +39,38 @@ public class EmailServiceTest {
   }
 
   @Test
-  public void validateEmailAddress() throws Exception {
+  public void validateEmailAddress() {
     instance.validateEmailAddress("test@example.com");
   }
 
   @Test
-  public void validateEmailAddressMissingAt() throws Exception {
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.EMAIL_INVALID));
-    instance.validateEmailAddress("testexample.com");
+  public void validateEmailAddressMissingAt() {
+    ApiException result = assertThrows(ApiException.class, () -> instance.validateEmailAddress("testexample.com"));
+    assertThat(result, hasErrorCode(ErrorCode.EMAIL_INVALID));
   }
 
   @Test
-  public void validateEmailAddressMissingTld() throws Exception {
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.EMAIL_INVALID));
-    instance.validateEmailAddress("test@example");
+  public void validateEmailAddressMissingTld() {
+    ApiException result = assertThrows(ApiException.class, () -> instance.validateEmailAddress("test@example"));
+    assertThat(result, hasErrorCode(ErrorCode.EMAIL_INVALID));
   }
 
   @Test
-  public void validateEmailAddressBlacklisted() throws Exception {
+  public void validateEmailAddressBlacklisted() {
     when(domainBlacklistRepository.existsByDomain("example.com")).thenReturn(true);
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.EMAIL_BLACKLISTED));
-
-    instance.validateEmailAddress("test@example.com");
+    ApiException result = assertThrows(ApiException.class, () -> instance.validateEmailAddress("test@example.com"));
+    assertThat(result, hasErrorCode(ErrorCode.EMAIL_BLACKLISTED));
   }
 
   @Test
-  public void sendActivationMail() throws Exception {
+  public void sendActivationMail() {
     Registration registration = properties.getRegistration();
     registration.setSubject("Hello");
     registration.setHtmlFormat("Hello {0}, bla: {1}");
 
-    instance.sendActivationMail("junit", "junit@example.com", "http://example.com");
+    instance.sendActivationMail("junit", "junit@example.com", ACTION_URL);
 
-    verify(emailSender).sendMail("foo@bar.com", "foobar", "junit@example.com", "Hello", "Hello junit, bla: http://example.com");
+    verify(emailSender).sendMail("foo@bar.com", "foobar", "junit@example.com", "Hello", "Hello junit, bla: " + ACTION_URL);
   }
 
   @Test
@@ -82,8 +79,8 @@ public class EmailServiceTest {
     passwordReset.setSubject("Hello");
     passwordReset.setHtmlFormat("Hello {0}, bla: {1}");
 
-    instance.sendPasswordResetMail("junit", "junit@example.com", "http://example.com");
+    instance.sendPasswordResetMail("junit", "junit@example.com", ACTION_URL);
 
-    verify(emailSender).sendMail("foo@bar.com", "foobar", "junit@example.com", "Hello", "Hello junit, bla: http://example.com");
+    verify(emailSender).sendMail("foo@bar.com", "foobar", "junit@example.com", "Hello", "Hello junit, bla: " + ACTION_URL);
   }
 }

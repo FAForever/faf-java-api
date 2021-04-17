@@ -106,7 +106,6 @@ targetCompatibility = 15
 repositories {
   mavenCentral()
   maven { url "https://jitpack.io" }
-  maven { url "https://dl.bintray.com/typesafe/maven-releases" }
 }
 
 compileJava.dependsOn(processResources)
@@ -208,7 +207,6 @@ dependencies {
 
   runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
-  implementation("org.springframework.boot:spring-boot-starter-jdbc")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-web")
   implementation("org.springframework.boot:spring-boot-starter-jetty")
@@ -243,13 +241,7 @@ dependencies {
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("org.junit.jupiter:junit-jupiter")
-  testImplementation("org.junit.jupiter:junit-jupiter-params")
   testImplementation("junit-addons:junit-addons:${junitAddonsVersion}")
-  testImplementation("org.mockito:mockito-junit-jupiter")
-  testImplementation("org.junit.jupiter:junit-jupiter-migrationsupport")
-  testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
-  testImplementation("com.h2database:h2:${h2Version}")
   testImplementation("com.jayway.jsonpath:json-path:${jsonPath}")
   testImplementation("com.jayway.jsonpath:json-path-assert:${jsonPathAssert}")
 
