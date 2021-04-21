@@ -1,5 +1,6 @@
 package com.faforever.api.featuredmods;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.repository.Repository;
 import org.springframework.util.Assert;
 
@@ -15,7 +16,7 @@ public class LegacyFeaturedModFileRepository implements Repository<FeaturedModFi
   private static final Pattern MOD_NAME_PATTERN = Pattern.compile("[a-z0-9]+");
   private final EntityManager entityManager;
 
-  public LegacyFeaturedModFileRepository(EntityManager entityManager) {
+  public LegacyFeaturedModFileRepository(@Qualifier("fafEntityManagerFactory") EntityManager entityManager) {
     this.entityManager = entityManager;
   }
 

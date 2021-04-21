@@ -229,6 +229,7 @@ dependencies {
   implementation("com.yahoo.elide:elide-core:${elideVersion}")
   implementation("com.yahoo.elide:elide-swagger:${elideVersion}")
   implementation("com.yahoo.elide:elide-datastore-hibernate5:${elideVersion}")
+  implementation("com.yahoo.elide:elide-datastore-multiplex:${elideVersion}")
 
   implementation("org.luaj:luaj-jse:${luajVersion}")
   implementation("com.github.micheljung:nocatch:${nocatchVersion}")

@@ -64,6 +64,11 @@ spring:
     name: faf
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
+  league-datasource:
+    url: jdbc:mysql://${LEAGUE_DATABASE_ADDRESS}/${LEAGUE_DATABASE_NAME}?useSSL=false
+    name: faf-league
+    username: ${LEAGUE_DATABASE_USERNAME}
+    password: ${LEAGUE_DATABASE_PASSWORD}
   jpa:
     show-sql: false
   boot:
