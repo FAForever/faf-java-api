@@ -30,7 +30,7 @@ import java.util.List;
 @Setter
 @EntityListeners(MapVersionEnricher.class)
 @Table(name = "map_version")
-@Include(rootLevel = true, type = MapVersion.TYPE_NAME)
+@Include(type = MapVersion.TYPE_NAME)
 public class MapVersion extends AbstractEntity implements OwnableEntity {
 
   public static final String TYPE_NAME = "mapVersion";

@@ -10,7 +10,7 @@ import javax.persistence.Table;
 @Entity
 @Setter
 @Table(name = "ladder1v1_rating_rank_view")
-@Include(rootLevel = true, type = "ladder1v1Rating")
+@Include(type = "ladder1v1Rating")
 public class Ladder1v1Rating extends Rating {
   private int wonGames;
 

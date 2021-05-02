@@ -14,7 +14,7 @@ import javax.persistence.Table;
 @Entity
 @Setter
 @Table(name = "game_reviews_summary")
-@Include(rootLevel = true, type = "gameReviewsSummary")
+@Include(type = "gameReviewsSummary")
 @Immutable
 public class GameReviewsSummary {
   private int id;

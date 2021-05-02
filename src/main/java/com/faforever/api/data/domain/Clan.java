@@ -29,7 +29,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "clan")
-@Include(rootLevel = true, type = Clan.TYPE_NAME)
+@Include(type = Clan.TYPE_NAME)
 @DeletePermission(expression = IsEntityOwner.EXPRESSION)
 @CreatePermission(expression = Prefab.ALL)
 @Setter

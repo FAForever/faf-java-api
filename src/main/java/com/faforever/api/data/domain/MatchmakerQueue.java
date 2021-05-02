@@ -16,7 +16,7 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Setter
 @Table(name = "matchmaker_queue")
-@Include(rootLevel = true, type = MatchmakerQueue.TYPE_NAME)
+@Include(type = MatchmakerQueue.TYPE_NAME)
 public class MatchmakerQueue extends AbstractEntity {
 
   public static final String TYPE_NAME = "matchmakerQueue";

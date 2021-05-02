@@ -24,7 +24,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "messages")
 @Setter
-@Include(rootLevel = true)
+@Include
 @DeletePermission(expression = WriteMessageCheck.EXPRESSION)
 @UpdatePermission(expression = WriteMessageCheck.EXPRESSION)
 @CreatePermission(expression = WriteMessageCheck.EXPRESSION)

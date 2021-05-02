@@ -21,7 +21,7 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "user_notes")
-@Include(rootLevel = true, type = "userNote")
+@Include(type = "userNote")
 @ReadPermission(expression = AdminAccountNoteCheck.EXPRESSION)
 @CreatePermission(expression = AdminAccountNoteCheck.EXPRESSION)
 @UpdatePermission(expression = AdminAccountNoteCheck.EXPRESSION)

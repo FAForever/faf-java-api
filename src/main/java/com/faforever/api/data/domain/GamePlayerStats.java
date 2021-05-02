@@ -20,7 +20,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "game_player_stats")
-@Include(rootLevel = true, type = "gamePlayerStats")
+@Include(type = "gamePlayerStats")
 @Immutable
 @Setter
 public class GamePlayerStats {

@@ -27,7 +27,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "mod_version")
-@Include(rootLevel = true, type = ModVersion.TYPE_NAME)
+@Include(type = ModVersion.TYPE_NAME)
 @Setter
 @EntityListeners(ModVersionEnricher.class)
 public class ModVersion extends AbstractEntity implements OwnableEntity {

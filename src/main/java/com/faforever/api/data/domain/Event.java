@@ -17,7 +17,7 @@ import javax.persistence.Transient;
 
 @Entity
 @Table(name = "event_definitions")
-@Include(rootLevel = true, type = Event.TYPE_NAME)
+@Include(type = Event.TYPE_NAME)
 @Setter
 @EntityListeners(EventLocalizationListener.class)
 public class Event {
