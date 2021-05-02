@@ -15,7 +15,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "clan_membership")
-@Include(rootLevel = true, type = "clanMembership")
+@Include(type = "clanMembership")
 @DeletePermission(expression = IsClanMembershipDeletable.EXPRESSION)
 @UpdatePermission(expression = IsClanMembershipDeletable.EXPRESSION)
 @Setter

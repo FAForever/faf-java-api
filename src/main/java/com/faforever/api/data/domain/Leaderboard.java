@@ -10,7 +10,7 @@ import javax.persistence.Table;
 @Entity
 @Setter
 @Table(name = "leaderboard")
-@Include(rootLevel = true, type = Leaderboard.TYPE_NAME)
+@Include(type = Leaderboard.TYPE_NAME)
 public class Leaderboard extends AbstractEntity {
 
   public static final String TYPE_NAME = "leaderboard";

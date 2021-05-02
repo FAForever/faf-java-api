@@ -24,7 +24,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "user_group")
-@Include(type = "userGroup", rootLevel = true)
+@Include(type = "userGroup")
 @UpdatePermission(expression = WriteUserGroupCheck.EXPRESSION)
 @CreatePermission(expression = WriteUserGroupCheck.EXPRESSION)
 @ReadPermission(expression = UserGroupPublicCheck.EXPRESSION + " or " + WriteUserGroupCheck.EXPRESSION)

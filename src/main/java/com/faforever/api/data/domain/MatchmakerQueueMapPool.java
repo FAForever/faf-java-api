@@ -21,7 +21,7 @@ import javax.persistence.Table;
 @Entity
 @Setter
 @Table(name = "matchmaker_queue_map_pool")
-@Include(rootLevel = true, type = MatchmakerQueueMapPool.TYPE_NAME)
+@Include(type = MatchmakerQueueMapPool.TYPE_NAME)
 public class MatchmakerQueueMapPool extends AbstractEntity {
 
   public static final String TYPE_NAME = "matchmakerQueueMapPool";

@@ -12,9 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
-
 import javax.persistence.JoinColumn;
-
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -22,7 +20,7 @@ import javax.persistence.Table;
 @Entity
 @Setter
 @Table(name = "map_pool_map_version")
-@Include(rootLevel = true, type = "mapPoolAssignment")
+@Include(type = "mapPoolAssignment")
 @CreatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @UpdatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @DeletePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)

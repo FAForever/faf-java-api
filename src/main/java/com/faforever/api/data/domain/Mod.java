@@ -26,7 +26,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "\"mod\"")
-@Include(rootLevel = true, type = Mod.TYPE_NAME)
+@Include(type = Mod.TYPE_NAME)
 @Immutable
 @Setter
 public class Mod extends AbstractEntity implements OwnableEntity {

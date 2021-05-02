@@ -13,7 +13,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "coop_leaderboard")
-@Include(rootLevel = true, type = CoopResult.TYPE_NAME)
+@Include(type = CoopResult.TYPE_NAME)
 @Setter
 public class CoopResult {
 

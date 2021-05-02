@@ -21,7 +21,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "login")
-@Include(rootLevel = true, type = Player.TYPE_NAME)
+@Include(type = Player.TYPE_NAME)
 @Setter
 @Type(Player.TYPE_NAME)
 public class Player extends Login {

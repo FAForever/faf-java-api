@@ -21,7 +21,7 @@ import javax.persistence.Table;
 @Deprecated
 @NoArgsConstructor
 @AllArgsConstructor
-@Include(type = "lobbyGroup")
+@Include(type = "lobbyGroup", rootLevel = false)
 public class LobbyGroup {
   private int userId;
   private LegacyAccessLevel accessLevel;

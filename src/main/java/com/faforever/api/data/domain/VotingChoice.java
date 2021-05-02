@@ -37,7 +37,7 @@ import java.util.Set;
 @Audit(action = Action.CREATE, logStatement = "Created voting choice with id: {0} ", logExpressions = {"${votingChoice.id}"})
 @Audit(action = Action.DELETE, logStatement = "Deleted voting choice with id: {0} ", logExpressions = {"${votingChoice.id}"})
 @Audit(action = Action.UPDATE, logStatement = "Updated voting choice with id: {0} ", logExpressions = {"${votingChoice.id}"})
-@Include(rootLevel = true, type = VotingChoice.TYPE_NAME)
+@Include(type = VotingChoice.TYPE_NAME)
 @Setter
 @EntityListeners(VotingChoiceEnricher.class)
 public class VotingChoice extends AbstractEntity {
