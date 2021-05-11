@@ -13,8 +13,6 @@ import com.faforever.commons.api.dto.Player;
 import com.faforever.commons.api.dto.Tutorial;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
@@ -65,6 +63,7 @@ public abstract class AbstractIntegrationTest {
   protected MockMvc mockMvc;
   @Autowired
   protected WebApplicationContext context;
+  @Autowired
   protected ObjectMapper objectMapper;
   protected ResourceConverter resourceConverter;
 
@@ -75,9 +74,6 @@ public abstract class AbstractIntegrationTest {
       .apply(springSecurity())
       .build();
 
-    this.objectMapper = new ObjectMapper();
-    this.objectMapper.registerModule(new JavaTimeModule());
-    this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     this.objectMapper.setSerializationInclusion(Include.NON_EMPTY);
 
     // maybe use reflections library to find all subtypes of AbstractEntity
