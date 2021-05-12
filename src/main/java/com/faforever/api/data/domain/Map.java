@@ -69,7 +69,7 @@ public class Map extends AbstractEntity implements OwnableEntity {
     return battleType;
   }
 
-  @Column(name = "times_played")
+  @Column(name = "games_played")
   @NotNull
   public Integer getGamesPlayed() {
     return gamesPlayed;
