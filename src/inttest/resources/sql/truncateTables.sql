@@ -60,7 +60,6 @@ DELETE FROM `player_achievements`;
 DELETE FROM `player_events`;
 DELETE FROM `reported_user`;
 DELETE FROM `table_map_comments`;
-DELETE FROM `table_map_features`;
 DELETE FROM `teamkills`;
 DELETE FROM `tutorial`;
 DELETE FROM `tutorial_category`;

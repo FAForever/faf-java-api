@@ -49,6 +49,7 @@ public class MapVersion extends AbstractEntity implements OwnableEntity {
   private String thumbnailUrlSmall;
   private String thumbnailUrlLarge;
   private String downloadUrl;
+  private Integer gamesPlayed;
   private List<MapVersionReview> reviews;
   private MapVersionReviewsSummary reviewsSummary;
   private Ladder1v1Map ladder1v1Map;
@@ -87,6 +88,12 @@ public class MapVersion extends AbstractEntity implements OwnableEntity {
   @NotNull
   public String getFilename() {
     return filename;
+  }
+
+  @Column(name = "games_played")
+  @NotNull
+  public Integer getGamesPlayed() {
+    return gamesPlayed;
   }
 
   @UpdatePermission(expression = AdminMapCheck.EXPRESSION + " or (" + IsEntityOwner.EXPRESSION + " and " + BooleanChange.TO_FALSE_EXPRESSION + ")")
