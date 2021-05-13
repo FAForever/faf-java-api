@@ -54,6 +54,7 @@ jobs:
           GRADLE_CLI_OPTS: "--console=plain --stacktrace --quiet"
           DATABASE_ADDRESS: faf-db
           LEAGUE_DATABASE_ADDRESS: faf-league-db
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         run: "chmod +x ./gradlew && ./gradlew ${GRADLE_CLI_OPTS} build jacocoTestReport coveralls"
       - name: Build and push Docker images
         if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/tags')
