@@ -45,7 +45,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -343,12 +342,10 @@ public class MapService {
     Optional<Map> existingMapOptional = mapRepository.findOneByDisplayName(displayName);
     existingMapOptional
       .ifPresent(existingMap -> {
-        Optional.ofNullable(existingMap.getAuthor())
-          .filter(existingMapAuthor -> !Objects.equals(existingMapAuthor, author))
-          .ifPresent(existingMapAuthor -> {
-            throw ApiException.of(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR, existingMap.getDisplayName());
-          });
-
+        final Player existingMapAuthor = existingMap.getAuthor();
+        if (existingMapAuthor == null || !existingMapAuthor.equals(author)) {
+          throw ApiException.of(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR, existingMap.getDisplayName());
+        }
         if (existingMap.getVersions().stream()
           .anyMatch(mapVersion -> mapVersion.getVersion() == newVersion)) {
           throw ApiException.of(ErrorCode.MAP_VERSION_EXISTS, existingMap.getDisplayName(), newVersion);
