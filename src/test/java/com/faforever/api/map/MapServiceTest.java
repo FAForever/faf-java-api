@@ -283,6 +283,19 @@ public class MapServiceTest {
     }
 
     @Test
+    void annonymousAuthor() {
+      when(fafApiProperties.getMap()).thenReturn(mapProperties);
+
+      Player me = new Player();
+      me.setId(1);
+
+      com.faforever.api.data.domain.Map map = new com.faforever.api.data.domain.Map().setAuthor(null);
+      when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.of(map));
+
+      uploadFails(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR, "command_conquer_rush.v0007.zip");
+    }
+
+    @Test
     void versionExistsAlready() {
       when(fafApiProperties.getMap()).thenReturn(mapProperties);
 
