@@ -1,68 +1,45 @@
 package com.faforever.api.map;
 
-import com.faforever.api.config.FafApiProperties;
-import com.faforever.api.config.TestWebSecurityConfig;
-import com.faforever.api.player.PlayerService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.faforever.api.AbstractIntegrationTest;
 import com.google.common.io.ByteStreams;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.jdbc.Sql;
 
-import javax.inject.Inject;
 import java.io.InputStream;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
-@WebMvcTest(MapsController.class)
-@Import(TestWebSecurityConfig.class)
-public class MapsControllerTest {
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/truncateTables.sql")
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultData.sql")
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepMapVersion.sql")
+public class MapsControllerTest extends AbstractIntegrationTest{
 
-  private MockMvc mvc;
-  @MockBean
-  private UserDetailsService userDetailsService;
-  @MockBean
-  private MapService mapService;
-  @MockBean
-  private FafApiProperties fafApiProperties;
-  @MockBean
-  private PlayerService playerService;
-  @MockBean
-  private ObjectMapper objectMapper;
+  @Autowired
+  MapRepository mapRepository;
 
-  @Inject
-  void init(MockMvc mvc) {
-    this.mvc = mvc;
-  }
-
+  @WithUserDetails(AUTH_USER)
   @Test
   void fileMissing() throws Exception {
-    this.mvc.perform(multipart("/maps/upload"))
+    mockMvc.perform(multipart("/maps/upload"))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors", hasSize(1)))
       .andExpect(jsonPath("$.errors[0].title", is("org.springframework.web.multipart.support.MissingServletRequestPartException")))
       .andExpect(jsonPath("$.errors[0].detail", is("Required request part 'file' is not present")));
   }
 
+  @WithUserDetails(AUTH_USER)
   @Test
   void jsonMetaDataMissing() throws Exception {
     MockMultipartFile file = new MockMultipartFile("file", "filename.txt", "text/plain", "some xml".getBytes());
 
-    this.mvc.perform(multipart("/maps/upload")
+    mockMvc.perform(multipart("/maps/upload")
       .file(file))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors", hasSize(1)))
@@ -70,15 +47,11 @@ public class MapsControllerTest {
       .andExpect(jsonPath("$.errors[0].detail", is("Required String parameter 'metadata' is not present")));
   }
 
+  @WithUserDetails(AUTH_USER)
   @Test
   void successUpload() throws Exception {
-    FafApiProperties props = new FafApiProperties();
     String jsonString = "{}";
-    ObjectMapper mapper = new ObjectMapper();
-    JsonNode node = mapper.readTree(jsonString);
 
-    when(fafApiProperties.getMap()).thenReturn(props.getMap());
-    when(objectMapper.readTree(anyString())).thenReturn(node);
     String zipFile = "command_conquer_rush.v0007.zip";
     try (InputStream inputStream = loadMapResourceAsStream(zipFile)) {
       MockMultipartFile file = new MockMultipartFile("file",
@@ -86,7 +59,7 @@ public class MapsControllerTest {
         "application/zip",
         ByteStreams.toByteArray(inputStream));
 
-      this.mvc.perform(multipart("/maps/upload")
+      mockMvc.perform(multipart("/maps/upload")
         .file(file)
         .param("metadata", jsonString)
       ).andExpect(status().isOk());
