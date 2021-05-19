@@ -364,6 +364,7 @@ public class MapService {
         new Map()
           .setDisplayName(mapName)
           .setAuthor(author)
+          .setGamesPlayed(0)
       );
 
     LuaValue standardTeamsConfig = mapLua.getFirstTeam$();
@@ -379,6 +380,7 @@ public class MapService {
       .setHeight(size.get(2).toint())
       .setHidden(false)
       .setRanked(isRanked)
+      .setGamesPlayed(0)
       .setMaxPlayers(standardTeamsConfig.get(CONFIGURATION_STANDARD_TEAMS_ARMIES).length())
       .setVersion(mapLua.getMapVersion$())
       .setMap(map)
