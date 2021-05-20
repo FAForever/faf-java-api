@@ -35,6 +35,14 @@ jobs:
           MYSQL_USER: faf-league-service
           MYSQL_PASSWORD: banana
     steps:
+      - name: Get the version
+        id: get_version
+        run: |
+          if [[ ${{ github.ref }} =~ ^refs/tags/.* ]]; then
+              echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+          else
+              echo ::set-output name=VERSION::${GITHUB_SHA}
+          fi
       - name: Install tools
         run: apt update && apt install -y git wget
       - name: Checkout code
@@ -51,7 +59,8 @@ jobs:
           flyway migrate
       - name: Gradle build
         env:
-          GRADLE_CLI_OPTS: "--console=plain --stacktrace --quiet"
+          API_VERSION: ${{ steps.get_version.outputs.VERSION }}
+          GRADLE_CLI_OPTS: "--console=plain --stacktrace --quiet -Pversion=${API_VERSION}"
           DATABASE_ADDRESS: faf-db
           LEAGUE_DATABASE_ADDRESS: faf-league-db
         run: "chmod +x ./gradlew && ./gradlew ${GRADLE_CLI_OPTS} build jacocoTestReport"
