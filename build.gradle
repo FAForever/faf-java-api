@@ -98,7 +98,6 @@ tasks.withType(Test) {
 }
 
 group = 'faforever'
-version = 'snapshot'
 
 sourceCompatibility = 15
 targetCompatibility = 15

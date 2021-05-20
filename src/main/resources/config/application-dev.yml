@@ -1,5 +1,4 @@
 faf-api:
-  version: dev
   jwt:
     secretKeyPath: ${JWT_PRIVATE_KEY_PATH:test-pki-private.key}
     publicKeyPath: ${JWT_PUBLIC_KEY_PATH:test-pki-public.key}
