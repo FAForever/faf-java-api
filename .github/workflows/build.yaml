@@ -59,7 +59,7 @@ jobs:
           flyway migrate
       - name: Gradle build
         env:
-          API_VERSION: ${{ steps.get_version.outputs.VERSION }}
+          API_VERSION: ${{ steps.get_version.outputs.API_VERSION }}
           GRADLE_CLI_OPTS: "--console=plain --stacktrace --quiet"
           DATABASE_ADDRESS: faf-db
           LEAGUE_DATABASE_ADDRESS: faf-league-db
