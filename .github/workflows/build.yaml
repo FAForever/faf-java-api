@@ -60,10 +60,10 @@ jobs:
       - name: Gradle build
         env:
           API_VERSION: ${{ steps.get_version.outputs.VERSION }}
-          GRADLE_CLI_OPTS: "--console=plain --stacktrace --quiet -Pversion=${API_VERSION}"
+          GRADLE_CLI_OPTS: "--console=plain --stacktrace --quiet"
           DATABASE_ADDRESS: faf-db
           LEAGUE_DATABASE_ADDRESS: faf-league-db
-        run: "chmod +x ./gradlew && ./gradlew ${GRADLE_CLI_OPTS} build jacocoTestReport"
+        run: "chmod +x ./gradlew && ./gradlew ${GRADLE_CLI_OPTS} -Pversion=${API_VERSION} build jacocoTestReport"
       - name: Build and push Docker images
         if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/tags')
         uses: docker/build-push-action@v1.1.1
