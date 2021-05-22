@@ -98,10 +98,10 @@ public class GitHubDeploymentService {
 
   @SneakyThrows
   private void updateDeploymentStatus(long deploymentId, GHRepository repository, GHDeploymentState state, String description) {
-    log.debug("Updating deployment status to '{}' with description: {}", state, description);
-    repository.getDeployment(deploymentId)
-      .createStatus(state)
-      .description(description)
-      .create();
+//    log.debug("Updating deployment status to '{}' with description: {}", state, description);
+//    repository.getDeployment(deploymentId)
+//      .createStatus(state)
+//      .description(description)
+//      .create();
   }
 }
