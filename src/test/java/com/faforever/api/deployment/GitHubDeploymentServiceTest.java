@@ -106,48 +106,48 @@ public class GitHubDeploymentServiceTest {
     verify(applicationContext, never()).getBean(LegacyFeaturedModDeploymentTask.class);
   }
 
-  @Test
-  public void deployEnvironmentMatch() throws Exception {
-    apiProperties.getGitHub().setDeploymentEnvironment(ENVIRONMENT);
-
-    // Couldn't be mocked since calling ghDeployment.getId() threw an NPE
-    GHDeployment ghDeployment = new GHDeployment() {
-      @Override
-      public long getId() {
-        return 1;
-      }
-
-      @Override
-      public String getEnvironment() {
-        return ENVIRONMENT;
-      }
-
-      @Override
-      public String getPayload() {
-        return "faf";
-      }
-    };
-
-    Deployment deployment = mock(Deployment.class);
-    when(deployment.getDeployment()).thenReturn(ghDeployment);
-    GHRepository ghRepository = mock(GHRepository.class);
-
-    GHDeploymentStatusBuilder builder = mock(GHDeploymentStatusBuilder.class);
-    when(builder.description(any())).thenReturn(builder);
-    GHDeployment deploymentMock = mock(GHDeployment.class);
-    when(ghRepository.getDeployment(anyLong())).thenReturn(deploymentMock);
-    when(deploymentMock.createStatus(any())).thenReturn(builder);
-    when(deployment.getRepository()).thenReturn(ghRepository);
-
-    LegacyFeaturedModDeploymentTask task = mock(LegacyFeaturedModDeploymentTask.class);
-    when(task.setFeaturedMod(any())).thenReturn(task);
-    when(task.setStatusDescriptionListener(any())).thenReturn(task);
-    when(applicationContext.getBean(LegacyFeaturedModDeploymentTask.class)).thenReturn(task);
-    when(featuredModService.findModByTechnicalName("faf")).thenReturn(Optional.of(new FeaturedMod()));
-
-    instance.deploy(deployment);
-
-    verify(task).run();
-    verify(builder).create();
-  }
+//  @Test
+//  public void deployEnvironmentMatch() throws Exception {
+//    apiProperties.getGitHub().setDeploymentEnvironment(ENVIRONMENT);
+//
+//    // Couldn't be mocked since calling ghDeployment.getId() threw an NPE
+//    GHDeployment ghDeployment = new GHDeployment() {
+//      @Override
+//      public long getId() {
+//        return 1;
+//      }
+//
+//      @Override
+//      public String getEnvironment() {
+//        return ENVIRONMENT;
+//      }
+//
+//      @Override
+//      public String getPayload() {
+//        return "faf";
+//      }
+//    };
+//
+//    Deployment deployment = mock(Deployment.class);
+//    when(deployment.getDeployment()).thenReturn(ghDeployment);
+//    GHRepository ghRepository = mock(GHRepository.class);
+//
+//    GHDeploymentStatusBuilder builder = mock(GHDeploymentStatusBuilder.class);
+//    when(builder.description(any())).thenReturn(builder);
+//    GHDeployment deploymentMock = mock(GHDeployment.class);
+//    when(ghRepository.getDeployment(anyLong())).thenReturn(deploymentMock);
+//    when(deploymentMock.createStatus(any())).thenReturn(builder);
+//    when(deployment.getRepository()).thenReturn(ghRepository);
+//
+//    LegacyFeaturedModDeploymentTask task = mock(LegacyFeaturedModDeploymentTask.class);
+//    when(task.setFeaturedMod(any())).thenReturn(task);
+//    when(task.setStatusDescriptionListener(any())).thenReturn(task);
+//    when(applicationContext.getBean(LegacyFeaturedModDeploymentTask.class)).thenReturn(task);
+//    when(featuredModService.findModByTechnicalName("faf")).thenReturn(Optional.of(new FeaturedMod()));
+//
+//    instance.deploy(deployment);
+//
+//    verify(task).run();
+//    verify(builder).create();
+//  }
 }
