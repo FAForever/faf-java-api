@@ -2,6 +2,7 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.listeners.MapChangeListener;
+import com.faforever.api.security.elide.permission.AdminMapCheck;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
@@ -40,6 +41,7 @@ public class Map extends AbstractEntity implements OwnableEntity {
 
   public static final String TYPE_NAME = "map";
 
+  private boolean recommended;
   private String displayName;
   private String mapType;
   private String battleType;
@@ -49,6 +51,13 @@ public class Map extends AbstractEntity implements OwnableEntity {
   private MapVersion latestVersion;
   private Integer gamesPlayed;
   private MapReviewsSummary reviewsSummary;
+
+  @Column(name = "recommended")
+  @NotNull
+  @UpdatePermission(expression = AdminMapCheck.EXPRESSION)
+  public Boolean getRecommended() {
+    return recommended;
+  }
 
   @Column(name = "display_name", unique = true)
   @Size(max = 100)

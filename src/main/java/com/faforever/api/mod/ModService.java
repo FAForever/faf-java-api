@@ -270,7 +270,8 @@ public class ModService {
         .setAuthor(modInfo.getAuthor())
         .setDisplayName(modInfo.getName())
         .setVersions(new ArrayList<>())
-        .setUploader(uploader));
+        .setUploader(uploader))
+        .setRecommended(false);
     mod.getVersions().add(modVersion);
 
     modVersion.setMod(mod);

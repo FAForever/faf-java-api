@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.Prefab;
+import com.faforever.api.security.elide.permission.AdminModCheck;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
@@ -33,12 +34,20 @@ public class Mod extends AbstractEntity implements OwnableEntity {
 
   public static final String TYPE_NAME = "mod";
 
+  private boolean recommended;
   private String displayName;
   private String author;
   private List<ModVersion> versions;
   private ModVersion latestVersion;
   private Player uploader;
   private ModReviewsSummary reviewsSummary;
+
+  @Column(name = "recommended")
+  @NotNull
+  @UpdatePermission(expression = AdminModCheck.EXPRESSION)
+  public Boolean getRecommended() {
+    return recommended;
+  }
 
   @Column(name = "display_name")
   @Size(max = 100)

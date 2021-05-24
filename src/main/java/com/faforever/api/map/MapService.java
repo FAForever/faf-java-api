@@ -365,6 +365,7 @@ public class MapService {
           .setDisplayName(mapName)
           .setAuthor(author)
           .setGamesPlayed(0)
+          .setRecommended(false)
       );
 
     LuaValue standardTeamsConfig = mapLua.getFirstTeam$();
