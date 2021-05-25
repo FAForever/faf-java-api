@@ -2,14 +2,18 @@ package com.faforever.api.data;
 
 import com.faforever.api.AbstractIntegrationTest;
 import com.faforever.api.data.domain.GroupPermission;
+import com.faforever.api.map.MapRepository;
 import com.faforever.api.security.OAuthScope;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -19,6 +23,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultData.sql")
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepMapVersion.sql")
 public class MapElideTest extends AbstractIntegrationTest {
+
+  @Autowired
+  MapRepository mapRepository;
 
   private static final String MAP_RECOMMENDED_FALSE_ID_1 = """
     {
@@ -60,6 +67,8 @@ public class MapElideTest extends AbstractIntegrationTest {
         // update recommended to true requires the vault permission, thus we test it here for the success case
         .content(MAP_RECOMMENDED_TRUE_ID_1))
       .andExpect(status().isNoContent());
+
+    assertThat(mapRepository.getOne(1).getRecommended(), is(true));
   }
 
   @Test
@@ -71,6 +80,8 @@ public class MapElideTest extends AbstractIntegrationTest {
         // update recommended to true requires the vault permission, thus we test it here for the failing case
         .content(MAP_RECOMMENDED_TRUE_ID_1))
       .andExpect(status().isForbidden());
+
+    assertThat(mapRepository.getOne(1).getRecommended(), is(false));
   }
 
   @Test
@@ -82,6 +93,8 @@ public class MapElideTest extends AbstractIntegrationTest {
         // update recommended to true requires the vault permission, thus we test it here for the failing case
         .content(MAP_RECOMMENDED_TRUE_ID_1))
       .andExpect(status().isForbidden());
+
+    assertThat(mapRepository.getOne(1).getRecommended(), is(false));
   }
 
   @Test
@@ -93,6 +106,8 @@ public class MapElideTest extends AbstractIntegrationTest {
         // update recommended to false requires the vault permission, thus we test it here for the success case
         .content(MAP_RECOMMENDED_FALSE_ID_1))
       .andExpect(status().isNoContent());
+
+    assertThat(mapRepository.getOne(1).getRecommended(), is(false));
   }
 
   @Test
