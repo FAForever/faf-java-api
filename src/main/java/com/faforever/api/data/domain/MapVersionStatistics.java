@@ -27,22 +27,22 @@ public class MapVersionStatistics {
 
   @Id
   @Column(name = "map_version_id")
-  public int getId() {
+  public Integer getId() {
     return id;
   }
 
   @Column(name = "downloads")
-  public int getDownloads() {
+  public Integer getDownloads() {
     return downloads;
   }
 
   @Column(name = "plays")
-  public int getPlays() {
+  public Integer getPlays() {
     return plays;
   }
 
   @Column(name = "draws")
-  public int getDraws() {
+  public Integer getDraws() {
     return draws;
   }
 
