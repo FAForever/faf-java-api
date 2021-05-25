@@ -20,10 +20,10 @@ import javax.persistence.Table;
 public class MapStatistics {
   public static final String TYPE_NAME = "mapStatistics";
 
-  private int id;
-  private int downloads;
-  private int plays;
-  private int draws;
+  private Integer id;
+  private Integer downloads;
+  private Integer plays;
+  private Integer draws;
   private Map map;
 
   @Id
