@@ -3,6 +3,7 @@ package com.faforever.api.data.domain;
 import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.listeners.MapChangeListener;
 import com.faforever.api.security.elide.permission.AdminMapCheck;
+import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
@@ -53,9 +54,9 @@ public class Map extends AbstractEntity implements OwnableEntity {
   private MapReviewsSummary reviewsSummary;
 
   @Column(name = "recommended")
-  @NotNull
+  @Audit(action = Audit.Action.UPDATE, logStatement = "Updated map `{0}` attribute recommended to: {1}", logExpressions = {"${map.id}", "${map.recommended}"})
   @UpdatePermission(expression = AdminMapCheck.EXPRESSION)
-  public Boolean getRecommended() {
+  public boolean getRecommended() {
     return recommended;
   }
 
