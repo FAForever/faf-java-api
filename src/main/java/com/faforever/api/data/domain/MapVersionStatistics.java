@@ -19,10 +19,10 @@ import javax.persistence.Table;
 @Include(type = "mapVersionStatistics")
 @Immutable
 public class MapVersionStatistics {
-  private int id;
-  private int downloads;
-  private int plays;
-  private int draws;
+  private Integer id;
+  private Integer downloads;
+  private Integer plays;
+  private Integer draws;
   private MapVersion mapVersion;
 
   @Id
