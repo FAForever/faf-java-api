@@ -9,7 +9,7 @@ faf-api:
   challonge:
     key: ${CHALLONGE_KEY:}
   database:
-    schema-version: ${DATABASE_SCHEMA_VERSION:116}
+    schema-version: ${DATABASE_SCHEMA_VERSION:117}
   mautic:
     base-url: ${MAUTIC_BASE_URL:false}
     client-id: ${MAUTIC_CLIENT_ID:false}
