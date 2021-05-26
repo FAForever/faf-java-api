@@ -1,7 +1,9 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.Prefab;
+import com.faforever.api.data.listeners.ModChangeListener;
 import com.faforever.api.security.elide.permission.AdminModCheck;
+import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
@@ -14,6 +16,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -28,8 +31,8 @@ import java.util.List;
 @Entity
 @Table(name = "\"mod\"")
 @Include(type = Mod.TYPE_NAME)
-@Immutable
 @Setter
+@EntityListeners(ModChangeListener.class)
 public class Mod extends AbstractEntity implements OwnableEntity {
 
   public static final String TYPE_NAME = "mod";
@@ -45,7 +48,7 @@ public class Mod extends AbstractEntity implements OwnableEntity {
   @Column(name = "recommended")
   @NotNull
   @UpdatePermission(expression = AdminModCheck.EXPRESSION)
-  public Boolean getRecommended() {
+  public boolean getRecommended() {
     return recommended;
   }
 

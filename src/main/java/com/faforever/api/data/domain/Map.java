@@ -54,6 +54,7 @@ public class Map extends AbstractEntity implements OwnableEntity {
 
   @Column(name = "recommended")
   @Audit(action = Audit.Action.UPDATE, logStatement = "Updated map `{0}` attribute recommended to: {1}", logExpressions = {"${map.id}", "${map.recommended}"})
+  @NotNull
   @UpdatePermission(expression = AdminMapCheck.EXPRESSION)
   public boolean getRecommended() {
     return recommended;
