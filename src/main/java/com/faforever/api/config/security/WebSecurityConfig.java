@@ -85,6 +85,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
           .antMatchers("/").permitAll()
           // Webapp folder
           .antMatchers("/css/*").permitAll()
+          .antMatchers("/dancing_acu.gif").permitAll()
           .antMatchers("/favicon.ico").permitAll()
           .antMatchers("/robots.txt").permitAll();
     // @formatter:on
