@@ -29,9 +29,20 @@ import javax.validation.ValidationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -278,23 +289,27 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
    * implementation uses Apache's commons compress which doesn't use data descriptors as long as the target is a file or
    * a seekable byte channel.
    */
-  private void zipDirectory(Path directoryToZip, ZipArchiveOutputStream outputStream) throws IOException {
-    Files.walkFileTree(directoryToZip, new SimpleFileVisitor<Path>() {
+  private static void zipDirectory(Path directoryToZip, ZipArchiveOutputStream outputStream) throws IOException {
+    Files.walkFileTree(directoryToZip, new SimpleFileVisitor<>() {
       public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
         String relativized = directoryToZip.getParent().relativize(dir).toString();
         if (!relativized.isEmpty()) {
-          outputStream.putArchiveEntry(new ZipArchiveEntry(relativized + "/"));
+          ZipArchiveEntry zipArchiveEntry = new ZipArchiveEntry(relativized + "/");
+          zipArchiveEntry.setLastModifiedTime(FileTime.from(Instant.EPOCH));
+          outputStream.putArchiveEntry(zipArchiveEntry);
           outputStream.closeArchiveEntry();
         }
+
         return FileVisitResult.CONTINUE;
       }
 
       public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        log.trace("Zipping file {}", file.toAbsolutePath());
-        outputStream.putArchiveEntry(new ZipArchiveEntry(
+        ZipArchiveEntry zipArchiveEntry = new ZipArchiveEntry(
           file.toFile(),
-          directoryToZip.getParent().relativize(file).toString().replace(File.separatorChar, '/'))
-        );
+          directoryToZip.getParent().relativize(file).toString().replace(File.separatorChar, '/'));
+        zipArchiveEntry.setLastModifiedTime(FileTime.from(Instant.EPOCH));
+
+        outputStream.putArchiveEntry(zipArchiveEntry);
 
         try (InputStream inputStream = Files.newInputStream(file)) {
           ByteStreams.copy(inputStream, outputStream);
