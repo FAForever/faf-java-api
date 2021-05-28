@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -35,6 +36,7 @@ import static org.mockito.ArgumentMatchers.anyShort;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -180,10 +182,12 @@ public class LegacyFeaturedModDeploymentTaskTest {
       Files.createDirectories(repoFolder.resolve("someDir"));
       Files.copy(
         LegacyFeaturedModDeploymentTaskTest.class.getResourceAsStream("/featured_mod/mod_info.lua"),
-        repoFolder.resolve("mod_info.lua")
+        repoFolder.resolve("mod_info.lua"),
+        StandardCopyOption.REPLACE_EXISTING
       );
       Files.copy(LegacyFeaturedModDeploymentTaskTest.class.getResourceAsStream("/featured_mod/someDir/someFile"),
-        repoFolder.resolve("someDir/someFile")
+        repoFolder.resolve("someDir/someFile"),
+        StandardCopyOption.REPLACE_EXISTING
       );
       return null;
     }).when(gitWrapper).checkoutRef(any(), any());
@@ -204,14 +208,49 @@ public class LegacyFeaturedModDeploymentTaskTest {
 
     ArgumentCaptor<List<FeaturedModFile>> filesCaptor = ArgumentCaptor.forClass(List.class);
     verify(featuredModService).save(eq("faf"), eq((short) 1337), filesCaptor.capture());
-    verify(restTemplate).getForObject("someUrl", String.class);
 
     List<FeaturedModFile> files1 = filesCaptor.getValue();
     files1.sort(Comparator.comparing(FeaturedModFile::getFileId));
 
+    instance.setFeaturedMod(new FeaturedMod()
+      .setGitBranch("branch")
+      .setFileExtension("nx3")
+      .setTechnicalName("faf")
+      .setAllowOverride(true)
+      .setGitUrl("git@example.com/FAForever/faf")
+      .setDeploymentWebhook("someUrl"));
+
+    Mockito.doAnswer(invocation -> {
+      Path repoFolder = invocation.getArgument(0);
+      Files.createDirectories(repoFolder.resolve("someDir"));
+      Files.copy(
+        LegacyFeaturedModDeploymentTaskTest.class.getResourceAsStream("/featured_mod/mod_info.lua"),
+        repoFolder.resolve("mod_info.lua"),
+        StandardCopyOption.REPLACE_EXISTING
+      );
+      Files.copy(LegacyFeaturedModDeploymentTaskTest.class.getResourceAsStream("/featured_mod/someDir/someFile"),
+        repoFolder.resolve("someDir/someFile"),
+        StandardCopyOption.REPLACE_EXISTING
+      );
+      return null;
+    }).when(gitWrapper).checkoutRef(any(), any());
+
+    when(featuredModService.getFeaturedMods()).thenReturn(Collections.singletonList(
+      new FeaturedMod().setTechnicalName("faf")
+    ));
+    when(featuredModService.getFileIds("faf")).thenReturn(Map.of(
+      "ForgedAlliance.exe", (short) 1,
+      "someDir.nx3", (short) 2
+    ));
+
+    dummyExe = repositoriesFolder.resolve("TemplateForgedAlliance.exe");
+    createDummyExe(dummyExe);
+    properties.getDeployment().setForgedAllianceExePath(dummyExe.toAbsolutePath().toString());
+
+    instance.run();
+
     filesCaptor = ArgumentCaptor.forClass(List.class);
-    verify(featuredModService).save(eq("faf"), eq((short) 1337), filesCaptor.capture());
-    verify(restTemplate).getForObject("someUrl", String.class);
+    verify(featuredModService, times(2)).save(eq("faf"), eq((short) 1337), filesCaptor.capture());
 
     List<FeaturedModFile> files2 = filesCaptor.getValue();
     files2.sort(Comparator.comparing(FeaturedModFile::getFileId));
