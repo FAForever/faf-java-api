@@ -17,6 +17,6 @@ public class MapChangeListener {
   @PostUpdate
   @PostRemove
   public void mapChanged(Map map) {
-    log.debug("Map and MapVersion cache evicted, due to change on MapVersion with id: {}", map.getId());
+    log.debug("Map and MapVersion cache evicted, due to change on Map with id: {}", map.getId());
   }
 }

@@ -2,11 +2,12 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.listeners.MapChangeListener;
+import com.faforever.api.security.elide.permission.AdminMapCheck;
+import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
@@ -34,12 +35,12 @@ import java.util.List;
 @Setter
 @Table(name = "map")
 @Include(type = Map.TYPE_NAME)
-@Immutable
 @EntityListeners(MapChangeListener.class)
 public class Map extends AbstractEntity implements OwnableEntity {
 
   public static final String TYPE_NAME = "map";
 
+  private boolean recommended;
   private String displayName;
   private String mapType;
   private String battleType;
@@ -49,6 +50,14 @@ public class Map extends AbstractEntity implements OwnableEntity {
   private MapVersion latestVersion;
   private Integer gamesPlayed;
   private MapReviewsSummary reviewsSummary;
+
+  @Column(name = "recommended")
+  @Audit(action = Audit.Action.UPDATE, logStatement = "Updated map `{0}` attribute recommended to: {1}", logExpressions = {"${map.id}", "${map.recommended}"})
+  @NotNull
+  @UpdatePermission(expression = AdminMapCheck.EXPRESSION)
+  public boolean getRecommended() {
+    return recommended;
+  }
 
   @Column(name = "display_name", unique = true)
   @Size(max = 100)

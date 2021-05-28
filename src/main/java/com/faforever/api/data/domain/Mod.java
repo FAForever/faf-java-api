@@ -1,10 +1,11 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.Prefab;
+import com.faforever.api.data.listeners.ModChangeListener;
+import com.faforever.api.security.elide.permission.AdminModCheck;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
-import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
@@ -13,6 +14,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -27,18 +29,26 @@ import java.util.List;
 @Entity
 @Table(name = "\"mod\"")
 @Include(type = Mod.TYPE_NAME)
-@Immutable
 @Setter
+@EntityListeners(ModChangeListener.class)
 public class Mod extends AbstractEntity implements OwnableEntity {
 
   public static final String TYPE_NAME = "mod";
 
+  private boolean recommended;
   private String displayName;
   private String author;
   private List<ModVersion> versions;
   private ModVersion latestVersion;
   private Player uploader;
   private ModReviewsSummary reviewsSummary;
+
+  @Column(name = "recommended")
+  @NotNull
+  @UpdatePermission(expression = AdminModCheck.EXPRESSION)
+  public boolean getRecommended() {
+    return recommended;
+  }
 
   @Column(name = "display_name")
   @Size(max = 100)
