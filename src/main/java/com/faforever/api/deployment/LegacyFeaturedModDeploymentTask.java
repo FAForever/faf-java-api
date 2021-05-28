@@ -304,6 +304,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
       }
 
       public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        log.trace("Zipping file {}", file.toAbsolutePath());
         ZipArchiveEntry zipArchiveEntry = new ZipArchiveEntry(
           file.toFile(),
           directoryToZip.getParent().relativize(file).toString().replace(File.separatorChar, '/'));
