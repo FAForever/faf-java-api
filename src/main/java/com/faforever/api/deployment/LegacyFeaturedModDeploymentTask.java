@@ -289,7 +289,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
    * implementation uses Apache's commons compress which doesn't use data descriptors as long as the target is a file or
    * a seekable byte channel.
    */
-  private static void zipDirectory(Path directoryToZip, ZipArchiveOutputStream outputStream) throws IOException {
+  private void zipDirectory(Path directoryToZip, ZipArchiveOutputStream outputStream) throws IOException {
     Files.walkFileTree(directoryToZip, new SimpleFileVisitor<>() {
       public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
         String relativized = directoryToZip.getParent().relativize(dir).toString();
