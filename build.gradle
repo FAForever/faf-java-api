@@ -156,6 +156,10 @@ task inttest(type: Test) {
   mustRunAfter test
 }
 
+processInttestResources {
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
 bootJar {
   layered()
 }
