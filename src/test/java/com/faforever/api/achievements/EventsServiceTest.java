@@ -74,7 +74,7 @@ public class EventsServiceTest {
     achievement.setType(type);
     achievement.setTotalSteps(totalSteps);
 
-    when(achievementRepository.getOne(achievementId)).thenReturn(achievement);
+    when(achievementRepository.findById(achievementId)).thenReturn(Optional.of(achievement));
   }
 
   private PlayerAchievement captureSaveEvent() {
