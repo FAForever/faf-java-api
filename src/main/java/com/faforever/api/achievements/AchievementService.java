@@ -5,7 +5,6 @@ import com.faforever.api.data.domain.AchievementState;
 import com.faforever.api.data.domain.AchievementType;
 import com.faforever.api.data.domain.PlayerAchievement;
 import com.faforever.api.error.ApiException;
-import com.faforever.api.error.Error;
 import com.google.common.base.MoreObjects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +13,7 @@ import java.util.function.BiFunction;
 
 import static com.faforever.api.error.ErrorCode.ACHIEVEMENT_NOT_INCREMENTAL;
 import static com.faforever.api.error.ErrorCode.ACHIEVEMENT_NOT_STANDARD;
+import static com.faforever.api.error.ErrorCode.ENTITY_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -23,13 +23,15 @@ public class AchievementService {
   private final PlayerAchievementRepository playerAchievementRepository;
 
   UpdatedAchievementResponse increment(int playerId, String achievementId, int steps) {
-    return updateSteps(playerId, achievementId, steps, (currentSteps, newSteps) -> currentSteps + newSteps);
+    return updateSteps(playerId, achievementId, steps, Integer::sum);
   }
 
   private UpdatedAchievementResponse updateSteps(int playerId, String achievementId, int steps, BiFunction<Integer, Integer, Integer> stepsFunction) {
-    Achievement achievement = achievementRepository.getOne(achievementId);
+    Achievement achievement = achievementRepository.findById(achievementId)
+      .orElseThrow(() -> ApiException.of(ENTITY_NOT_FOUND, achievementId));
+
     if (achievement.getType() != AchievementType.INCREMENTAL) {
-      throw new ApiException(new Error(ACHIEVEMENT_NOT_INCREMENTAL, achievementId));
+      throw ApiException.of(ACHIEVEMENT_NOT_INCREMENTAL, achievementId);
     }
 
     PlayerAchievement playerAchievement = getOrCreatePlayerAchievement(playerId, achievement, AchievementState.REVEALED);
@@ -65,9 +67,11 @@ public class AchievementService {
   }
 
   UpdatedAchievementResponse unlock(int playerId, String achievementId) {
-    Achievement achievement = achievementRepository.getOne(achievementId);
+    Achievement achievement = achievementRepository.findById(achievementId)
+      .orElseThrow(() -> ApiException.of(ENTITY_NOT_FOUND, achievementId));
+
     if (achievement.getType() != AchievementType.STANDARD) {
-      throw new ApiException(new Error(ACHIEVEMENT_NOT_STANDARD, achievementId));
+      throw ApiException.of(ACHIEVEMENT_NOT_STANDARD, achievementId);
     }
 
     PlayerAchievement playerAchievement = getOrCreatePlayerAchievement(playerId, achievement, AchievementState.REVEALED);
