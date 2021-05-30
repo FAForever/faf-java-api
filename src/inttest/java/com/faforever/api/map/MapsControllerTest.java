@@ -44,7 +44,7 @@ public class MapsControllerTest extends AbstractIntegrationTest{
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors", hasSize(1)))
       .andExpect(jsonPath("$.errors[0].title", is("org.springframework.web.bind.MissingServletRequestParameterException")))
-      .andExpect(jsonPath("$.errors[0].detail", is("Required String parameter 'metadata' is not present")));
+      .andExpect(jsonPath("$.errors[0].detail", is("Required request parameter 'metadata' for method parameter type String is not present")));
   }
 
   @WithUserDetails(AUTH_USER)
