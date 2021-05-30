@@ -39,10 +39,10 @@ import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
 import static com.faforever.api.user.UserService.KEY_STEAM_CALLBACK_URL;
 import static com.faforever.api.user.UserService.KEY_USER_ID;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -322,7 +322,7 @@ public class UserServiceTest {
 
   @Test
   public void changeLoginUsernameReservedBySelf() {
-    when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(new Integer(TEST_USERID)));
+    when(nameRecordRepository.getLastUsernameOwnerWithinMonths(any(), anyInt())).thenReturn(Optional.of(TEST_USERID));
     when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
 
     instance.changeLogin(TEST_USERNAME_CHANGED, validUser, IP_ADDRESS);
@@ -429,7 +429,6 @@ public class UserServiceTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void buildSteamPasswordResetUrl() {
     when(steamService.buildLoginUrl(any())).thenReturn(STEAM_LOGIN_URL);
 

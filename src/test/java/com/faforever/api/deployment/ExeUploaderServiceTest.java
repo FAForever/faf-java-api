@@ -24,10 +24,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
@@ -84,6 +84,7 @@ public class ExeUploaderServiceTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testProcessUploadBeta() {
       String modName = "fafbeta";
 
@@ -107,6 +108,7 @@ public class ExeUploaderServiceTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testProcessUploadDevelop() {
       String modName = "fafdevelop";
 
