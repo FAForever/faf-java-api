@@ -6,7 +6,7 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: adoptopenjdk:15-jdk-hotspot-bionic
+    container: adoptopenjdk:16-jdk-hotspot
     services:
       faf-db:
         image: mysql:5.7
@@ -60,7 +60,7 @@ jobs:
       - name: Gradle build
         env:
           API_VERSION: ${{ steps.get_version.outputs.API_VERSION }}
-          GRADLE_CLI_OPTS: "--console=plain --stacktrace --quiet"
+          GRADLE_CLI_OPTS: ""
           DATABASE_ADDRESS: faf-db
           LEAGUE_DATABASE_ADDRESS: faf-league-db
         run: "chmod +x ./gradlew && ./gradlew ${GRADLE_CLI_OPTS} -Pversion=${API_VERSION} build jacocoTestReport"
