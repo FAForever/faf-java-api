@@ -160,12 +160,8 @@ processInttestResources {
   duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
-bootJar {
-  layered()
-}
 
 // JACOCO & COVERALLS
-
 apply plugin: 'jacoco'
 apply plugin: 'com.github.kt3k.coveralls'
 jacocoTestReport {
