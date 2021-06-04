@@ -52,7 +52,6 @@ public class MapVersion extends AbstractEntity implements OwnableEntity {
   private Integer gamesPlayed;
   private List<MapVersionReview> reviews;
   private MapVersionReviewsSummary reviewsSummary;
-  private Ladder1v1Map ladder1v1Map;
 
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " or " + AdminMapCheck.EXPRESSION)
   @Column(name = "description")
