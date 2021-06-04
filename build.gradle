@@ -102,6 +102,9 @@ group = 'faforever'
 sourceCompatibility = 16
 targetCompatibility = 16
 
+bootJar.enabled = true
+jar.enabled = false
+
 repositories {
   mavenCentral()
   maven { url "https://jitpack.io" }
