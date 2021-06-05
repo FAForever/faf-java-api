@@ -214,18 +214,16 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   private List<StagedFile> packageFiles(Path repositoryDirectory, short version, Map<String, Short> fileIds, Path targetFolder) {
     updateStatus("Packaging files");
     try (Stream<Path> stream = Files.list(repositoryDirectory)) {
-      return (List<StagedFile>) stream
-        .map(path -> {
+      return stream
+        .flatMap(path -> {
           if (Files.isDirectory(path) && !path.getFileName().toString().startsWith(".")) {
-            return packDirectory(path, version, targetFolder, fileIds);
+            return packDirectory(path, version, targetFolder, fileIds).stream();
           } else if (Files.isRegularFile(path)) {
-            return packFile(path, version, targetFolder, fileIds);
+            return packFile(path, version, targetFolder, fileIds).stream();
           } else{
-            return Optional.empty();
+            return Stream.empty();
           }
         })
-        .filter(Optional::isPresent)
-        .map(Optional::get)
         .collect(Collectors.toList());
     }
   }
