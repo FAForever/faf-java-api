@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class VotingService {
@@ -60,7 +59,7 @@ public class VotingService {
     subject.getVotingQuestions().forEach(votingQuestion -> {
       List<VotingAnswer> votingAnswers = vote.getVotingAnswers().stream()
         .filter(votingAnswer -> votingAnswer.getVotingChoice().getVotingQuestion().equals(votingQuestion))
-        .collect(Collectors.toList());
+        .toList();
       long countOfAnswers = votingAnswers.size();
       int maxAnswers = votingQuestion.getMaxAnswers();
       if (maxAnswers < countOfAnswers) {
@@ -116,6 +115,6 @@ public class VotingService {
     List<VotingSubject> all = votingSubjectRepository.findAll();
     return all.stream()
       .filter(votingSubject -> ableToVote(player, votingSubject.getId()).isEmpty())
-      .collect(Collectors.toList());
+      .toList();
   }
 }

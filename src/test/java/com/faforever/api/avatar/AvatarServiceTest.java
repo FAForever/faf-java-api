@@ -20,7 +20,9 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
 import static org.hamcrest.CoreMatchers.is;
@@ -74,7 +76,7 @@ public class AvatarServiceTest {
     properties.getAvatar()
       .setTargetDirectory(avatarsPath)
       .setDownloadUrlFormat(DOWNLOAD_URL_FORMAT)
-      .setAllowedExtensions(Collections.singleton("png"))
+      .setAllowedExtensions(Set.of("png"))
       .setMaxSizeBytes(1536)
       .setMaxNameLength(15);
 
@@ -242,7 +244,7 @@ public class AvatarServiceTest {
 
   @Test
   public void deleteAvatarWithAssignments() {
-    when(avatarRepository.findById(AVATAR_ID)).thenReturn(Optional.of(new Avatar().setAssignments(Collections.singletonList(new AvatarAssignment()))));
+    when(avatarRepository.findById(AVATAR_ID)).thenReturn(Optional.of(new Avatar().setAssignments(List.of(new AvatarAssignment()))));
 
     ApiException result = assertThrows(ApiException.class, () -> avatarService.deleteAvatar(AVATAR_ID));
     assertThat(result, hasErrorCode(ErrorCode.AVATAR_IN_USE));

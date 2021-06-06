@@ -5,7 +5,6 @@ import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 @Getter
 public class FafUserDetails extends org.springframework.security.core.userdetails.User {
@@ -24,7 +23,7 @@ public class FafUserDetails extends org.springframework.security.core.userdetail
   public boolean hasPermission(String permission) {
     Collection<String> authorities = this.getAuthorities().stream()
       .map(GrantedAuthority::getAuthority)
-      .collect(Collectors.toList());
+      .toList();
 
     return authorities.contains(permission) || authorities.contains(UserRole.ADMINISTRATOR.getAuthority());
   }

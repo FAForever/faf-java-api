@@ -20,7 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.hash.Hashing.md5;
@@ -57,7 +56,7 @@ public class ExeUploaderService {
     );
     featuredModFile.setMd5(asByteSource(uploadedFile.toFile()).hash(md5()).toString());
     exeDataInputStream.close();
-    List<FeaturedModFile> featuredModFiles = Collections.singletonList(featuredModFile);
+    List<FeaturedModFile> featuredModFiles = List.of(featuredModFile);
     featuredModService.save(modName, (short) featuredModFile.getVersion(), featuredModFiles);
   }
 

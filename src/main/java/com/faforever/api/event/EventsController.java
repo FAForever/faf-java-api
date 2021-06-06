@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/events")
@@ -34,7 +33,7 @@ public class EventsController {
     return new JsonApiDocument(new Data<>(updateRequests.stream()
       .map(request -> eventsService.increment(request.getPlayerId(), request.getEventId(), request.getCount()))
       .map(this::toResource)
-      .collect(Collectors.toList())));
+      .toList()));
   }
 
   private Resource toResource(UpdatedEventResponse updatedEventResponse) {

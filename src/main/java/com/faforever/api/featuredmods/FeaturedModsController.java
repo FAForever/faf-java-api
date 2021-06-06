@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/featuredMods")
@@ -48,7 +47,7 @@ public class FeaturedModsController {
 
     List<Resource> values = featuredModService.getFiles(featuredMod.getTechnicalName(), innerVersion).stream()
       .map(modFileMapper())
-      .collect(Collectors.toList());
+      .toList();
 
     return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(values)));
   }

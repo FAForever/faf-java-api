@@ -111,7 +111,7 @@ public class VotingSubjectEnricher {
     }
     Optional<Entry<VotingChoice, List<VotingAnswer>>> first = votersByChoice.entrySet().stream().findFirst();
 
-    return first.map(votingChoiceListEntry -> Collections.singletonList(votingChoiceListEntry.getKey())).orElse(Collections.emptyList());
+    return first.map(votingChoiceListEntry -> List.of(votingChoiceListEntry.getKey())).orElse(Collections.emptyList());
   }
 
   private void moveOnToTheNextAnswer(Map<VotingChoice, List<VotingAnswer>> votersByChoice, VotingAnswer votingAnswer) {

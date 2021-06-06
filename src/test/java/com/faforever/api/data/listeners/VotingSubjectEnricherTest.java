@@ -15,12 +15,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.support.MessageSourceAccessor;
 
 import java.time.OffsetDateTime;
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class VotingSubjectEnricherTest {
@@ -296,7 +297,7 @@ public class VotingSubjectEnricherTest {
 
     instance.calculateWinners(votingQuestion);
 
-    assertThat(votingQuestion.getWinners(), is(Collections.singletonList(votingChoice3)));
+    assertThat(votingQuestion.getWinners(), is(List.of(votingChoice3)));
   }
 
   private void addAnswerToChoice(VotingChoice votingChoice, VotingQuestion votingQuestion, Vote vote, int alternativeOrdinal) {
@@ -308,20 +309,20 @@ public class VotingSubjectEnricherTest {
     if (vote.getVotingAnswers() != null) {
       vote.getVotingAnswers().add(votingAnswer);
     } else {
-      vote.setVotingAnswers(new HashSet<>(Collections.singleton(votingAnswer)));
+      vote.setVotingAnswers(new HashSet<>(Set.of(votingAnswer)));
     }
 
     if (votingChoice != null) {
       if (votingChoice.getVotingAnswers() != null) {
         votingChoice.getVotingAnswers().add(votingAnswer);
       } else {
-        votingChoice.setVotingAnswers(new HashSet<>(Collections.singleton(votingAnswer)));
+        votingChoice.setVotingAnswers(new HashSet<>(Set.of(votingAnswer)));
       }
 
       if (votingQuestion.getVotingChoices() != null) {
         votingQuestion.getVotingChoices().add(votingChoice);
       } else {
-        votingQuestion.setVotingChoices(new HashSet<>(Collections.singleton(votingChoice)));
+        votingQuestion.setVotingChoices(new HashSet<>(Set.of(votingChoice)));
       }
     }
   }

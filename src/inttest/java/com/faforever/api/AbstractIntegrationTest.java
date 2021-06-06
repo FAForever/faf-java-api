@@ -37,7 +37,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.transaction.Transactional;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.Set;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -94,7 +93,7 @@ public abstract class AbstractIntegrationTest {
   }
 
   protected RequestPostProcessor getOAuthTokenWithTestUser(String scope, String authority) {
-    return getOAuthTokenWithTestUser(Collections.singleton(scope), Collections.singleton(authority));
+    return getOAuthTokenWithTestUser(Set.of(scope), Set.of(authority));
   }
 
   protected RequestPostProcessor getOAuthTokenWithTestUser(Set<String> scope, Set<String> authorities) {

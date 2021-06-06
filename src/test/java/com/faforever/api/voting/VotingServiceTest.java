@@ -17,9 +17,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.OffsetDateTime;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -58,7 +59,7 @@ public class VotingServiceTest {
     VotingQuestion votingQuestion = new VotingQuestion();
     votingQuestion.setAlternativeQuestion(false);
     votingQuestion.setMaxAnswers(1);
-    votingSubject.setVotingQuestions(Collections.singleton(votingQuestion));
+    votingSubject.setVotingQuestions(Set.of(votingQuestion));
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
@@ -94,7 +95,7 @@ public class VotingServiceTest {
     VotingQuestion votingQuestion = new VotingQuestion();
     votingQuestion.setAlternativeQuestion(false);
     votingQuestion.setMaxAnswers(1);
-    votingSubject.setVotingQuestions(Collections.singleton(votingQuestion));
+    votingSubject.setVotingQuestions(Set.of(votingQuestion));
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
@@ -117,7 +118,7 @@ public class VotingServiceTest {
 
     VotingQuestion votingQuestion = new VotingQuestion();
     votingQuestion.setAlternativeQuestion(true);
-    votingSubject.setVotingQuestions(Collections.singleton(votingQuestion));
+    votingSubject.setVotingQuestions(Set.of(votingQuestion));
     votingQuestion.setMaxAnswers(2);
 
     Vote vote = new Vote();
@@ -157,7 +158,7 @@ public class VotingServiceTest {
 
     VotingQuestion votingQuestion = new VotingQuestion();
     votingQuestion.setAlternativeQuestion(true);
-    votingSubject.setVotingQuestions(Collections.singleton(votingQuestion));
+    votingSubject.setVotingQuestions(Set.of(votingQuestion));
     votingQuestion.setMaxAnswers(2);
 
     Vote vote = new Vote();
@@ -169,7 +170,7 @@ public class VotingServiceTest {
     votingAnswer.setVotingChoice(votingChoice);
     votingAnswer.setAlternativeOrdinal(0);
 
-    vote.setVotingAnswers(new HashSet<>(Collections.singletonList(votingAnswer)));
+    vote.setVotingAnswers(new HashSet<>(List.of(votingAnswer)));
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
@@ -193,7 +194,7 @@ public class VotingServiceTest {
 
     VotingQuestion votingQuestion = new VotingQuestion();
     votingQuestion.setAlternativeQuestion(true);
-    votingSubject.setVotingQuestions(Collections.singleton(votingQuestion));
+    votingSubject.setVotingQuestions(Set.of(votingQuestion));
     votingQuestion.setMaxAnswers(2);
 
     Vote vote = new Vote();
@@ -237,7 +238,7 @@ public class VotingServiceTest {
 
     VotingQuestion votingQuestion = new VotingQuestion();
     votingQuestion.setAlternativeQuestion(true);
-    votingSubject.setVotingQuestions(Collections.singleton(votingQuestion));
+    votingSubject.setVotingQuestions(Set.of(votingQuestion));
     votingQuestion.setMaxAnswers(1);
 
     Vote vote = new Vote();
