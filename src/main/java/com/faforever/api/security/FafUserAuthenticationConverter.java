@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Converts a {@link FafUserDetails} from and to an {@link Authentication} for use in a JWT token.
@@ -61,7 +60,7 @@ public class FafUserAuthenticationConverter extends DefaultUserAuthenticationCon
 
       var authorities = roles.stream()
         .map(role -> (GrantedAuthority) () -> "ROLE_" + role)
-        .collect(Collectors.toList());
+        .toList();
 
       UserDetails user = new FafUserDetails(id, "username", "N/A", false, authorities);
       return new UsernamePasswordAuthenticationToken(user, "N/A", authorities);

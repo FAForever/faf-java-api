@@ -23,14 +23,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyShort;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -93,7 +97,7 @@ public class LegacyFeaturedModDeploymentTaskTest {
       return null;
     }).when(gitWrapper).checkoutRef(any(), any());
 
-    when(featuredModService.getFeaturedMods()).thenReturn(Collections.singletonList(
+    when(featuredModService.getFeaturedMods()).thenReturn(List.of(
       new FeaturedMod().setTechnicalName("faf")
     ));
     when(featuredModService.getFileIds("faf")).thenReturn(Collections.emptyMap());
@@ -131,7 +135,7 @@ public class LegacyFeaturedModDeploymentTaskTest {
       return null;
     }).when(gitWrapper).checkoutRef(any(), any());
 
-    when(featuredModService.getFeaturedMods()).thenReturn(Collections.singletonList(
+    when(featuredModService.getFeaturedMods()).thenReturn(List.of(
       new FeaturedMod().setTechnicalName("faf")
     ));
     when(featuredModService.getFileIds("faf")).thenReturn(Map.of(
@@ -150,17 +154,21 @@ public class LegacyFeaturedModDeploymentTaskTest {
     verify(restTemplate).getForObject("someUrl", String.class);
 
     List<FeaturedModFile> files = filesCaptor.getValue();
-    files.sort(Comparator.comparing(FeaturedModFile::getFileId));
 
-    assertThat(files.get(0).getFileId(), is((short) 1));
-    assertThat(files.get(0).getMd5(), is("47df959058cb52fe966ea5936dbd8f4c"));
-    assertThat(files.get(0).getName(), is("ForgedAlliance.1337.exe"));
-    assertThat(files.get(0).getVersion(), is(1337));
-
-    assertThat(files.get(1).getFileId(), is((short) 2));
-    assertThat(files.get(1).getMd5(), is(notNullValue()));
-    assertThat(files.get(1).getName(), is("someDir.1337.nx3"));
-    assertThat(files.get(1).getVersion(), is(1337));
+    assertThat(files, containsInAnyOrder(
+      allOf(
+        hasProperty("fileId", is((short) 1)),
+        hasProperty("md5", is("47df959058cb52fe966ea5936dbd8f4c")),
+        hasProperty("name", is("ForgedAlliance.1337.exe")),
+        hasProperty("version", is(1337))
+      ),
+      allOf(
+        hasProperty("fileId", is((short) 2)),
+        hasProperty("md5", is(notNullValue())),
+        hasProperty("name", is("someDir.1337.nx3")),
+        hasProperty("version", is(1337))
+      )
+    ));
 
     assertThat(Files.exists(targetFolder.resolve("updates_faf_files/someDir.1337.nx3")), is(true));
     assertThat(Files.exists(targetFolder.resolve("updates_faf_files/ForgedAlliance.1337.exe")), is(true));
@@ -192,7 +200,7 @@ public class LegacyFeaturedModDeploymentTaskTest {
       return null;
     }).when(gitWrapper).checkoutRef(any(), any());
 
-    when(featuredModService.getFeaturedMods()).thenReturn(Collections.singletonList(
+    when(featuredModService.getFeaturedMods()).thenReturn(List.of(
       new FeaturedMod().setTechnicalName("faf")
     ));
     when(featuredModService.getFileIds("faf")).thenReturn(Map.of(
@@ -210,7 +218,6 @@ public class LegacyFeaturedModDeploymentTaskTest {
     verify(featuredModService).save(eq("faf"), eq((short) 1337), filesCaptor.capture());
 
     List<FeaturedModFile> files1 = filesCaptor.getValue();
-    files1.sort(Comparator.comparing(FeaturedModFile::getFileId));
 
     instance.setFeaturedMod(new FeaturedMod()
       .setGitBranch("branch")
@@ -235,7 +242,7 @@ public class LegacyFeaturedModDeploymentTaskTest {
       return null;
     }).when(gitWrapper).checkoutRef(any(), any());
 
-    when(featuredModService.getFeaturedMods()).thenReturn(Collections.singletonList(
+    when(featuredModService.getFeaturedMods()).thenReturn(List.of(
       new FeaturedMod().setTechnicalName("faf")
     ));
     when(featuredModService.getFileIds("faf")).thenReturn(Map.of(
@@ -253,12 +260,14 @@ public class LegacyFeaturedModDeploymentTaskTest {
     verify(featuredModService, times(2)).save(eq("faf"), eq((short) 1337), filesCaptor.capture());
 
     List<FeaturedModFile> files2 = filesCaptor.getValue();
-    files2.sort(Comparator.comparing(FeaturedModFile::getFileId));
 
-    assertThat(files1.get(1).getFileId(), is(files2.get(1).getFileId()));
-    assertThat(files1.get(1).getMd5(), is(files2.get(1).getMd5()));
-    assertThat(files1.get(1).getName(), is(files2.get(1).getName()));
-    assertThat(files1.get(1).getVersion(), is(files2.get(1).getVersion()));
+    assertTrue(files1.stream().allMatch(file1 ->
+      files2.stream().anyMatch(file2 ->
+        Objects.equals(file1.getFileId(), file2.getFileId()) &&
+          Objects.equals(file1.getMd5(), file2.getMd5()) &&
+          Objects.equals(file1.getName(), file2.getName()) &&
+          Objects.equals(file1.getVersion(), file2.getVersion())
+      )));
   }
 
   @Test

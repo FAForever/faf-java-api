@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @RestController
@@ -49,7 +48,7 @@ public class LeaderboardController {
           "rating", (int) (entry.getMean() - 3 * entry.getDeviation())
         ),
         null, null, null))
-      .collect(Collectors.toList());
+      .toList();
 
     return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(values)));
   }
@@ -70,7 +69,7 @@ public class LeaderboardController {
           "rating", (int) (entry.getMean() - 3 * entry.getDeviation())
         ),
         null, null, null))
-      .collect(Collectors.toList());
+      .toList();
 
     return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(values)));
   }

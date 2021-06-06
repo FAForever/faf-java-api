@@ -47,7 +47,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.faforever.api.map.MapService.ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS_ARMIES;
@@ -253,12 +252,12 @@ public class MapService {
     try (Stream<Path> mapFileStream = Files.list(mapFolder)) {
       List<String> fileNames = mapFileStream
         .map(Path::toString)
-        .collect(Collectors.toList());
+        .toList();
 
       List<Error> errors = Arrays.stream(requiredFiles)
         .filter(requiredEnding -> fileNames.stream().noneMatch(fileName -> fileName.endsWith(requiredEnding)))
         .map(requiredEnding -> new Error(ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING, requiredEnding))
-        .collect(Collectors.toList());
+        .toList();
 
       if (!errors.isEmpty()) {
         throw ApiException.of(errors);
@@ -404,7 +403,7 @@ public class MapService {
         .forEach(path -> noCatch(() -> {
           List<String> lines = Files.readAllLines(path, MAP_CHARSET).stream()
             .map(line -> line.replaceAll("(?i)" + oldNameFolder, newNameFolder))
-            .collect(Collectors.toList());
+            .toList();
           Files.write(path, lines, MAP_CHARSET);
         }));
     }

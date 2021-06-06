@@ -39,6 +39,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -194,7 +195,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
         .setName(file.getTargetFile().getFileName().toString())
         .setVersion(version)
       )
-      .collect(Collectors.toList());
+      .toList();
 
     featuredModService.save(modName, version, featuredModFiles);
   }
@@ -224,7 +225,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
             return Stream.empty();
           }
         })
-        .collect(Collectors.toList());
+        .collect(Collectors.toCollection(ArrayList::new));
     }
   }
 
