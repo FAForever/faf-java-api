@@ -19,7 +19,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -221,7 +220,7 @@ public class AvatarServiceTest {
 
   @Test
   public void deleteAvatar() throws Exception {
-    final Avatar avatarToDelete = new Avatar().setUrl(VALID_AVATAR_FILENAME).setAssignments(Collections.emptyList());
+    final Avatar avatarToDelete = new Avatar().setUrl(VALID_AVATAR_FILENAME).setAssignments(List.of());
     when(avatarRepository.findById(EXISTING_AVATAR_ID)).thenReturn(AVATAR);
     when(avatarRepository.findById(AVATAR_ID)).thenReturn(Optional.of(avatarToDelete));
     final Path avatarFilePath = temporaryFolder.resolve(AVATARS_FOLDER).resolve(VALID_AVATAR_FILENAME);

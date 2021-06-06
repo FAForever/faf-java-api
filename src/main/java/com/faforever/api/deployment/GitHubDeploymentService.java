@@ -16,8 +16,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.io.IOException;
-import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -40,12 +39,12 @@ public class GitHubDeploymentService {
   void createDeploymentIfEligible(Push push) {
     String ref = push.getRef();
     Optional<FeaturedMod> optional = featuredModService.findByGitUrlAndGitBranch(
-      push.getRepository().gitHttpTransportUrl(),
+      push.getRepository().getHttpTransportUrl(),
       push.getRef().replace("refs/heads/", "")
     );
 
-    if (!optional.isPresent()) {
-      log.warn("No configuration present for repository '{}' and ref '{}'", push.getRepository().gitHttpTransportUrl(), push.getRef());
+    if (optional.isEmpty()) {
+      log.warn("No configuration present for repository '{}' and ref '{}'", push.getRepository().getHttpTransportUrl(), push.getRef());
       return;
     }
 
@@ -53,7 +52,7 @@ public class GitHubDeploymentService {
       .autoMerge(false)
       .environment(fafApiProperties.getGitHub().getDeploymentEnvironment())
       .payload(optional.get().getTechnicalName())
-      .requiredContexts(Collections.emptyList())
+      .requiredContexts(List.of())
       .create();
 
     log.info("Created deployment: {}", ghDeployment);
@@ -83,7 +82,7 @@ public class GitHubDeploymentService {
     }
   }
 
-  private void performDeployment(GHDeployment ghDeployment, GHRepository repository, long deploymentId) throws IOException {
+  private void performDeployment(GHDeployment ghDeployment, GHRepository repository, long deploymentId) {
     String modName = ghDeployment.getPayload();
     FeaturedMod featuredMod = featuredModService.findModByTechnicalName(modName)
       .orElseThrow(() -> new IllegalArgumentException("No such mod: " + modName));

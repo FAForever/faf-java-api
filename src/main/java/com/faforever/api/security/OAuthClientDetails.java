@@ -6,7 +6,6 @@ import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.client.BaseClientDetails;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,7 +25,7 @@ public class OAuthClientDetails extends BaseClientDetails {
 
     List<String> scopes = Arrays.asList((String[]) commaSeparated(oAuthClient.getDefaultScope()).split(","));
     boolean autoApproveScopes = Optional.ofNullable(oAuthClient.isAutoApproveScopes()).orElse(false);
-    setAutoApproveScopes(autoApproveScopes ? scopes : Collections.emptyList());
+    setAutoApproveScopes(autoApproveScopes ? scopes : List.of());
   }
 
   /**
