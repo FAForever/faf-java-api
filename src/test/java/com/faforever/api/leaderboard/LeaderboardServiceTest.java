@@ -9,7 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
-import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -34,7 +33,7 @@ public class LeaderboardServiceTest {
 
   @Test
   public void getLadder1v1Leaderboard() throws Exception {
-    Page<Ladder1v1LeaderboardEntry> leaderboard = new PageImpl<>(Collections.emptyList());
+    Page<Ladder1v1LeaderboardEntry> leaderboard = new PageImpl<>(List.of());
     when(ladder1v1LeaderboardRepository.getLeaderboardByPage(PageRequest.of(0, 100))).thenReturn(leaderboard);
 
     List<Ladder1v1LeaderboardEntry> result = instance.getLadder1v1Leaderboard(1, 100).getContent();
@@ -45,7 +44,7 @@ public class LeaderboardServiceTest {
 
   @Test
   public void getGlobalLeaderboard() throws Exception {
-    Page<GlobalLeaderboardEntry> leaderboard = new PageImpl<>(Collections.emptyList());
+    Page<GlobalLeaderboardEntry> leaderboard = new PageImpl<>(List.of());
     when(globalLeaderboardRepository.getLeaderboardByPage(PageRequest.of(0, 100))).thenReturn(leaderboard);
 
     List<GlobalLeaderboardEntry> result = instance.getGlobalLeaderboard(1, 100).getContent();

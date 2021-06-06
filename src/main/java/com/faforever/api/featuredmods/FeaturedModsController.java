@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,7 +36,7 @@ public class FeaturedModsController {
                                                      @RequestParam(value = "page[number]", required = false) Integer page) {
     Integer innerPage = Optional.ofNullable(page).orElse(0);
     if (innerPage > 1) {
-      return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(Collections.emptyList())));
+      return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(List.of())));
     }
 
     Map<Integer, FeaturedMod> mods = Maps.uniqueIndex(featuredModService.getFeaturedMods(), FeaturedMod::getId);

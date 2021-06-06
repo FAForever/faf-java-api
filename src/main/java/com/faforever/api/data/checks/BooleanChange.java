@@ -17,7 +17,7 @@ public class BooleanChange {
 
     @Override
     public boolean ok(Object entity, RequestScope requestScope, Optional<ChangeSpec> optionalChangeSpec) {
-      if (!optionalChangeSpec.isPresent()) {
+      if (optionalChangeSpec.isEmpty()) {
         return true;
       }
       ChangeSpec changeSpec = optionalChangeSpec.get();
@@ -34,7 +34,7 @@ public class BooleanChange {
 
     @Override
     public boolean ok(Object entity, RequestScope requestScope, Optional<ChangeSpec> optionalChangeSpec) {
-      if (!optionalChangeSpec.isPresent()) {
+      if (optionalChangeSpec.isEmpty()) {
         return true;
       }
       ChangeSpec changeSpec = optionalChangeSpec.get();
