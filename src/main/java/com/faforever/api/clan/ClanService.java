@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 import java.util.Set;
 
 @Service
@@ -100,16 +101,16 @@ public class ClanService {
       throw new ApiException(new Error(ErrorCode.CLAN_ACCEPT_TOKEN_EXPIRE));
     }
 
-    final Integer clanId = invitation.getClan().getId();
+    final Integer clanId = invitation.clan().id();
     Player player = playerService.getPlayer(authentication);
     Clan clan = clanRepository.findById(clanId)
       .orElseThrow(() -> new ApiException(new Error(ErrorCode.CLAN_NOT_EXISTS, clanId)));
 
-    Player newMember = playerRepository.findById(invitation.getNewMember().getId())
-      .orElseThrow(() -> new ProgrammingError("ClanMember does not exist: " + invitation.getNewMember().getId()));
+    Player newMember = playerRepository.findById(invitation.newMember().id())
+      .orElseThrow(() -> new ProgrammingError("ClanMember does not exist: " + invitation.newMember().id()));
 
 
-    if (player.getId() != newMember.getId()) {
+    if (!Objects.equals(player.getId(), newMember.getId())) {
       throw new ApiException(new Error(ErrorCode.CLAN_ACCEPT_WRONG_PLAYER));
     }
     if (newMember.getClan() != null) {

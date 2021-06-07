@@ -199,13 +199,13 @@ public class ClanServiceTest {
     ArgumentCaptor<InvitationResult> captor = ArgumentCaptor.forClass(InvitationResult.class);
     verify(jwtService, Mockito.times(1)).sign(captor.capture());
     assertThat("expire",
-        captor.getValue().getExpire(),
-        greaterThan(System.currentTimeMillis()));
-    assertEquals(newMember.getId(), captor.getValue().getNewMember().getId());
-    assertEquals(newMember.getLogin(), captor.getValue().getNewMember().getLogin());
-    assertEquals(clan.getId(), captor.getValue().getClan().getId());
-    assertEquals(clan.getTag(), captor.getValue().getClan().getTag());
-    assertEquals(clan.getName(), captor.getValue().getClan().getName());
+      captor.getValue().expire(),
+      greaterThan(System.currentTimeMillis()));
+    assertEquals(newMember.getId(), captor.getValue().newMember().id());
+    assertEquals(newMember.getLogin(), captor.getValue().newMember().login());
+    assertEquals(clan.getId(), captor.getValue().clan().id());
+    assertEquals(clan.getTag(), captor.getValue().clan().tag());
+    assertEquals(clan.getName(), captor.getValue().clan().name());
   }
 
   @Test

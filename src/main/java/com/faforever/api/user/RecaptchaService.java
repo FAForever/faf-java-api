@@ -4,7 +4,6 @@ import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -25,14 +24,12 @@ public class RecaptchaService {
   private final FafApiProperties fafApiProperties;
   private final RestTemplate restTemplate;
 
-  @Value
-  static class VerifyResponse {
-    boolean success;
+  record VerifyResponse(
+    boolean success,
     @JsonProperty("challenge_ts")
-    OffsetDateTime challengeTs;
-    String hostname;
-    @JsonProperty("error-codes")
-    List<String> errorCodes;
+    OffsetDateTime challengeTs,
+    String hostname,
+    @JsonProperty("error-codes") List<String> errorCodes) {
   }
 
   public RecaptchaService(FafApiProperties fafApiProperties,

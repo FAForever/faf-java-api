@@ -31,18 +31,18 @@ public class EventsController {
   @RequestMapping(value = "/update", method = RequestMethod.PATCH, produces = JsonApiMediaType.JSON_API_MEDIA_TYPE)
   public JsonApiDocument update(@RequestBody List<@Valid EventUpdateRequest> updateRequests) {
     return new JsonApiDocument(new Data<>(updateRequests.stream()
-      .map(request -> eventsService.increment(request.getPlayerId(), request.getEventId(), request.getCount()))
+      .map(request -> eventsService.increment(request.playerId(), request.eventId(), request.count()))
       .map(this::toResource)
       .toList()));
   }
 
   private Resource toResource(UpdatedEventResponse updatedEventResponse) {
     Map<String, Object> attributes = Map.of(
-      "eventId", updatedEventResponse.getEventId(),
-      "currentCount", updatedEventResponse.getCurrentCount()
+      "eventId", updatedEventResponse.eventId(),
+      "currentCount", updatedEventResponse.currentCount()
     );
 
-    return new Resource("updatedEvent", String.valueOf(updatedEventResponse.getId()),
+    return new Resource("updatedEvent", String.valueOf(updatedEventResponse.id()),
       attributes, null, null, null);
   }
 }
