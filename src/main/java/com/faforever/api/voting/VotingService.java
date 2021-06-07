@@ -10,6 +10,7 @@ import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.game.GamePlayerStatsRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -22,18 +23,12 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class VotingService {
   private final VoteRepository voteRepository;
   private final VotingSubjectRepository votingSubjectRepository;
   private final GamePlayerStatsRepository gamePlayerStatsRepository;
   private final VotingChoiceRepository votingChoiceRepository;
-
-  public VotingService(VoteRepository voteRepository, VotingSubjectRepository votingSubjectRepository, GamePlayerStatsRepository gamePlayerStatsRepository, VotingChoiceRepository votingChoiceRepository) {
-    this.voteRepository = voteRepository;
-    this.votingSubjectRepository = votingSubjectRepository;
-    this.gamePlayerStatsRepository = gamePlayerStatsRepository;
-    this.votingChoiceRepository = votingChoiceRepository;
-  }
 
   @Transactional
   public void saveVote(Vote vote, Player player) {
