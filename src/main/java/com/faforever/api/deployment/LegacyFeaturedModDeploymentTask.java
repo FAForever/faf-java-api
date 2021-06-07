@@ -16,6 +16,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -109,7 +110,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
 
     Deployment deployment = apiProperties.getDeployment();
     Path targetFolder = Paths.get(deployment.getFeaturedModsTargetDirectory(), String.format(deployment.getFilesDirectoryFormat(), modName));
-    List<StagedFile> files = packageDirectories(repositoryDirectory, version, fileIds, targetFolder);
+    List<StagedFile> files = packageFiles(repositoryDirectory, version, fileIds, targetFolder);
 
     if ("faf".equals(modName)) {
       createPatchedExe(version, fileIds, targetFolder).ifPresent(files::add);
@@ -209,14 +210,20 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
    * @return the list of deployed files
    */
   @SneakyThrows
-  private List<StagedFile> packageDirectories(Path repositoryDirectory, short version, Map<String, Short> fileIds, Path targetFolder) {
+  @SuppressWarnings("unchecked")
+  private List<StagedFile> packageFiles(Path repositoryDirectory, short version, Map<String, Short> fileIds, Path targetFolder) {
     updateStatus("Packaging files");
     try (Stream<Path> stream = Files.list(repositoryDirectory)) {
       return stream
-        .filter((path) -> Files.isDirectory(path) && !path.getFileName().toString().startsWith("."))
-        .map(path -> packDirectory(path, version, targetFolder, fileIds))
-        .filter(Optional::isPresent)
-        .map(Optional::get)
+        .flatMap(path -> {
+          if (Files.isDirectory(path) && !path.getFileName().toString().startsWith(".")) {
+            return packDirectory(path, version, targetFolder, fileIds).stream();
+          } else if (Files.isRegularFile(path)) {
+            return packFile(path, version, targetFolder, fileIds).stream();
+          } else{
+            return Stream.empty();
+          }
+        })
         .collect(Collectors.toList());
     }
   }
@@ -262,6 +269,31 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
       zipDirectory(directory, outputStream);
     }
     return Optional.of(new StagedFile(fileId, tmpNxtFile, targetNxtFile, clientFileName));
+  }
+
+  /**
+   * Creates a ZIP file with the file ending configured in {@link #featuredMod}. The content of the ZIP file is the
+   * content of the directory. If no file ID is available, an empty optional is returned.
+   */
+  @SneakyThrows
+  private Optional<StagedFile> packFile(Path file, Short version, Path targetFolder, Map<String, Short> fileIds) {
+    String fullFileName = file.getFileName().toString();
+    String baseName = FilenameUtils.getBaseName(fullFileName);
+    String extension = FilenameUtils.getExtension(fullFileName);
+    Path targetFile = targetFolder.resolve(String.format("%s_%d.%s", baseName, version, extension));
+    Path tmpFile = toTmpFile(targetFile);
+
+    Short fileId = fileIds.get(fullFileName);
+    if (fileId == null) {
+      log.debug("Skipping file '{}' because there's no file ID available", fullFileName);
+      return Optional.empty();
+    }
+
+    log.trace("Copying '{}' to '{}'", file, targetFolder);
+
+    createDirectories(targetFolder, FilePermissionUtil.directoryPermissionFileAttributes());
+    Files.copy(file, tmpFile, StandardCopyOption.REPLACE_EXISTING);
+    return Optional.of(new StagedFile(fileId, tmpFile, targetFile, fullFileName));
   }
 
   private void checkoutCode(Path repositoryDirectory, String repoUrl, String branch) throws IOException {
