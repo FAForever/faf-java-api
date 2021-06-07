@@ -17,8 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.OffsetDateTime;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -136,7 +134,7 @@ public class VotingServiceTest {
     votingAnswer2.setVotingChoice(votingChoice2);
     votingAnswer2.setAlternativeOrdinal(1);
 
-    vote.setVotingAnswers(new HashSet<>(Arrays.asList(votingAnswer, votingAnswer2)));
+    vote.setVotingAnswers(Set.of(votingAnswer, votingAnswer2));
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
@@ -170,7 +168,7 @@ public class VotingServiceTest {
     votingAnswer.setVotingChoice(votingChoice);
     votingAnswer.setAlternativeOrdinal(0);
 
-    vote.setVotingAnswers(new HashSet<>(List.of(votingAnswer)));
+    vote.setVotingAnswers(Set.of(votingAnswer));
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
@@ -212,7 +210,7 @@ public class VotingServiceTest {
     votingAnswer2.setVotingChoice(votingChoice2);
     votingAnswer2.setAlternativeOrdinal(1);
 
-    vote.setVotingAnswers(new HashSet<>(Arrays.asList(votingAnswer, votingAnswer2)));
+    vote.setVotingAnswers(Set.of(votingAnswer, votingAnswer2));
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
@@ -254,7 +252,7 @@ public class VotingServiceTest {
     votingChoice2.setVotingQuestion(votingQuestion);
     votingAnswer2.setVotingChoice(votingChoice2);
 
-    vote.setVotingAnswers(new HashSet<>(Arrays.asList(votingAnswer, votingAnswer2)));
+    vote.setVotingAnswers(Set.of(votingAnswer, votingAnswer2));
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
