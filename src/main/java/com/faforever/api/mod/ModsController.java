@@ -7,6 +7,7 @@ import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerService;
 import com.google.common.io.Files;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,17 +22,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
 @RestController
 @RequestMapping(path = "/mods")
+@RequiredArgsConstructor
 public class ModsController {
 
   private final PlayerService playerService;
   private final ModService modService;
   private final FafApiProperties fafApiProperties;
-
-  public ModsController(PlayerService playerService, ModService modService, FafApiProperties fafApiProperties) {
-    this.playerService = playerService;
-    this.modService = modService;
-    this.fafApiProperties = fafApiProperties;
-  }
 
   @ApiOperation("Upload a mod")
   @RequestMapping(path = "/upload", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)

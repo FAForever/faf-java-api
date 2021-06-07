@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.support.MessageSourceAccessor;
 
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -308,20 +309,20 @@ public class VotingSubjectEnricherTest {
     if (vote.getVotingAnswers() != null) {
       vote.getVotingAnswers().add(votingAnswer);
     } else {
-      vote.setVotingAnswers(Set.of(votingAnswer));
+      vote.setVotingAnswers(new HashSet<>(Set.of(votingAnswer)));
     }
 
     if (votingChoice != null) {
       if (votingChoice.getVotingAnswers() != null) {
         votingChoice.getVotingAnswers().add(votingAnswer);
       } else {
-        votingChoice.setVotingAnswers(Set.of(votingAnswer));
+        votingChoice.setVotingAnswers(new HashSet<>(Set.of(votingAnswer)));
       }
 
       if (votingQuestion.getVotingChoices() != null) {
         votingQuestion.getVotingChoices().add(votingChoice);
       } else {
-        votingQuestion.setVotingChoices(Set.of(votingChoice));
+        votingQuestion.setVotingChoices(new HashSet<>(Set.of(votingChoice)));
       }
     }
   }
