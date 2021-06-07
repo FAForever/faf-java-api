@@ -15,7 +15,6 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
-import java.util.Collections;
 import java.util.Set;
 
 import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
@@ -375,7 +374,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
   @Test
   public void cannotUpdateReportedUsers() throws Exception {
     final ModerationReport updatedReportedUsersModerationReport = (ModerationReport) new ModerationReport()
-      .setReportedUsers(Collections.emptySet())
+      .setReportedUsers(Set.of())
       .setId("3");
     mockMvc.perform(
       patch("/data/moderationReport/3")

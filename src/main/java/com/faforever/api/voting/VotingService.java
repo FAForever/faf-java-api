@@ -16,10 +16,10 @@ import org.springframework.util.Assert;
 import javax.transaction.Transactional;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class VotingService {
@@ -42,7 +42,7 @@ public class VotingService {
     List<Error> errors = ableToVote(player, vote.getVotingSubject().getId());
 
     if (vote.getVotingAnswers() == null) {
-      vote.setVotingAnswers(Collections.emptySet());
+      vote.setVotingAnswers(Set.of());
     }
 
     VotingSubject subject = votingSubjectRepository.findById(vote.getVotingSubject().getId())

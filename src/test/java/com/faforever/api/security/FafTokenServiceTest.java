@@ -16,7 +16,6 @@ import org.springframework.security.jwt.crypto.sign.RsaVerifier;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.Map;
 
 import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
@@ -83,7 +82,7 @@ public class FafTokenServiceTest {
 
   @Test
   public void createToken() throws Exception {
-    String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(100), Collections.emptyMap());
+    String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(100), Map.of());
 
     Jwt jwt = JwtHelper.decodeAndVerify(token, rsaVerifier);
     Map<String, String> claims = objectMapper.readValue(jwt.getClaims(), new TypeReference<Map<String, String>>() {
@@ -113,7 +112,7 @@ public class FafTokenServiceTest {
 
   @Test
   public void resolveToken() {
-    String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(100), Collections.emptyMap());
+    String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(100), Map.of());
     Map<String, String> result = instance.resolveToken(FafTokenType.REGISTRATION, token);
 
     assertThat(result.size(), is(0));
@@ -133,7 +132,7 @@ public class FafTokenServiceTest {
 
   @Test
   public void resolveTokenExpired() {
-    String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(-1), Collections.emptyMap());
+    String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(-1), Map.of());
 
     ApiException result = assertThrows(ApiException.class, () -> instance.resolveToken(FafTokenType.REGISTRATION, token));
     assertThat(result, hasErrorCode(ErrorCode.TOKEN_EXPIRED));
@@ -141,7 +140,7 @@ public class FafTokenServiceTest {
 
   @Test
   public void resolveTokenInvalidType() {
-    String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(-1), Collections.emptyMap());
+    String token = instance.createToken(FafTokenType.REGISTRATION, Duration.ofSeconds(-1), Map.of());
 
     ApiException result = assertThrows(ApiException.class, () -> instance.resolveToken(FafTokenType.PASSWORD_RESET, token));
     assertThat(result, hasErrorCode(ErrorCode.TOKEN_INVALID));
