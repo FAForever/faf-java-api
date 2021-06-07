@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -39,9 +38,7 @@ public class OAuthApprovalController {
   private Set<OAuthScope> getScopesFromScopeString(Set<String> scopesString) {
     return scopesString.stream()
       .filter(s -> !s.isEmpty())
-      .map(OAuthScope::fromKey)
-      .filter(Optional::isPresent)
-      .map(Optional::get)
+      .flatMap(s -> OAuthScope.fromKey(s).stream())
       .collect(Collectors.toSet());
   }
 }

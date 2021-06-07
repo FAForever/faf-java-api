@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -46,9 +45,7 @@ public class FafUserDetailsService implements UserDetailsService {
     userRoles.add(UserRole.USER);
 
     user.getUserGroups().stream()
-      .map(userGroup -> UserRole.fromString(userGroup.getTechnicalName()))
-      .filter(Optional::isPresent)
-      .map(Optional::get)
+      .flatMap(userGroup -> UserRole.fromString(userGroup.getTechnicalName()).stream())
       .forEach(userRoles::add);
 
     return userRoles;

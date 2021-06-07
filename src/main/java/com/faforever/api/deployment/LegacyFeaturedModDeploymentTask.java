@@ -10,7 +10,6 @@ import com.faforever.api.utils.FilePermissionUtil;
 import com.faforever.commons.fa.ForgedAllianceExePatcher;
 import com.faforever.commons.mod.ModReader;
 import com.google.common.io.ByteStreams;
-import lombok.Data;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -190,9 +189,9 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     updateStatus("Updating database");
     List<FeaturedModFile> featuredModFiles = files.stream()
       .map(file -> new FeaturedModFile()
-        .setMd5(noCatch(() -> hash(file.getTargetFile().toFile(), md5())).toString())
-        .setFileId(file.getFileId())
-        .setName(file.getTargetFile().getFileName().toString())
+        .setMd5(noCatch(() -> hash(file.targetFile().toFile(), md5())).toString())
+        .setFileId(file.fileId())
+        .setName(file.targetFile().getFileName().toString())
         .setVersion(version)
       )
       .toList();
@@ -234,8 +233,8 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
    * complete, and makes the file readable for everyone.
    */
   private StagedFile finalizeFile(StagedFile file) {
-    Path source = file.getTmpFile();
-    Path target = file.getTargetFile();
+    Path source = file.tmpFile();
+    Path target = file.targetFile();
 
     log.trace("Setting default file permission of '{}'", source);
     FilePermissionUtil.setDefaultFilePermission(source);
@@ -358,23 +357,23 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
    * Describes a file that is ready to be deployed. All files should be staged as temporary files first so they can be
    * renamed to their target file name in one go, thus minimizing the time of inconsistent file system state.
    */
-  @Data
-  private class StagedFile {
+  private record StagedFile(
     /**
      * ID of the file as stored in the database.
      */
-    private final short fileId;
+    short fileId,
     /**
      * The staged file, already in the correct location, that is ready to be renamed.
      */
-    private final Path tmpFile;
+    Path tmpFile,
     /**
      * The final file name and location.
      */
-    private final Path targetFile;
+    Path targetFile,
     /**
      * Name of the file as the client will know it.
      */
-    private final String clientFileName;
+    String clientFileName
+  ) {
   }
 }
