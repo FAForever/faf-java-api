@@ -22,7 +22,6 @@ import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -100,7 +99,7 @@ public class LegacyFeaturedModDeploymentTaskTest {
     when(featuredModService.getFeaturedMods()).thenReturn(List.of(
       new FeaturedMod().setTechnicalName("faf")
     ));
-    when(featuredModService.getFileIds("faf")).thenReturn(Collections.emptyMap());
+    when(featuredModService.getFileIds("faf")).thenReturn(Map.of());
 
     Path dummyExe = repositoriesFolder.resolve("TemplateForgedAlliance.exe");
     createDummyExe(dummyExe);

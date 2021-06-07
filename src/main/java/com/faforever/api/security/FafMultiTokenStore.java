@@ -15,7 +15,7 @@ import org.springframework.security.oauth2.provider.token.store.jwk.JwkTokenStor
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -112,12 +112,12 @@ public class FafMultiTokenStore implements TokenStore {
   @Override
   public Collection<OAuth2AccessToken> findTokensByClientIdAndUserName(String clientId, String userName) {
     // equal to JwtTokenStore
-    return Collections.emptySet();
+    return List.of();
   }
 
   @Override
   public Collection<OAuth2AccessToken> findTokensByClientId(String clientId) {
     // equal to JwtTokenStore
-    return Collections.emptySet();
+    return List.of();
   }
 }
