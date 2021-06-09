@@ -25,6 +25,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class VotingService {
+  public static final int ACCOUNT_AGE_YEARS_VOTE_QUALIFIED = 3;
   private final VoteRepository voteRepository;
   private final VotingSubjectRepository votingSubjectRepository;
   private final GamePlayerStatsRepository gamePlayerStatsRepository;
@@ -100,7 +101,9 @@ public class VotingService {
       errors.add(new Error(ErrorCode.VOTE_ALREADY_ENDED, subject.getEndOfVoteTime()));
     }
 
-    if (gamesPlayed < subject.getMinGamesToVote()) {
+    boolean accountQualifiedBySteamAndAge = player.getSteamId() != null && OffsetDateTime.now().minusYears(ACCOUNT_AGE_YEARS_VOTE_QUALIFIED).isAfter(player.getCreateTime());
+
+    if (!accountQualifiedBySteamAndAge && gamesPlayed < subject.getMinGamesToVote()) {
       errors.add(new Error(ErrorCode.NOT_ENOUGH_GAMES, gamesPlayed, subject.getMinGamesToVote()));
     }
     return errors;

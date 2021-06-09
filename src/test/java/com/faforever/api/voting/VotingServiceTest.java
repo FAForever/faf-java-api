@@ -16,14 +16,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.OffsetDateTime;
-import java.util.Arrays;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.Set;
 
 import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -102,7 +101,7 @@ public class VotingServiceTest {
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
 
     ApiException result = assertThrows(ApiException.class, () -> instance.saveVote(vote, player));
-    assertTrue(Arrays.stream(result.getErrors()).anyMatch(error -> error.getErrorCode().equals(ErrorCode.VOTED_TWICE)));
+    assertThat(result, hasErrorCode(ErrorCode.VOTED_TWICE));
 
     verify(voteRepository, never()).save(vote);
   }
@@ -176,7 +175,6 @@ public class VotingServiceTest {
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
 
-
     ApiException result = assertThrows(ApiException.class, () -> instance.saveVote(vote, player));
     assertThat(result, hasErrorCode(ErrorCode.VOTING_CHOICE_DOES_NOT_EXIST));
 
@@ -219,11 +217,9 @@ public class VotingServiceTest {
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
     when(votingChoiceRepository.findById(anyInt())).thenReturn(Optional.of(votingChoice)).thenReturn(Optional.of(votingChoice2));
 
-    try {
-      instance.saveVote(vote, player);
-    } catch (ApiException e) {
-      assertTrue(Arrays.stream(e.getErrors()).anyMatch(error -> error.getErrorCode().equals(ErrorCode.MALFORMATTED_ALTERNATIVE_ORDINALS)));
-    }
+    ApiException result = assertThrows(ApiException.class, () -> instance.saveVote(vote, player));
+    assertThat(result, hasErrorCode(ErrorCode.MALFORMATTED_ALTERNATIVE_ORDINALS));
+
     verify(voteRepository, never()).save(vote);
   }
 
@@ -261,11 +257,59 @@ public class VotingServiceTest {
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
     when(votingChoiceRepository.findById(anyInt())).thenReturn(Optional.of(votingChoice)).thenReturn(Optional.of(votingChoice2));
 
-    try {
-      instance.saveVote(vote, player);
-    } catch (ApiException e) {
-      assertTrue(Arrays.stream(e.getErrors()).anyMatch(error -> error.getErrorCode().equals(ErrorCode.TOO_MANY_ANSWERS)));
-    }
+    ApiException result = assertThrows(ApiException.class, () -> instance.saveVote(vote, player));
+    assertThat(result, hasErrorCode(ErrorCode.TOO_MANY_ANSWERS));
+
     verify(voteRepository, never()).save(vote);
+  }
+
+  @Test
+  public void notSaveVoteOnNotEnoughGames() {
+    Vote vote = new Vote();
+    VotingSubject votingSubject = new VotingSubject();
+    votingSubject.setId(1);
+    votingSubject.setBeginOfVoteTime(OffsetDateTime.now());
+    votingSubject.setEndOfVoteTime(OffsetDateTime.MAX);
+    VotingQuestion votingQuestion = new VotingQuestion();
+    votingQuestion.setAlternativeQuestion(false);
+    votingQuestion.setMaxAnswers(1);
+    votingSubject.setVotingQuestions(Set.of(votingQuestion));
+    votingSubject.setMinGamesToVote(100);
+
+    vote.setVotingSubject(votingSubject);
+    Player player = new Player();
+
+    when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
+    when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
+
+    ApiException result = assertThrows(ApiException.class, () -> instance.saveVote(vote, player));
+    assertThat(result, hasErrorCode(ErrorCode.NOT_ENOUGH_GAMES));
+
+    verify(voteRepository, never()).save(vote);
+  }
+
+  @Test
+  public void saveVoteOnNotEnoughGamesButSteamLinkAndAccountAge() {
+    Vote vote = new Vote();
+    VotingSubject votingSubject = new VotingSubject();
+    votingSubject.setId(1);
+    votingSubject.setBeginOfVoteTime(OffsetDateTime.now());
+    votingSubject.setEndOfVoteTime(OffsetDateTime.MAX);
+    VotingQuestion votingQuestion = new VotingQuestion();
+    votingQuestion.setAlternativeQuestion(false);
+    votingQuestion.setMaxAnswers(1);
+    votingSubject.setVotingQuestions(Set.of(votingQuestion));
+    votingSubject.setMinGamesToVote(100);
+
+    vote.setVotingSubject(votingSubject);
+    Player player = new Player();
+    player.setSteamId("someSteamId");
+    player.setCreateTime(OffsetDateTime.now().minus(5, ChronoUnit.YEARS));
+
+    when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
+    when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
+
+    instance.saveVote(vote, player);
+    verify(voteRepository).save(vote);
   }
 }
