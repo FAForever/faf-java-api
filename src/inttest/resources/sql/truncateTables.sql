@@ -107,7 +107,6 @@ DELETE FROM `updates_xtremewars_files`;
 DELETE FROM `user_group`;
 DELETE FROM `user_group_assignment`;
 DELETE FROM `user_notes`;
-DELETE FROM `version_lobby`;
 DELETE FROM `vm_exempt`;
 DELETE FROM `vote`;
 DELETE FROM `voting_answer`;
