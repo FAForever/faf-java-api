@@ -4,6 +4,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 @Component
@@ -15,7 +16,7 @@ public class UserSupplier implements Supplier<FafUserDetails> {
     if (principal instanceof FafUserDetails) {
       return (FafUserDetails) principal;
     } else {
-      return new FafUserDetails(-1, principal.toString(), null, false, List.of());
+      return new FafUserDetails(-1, principal.toString(), null, false, List.of(), Set.of());
     }
   }
 }

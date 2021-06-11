@@ -1,9 +1,7 @@
 package com.faforever.api.config.security;
 
-import com.faforever.api.config.ApplicationProfile;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -31,14 +29,6 @@ import java.util.regex.Pattern;
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-
-  @Inject
-  @Profile(ApplicationProfile.DEVELOPMENT)
-  public void developUserDetails(AuthenticationManagerBuilder auth) throws Exception {
-    auth.inMemoryAuthentication()
-      .withUser("user").password("user").roles("USER")
-      .and().withUser("admin").password("admin").roles("USER", "ADMIN");
-  }
 
   @Inject
   public void prodUserDetails(AuthenticationManagerBuilder auth, UserDetailsService userDetailsService) throws Exception {

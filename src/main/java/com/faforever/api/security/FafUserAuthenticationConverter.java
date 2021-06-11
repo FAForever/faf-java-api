@@ -8,9 +8,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.provider.token.DefaultUserAuthenticationConverter;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Converts a {@link FafUserDetails} from and to an {@link Authentication} for use in a JWT token.
@@ -42,7 +44,11 @@ public class FafUserAuthenticationConverter extends DefaultUserAuthenticationCon
       String username = (String) map.get(USERNAME);
       boolean accountNonLocked = Optional.ofNullable((Boolean) map.get(NON_LOCKED)).orElse(true);
       Collection<? extends GrantedAuthority> authorities = getAuthorities(map);
-      UserDetails user = new FafUserDetails(id, username, "N/A", accountNonLocked, authorities);
+
+      // This is a violation of separation of User and Client permission, but the whole code is deprecated once we use
+      // OpenID everywhere!
+      Set<String> scopes = new HashSet<>((List<String>) map.get("scope"));
+      UserDetails user = new FafUserDetails(id, username, "N/A", accountNonLocked, authorities, scopes);
 
       return new UsernamePasswordAuthenticationToken(user, "N/A", authorities);
     } else {
@@ -62,7 +68,9 @@ public class FafUserAuthenticationConverter extends DefaultUserAuthenticationCon
         .map(role -> (GrantedAuthority) () -> "ROLE_" + role)
         .toList();
 
-      UserDetails user = new FafUserDetails(id, "username", "N/A", false, authorities);
+      var scopes = new HashSet<>((List<String>) map.get("scp"));
+
+      UserDetails user = new FafUserDetails(id, "username", "N/A", false, authorities, scopes);
       return new UsernamePasswordAuthenticationToken(user, "N/A", authorities);
     }
 
