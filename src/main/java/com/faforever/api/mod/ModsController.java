@@ -42,7 +42,7 @@ public class ModsController {
     }
 
     Path tempFile = java.nio.file.Files.createTempFile("mod", ".tmp");
-    file.transferTo(tempFile.getFileName().toFile());
+    file.transferTo(tempFile.toFile());
 
     modService.processUploadedMod(tempFile, playerService.getPlayer(authentication));
   }
