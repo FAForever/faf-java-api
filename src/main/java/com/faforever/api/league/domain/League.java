@@ -11,7 +11,7 @@ import javax.persistence.Table;
 @Entity
 @Setter
 @Table(name = "league")
-@Include(type = League.TYPE_NAME)
+@Include(name = League.TYPE_NAME)
 public class League extends AbstractEntity {
   public static final String TYPE_NAME = "league";
 

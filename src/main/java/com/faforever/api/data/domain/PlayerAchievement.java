@@ -15,7 +15,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "player_achievements")
-@Include(type = "playerAchievement")
+@Include(name = "playerAchievement")
 @Setter
 public class PlayerAchievement extends AbstractEntity {
 

@@ -13,7 +13,7 @@ import javax.persistence.Transient;
 @Entity
 @Setter
 @Table(name = "leaderboard_rating")
-@Include(type = LeaderboardRating.TYPE_NAME)
+@Include(name = LeaderboardRating.TYPE_NAME)
 public class LeaderboardRating extends AbstractEntity implements OwnableEntity {
 
   public static final String TYPE_NAME = "leaderboardRating";

@@ -15,7 +15,7 @@ import javax.persistence.Table;
 @Entity
 @Setter
 @Table(name = "league_season_score")
-@Include(type = LeagueSeasonScore.TYPE_NAME)
+@Include(name = LeagueSeasonScore.TYPE_NAME)
 public class LeagueSeasonScore {
   public static final String TYPE_NAME = "leagueSeasonScore";
 

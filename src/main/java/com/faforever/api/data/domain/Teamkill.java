@@ -19,7 +19,7 @@ import java.time.OffsetDateTime;
 @Entity
 @Setter
 @Table(name = "teamkills")
-@Include(type = Teamkill.TYPE_NAME)
+@Include(name = Teamkill.TYPE_NAME)
 @Immutable
 @ReadPermission(expression = ReadTeamkillReportCheck.EXPRESSION)
 public class Teamkill {

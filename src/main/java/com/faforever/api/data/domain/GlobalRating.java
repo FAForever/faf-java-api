@@ -7,6 +7,6 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "global_rating_rank_view")
-@Include(type = "globalRating")
+@Include(name = "globalRating")
 public class GlobalRating extends Rating {
 }

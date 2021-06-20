@@ -31,7 +31,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "game_stats")
-@Include(type = "game")
+@Include(name = "game")
 @Immutable
 @Setter
 @EntityListeners(GameEnricher.class)

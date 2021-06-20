@@ -20,7 +20,7 @@ import javax.persistence.Table;
 @Entity
 @Setter
 @Table(name = "map_pool_map_version")
-@Include(type = "mapPoolAssignment")
+@Include(name = "mapPoolAssignment")
 @CreatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @UpdatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @DeletePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)

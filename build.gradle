@@ -234,7 +234,7 @@ dependencies {
   implementation("com.yahoo.elide:elide-datastore-multiplex:${elideVersion}")
 
   implementation("org.luaj:luaj-jse:${luajVersion}")
-  implementation("com.github.micheljung:nocatch:${nocatchVersion}")
+  implementation("io.github.micheljung:nocatch:${nocatchVersion}")
   implementation("org.apache.commons:commons-compress:${commonsCompressVersion}")
   implementation("org.json:json:${jsonVersion}")
 

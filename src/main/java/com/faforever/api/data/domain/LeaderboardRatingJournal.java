@@ -13,7 +13,7 @@ import javax.persistence.Table;
 @Entity
 @Setter
 @Table(name = "leaderboard_rating_journal")
-@Include(type = LeaderboardRatingJournal.TYPE_NAME)
+@Include(name = LeaderboardRatingJournal.TYPE_NAME)
 public class LeaderboardRatingJournal extends AbstractEntity {
 
   public static final String TYPE_NAME = "leaderboardRatingJournal";

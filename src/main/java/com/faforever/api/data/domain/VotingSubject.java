@@ -31,7 +31,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "voting_subject")
-@Include(type = VotingSubject.TYPE_NAME)
+@Include(name = VotingSubject.TYPE_NAME)
 @ReadPermission(expression = Prefab.ALL)
 @DeletePermission(expression = AdminVoteCheck.EXPRESSION)
 @UpdatePermission(expression = AdminVoteCheck.EXPRESSION)

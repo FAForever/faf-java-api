@@ -44,7 +44,7 @@ import static com.yahoo.elide.annotation.LifeCycleHookBinding.TransactionPhase.P
 @Table(name = "moderation_report")
 @Setter
 @ToString(exclude = {"reportedUsers", "bans"})
-@Include(type = ModerationReport.TYPE_NAME)
+@Include(name = ModerationReport.TYPE_NAME)
 @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + AdminModerationReportCheck.EXPRESSION)
 @DeletePermission(expression = Prefab.NONE)
 @CreatePermission(expression = Prefab.ALL)

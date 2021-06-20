@@ -21,7 +21,7 @@ import java.util.Set;
 @Entity
 @Setter
 @Table(name = "map_pool")
-@Include(type = "mapPool")
+@Include(name = "mapPool")
 @CreatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @UpdatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @DeletePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)

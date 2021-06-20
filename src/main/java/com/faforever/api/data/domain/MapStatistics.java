@@ -15,7 +15,7 @@ import javax.persistence.Table;
 @Entity
 @Setter
 @Table(name = "map_statistics")
-@Include(type = MapStatistics.TYPE_NAME)
+@Include(name = MapStatistics.TYPE_NAME)
 @Immutable
 public class MapStatistics {
   public static final String TYPE_NAME = "mapStatistics";

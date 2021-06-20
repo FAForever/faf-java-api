@@ -34,7 +34,7 @@ import java.util.List;
 @Entity
 @Setter
 @Table(name = "map")
-@Include(type = Map.TYPE_NAME)
+@Include(name = Map.TYPE_NAME)
 @EntityListeners(MapChangeListener.class)
 public class Map extends AbstractEntity implements OwnableEntity {
 

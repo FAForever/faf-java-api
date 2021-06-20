@@ -31,7 +31,7 @@ import java.util.List;
 @Entity
 @Table(name = "tutorial_category")
 @Setter
-@Include(type = TutorialCategory.TYPE_NAME)
+@Include(name = TutorialCategory.TYPE_NAME)
 @DeletePermission(expression = WriteTutorialCheck.EXPRESSION)
 @UpdatePermission(expression = WriteTutorialCheck.EXPRESSION)
 @CreatePermission(expression = WriteTutorialCheck.EXPRESSION)

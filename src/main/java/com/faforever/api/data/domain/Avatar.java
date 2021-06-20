@@ -21,7 +21,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "avatars_list")
-@Include(type = Avatar.TYPE_NAME)
+@Include(name = Avatar.TYPE_NAME)
 @Setter
 @Type(Avatar.TYPE_NAME)
 @EntityListeners(AvatarEnricherListener.class)

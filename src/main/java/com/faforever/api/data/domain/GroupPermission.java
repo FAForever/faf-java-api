@@ -29,7 +29,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "group_permission")
-@Include(type = "groupPermission")
+@Include(name = "groupPermission")
 @Setter
 @ReadPermission(expression = ReadUserGroupCheck.EXPRESSION)
 public class GroupPermission extends AbstractEntity implements GrantedAuthority {

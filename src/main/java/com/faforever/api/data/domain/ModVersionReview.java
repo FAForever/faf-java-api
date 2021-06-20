@@ -15,7 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Setter
-@Include(type = "modVersionReview")
+@Include(name = "modVersionReview")
 @Entity
 @Table(name = "mod_version_review")
 @CreatePermission(expression = Prefab.ALL)

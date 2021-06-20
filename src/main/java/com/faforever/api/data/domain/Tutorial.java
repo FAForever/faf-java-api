@@ -27,7 +27,7 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Table(name = "tutorial")
 @Setter
-@Include(type = Tutorial.TYPE_NAME)
+@Include(name = Tutorial.TYPE_NAME)
 @DeletePermission(expression = WriteTutorialCheck.EXPRESSION)
 @UpdatePermission(expression = WriteTutorialCheck.EXPRESSION)
 @CreatePermission(expression = WriteTutorialCheck.EXPRESSION)

@@ -11,7 +11,7 @@ import javax.persistence.Table;
 @Entity
 @Setter
 @Table(name = "leaderboard")
-@Include(type = com.faforever.api.league.domain.Leaderboard.TYPE_NAME)
+@Include(name = com.faforever.api.league.domain.Leaderboard.TYPE_NAME)
 public class Leaderboard {
   public static final String TYPE_NAME = "leagueLeaderboard";
 

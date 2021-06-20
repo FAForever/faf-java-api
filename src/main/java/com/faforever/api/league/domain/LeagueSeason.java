@@ -16,7 +16,7 @@ import java.time.OffsetDateTime;
 @Entity
 @Setter
 @Table(name = "league_season")
-@Include(type = LeagueSeason.TYPE_NAME)
+@Include(name = LeagueSeason.TYPE_NAME)
 public class LeagueSeason {
   public static final String TYPE_NAME = "leagueSeason";
 

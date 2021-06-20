@@ -28,7 +28,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "\"mod\"")
-@Include(type = Mod.TYPE_NAME)
+@Include(name = Mod.TYPE_NAME)
 @Setter
 @EntityListeners(ModChangeListener.class)
 public class Mod extends AbstractEntity implements OwnableEntity {

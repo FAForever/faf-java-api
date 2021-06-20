@@ -18,7 +18,7 @@ import javax.persistence.Transient;
 @Entity
 @Table(name = "coop_map")
 @EntityListeners(CoopMapEnricher.class)
-@Include(type = "coopMission")
+@Include(name = "coopMission")
 @Setter
 public class CoopMap {
 

@@ -31,7 +31,7 @@ import static com.yahoo.elide.annotation.LifeCycleHookBinding.TransactionPhase.P
 
 @Entity
 @Table(name = "ban")
-@Include(type = "banInfo")
+@Include(name = "banInfo")
 // Bans can never be deleted, only disabled over BanDisableData
 @DeletePermission(expression = Prefab.NONE)
 @ReadPermission(expression = AdminAccountBanCheck.EXPRESSION)

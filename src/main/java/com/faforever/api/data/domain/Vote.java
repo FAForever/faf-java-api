@@ -20,7 +20,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "vote")
-@Include(type = Vote.TYPE_NAME)
+@Include(name = Vote.TYPE_NAME)
 @ReadPermission(expression = IsEntityOwner.EXPRESSION)
 @UpdatePermission(expression = Prefab.NONE)
 @EqualsAndHashCode(of = {"player", "votingSubject"}, callSuper = false)
