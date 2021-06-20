@@ -83,6 +83,8 @@ server:
   jetty:
     max-http-form-post-size: 367001600
   forward-headers-strategy: native
+  tomcat:
+    relaxed-query-chars: "[,]" # Elide makes heave use of these and many browsers don't escape them
 
 management:
   server:
