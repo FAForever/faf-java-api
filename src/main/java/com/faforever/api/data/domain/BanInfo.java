@@ -12,12 +12,17 @@ import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.LifeCycleHookBinding;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -40,78 +45,63 @@ import static com.yahoo.elide.annotation.LifeCycleHookBinding.TransactionPhase.P
 @Audit(action = Action.CREATE, logStatement = "Applied ban with id `{0}` for player `{1}`", logExpressions = {"${banInfo.id}", "${banInfo.player}"})
 @Audit(action = Action.UPDATE, logStatement = "Updated ban with id `{0}` for player `{1}`", logExpressions = {"${banInfo.id}", "${banInfo.player}"})
 @LifeCycleHookBinding(operation = CREATE, phase = PRESECURITY, hook = BanInfoCreateHook.class)
-@Setter
-public class BanInfo extends AbstractEntity {
-  private Player player;
-  private Player author;
-  private String reason;
-  private OffsetDateTime expiresAt;
-  private BanLevel level;
-  private ModerationReport moderationReport;
-  private String revokeReason;
-  private Player revokeAuthor;
-  private OffsetDateTime revokeTime;
+@Data
+@NoArgsConstructor
+public class BanInfo implements DefaultEntity {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  private Integer id;
+
+  @Column(name = "create_time")
+  private OffsetDateTime createTime;
+
+  @Column(name = "update_time")
+  private OffsetDateTime updateTime;
 
   @ManyToOne
   @JoinColumn(name = "player_id")
   @NotNull
-  public Player getPlayer() {
-    return player;
-  }
+  private Player player;
 
   @ManyToOne
   @UpdatePermission(expression = Prefab.NONE)
   @JoinColumn(name = "author_id")
   @NotNull
-  public Player getAuthor() {
-    return author;
-  }
+  private Player author;
 
   @Column(name = "reason")
   @NotNull
-  public String getReason() {
-    return reason;
-  }
+  private String reason;
 
   @Column(name = "expires_at")
-  public OffsetDateTime getExpiresAt() {
-    return expiresAt;
-  }
+  private OffsetDateTime expiresAt;
 
   @Column(name = "level")
   @Enumerated(EnumType.STRING)
-  public BanLevel getLevel() {
-    return level;
-  }
+  private BanLevel level;
 
   @ManyToOne
   @JoinColumn(name = "report_id")
-  public ModerationReport getModerationReport() {
-    return moderationReport;
-  }
-
-  @Transient
-  public BanDurationType getDuration() {
-    return expiresAt == null ? BanDurationType.PERMANENT : BanDurationType.TEMPORARY;
-  }
+  private ModerationReport moderationReport;
 
   @Column(name = "revoke_reason")
   @LifeCycleHookBinding(operation = UPDATE, phase = PRESECURITY, hook = BanInfoRevokeAuthorUpdateHook.class)
-  public String getRevokeReason() {
-    return revokeReason;
-  }
+  private String revokeReason;
 
   @ManyToOne
   @UpdatePermission(expression = Prefab.NONE)
   @JoinColumn(name = "revoke_author_id")
-  public Player getRevokeAuthor() {
-    return revokeAuthor;
-  }
+  private Player revokeAuthor;
 
   @Column(name = "revoke_time")
   @LifeCycleHookBinding(operation = UPDATE, phase = PRESECURITY, hook = BanInfoRevokeAuthorUpdateHook.class)
-  public OffsetDateTime getRevokeTime() {
-    return revokeTime;
+  private OffsetDateTime revokeTime;
+
+  @Transient
+  public BanDurationType getDuration() {
+    return expiresAt == null ? BanDurationType.PERMANENT : BanDurationType.TEMPORARY;
   }
 
   @Transient

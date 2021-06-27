@@ -14,6 +14,8 @@ import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.LifeCycleHookBinding;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -23,6 +25,9 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -33,6 +38,7 @@ import javax.persistence.Transient;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Set;
 
@@ -42,7 +48,8 @@ import static com.yahoo.elide.annotation.LifeCycleHookBinding.TransactionPhase.P
 
 @Entity
 @Table(name = "moderation_report")
-@Setter
+@Data
+@NoArgsConstructor
 @ToString(exclude = {"reportedUsers", "bans"})
 @Include(name = ModerationReport.TYPE_NAME)
 @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + AdminModerationReportCheck.EXPRESSION)
@@ -52,78 +59,63 @@ import static com.yahoo.elide.annotation.LifeCycleHookBinding.TransactionPhase.P
 @Audit(action = Action.UPDATE, logStatement = "Moderation report `{0}` has been updated", logExpressions = "${moderationReport}")
 @LifeCycleHookBinding(operation = CREATE, phase = PRESECURITY, hook = ModerationReportHook.class)
 @LifeCycleHookBinding(operation = UPDATE, phase = PRESECURITY, hook = ModerationReportHook.class)
-public class ModerationReport extends AbstractEntity implements OwnableEntity {
+public class ModerationReport implements DefaultEntity, OwnableEntity {
   public static final String TYPE_NAME = "moderationReport";
-  private ModerationReportStatus reportStatus;
-  private Player reporter;
-  private String reportDescription;
-  private String gameIncidentTimecode;
-  private Game game;
-  private String moderatorNotice;
-  private String moderatorPrivateNote;
-  private Player lastModerator;
-  private Set<Player> reportedUsers;
-  private Collection<BanInfo> bans;
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  private Integer id;
+
+  @Column(name = "create_time")
+  private OffsetDateTime createTime;
+
+  @Column(name = "update_time")
+  private OffsetDateTime updateTime;
 
   @NotNull
   @Column(name = "report_status")
   @Enumerated(EnumType.STRING)
   @CreatePermission(expression = Prefab.NONE)
   @UpdatePermission(expression = AdminModerationReportCheck.EXPRESSION)
-  public ModerationReportStatus getReportStatus() {
-    return reportStatus;
-  }
+  private ModerationReportStatus reportStatus;
 
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "reporter_id", referencedColumnName = "id")
   @CreatePermission(expression = Prefab.ALL)
-  public Player getReporter() {
-    return reporter;
-  }
+  private Player reporter;
 
   @NotNull
   @Column(name = "report_description")
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " and " + IsInAwaitingState.EXPRESSION)
-  public String getReportDescription() {
-    return reportDescription;
-  }
+  private String reportDescription;
 
   @Column(name = "game_incident_timecode")
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " and " + IsInAwaitingState.EXPRESSION)
-  public String getGameIncidentTimecode() {
-    return gameIncidentTimecode;
-  }
+  private String gameIncidentTimecode;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "game_id", referencedColumnName = "id")
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " and " + IsInAwaitingState.EXPRESSION)
-  public Game getGame() {
-    return game;
-  }
+  private Game game;
 
   @Column(name = "moderator_notice")
   @CreatePermission(expression = Prefab.NONE)
   @UpdatePermission(expression = AdminModerationReportCheck.EXPRESSION)
-  public String getModeratorNotice() {
-    return moderatorNotice;
-  }
+  private String moderatorNotice;
 
   @Column(name = "moderator_private_note")
   @ReadPermission(expression = AdminModerationReportCheck.EXPRESSION)
   @CreatePermission(expression = Prefab.NONE)
   @UpdatePermission(expression = AdminModerationReportCheck.EXPRESSION)
-  public String getModeratorPrivateNote() {
-    return moderatorPrivateNote;
-  }
+  private String moderatorPrivateNote;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "last_moderator", referencedColumnName = "id")
   @CreatePermission(expression = Prefab.NONE)
   @UpdatePermission(expression = AdminModerationReportCheck.EXPRESSION)
-  public Player getLastModerator() {
-    return lastModerator;
-  }
+  private Player lastModerator;
 
   @Size(min = 1)
   @NotNull
@@ -137,22 +129,18 @@ public class ModerationReport extends AbstractEntity implements OwnableEntity {
     inverseJoinColumns = @JoinColumn(name = "player_id")
   )
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " and " + IsInAwaitingState.EXPRESSION)
-  public Set<Player> getReportedUsers() {
-    return reportedUsers;
-  }
+  private Set<Player> reportedUsers;
 
   @OneToMany(mappedBy = "moderationReport")
   @ReadPermission(expression = AdminModerationReportCheck.EXPRESSION)
   // Permission is managed by BanInfo class
   @UpdatePermission(expression = Prefab.ALL)
-  public Collection<BanInfo> getBans() {
-    return bans;
-  }
+  private Collection<BanInfo> bans;
 
   @Override
   @Transient
   @JsonIgnore
   public Login getEntityOwner() {
-    return getReporter();
+    return reporter;
   }
 }

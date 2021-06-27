@@ -1,36 +1,45 @@
 package com.faforever.api.league.domain;
 
-import com.faforever.api.data.domain.AbstractEntity;
+import com.faforever.api.data.domain.DefaultEntity;
 import com.yahoo.elide.annotation.Include;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.OffsetDateTime;
 
 @Entity
-@Setter
+@Data
+@NoArgsConstructor
 @Table(name = "league")
 @Include(name = League.TYPE_NAME)
-public class League extends AbstractEntity {
+public class League implements DefaultEntity {
   public static final String TYPE_NAME = "league";
 
-  private String technicalName;
-  private String nameKey;
-  private String descriptionKey;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  @EqualsAndHashCode.Include
+  private Integer id;
+
+  @Column(name = "create_time")
+  private OffsetDateTime createTime;
+
+  @Column(name = "update_time")
+  private OffsetDateTime updateTime;
 
   @Column(name = "technical_name")
-  public String getTechnicalName() {
-    return technicalName;
-  }
+  private String technicalName;
 
   @Column(name = "name_key")
-  public String getNameKey() {
-    return nameKey;
-  }
+  private String nameKey;
 
   @Column(name = "description_key")
-  public String getDescriptionKey() {
-    return descriptionKey;
-  }
+  private String descriptionKey;
 }

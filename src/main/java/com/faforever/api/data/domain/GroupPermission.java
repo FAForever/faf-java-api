@@ -3,14 +3,22 @@ package com.faforever.api.data.domain;
 import com.faforever.api.security.elide.permission.ReadUserGroupCheck;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.time.OffsetDateTime;
 import java.util.Set;
 
 /**
@@ -30,9 +38,10 @@ import java.util.Set;
 @Entity
 @Table(name = "group_permission")
 @Include(name = "groupPermission")
-@Setter
+@Data
+@NoArgsConstructor
 @ReadPermission(expression = ReadUserGroupCheck.EXPRESSION)
-public class GroupPermission extends AbstractEntity implements GrantedAuthority {
+public class GroupPermission implements DefaultEntity, GrantedAuthority {
 
   // Any changes to the permissions here need to be added to the dto class as well!
   public static final String ROLE_READ_AUDIT_LOG = "ROLE_READ_AUDIT_LOG";
@@ -57,24 +66,27 @@ public class GroupPermission extends AbstractEntity implements GrantedAuthority 
   public static final String ROLE_ADMIN_MOD = "ROLE_ADMIN_MOD";
   public static final String ROLE_WRITE_MESSAGE = "ROLE_WRITE_MESSAGE";
 
-  private String technicalName;
-  private String nameKey;
-  private Set<UserGroup> userGroups;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  private Integer id;
+
+  @Column(name = "create_time")
+  private OffsetDateTime createTime;
+
+  @Column(name = "update_time")
+  private OffsetDateTime updateTime;
 
   @Column(name = "technical_name")
-  public String getTechnicalName() {
-    return technicalName;
-  }
+  private String technicalName;
 
   @Column(name = "name_key")
-  public String getNameKey() {
-    return nameKey;
-  }
+  private String nameKey;
 
   @ManyToMany(mappedBy = "permissions")
-  public Set<UserGroup> getUserGroups() {
-    return userGroups;
-  }
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private Set<UserGroup> userGroups;
 
   @Override
   @Transient

@@ -10,13 +10,20 @@ import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -24,139 +31,106 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Entity
-@Setter
+@Data
+@NoArgsConstructor
 @EntityListeners(MapVersionEnricher.class)
 @Table(name = "map_version")
 @Include(name = MapVersion.TYPE_NAME)
-public class MapVersion extends AbstractEntity implements OwnableEntity {
+public class MapVersion implements DefaultEntity, OwnableEntity {
 
   public static final String TYPE_NAME = "mapVersion";
 
-  private String description;
-  private int maxPlayers;
-  private int width;
-  private int height;
-  private int version;
-  private String filename;
-  private String folderName;
-  private boolean ranked;
-  private boolean hidden;
-  private Map map;
-  private MapVersionStatistics statistics;
-  private String thumbnailUrlSmall;
-  private String thumbnailUrlLarge;
-  private String downloadUrl;
-  private Integer gamesPlayed;
-  private List<MapVersionReview> reviews;
-  private MapVersionReviewsSummary reviewsSummary;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  private Integer id;
+
+  @Column(name = "create_time")
+  private OffsetDateTime createTime;
+
+  @Column(name = "update_time")
+  private OffsetDateTime updateTime;
 
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " or " + AdminMapCheck.EXPRESSION)
   @Column(name = "description")
-  public String getDescription() {
-    return description;
-  }
+  private String description;
 
   @Column(name = "max_players")
   @NotNull
-  public int getMaxPlayers() {
-    return maxPlayers;
-  }
+  private int maxPlayers;
 
   @Column(name = "width")
   // FIXME: validation
-  public int getWidth() {
-    return width;
-  }
+  private int width;
 
   @Column(name = "height")
   // FIXME: validation
-  public int getHeight() {
-    return height;
-  }
+  private int height;
 
   @Column(name = "version")
   // FIXME: validation
-  public int getVersion() {
-    return version;
-  }
+  private int version;
 
   @Column(name = "filename")
   @NotNull
-  public String getFilename() {
-    return filename;
-  }
+  private String filename;
 
-  @Column(name = "games_played")
-  @NotNull
-  public Integer getGamesPlayed() {
-    return gamesPlayed;
-  }
+  @Transient
+  @ComputedAttribute
+  private String folderName;
 
   @UpdatePermission(expression = AdminMapCheck.EXPRESSION + " or (" + IsEntityOwner.EXPRESSION + " and " + BooleanChange.TO_FALSE_EXPRESSION + ")")
   @Audit(action = Action.UPDATE, logStatement = "Updated map version `{0}` attribute ranked to: {1}", logExpressions = {"${mapVersion.id}", "${mapVersion.ranked}"})
   @Column(name = "ranked")
-  public boolean isRanked() {
-    return ranked;
-  }
+  private boolean ranked;
 
   @UpdatePermission(expression = AdminMapCheck.EXPRESSION + " or (" + IsEntityOwner.EXPRESSION + " and " + BooleanChange.TO_TRUE_EXPRESSION + ")")
   @Audit(action = Action.UPDATE, logStatement = "Updated map version `{0}` attribute hidden to: {1}", logExpressions = {"${mapVersion.id}", "${mapVersion.hidden}"})
   @Column(name = "hidden")
-  public boolean isHidden() {
-    return hidden;
-  }
+  private boolean hidden;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "map_id")
   @NotNull
   @BatchSize(size = 1000)
-  public Map getMap() {
-    return this.map;
-  }
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private Map map;
 
   @OneToOne(mappedBy = "mapVersion", fetch = FetchType.EAGER)
-  public MapVersionStatistics getStatistics() {
-    return statistics;
-  }
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private MapVersionStatistics statistics;
 
   @Transient
   @ComputedAttribute
-  public String getThumbnailUrlSmall() {
-    return thumbnailUrlSmall;
-  }
+  private String thumbnailUrlSmall;
 
   @Transient
   @ComputedAttribute
-  public String getThumbnailUrlLarge() {
-    return thumbnailUrlLarge;
-  }
+  private String thumbnailUrlLarge;
 
   @Transient
   @ComputedAttribute
-  public String getDownloadUrl() {
-    return downloadUrl;
-  }
+  private String downloadUrl;
 
-  @Transient
-  @ComputedAttribute
-  public String getFolderName() {
-    return folderName;
-  }
+  @Column(name = "games_played")
+  @NotNull
+  private Integer gamesPlayed;
 
   @OneToMany(mappedBy = "mapVersion")
   @UpdatePermission(expression = Prefab.ALL)
-  public List<MapVersionReview> getReviews() {
-    return reviews;
-  }
+  @EqualsAndHashCode.Exclude
+  private List<MapVersionReview> reviews;
 
   @OneToOne(mappedBy = "mapVersion")
   @UpdatePermission(expression = Prefab.ALL)
-  public MapVersionReviewsSummary getReviewsSummary() {
-    return reviewsSummary;
-  }
+  @EqualsAndHashCode.Exclude
+  private MapVersionReviewsSummary reviewsSummary;
 
   @Transient
   @Override

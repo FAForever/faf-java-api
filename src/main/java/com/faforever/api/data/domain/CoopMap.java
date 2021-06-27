@@ -4,6 +4,8 @@ import com.faforever.api.data.listeners.CoopMapEnricher;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -15,81 +17,55 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import static com.faforever.api.data.domain.CoopMap.TYPE_NAME;
+
 @Entity
 @Table(name = "coop_map")
 @EntityListeners(CoopMapEnricher.class)
-@Include(name = "coopMission")
-@Setter
+@Include(name = TYPE_NAME)
+@Data
+@NoArgsConstructor
 public class CoopMap {
 
-  private int id;
-  private MissionType category;
-  private String name;
-  private String description;
-  private Integer version;
-  private String filename;
-  // Set by CoopMapEnhancer
-  private String downloadUrl;
-  private String thumbnailUrlLarge;
-  private String thumbnailUrlSmall;
-  private String folderName;
-
-  @Column(name = "type")
-  @Enumerated(EnumType.ORDINAL)
-  public MissionType getCategory() {
-    return category;
-  }
+  public static final String TYPE_NAME = "coopMission";
 
   @Id
   @Column(name = "id")
-  public int getId() {
-    return id;
-  }
+  private int id;
+
+  @Column(name = "type")
+  @Enumerated(EnumType.ORDINAL)
+  private MissionType category;
 
   @Column(name = "name")
-  public String getName() {
-    return name;
-  }
+  private String name;
 
   @Column(name = "description")
-  public String getDescription() {
-    return description;
-  }
+  private String description;
 
   @Column(name = "version")
-  public Integer getVersion() {
-    return version;
-  }
+  private Integer version;
 
   @Column(name = "filename")
   @Exclude
-  public String getFilename() {
-    return filename;
-  }
+  private String filename;
+
+  // Set by CoopMapEnhancer
+  @Transient
+  @ComputedAttribute
+  private String downloadUrl;
 
   @Transient
   @ComputedAttribute
-  public String getDownloadUrl() {
-    return downloadUrl;
-  }
+  private String thumbnailUrlLarge;
 
   @Transient
   @ComputedAttribute
-  public String getThumbnailUrlLarge() {
-    return thumbnailUrlLarge;
-  }
+  private String thumbnailUrlSmall;
 
   @Transient
   @ComputedAttribute
-  public String getThumbnailUrlSmall() {
-    return thumbnailUrlSmall;
-  }
-
-  @Transient
-  @ComputedAttribute
-  public String getFolderName() {
-    return folderName;
-  }
+  private String folderName;
 
   private enum MissionType {
     FA, AEON, CYBRAN, UEF, CUSTOM

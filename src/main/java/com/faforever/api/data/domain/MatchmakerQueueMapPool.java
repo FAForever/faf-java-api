@@ -5,56 +5,64 @@ import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.time.OffsetDateTime;
 
 @CreatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @DeletePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @Entity
-@Setter
+@Data
+@NoArgsConstructor
 @Table(name = "matchmaker_queue_map_pool")
 @Include(name = MatchmakerQueueMapPool.TYPE_NAME)
-public class MatchmakerQueueMapPool extends AbstractEntity {
+public class MatchmakerQueueMapPool implements DefaultEntity {
 
   public static final String TYPE_NAME = "matchmakerQueueMapPool";
 
-  private MatchmakerQueue matchmakerQueue;
-  private Double minRating;
-  private Double maxRating;
-  private MapPool mapPool;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  private Integer id;
+
+  @Column(name = "create_time")
+  private OffsetDateTime createTime;
+
+  @Column(name = "update_time")
+  private OffsetDateTime updateTime;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "matchmaker_queue_id")
-  public MatchmakerQueue getMatchmakerQueue() {
-    return matchmakerQueue;
-  }
+  @EqualsAndHashCode.Exclude
+  private MatchmakerQueue matchmakerQueue;
 
   @Nullable
   @Column(name = "min_rating")
   @UpdatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
-  public Double getMinRating() {
-    return minRating;
-  }
+  private Double minRating;
 
   @Nullable
   @Column(name = "max_rating")
   @UpdatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
-  public Double getMaxRating() {
-    return maxRating;
-  }
+  private Double maxRating;
 
   @OneToOne
   @JoinColumn(name = "map_pool_id")
   @UpdatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
-  public MapPool getMapPool() {
-    return mapPool;
-  }
+  @EqualsAndHashCode.Exclude
+  private MapPool mapPool;
 }

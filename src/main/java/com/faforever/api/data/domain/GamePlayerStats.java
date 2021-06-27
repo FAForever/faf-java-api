@@ -1,6 +1,8 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
@@ -18,116 +20,72 @@ import javax.persistence.Table;
 import java.time.OffsetDateTime;
 import java.util.Set;
 
+import static com.faforever.api.data.domain.GamePlayerStats.TYPE_NAME;
+
 @Entity
 @Table(name = "game_player_stats")
-@Include(name = "gamePlayerStats")
+@Include(name = TYPE_NAME)
 @Immutable
-@Setter
+@Data
+@NoArgsConstructor
 public class GamePlayerStats {
 
-  private long id;
-  private Player player;
-  private boolean ai;
-  private Faction faction;
-  private byte color;
-  private byte team;
-  private byte startSpot;
-  private Double beforeMean;
-  private Double beforeDeviation;
-  private Double afterMean;
-  private Double afterDeviation;
-  private Byte score;
-  private OffsetDateTime scoreTime;
-  private Game game;
-  private GameOutcome result;
-  private Set<LeaderboardRatingJournal> ratingChanges;
+  public static final String TYPE_NAME = "gamePlayerStats";
 
   @Id
   @Column(name = "id")
-  public long getId() {
-    return id;
-  }
+  private long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "playerId")
-  public Player getPlayer() {
-    return player;
-  }
+  private Player player;
 
   @Column(name = "AI")
-  public boolean getAi() {
-    return ai;
-  }
+  private boolean ai;
 
   @Column(name = "faction")
-  public Faction getFaction() {
-    return faction;
-  }
+  private Faction faction;
 
   @Column(name = "color")
-  public byte getColor() {
-    return color;
-  }
+  private byte color;
 
   @Column(name = "team")
-  public byte getTeam() {
-    return team;
-  }
+  private byte team;
 
   @Column(name = "place")
-  public byte getStartSpot() {
-    return startSpot;
-  }
+  private byte startSpot;
 
   @Deprecated
   @Column(name = "mean")
-  public Double getBeforeMean() {
-    return beforeMean;
-  }
+  private Double beforeMean;
 
   @Deprecated
   @Column(name = "deviation")
-  public Double getBeforeDeviation() {
-    return beforeDeviation;
-  }
+  private Double beforeDeviation;
 
   @Deprecated
   @Column(name = "after_mean")
-  public Double getAfterMean() {
-    return afterMean;
-  }
+  private Double afterMean;
 
   @Deprecated
   @Column(name = "after_deviation")
-  public Double getAfterDeviation() {
-    return afterDeviation;
-  }
+  private Double afterDeviation;
 
   @Column(name = "score")
-  public Byte getScore() {
-    return score;
-  }
+  private Byte score;
 
   @Column(name = "scoreTime")
-  public OffsetDateTime getScoreTime() {
-    return scoreTime;
-  }
+  private OffsetDateTime scoreTime;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "gameId")
-  public Game getGame() {
-    return game;
-  }
+  private Game game;
 
   @Column(name = "result")
   @Enumerated(EnumType.STRING)
-  public GameOutcome getResult() {
-    return result;
-  }
+  private GameOutcome result;
 
   @OneToMany(mappedBy = "gamePlayerStats")
   @BatchSize(size = 1000)
-  public Set<LeaderboardRatingJournal> getRatingChanges() {
-    return ratingChanges;
-  }
+  private Set<LeaderboardRatingJournal> ratingChanges;
 }

@@ -17,6 +17,6 @@ public class UserGroupPublicCheck extends OperationCheck<UserGroup> {
 
   @Override
   public boolean ok(UserGroup object, RequestScope requestScope, Optional<ChangeSpec> changeSpec) {
-    return object.isPublic();
+    return object.isPublic_();
   }
 }

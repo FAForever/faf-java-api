@@ -18,33 +18,21 @@ import javax.persistence.Table;
 @Include
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(of = "id")
-@ToString(of = {"id", "league", "name", "threshold"}, includeFieldNames = false)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Division {
-  private int id;
-  private String name;
-  private int league;
-  private int threshold;
 
   @Id
   @Column(name = "id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  public int getId() {
-    return id;
-  }
+  @EqualsAndHashCode.Include
+  private int id;
 
   @Column(name = "name", nullable = false)
-  public String getName() {
-    return name;
-  }
+  private String name;
 
   @Column(name = "league")
-  public int getLeague() {
-    return league;
-  }
+  private int league;
 
   @Column(name = "threshold")
-  public int getThreshold() {
-    return threshold;
-  }
+  private int threshold;
 }
