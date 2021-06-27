@@ -1,7 +1,11 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
 
@@ -13,43 +17,35 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import static com.faforever.api.data.domain.MapVersionStatistics.TYPE_NAME;
+
 @Entity
-@Setter
+@Data
+@NoArgsConstructor
 @Table(name = "map_version_statistics")
-@Include(name = "mapVersionStatistics")
+@Include(name = TYPE_NAME)
 @Immutable
 public class MapVersionStatistics {
-  private Integer id;
-  private Integer downloads;
-  private Integer plays;
-  private Integer draws;
-  private MapVersion mapVersion;
+
+  public static final String TYPE_NAME = "mapVersionStatistics";
 
   @Id
   @Column(name = "map_version_id")
-  public Integer getId() {
-    return id;
-  }
+  private Integer id;
 
   @Column(name = "downloads")
-  public Integer getDownloads() {
-    return downloads;
-  }
+  private Integer downloads;
 
   @Column(name = "plays")
-  public Integer getPlays() {
-    return plays;
-  }
+  private Integer plays;
 
   @Column(name = "draws")
-  public Integer getDraws() {
-    return draws;
-  }
+  private Integer draws;
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "map_version_id", insertable = false, updatable = false)
   @BatchSize(size = 1000)
-  public MapVersion getMapVersion() {
-    return mapVersion;
-  }
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private MapVersion mapVersion;
 }

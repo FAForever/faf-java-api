@@ -6,6 +6,9 @@ import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Entity;
@@ -14,7 +17,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-@Setter
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @Include(name = "mapVersionReview")
 @Entity
 @Table(name = "map_version_review")
@@ -22,12 +27,8 @@ import javax.persistence.Table;
 @DeletePermission(expression = IsEntityOwner.EXPRESSION)
 public class MapVersionReview extends Review {
 
-  private MapVersion mapVersion;
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "map_version_id")
   @UpdatePermission(expression = Prefab.ALL)
-  public MapVersion getMapVersion() {
-    return mapVersion;
-  }
+  private MapVersion mapVersion;
 }

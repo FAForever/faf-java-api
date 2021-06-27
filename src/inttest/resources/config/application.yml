@@ -97,3 +97,4 @@ logging:
     org.springframework.security: DEBUG
     org.springframework.transaction.interceptor: trace
     org.springframework.orm.jpa.JpaTransactionManager: trace
+    com.yahoo: DEBUG

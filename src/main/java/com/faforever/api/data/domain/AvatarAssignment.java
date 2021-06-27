@@ -10,11 +10,16 @@ import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -29,49 +34,49 @@ import java.time.OffsetDateTime;
 @DeletePermission(expression = WriteAvatarCheck.EXPRESSION)
 @Audit(action = Action.CREATE, logStatement = "Avatar ''{0}'' has been assigned to player ''{1}''", logExpressions = {"${avatarAssignment.avatar.id}", "${avatarAssignment.player.id}"})
 @Audit(action = Action.DELETE, logStatement = "Avatar ''{0}'' has been revoked from player ''{1}''", logExpressions = {"${avatarAssignment.avatar.id}", "${avatarAssignment.player.id}"})
-@Setter
+@Data
+@NoArgsConstructor
 @Type(AvatarAssignment.TYPE_NAME)
-public class AvatarAssignment extends AbstractEntity implements OwnableEntity {
+public class AvatarAssignment implements DefaultEntity, OwnableEntity {
+
   public static final String TYPE_NAME = "avatarAssignment";
 
-  private Boolean selected = Boolean.FALSE;
-  private OffsetDateTime expiresAt;
-  @Relationship(Player.TYPE_NAME)
-  private Player player;
-  @Relationship(Avatar.TYPE_NAME)
-  private Avatar avatar;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  private Integer id;
+
+  @Column(name = "create_time")
+  private OffsetDateTime createTime;
+
+  @Column(name = "update_time")
+  private OffsetDateTime updateTime;
 
   @Column(name = "selected")
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION)
   @Audit(action = Action.UPDATE, logStatement = "Avatar ''{0}'' has been selected on player ''{1}''", logExpressions = {"${avatarAssignment.avatar.id}", "${avatarAssignment.player.id}"})
-  public Boolean isSelected() {
-    return selected;
-  }
+  private Boolean selected = Boolean.FALSE;
 
   @Column(name = "expires_at")
   @UpdatePermission(expression = WriteAvatarCheck.EXPRESSION)
   @Audit(action = Action.UPDATE, logStatement = "Expiration of avatar assignment ''{0}'' has been set to ''{1}''", logExpressions = {"${avatarAssignment.id}", "${avatarAssignment.expiresAt}"})
-  public OffsetDateTime getExpiresAt() {
-    return expiresAt;
-  }
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "idAvatar")
-  @NotNull
-  public Avatar getAvatar() {
-    return avatar;
-  }
+  private OffsetDateTime expiresAt;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "idUser")
   @NotNull
-  public Player getPlayer() {
-    return player;
-  }
+  @Relationship(Player.TYPE_NAME)
+  private Player player;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "idAvatar")
+  @NotNull
+  @Relationship(Avatar.TYPE_NAME)
+  private Avatar avatar;
 
   @Override
   @Transient
   public Login getEntityOwner() {
-    return getPlayer();
+    return player;
   }
 }

@@ -23,56 +23,36 @@ import javax.persistence.Table;
 @Include
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(of = "id")
-@ToString(of = {"id", "league", "player", "score"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public class PlayerDivisionInfo {
-
-  private int id;
-  private int season;
-  private Player player;
-  private int league;
-  private float score;
-  private int games;
-  private Division division;
 
   @Id
   @Column(name = "id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  public int getId() {
-    return id;
-  }
+  @EqualsAndHashCode.Include
+  @ToString.Include
+  private int id;
 
   @Column(name = "season")
-  public int getSeason() {
-    return season;
-  }
+  private int season;
 
   @ManyToOne
   @JoinColumn(name = "user_id")
-  public Player getPlayer() {
-    return player;
-  }
+  private Player player;
 
   @Column(name = "league")
-  public int getLeague() {
-    return league;
-  }
+  private int league;
 
   @Column(name = "score")
-  public float getScore() {
-    return score;
-  }
+  private float score;
 
   @Column(name = "games")
-  public int getGames() {
-    return games;
-  }
+  private int games;
 
   @ManyToOne
   @JoinColumnsOrFormulas({
     @JoinColumnOrFormula(formula = @JoinFormula(value = "(SELECT d.id from ladder_division d WHERE d.league = league AND score <= d.threshold ORDER BY d.threshold DESC LIMIT 1)", referencedColumnName = "id")),
   })
-  public Division getDivision() {
-    return division;
-  }
+  private Division division;
 }

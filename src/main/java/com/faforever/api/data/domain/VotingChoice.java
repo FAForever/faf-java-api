@@ -14,18 +14,25 @@ import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
+import java.time.OffsetDateTime;
 import java.util.Set;
 
 @Entity
@@ -38,66 +45,57 @@ import java.util.Set;
 @Audit(action = Action.DELETE, logStatement = "Deleted voting choice with id: {0} ", logExpressions = {"${votingChoice.id}"})
 @Audit(action = Action.UPDATE, logStatement = "Updated voting choice with id: {0} ", logExpressions = {"${votingChoice.id}"})
 @Include(name = VotingChoice.TYPE_NAME)
-@Setter
+@Data
+@NoArgsConstructor
 @EntityListeners(VotingChoiceEnricher.class)
-public class VotingChoice extends AbstractEntity {
+public class VotingChoice implements DefaultEntity {
+
   public static final String TYPE_NAME = "votingChoice";
 
-  private String choiceTextKey;
-  private String choiceText;
-  private String descriptionKey;
-  private String description;
-  private Integer numberOfAnswers;
-  private Integer ordinal;
-  private VotingQuestion votingQuestion;
-  private Set<VotingAnswer> votingAnswers;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  private Integer id;
+
+  @Column(name = "create_time")
+  private OffsetDateTime createTime;
+
+  @Column(name = "update_time")
+  private OffsetDateTime updateTime;
+
 
   @Column(name = "choice_text_key")
   @NotNull
-  public String getChoiceTextKey() {
-    return choiceTextKey;
-  }
+  private String choiceTextKey;
 
   @ComputedAttribute
   @Transient
-  public String getChoiceText() {
-    return choiceText;
-  }
+  private String choiceText;
 
   @Column(name = "description_key")
-  public String getDescriptionKey() {
-    return descriptionKey;
-  }
+  private String descriptionKey;
 
   @ComputedAttribute
   @Transient
-  public String getDescription() {
-    return description;
-  }
+  private String description;
+
+  @Transient
+  @ComputedAttribute
+  private Integer numberOfAnswers;
 
   @Column(name = "ordinal")
   @NotNull
-  public Integer getOrdinal() {
-    return ordinal;
-  }
-
-  @Transient
-  @ComputedAttribute
-  public Integer getNumberOfAnswers() {
-    return numberOfAnswers;
-  }
+  private Integer ordinal;
 
   @JsonBackReference
   @JoinColumn(name = "voting_question_id")
   @ManyToOne()
-  public VotingQuestion getVotingQuestion() {
-    return votingQuestion;
-  }
+  @EqualsAndHashCode.Exclude
+  private VotingQuestion votingQuestion;
 
   @JsonIgnore
   @Exclude
   @OneToMany(mappedBy = "votingChoice", cascade = CascadeType.ALL, orphanRemoval = true)
-  public Set<VotingAnswer> getVotingAnswers() {
-    return votingAnswers;
-  }
+  @EqualsAndHashCode.Exclude
+  private Set<VotingAnswer> votingAnswers;
 }

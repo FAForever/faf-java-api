@@ -1,6 +1,8 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
@@ -11,54 +13,38 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import static com.faforever.api.data.domain.GameReviewsSummary.TYPE_NAME;
+
 @Entity
-@Setter
+@Data
+@NoArgsConstructor
 @Table(name = "game_reviews_summary")
-@Include(name = "gameReviewsSummary")
+@Include(name = TYPE_NAME)
 @Immutable
 public class GameReviewsSummary {
-  private int id;
-  private float positive;
-  private float negative;
-  private float score;
-  private int reviews;
-  private float lowerBound;
-  private Game game;
+
+  public static final String TYPE_NAME = "gameReview";
 
   @Id
   @Column(name = "game_id")
-  public int getId() {
-    return id;
-  }
+  private int id;
 
   @Column(name = "positive")
-  public float getPositive() {
-    return positive;
-  }
+  private float positive;
 
   @Column(name = "negative")
-  public float getNegative() {
-    return negative;
-  }
+  private float negative;
 
   @Column(name = "score")
-  public float getScore() {
-    return score;
-  }
+  private float score;
 
   @Column(name = "reviews")
-  public int getReviews() {
-    return reviews;
-  }
+  private int reviews;
 
   @Column(name = "lower_bound")
-  public float getLowerBound() {
-    return lowerBound;
-  }
+  private float lowerBound;
 
   @OneToOne(mappedBy = "reviewsSummary")
   @BatchSize(size = 1000)
-  public Game getGame() {
-    return game;
-  }
+  private Game game;
 }

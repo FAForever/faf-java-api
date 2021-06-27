@@ -1,56 +1,59 @@
 package com.faforever.api.data.domain;
 
-import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.time.OffsetDateTime;
+
+import static com.faforever.api.data.domain.PlayerAchievement.TYPE_NAME;
 
 @Entity
 @Table(name = "player_achievements")
-@Include(name = "playerAchievement")
-@Setter
-public class PlayerAchievement extends AbstractEntity {
+@Include(name = TYPE_NAME)
+@Data
+@NoArgsConstructor
+public class PlayerAchievement implements DefaultEntity {
 
-  private Integer currentSteps;
-  private AchievementState state;
-  private Player player;
-  private int playerId;
-  private Achievement achievement;
+  public static final String TYPE_NAME = "playerAchievement";
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  private Integer id;
+
+  @Column(name = "create_time")
+  private OffsetDateTime createTime;
+
+  @Column(name = "update_time")
+  private OffsetDateTime updateTime;
 
   @Column(name = "current_steps")
-  public Integer getCurrentSteps() {
-    return currentSteps;
-  }
+  private Integer currentSteps;
 
   @Column(name = "state")
   @Enumerated(EnumType.STRING)
-  public AchievementState getState() {
-    return state;
-  }
+  private AchievementState state;
 
-  @Exclude
   @Column(name = "player_id")
-  public int getPlayerId() {
-    return playerId;
-  }
+  private int playerId;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "player_id", insertable = false, updatable = false)
-  public Player getPlayer() {
-    return player;
-  }
+  private Player player;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "achievement_id")
-  public Achievement getAchievement() {
-    return achievement;
-  }
+  private Achievement achievement;
 }

@@ -9,6 +9,8 @@ import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -17,113 +19,90 @@ import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "mod_version")
 @Include(name = ModVersion.TYPE_NAME)
-@Setter
+@Data
+@NoArgsConstructor
 @EntityListeners(ModVersionEnricher.class)
-public class ModVersion extends AbstractEntity implements OwnableEntity {
+public class ModVersion implements DefaultEntity, OwnableEntity {
 
   public static final String TYPE_NAME = "modVersion";
 
-  private String uid;
-  private ModType type;
-  private String description;
-  private short version;
-  private String filename;
-  private String icon;
-  private boolean ranked;
-  private boolean hidden;
-  private Mod mod;
-  private String thumbnailUrl;
-  private String downloadUrl;
-  private List<ModVersionReview> reviews;
-  private ModVersionReviewsSummary reviewsSummary;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  private Integer id;
+
+  @Column(name = "create_time")
+  private OffsetDateTime createTime;
+
+  @Column(name = "update_time")
+  private OffsetDateTime updateTime;
+
 
   @Column(name = "uid")
-  public String getUid() {
-    return uid;
-  }
+  private String uid;
 
   @Column(name = "type")
   @Enumerated(EnumType.STRING)
-  public ModType getType() {
-    return type;
-  }
+  private ModType type;
 
   @Column(name = "description")
-  public String getDescription() {
-    return description;
-  }
+  private String description;
 
   @Column(name = "version")
-  public short getVersion() {
-    return version;
-  }
+  private short version;
 
   @Column(name = "filename")
-  public String getFilename() {
-    return filename;
-  }
+  private String filename;
 
   @Column(name = "icon")
   // Excluded since I see no reason why this is even stored in the database.
   @Exclude
-  public String getIcon() {
-    return icon;
-  }
+  private String icon;
 
   @UpdatePermission(expression = AdminModCheck.EXPRESSION)
   @Audit(action = Action.UPDATE, logStatement = "Updated mod version `{0}` attribute ranked to: {1}", logExpressions = {"${modVersion.id}", "${modVersion.ranked}"})
   @Column(name = "ranked")
-  public boolean isRanked() {
-    return ranked;
-  }
+  private boolean ranked;
 
   @UpdatePermission(expression = AdminModCheck.EXPRESSION)
   @Audit(action = Action.UPDATE, logStatement = "Updated mod version `{0}` attribute hidden to: {1}", logExpressions = {"${modVersion.id}", "${modVersion.hidden}"})
   @Column(name = "hidden")
-  public boolean isHidden() {
-    return hidden;
-  }
+  private boolean hidden;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "mod_id")
-  public Mod getMod() {
-    return mod;
-  }
+  private Mod mod;
 
   @Transient
   @ComputedAttribute
-  public String getThumbnailUrl() {
-    return thumbnailUrl;
-  }
+  private String thumbnailUrl;
 
   @Transient
   @ComputedAttribute
-  public String getDownloadUrl() {
-    return downloadUrl;
-  }
+  private String downloadUrl;
 
   @OneToMany(mappedBy = "modVersion")
   @UpdatePermission(expression = Prefab.ALL)
-  public List<ModVersionReview> getReviews() {
-    return reviews;
-  }
+  private List<ModVersionReview> reviews;
 
   @OneToOne(mappedBy = "modVersion")
   @UpdatePermission(expression = Prefab.ALL)
-  public ModVersionReviewsSummary getReviewsSummary() {
-    return reviewsSummary;
-  }
+  private ModVersionReviewsSummary reviewsSummary;
 
   @Transient
   @Override

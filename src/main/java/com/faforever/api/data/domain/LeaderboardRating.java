@@ -1,71 +1,67 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.time.OffsetDateTime;
 
 @Entity
-@Setter
+@Data
+@NoArgsConstructor
 @Table(name = "leaderboard_rating")
 @Include(name = LeaderboardRating.TYPE_NAME)
-public class LeaderboardRating extends AbstractEntity implements OwnableEntity {
+public class LeaderboardRating implements DefaultEntity, OwnableEntity {
 
   public static final String TYPE_NAME = "leaderboardRating";
 
-  private Double mean;
-  private Double deviation;
-  private double rating;
-  private int totalGames;
-  private int wonGames;
-  private Leaderboard leaderboard;
-  private Player player;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  private Integer id;
 
-  @ManyToOne
-  @JoinColumn(name = "login_id")
-  public Player getPlayer() {
-    return player;
-  }
+  @Column(name = "create_time")
+  private OffsetDateTime createTime;
+
+  @Column(name = "update_time")
+  private OffsetDateTime updateTime;
+
+  @Column(name = "mean")
+  private Double mean;
+
+  @Column(name = "deviation")
+  private Double deviation;
+
+  @Column(name = "rating")
+  private double rating;
+
+  @Column(name = "total_games")
+  private int totalGames;
+
+  @Column(name = "won_games")
+  private int wonGames;
 
   @ManyToOne
   @JoinColumn(name = "leaderboard_id")
-  public Leaderboard getLeaderboard() {
-    return leaderboard;
-  }
+  private Leaderboard leaderboard;
 
-  @Column(name = "total_games")
-  public int getTotalGames() {
-    return totalGames;
-  }
-
-  @Column(name = "won_games")
-  public int getWonGames() {
-    return wonGames;
-  }
-
-  @Column(name = "mean")
-  public Double getMean() {
-    return mean;
-  }
-
-  @Column(name = "deviation")
-  public Double getDeviation() {
-    return deviation;
-  }
-
-  @Column(name = "rating")
-  public double getRating() {
-    return rating;
-  }
+  @ManyToOne
+  @JoinColumn(name = "login_id")
+  private Player player;
 
   @Override
   @Transient
   public Login getEntityOwner() {
-    return getPlayer();
+    return player;
   }
 }
