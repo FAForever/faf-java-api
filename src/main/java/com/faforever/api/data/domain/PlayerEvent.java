@@ -1,10 +1,9 @@
 package com.faforever.api.data.domain;
 
-import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -41,10 +40,12 @@ public class PlayerEvent implements DefaultEntity {
 
   @OneToOne
   @JoinColumn(name = "player_id", insertable = false, updatable = false)
+  @EqualsAndHashCode.Exclude
   private Player player;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "event_id", updatable = false)
+  @EqualsAndHashCode.Exclude
   private Event event;
 
   @Column(name = "count")

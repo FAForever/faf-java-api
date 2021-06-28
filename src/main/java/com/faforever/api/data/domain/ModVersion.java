@@ -10,8 +10,8 @@ import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,6 +36,7 @@ import java.util.List;
 @Include(name = ModVersion.TYPE_NAME)
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @EntityListeners(ModVersionEnricher.class)
 public class ModVersion implements DefaultEntity, OwnableEntity {
 
@@ -44,6 +45,7 @@ public class ModVersion implements DefaultEntity, OwnableEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
+  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -54,6 +56,7 @@ public class ModVersion implements DefaultEntity, OwnableEntity {
 
 
   @Column(name = "uid")
+  @EqualsAndHashCode.Include
   private String uid;
 
   @Column(name = "type")
@@ -64,6 +67,7 @@ public class ModVersion implements DefaultEntity, OwnableEntity {
   private String description;
 
   @Column(name = "version")
+  @EqualsAndHashCode.Include
   private short version;
 
   @Column(name = "filename")

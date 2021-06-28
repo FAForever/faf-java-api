@@ -7,8 +7,9 @@ import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
 import org.jetbrains.annotations.Nullable;
@@ -39,6 +40,8 @@ import static com.faforever.api.data.domain.Game.TYPE_NAME;
 @Immutable
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = false)
 @EntityListeners(GameEnricher.class)
 public class Game {
 
@@ -46,6 +49,8 @@ public class Game {
 
   @Id
   @Column(name = "id")
+  @EqualsAndHashCode.Include
+  @ToString.Include
   private int id;
 
   @Column(name = "startTime")

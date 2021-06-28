@@ -5,6 +5,7 @@ import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
@@ -27,12 +28,14 @@ import java.time.OffsetDateTime;
 @EntityListeners(AchievementLocalizationListener.class)
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Achievement {
 
   public static final String TYPE_NAME = "achievement";
 
   @Id
   @Column(name = "id")
+  @EqualsAndHashCode.Include
   private String id;
 
   @Column(name = "\"order\"")

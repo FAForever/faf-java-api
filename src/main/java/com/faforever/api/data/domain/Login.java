@@ -12,7 +12,7 @@ import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.Column;
@@ -34,12 +34,14 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public abstract class Login implements DefaultEntity, OwnableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
   @EqualsAndHashCode.Include
+  @ToString.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -50,6 +52,7 @@ public abstract class Login implements DefaultEntity, OwnableEntity {
 
   @Column(name = "login")
   @EqualsAndHashCode.Include
+  @ToString.Include
   protected String login;
 
   @Column(name = "email")

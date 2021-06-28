@@ -2,8 +2,9 @@ package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
 
@@ -28,16 +29,21 @@ import static com.faforever.api.data.domain.GamePlayerStats.TYPE_NAME;
 @Immutable
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public class GamePlayerStats {
 
   public static final String TYPE_NAME = "gamePlayerStats";
 
   @Id
   @Column(name = "id")
+  @EqualsAndHashCode.Include
+  @ToString.Include
   private long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "playerId")
+  @ToString.Include
   private Player player;
 
   @Column(name = "AI")

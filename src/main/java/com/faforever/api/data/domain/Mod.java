@@ -6,6 +6,7 @@ import com.faforever.api.security.elide.permission.AdminModCheck;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
@@ -36,6 +37,7 @@ import java.util.List;
 @Include(name = Mod.TYPE_NAME)
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = false)
 @EntityListeners(ModChangeListener.class)
 public class Mod implements DefaultEntity, OwnableEntity {
 
@@ -44,6 +46,7 @@ public class Mod implements DefaultEntity, OwnableEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
+  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -61,6 +64,7 @@ public class Mod implements DefaultEntity, OwnableEntity {
   @Column(name = "display_name")
   @Size(max = 100)
   @NotNull
+  @EqualsAndHashCode.Include
   private String displayName;
 
   @Column(name = "author")

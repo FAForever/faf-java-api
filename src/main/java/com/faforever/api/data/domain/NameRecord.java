@@ -5,8 +5,8 @@ import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,6 +37,7 @@ public class NameRecord {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   @NotNull
+  @EqualsAndHashCode.Exclude
   private Player player;
 
   @Column(name = "previous_name")

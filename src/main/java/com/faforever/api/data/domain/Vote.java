@@ -8,7 +8,6 @@ import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -30,7 +29,6 @@ import java.util.Set;
 @Include(name = Vote.TYPE_NAME)
 @ReadPermission(expression = IsEntityOwner.EXPRESSION)
 @UpdatePermission(expression = Prefab.NONE)
-@EqualsAndHashCode(of = {"player", "votingSubject"}, callSuper = false)
 @Data
 @NoArgsConstructor
 public class Vote implements DefaultEntity, OwnableEntity {
@@ -56,6 +54,7 @@ public class Vote implements DefaultEntity, OwnableEntity {
   private VotingSubject votingSubject;
 
   @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, orphanRemoval = true)
+  @EqualsAndHashCode.Exclude
   private Set<VotingAnswer> votingAnswers;
 
   @Transient

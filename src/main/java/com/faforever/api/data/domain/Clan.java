@@ -12,7 +12,6 @@ import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.CascadeType;
@@ -41,6 +40,7 @@ import java.util.Set;
 @CreatePermission(expression = Prefab.ALL)
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @IsLeaderInClan
 @EntityListeners(ClanEnricherListener.class)
 public class Clan implements DefaultEntity, OwnableEntity {
@@ -62,6 +62,7 @@ public class Clan implements DefaultEntity, OwnableEntity {
   @Column(name = "name")
   @NotNull
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION)
+  @EqualsAndHashCode.Include
   private String name;
 
   @Column(name = "tag")

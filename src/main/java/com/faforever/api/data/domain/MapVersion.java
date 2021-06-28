@@ -13,7 +13,6 @@ import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.BatchSize;
 
@@ -37,6 +36,8 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 @EntityListeners(MapVersionEnricher.class)
 @Table(name = "map_version")
 @Include(name = MapVersion.TYPE_NAME)
@@ -47,6 +48,8 @@ public class MapVersion implements DefaultEntity, OwnableEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
+  @EqualsAndHashCode.Include
+  @ToString.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -72,11 +75,15 @@ public class MapVersion implements DefaultEntity, OwnableEntity {
   private int height;
 
   @Column(name = "version")
+  @EqualsAndHashCode.Include
+  @ToString.Include
   // FIXME: validation
   private int version;
 
   @Column(name = "filename")
   @NotNull
+  @EqualsAndHashCode.Include
+  @ToString.Include
   private String filename;
 
   @Transient
@@ -97,13 +104,9 @@ public class MapVersion implements DefaultEntity, OwnableEntity {
   @JoinColumn(name = "map_id")
   @NotNull
   @BatchSize(size = 1000)
-  @EqualsAndHashCode.Exclude
-  @ToString.Exclude
   private Map map;
 
   @OneToOne(mappedBy = "mapVersion", fetch = FetchType.EAGER)
-  @EqualsAndHashCode.Exclude
-  @ToString.Exclude
   private MapVersionStatistics statistics;
 
   @Transient
@@ -124,12 +127,10 @@ public class MapVersion implements DefaultEntity, OwnableEntity {
 
   @OneToMany(mappedBy = "mapVersion")
   @UpdatePermission(expression = Prefab.ALL)
-  @EqualsAndHashCode.Exclude
   private List<MapVersionReview> reviews;
 
   @OneToOne(mappedBy = "mapVersion")
   @UpdatePermission(expression = Prefab.ALL)
-  @EqualsAndHashCode.Exclude
   private MapVersionReviewsSummary reviewsSummary;
 
   @Transient

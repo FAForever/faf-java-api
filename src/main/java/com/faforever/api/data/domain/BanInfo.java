@@ -13,8 +13,8 @@ import com.yahoo.elide.annotation.LifeCycleHookBinding;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -84,6 +84,7 @@ public class BanInfo implements DefaultEntity {
 
   @ManyToOne
   @JoinColumn(name = "report_id")
+  @EqualsAndHashCode.Exclude
   private ModerationReport moderationReport;
 
   @Column(name = "revoke_reason")
