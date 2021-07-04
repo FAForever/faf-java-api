@@ -54,6 +54,7 @@ public class DataController {
   //!!! No @Transactional - transactions are being handled by Elide
   @GetMapping(value = {"/{entity}", "/{entity}/**"}, produces = JSON_API_MEDIA_TYPE)
   @Cacheable(cacheResolver = "elideCacheResolver", keyGenerator = GetCacheKeyGenerator.NAME)
+  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<String> get(@RequestParam final Map<String, String> allRequestParams,
                                     final HttpServletRequest request,
                                     final Authentication authentication) {
