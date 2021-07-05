@@ -61,7 +61,7 @@ public class PlayerElideTest extends AbstractIntegrationTest {
       .andExpect(jsonPath("$.data[4].attributes.recentIpAddress", is("127.0.0.1")))
       .andExpect(jsonPath("$.data[4].attributes", hasKey("steamId")))
       .andExpect(jsonPath("$.data[4].attributes", hasKey("lastLogin")))
-      .andExpect(jsonPath("$.data[4].relationships.uniqueIds[0].data.id", is("2")))
+      .andExpect(jsonPath("$.data[4].relationships.uniqueIds.data[0].id", is("2")))
       // nobody can see passwords!
       .andExpect(jsonPath("$.data[0].attributes", not(hasKey("password"))))
       .andExpect(jsonPath("$.data[1].attributes", not(hasKey("password"))))
@@ -119,7 +119,7 @@ public class PlayerElideTest extends AbstractIntegrationTest {
       .andExpect(jsonPath("$.data[4].attributes", hasKey("lastLogin")))
       .andExpect(jsonPath("$.data[4].relationships", hasKey("reporterOnModerationReports")))
       .andExpect(jsonPath("$.data[4].relationships", hasKey("userGroups")))
-      .andExpect(jsonPath("$.data[4].relationships.uniqueIds[0].data.id", is("2")))
+      .andExpect(jsonPath("$.data[4].relationships.uniqueIds.data[0].id", is("2")))
       // nobody can see passwords!
       .andExpect(jsonPath("$.data[0].attributes", not(hasKey("password"))))
       .andExpect(jsonPath("$.data[1].attributes", not(hasKey("password"))))
@@ -176,15 +176,15 @@ public class PlayerElideTest extends AbstractIntegrationTest {
       .andExpect(jsonPath("$.data[3].relationships", hasKey("uniqueIds")))
       .andExpect(jsonPath("$.data[4].relationships", hasKey("uniqueIds")))
       // cannot see others reporterOnModerationReports
-      .andExpect(jsonPath("$.data[0].relationships", hasKey("reporterOnModerationReports")))
-      .andExpect(jsonPath("$.data[1].relationships", hasKey("reporterOnModerationReports")))
-      .andExpect(jsonPath("$.data[2].relationships", hasKey("reporterOnModerationReports")))
-      .andExpect(jsonPath("$.data[3].relationships", hasKey("reporterOnModerationReports")))
+      .andExpect(jsonPath("$.data[0].relationships", not(hasKey("reporterOnModerationReports"))))
+      .andExpect(jsonPath("$.data[1].relationships", not(hasKey("reporterOnModerationReports"))))
+      .andExpect(jsonPath("$.data[2].relationships", not(hasKey("reporterOnModerationReports"))))
+      .andExpect(jsonPath("$.data[3].relationships", not(hasKey("reporterOnModerationReports"))))
       // cannot see others userGroups
-      .andExpect(jsonPath("$.data[0].relationships", hasKey("userGroups")))
-      .andExpect(jsonPath("$.data[1].relationships", hasKey("userGroups")))
-      .andExpect(jsonPath("$.data[2].relationships", hasKey("userGroups")))
-      .andExpect(jsonPath("$.data[3].relationships", hasKey("userGroups")))
+      .andExpect(jsonPath("$.data[0].relationships", not(hasKey("userGroups"))))
+      .andExpect(jsonPath("$.data[1].relationships", not(hasKey("userGroups"))))
+      .andExpect(jsonPath("$.data[2].relationships", not(hasKey("userGroups"))))
+      .andExpect(jsonPath("$.data[3].relationships", not(hasKey("userGroups"))))
       // nobody can see passwords!
       .andExpect(jsonPath("$.data[0].attributes", not(hasKey("password"))))
       .andExpect(jsonPath("$.data[1].attributes", not(hasKey("password"))))
