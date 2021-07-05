@@ -19,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/truncateTables.sql")
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultData.sql")
+@Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepUniqueIDData.sql")
 public class PlayerElideTest extends AbstractIntegrationTest {
 
   @Autowired
@@ -39,20 +40,34 @@ public class PlayerElideTest extends AbstractIntegrationTest {
       .andExpect(jsonPath("$.data[1].attributes", not(hasKey("email"))))
       .andExpect(jsonPath("$.data[2].attributes", not(hasKey("email"))))
       .andExpect(jsonPath("$.data[3].attributes", not(hasKey("email"))))
-      // you are allowed to see your own stuff
-      .andExpect(jsonPath("$.data[4].attributes.email", is("active-user@faforever.com")))
-      .andExpect(jsonPath("$.data[0].attributes", not(hasKey("password"))))
-      .andExpect(jsonPath("$.data[1].attributes", not(hasKey("password"))))
-      .andExpect(jsonPath("$.data[2].attributes", not(hasKey("password"))))
-      .andExpect(jsonPath("$.data[3].attributes", not(hasKey("password"))))
-      // nobody can see passwords!
-      .andExpect(jsonPath("$.data[4].attributes", not(hasKey("password"))))
+      .andExpect(jsonPath("$.data[0].attributes", not(hasKey("steamId"))))
+      .andExpect(jsonPath("$.data[1].attributes", not(hasKey("steamId"))))
+      .andExpect(jsonPath("$.data[2].attributes", not(hasKey("steamId"))))
+      .andExpect(jsonPath("$.data[3].attributes", not(hasKey("steamId"))))
       .andExpect(jsonPath("$.data[0].attributes", not(hasKey("recentIpAddress"))))
       .andExpect(jsonPath("$.data[1].attributes", not(hasKey("recentIpAddress"))))
       .andExpect(jsonPath("$.data[2].attributes", not(hasKey("recentIpAddress"))))
       .andExpect(jsonPath("$.data[3].attributes", not(hasKey("recentIpAddress"))))
+      .andExpect(jsonPath("$.data[0].attributes", not(hasKey("lastLogin"))))
+      .andExpect(jsonPath("$.data[1].attributes", not(hasKey("lastLogin"))))
+      .andExpect(jsonPath("$.data[2].attributes", not(hasKey("lastLogin"))))
+      .andExpect(jsonPath("$.data[3].attributes", not(hasKey("lastLogin"))))
+      .andExpect(jsonPath("$.data[0].relationships", not(hasKey("uniqueIds"))))
+      .andExpect(jsonPath("$.data[1].relationships", not(hasKey("uniqueIds"))))
+      .andExpect(jsonPath("$.data[2].relationships", not(hasKey("uniqueIds"))))
+      .andExpect(jsonPath("$.data[3].relationships", not(hasKey("uniqueIds"))))
       // you are allowed to see your own stuff
-      .andExpect(jsonPath("$.data[4].attributes.recentIpAddress", is("127.0.0.1")));
+      .andExpect(jsonPath("$.data[4].attributes.email", is("active-user@faforever.com")))
+      .andExpect(jsonPath("$.data[4].attributes.recentIpAddress", is("127.0.0.1")))
+      .andExpect(jsonPath("$.data[4].attributes", hasKey("steamId")))
+      .andExpect(jsonPath("$.data[4].attributes", hasKey("lastLogin")))
+      .andExpect(jsonPath("$.data[4].relationships.uniqueIds[0].data.id", is("2")))
+      // nobody can see passwords!
+      .andExpect(jsonPath("$.data[0].attributes", not(hasKey("password"))))
+      .andExpect(jsonPath("$.data[1].attributes", not(hasKey("password"))))
+      .andExpect(jsonPath("$.data[2].attributes", not(hasKey("password"))))
+      .andExpect(jsonPath("$.data[3].attributes", not(hasKey("password"))))
+      .andExpect(jsonPath("$.data[4].attributes", not(hasKey("password"))));
 
 
     mockMvc.perform(get("/data/player?filter=email==active-user@faforever.com")
@@ -81,20 +96,36 @@ public class PlayerElideTest extends AbstractIntegrationTest {
       .andExpect(jsonPath("$.data[1].attributes", not(hasKey("email"))))
       .andExpect(jsonPath("$.data[2].attributes", not(hasKey("email"))))
       .andExpect(jsonPath("$.data[3].attributes", not(hasKey("email"))))
-      // you are allowed to see your own stuff
-      .andExpect(jsonPath("$.data[4].attributes.email", is("active-user@faforever.com")))
-      .andExpect(jsonPath("$.data[0].attributes", not(hasKey("password"))))
-      .andExpect(jsonPath("$.data[1].attributes", not(hasKey("password"))))
-      .andExpect(jsonPath("$.data[2].attributes", not(hasKey("password"))))
-      .andExpect(jsonPath("$.data[3].attributes", not(hasKey("password"))))
-      // nobody can see passwords!
-      .andExpect(jsonPath("$.data[4].attributes", not(hasKey("password"))))
+      .andExpect(jsonPath("$.data[0].attributes", not(hasKey("steamId"))))
+      .andExpect(jsonPath("$.data[1].attributes", not(hasKey("steamId"))))
+      .andExpect(jsonPath("$.data[2].attributes", not(hasKey("steamId"))))
+      .andExpect(jsonPath("$.data[3].attributes", not(hasKey("steamId"))))
       .andExpect(jsonPath("$.data[0].attributes", not(hasKey("recentIpAddress"))))
       .andExpect(jsonPath("$.data[1].attributes", not(hasKey("recentIpAddress"))))
       .andExpect(jsonPath("$.data[2].attributes", not(hasKey("recentIpAddress"))))
       .andExpect(jsonPath("$.data[3].attributes", not(hasKey("recentIpAddress"))))
+      .andExpect(jsonPath("$.data[0].attributes", not(hasKey("lastLogin"))))
+      .andExpect(jsonPath("$.data[1].attributes", not(hasKey("lastLogin"))))
+      .andExpect(jsonPath("$.data[2].attributes", not(hasKey("lastLogin"))))
+      .andExpect(jsonPath("$.data[3].attributes", not(hasKey("lastLogin"))))
+      .andExpect(jsonPath("$.data[0].relationships", not(hasKey("uniqueIds"))))
+      .andExpect(jsonPath("$.data[1].relationships", not(hasKey("uniqueIds"))))
+      .andExpect(jsonPath("$.data[2].relationships", not(hasKey("uniqueIds"))))
+      .andExpect(jsonPath("$.data[3].relationships", not(hasKey("uniqueIds"))))
       // you are allowed to see your own stuff
-      .andExpect(jsonPath("$.data[4].attributes.recentIpAddress", is("127.0.0.1")));
+      .andExpect(jsonPath("$.data[4].attributes.email", is("active-user@faforever.com")))
+      .andExpect(jsonPath("$.data[4].attributes.recentIpAddress", is("127.0.0.1")))
+      .andExpect(jsonPath("$.data[4].attributes", hasKey("steamId")))
+      .andExpect(jsonPath("$.data[4].attributes", hasKey("lastLogin")))
+      .andExpect(jsonPath("$.data[4].relationships", hasKey("reporterOnModerationReports")))
+      .andExpect(jsonPath("$.data[4].relationships", hasKey("userGroups")))
+      .andExpect(jsonPath("$.data[4].relationships.uniqueIds[0].data.id", is("2")))
+      // nobody can see passwords!
+      .andExpect(jsonPath("$.data[0].attributes", not(hasKey("password"))))
+      .andExpect(jsonPath("$.data[1].attributes", not(hasKey("password"))))
+      .andExpect(jsonPath("$.data[2].attributes", not(hasKey("password"))))
+      .andExpect(jsonPath("$.data[3].attributes", not(hasKey("password"))))
+      .andExpect(jsonPath("$.data[4].attributes", not(hasKey("password"))));
 
 
     mockMvc.perform(get("/data/player?filter=email==active-user@faforever.com")
@@ -124,17 +155,42 @@ public class PlayerElideTest extends AbstractIntegrationTest {
       .andExpect(jsonPath("$.data[2].attributes", hasKey("email")))
       .andExpect(jsonPath("$.data[3].attributes", hasKey("email")))
       .andExpect(jsonPath("$.data[4].attributes", hasKey("email")))
+      .andExpect(jsonPath("$.data[0].attributes", hasKey("recentIpAddress")))
+      .andExpect(jsonPath("$.data[1].attributes", hasKey("recentIpAddress")))
+      .andExpect(jsonPath("$.data[2].attributes", hasKey("recentIpAddress")))
+      .andExpect(jsonPath("$.data[3].attributes", hasKey("recentIpAddress")))
+      .andExpect(jsonPath("$.data[4].attributes", hasKey("recentIpAddress")))
+      .andExpect(jsonPath("$.data[0].attributes", hasKey("lastLogin")))
+      .andExpect(jsonPath("$.data[1].attributes", hasKey("lastLogin")))
+      .andExpect(jsonPath("$.data[2].attributes", hasKey("lastLogin")))
+      .andExpect(jsonPath("$.data[3].attributes", hasKey("lastLogin")))
+      .andExpect(jsonPath("$.data[4].attributes", hasKey("lastLogin")))
+      .andExpect(jsonPath("$.data[0].attributes", hasKey("steamId")))
+      .andExpect(jsonPath("$.data[1].attributes", hasKey("steamId")))
+      .andExpect(jsonPath("$.data[2].attributes", hasKey("steamId")))
+      .andExpect(jsonPath("$.data[3].attributes", hasKey("steamId")))
+      .andExpect(jsonPath("$.data[4].attributes", hasKey("steamId")))
+      .andExpect(jsonPath("$.data[0].relationships", hasKey("uniqueIds")))
+      .andExpect(jsonPath("$.data[1].relationships", hasKey("uniqueIds")))
+      .andExpect(jsonPath("$.data[2].relationships", hasKey("uniqueIds")))
+      .andExpect(jsonPath("$.data[3].relationships", hasKey("uniqueIds")))
+      .andExpect(jsonPath("$.data[4].relationships", hasKey("uniqueIds")))
+      // cannot see others reporterOnModerationReports
+      .andExpect(jsonPath("$.data[0].relationships", hasKey("reporterOnModerationReports")))
+      .andExpect(jsonPath("$.data[1].relationships", hasKey("reporterOnModerationReports")))
+      .andExpect(jsonPath("$.data[2].relationships", hasKey("reporterOnModerationReports")))
+      .andExpect(jsonPath("$.data[3].relationships", hasKey("reporterOnModerationReports")))
+      // cannot see others userGroups
+      .andExpect(jsonPath("$.data[0].relationships", hasKey("userGroups")))
+      .andExpect(jsonPath("$.data[1].relationships", hasKey("userGroups")))
+      .andExpect(jsonPath("$.data[2].relationships", hasKey("userGroups")))
+      .andExpect(jsonPath("$.data[3].relationships", hasKey("userGroups")))
       // nobody can see passwords!
       .andExpect(jsonPath("$.data[0].attributes", not(hasKey("password"))))
       .andExpect(jsonPath("$.data[1].attributes", not(hasKey("password"))))
       .andExpect(jsonPath("$.data[2].attributes", not(hasKey("password"))))
       .andExpect(jsonPath("$.data[3].attributes", not(hasKey("password"))))
-      .andExpect(jsonPath("$.data[4].attributes", not(hasKey("password"))))
-      .andExpect(jsonPath("$.data[0].attributes", hasKey("recentIpAddress")))
-      .andExpect(jsonPath("$.data[1].attributes", hasKey("recentIpAddress")))
-      .andExpect(jsonPath("$.data[2].attributes", hasKey("recentIpAddress")))
-      .andExpect(jsonPath("$.data[3].attributes", hasKey("recentIpAddress")))
-      .andExpect(jsonPath("$.data[4].attributes", hasKey("recentIpAddress")));
+      .andExpect(jsonPath("$.data[4].attributes", not(hasKey("password"))));
 
     mockMvc.perform(get("/data/player?filter=email==active-user@faforever.com")
       .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS)))
