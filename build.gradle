@@ -197,6 +197,12 @@ test {
   useJUnitPlatform()
   testLogging {
     events("passed", "skipped", "failed")
+  }
+}
+
+inttest {
+  testLogging {
+    events("passed", "skipped", "failed")
     showExceptions = true
     exceptionFormat = "full"
     showCauses = true
