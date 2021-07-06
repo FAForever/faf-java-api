@@ -200,17 +200,6 @@ test {
   }
 }
 
-inttest {
-  testLogging {
-    events("passed", "skipped", "failed")
-    showExceptions = true
-    exceptionFormat = "full"
-    showCauses = true
-    showStackTraces = true
-    showStandardStreams = true
-  }
-}
-
 dependencies {
   implementation("org.projectlombok:lombok")
   annotationProcessor("org.projectlombok:lombok")

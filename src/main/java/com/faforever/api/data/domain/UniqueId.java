@@ -16,7 +16,7 @@ import java.io.Serializable;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "uniqueId")
+@Table(name = "uniqueid")
 @Include(name = UniqueId.TYPE_NAME, rootLevel = false)
 @Data
 @NoArgsConstructor
