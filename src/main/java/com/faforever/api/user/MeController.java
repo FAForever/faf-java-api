@@ -60,6 +60,7 @@ public class MeController {
             .tag(player.getClan().getTag())
             .name(player.getClan().getName())
             .build(),
+          "lastLogin", player.getLastLogin(),
           "groups", groups,
           "permissions", grantedAuthorities
         ),
