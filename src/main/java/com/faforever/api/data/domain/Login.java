@@ -70,7 +70,7 @@ public abstract class Login implements DefaultEntity, OwnableEntity {
     joinColumns = @JoinColumn(name = "user_id"),
     inverseJoinColumns = @JoinColumn(name = "uniqueid_hash", referencedColumnName = "hash")
   )
-  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
+  @ReadPermission(expression = ReadAccountPrivateDetailsCheck.EXPRESSION)
   private Set<UniqueId> uniqueIds;
 
   @Column(name = "user_agent")
