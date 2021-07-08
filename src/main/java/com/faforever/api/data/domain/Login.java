@@ -20,6 +20,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
@@ -62,6 +64,14 @@ public abstract class Login implements DefaultEntity, OwnableEntity {
   @Column(name = "steamid")
   @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
   private String steamId;
+
+  @OneToMany
+  @JoinTable(name = "unique_id_users",
+    joinColumns = @JoinColumn(name = "user_id"),
+    inverseJoinColumns = @JoinColumn(name = "uniqueid_hash", referencedColumnName = "hash")
+  )
+  @ReadPermission(expression = ReadAccountPrivateDetailsCheck.EXPRESSION)
+  private Set<UniqueId> uniqueIds;
 
   @Column(name = "user_agent")
   private String userAgent;
