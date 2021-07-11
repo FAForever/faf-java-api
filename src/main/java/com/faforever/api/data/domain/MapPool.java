@@ -8,7 +8,6 @@ import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -28,6 +27,7 @@ import java.util.Set;
 
 @Entity
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @Table(name = "map_pool")
 @Include(name = "mapPool")
@@ -39,6 +39,7 @@ public class MapPool implements DefaultEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
+  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -47,11 +48,12 @@ public class MapPool implements DefaultEntity {
   @Column(name = "update_time")
   private OffsetDateTime updateTime;
 
+  @Column(name = "name")
   @NotNull
+  @EqualsAndHashCode.Include
   private String name;
 
   @OneToOne(mappedBy = "mapPool")
-  @EqualsAndHashCode.Exclude
   private MatchmakerQueueMapPool matchmakerQueueMapPool;
 
   @ManyToMany
@@ -61,11 +63,9 @@ public class MapPool implements DefaultEntity {
   )
   @NotNull
   @Deprecated
-  @EqualsAndHashCode.Exclude
   // Scheduled for removal once Downlord's FAF Client v1.4.3 or higher is widely adopted
   private Set<MapVersion> mapVersions;
 
   @OneToMany(mappedBy = "mapPool", cascade = CascadeType.ALL, orphanRemoval = true)
-  @EqualsAndHashCode.Exclude
   private Set<MapPoolAssignment> mapPoolAssignments;
 }

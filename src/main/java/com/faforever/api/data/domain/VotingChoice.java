@@ -17,7 +17,7 @@ import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -46,6 +46,7 @@ import java.util.Set;
 @Audit(action = Action.UPDATE, logStatement = "Updated voting choice with id: {0} ", logExpressions = {"${votingChoice.id}"})
 @Include(name = VotingChoice.TYPE_NAME)
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @EntityListeners(VotingChoiceEnricher.class)
 public class VotingChoice implements DefaultEntity {
@@ -55,6 +56,7 @@ public class VotingChoice implements DefaultEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
+  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -90,12 +92,11 @@ public class VotingChoice implements DefaultEntity {
   @JsonBackReference
   @JoinColumn(name = "voting_question_id")
   @ManyToOne()
-  @EqualsAndHashCode.Exclude
   private VotingQuestion votingQuestion;
 
   @JsonIgnore
   @Exclude
   @OneToMany(mappedBy = "votingChoice", cascade = CascadeType.ALL, orphanRemoval = true)
-  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
   private Set<VotingAnswer> votingAnswers;
 }

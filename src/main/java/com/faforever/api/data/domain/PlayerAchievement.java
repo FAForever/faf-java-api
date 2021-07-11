@@ -2,6 +2,7 @@ package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
@@ -23,6 +24,7 @@ import static com.faforever.api.data.domain.PlayerAchievement.TYPE_NAME;
 @Table(name = "player_achievements")
 @Include(name = TYPE_NAME)
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class PlayerAchievement implements DefaultEntity {
 
@@ -31,6 +33,7 @@ public class PlayerAchievement implements DefaultEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
+  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -47,6 +50,7 @@ public class PlayerAchievement implements DefaultEntity {
   private AchievementState state;
 
   @Column(name = "player_id")
+  @EqualsAndHashCode.Include
   private int playerId;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)

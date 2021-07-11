@@ -5,8 +5,8 @@ import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,6 +21,7 @@ import javax.persistence.Transient;
 @Table(name = "event_definitions")
 @Include(name = Event.TYPE_NAME)
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @EntityListeners(EventLocalizationListener.class)
 public class Event {
@@ -29,10 +30,12 @@ public class Event {
 
   @Id
   @Column(name = "id")
+  @EqualsAndHashCode.Include
   private String id;
 
   @Column(name = "name_key")
   @Exclude
+  @EqualsAndHashCode.Include
   private String nameKey;
 
   @Column(name = "image_url")

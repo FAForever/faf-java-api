@@ -2,8 +2,8 @@ package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
 
@@ -17,6 +17,7 @@ import static com.faforever.api.data.domain.GameReviewsSummary.TYPE_NAME;
 
 @Entity
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @Table(name = "game_reviews_summary")
 @Include(name = TYPE_NAME)
@@ -27,6 +28,7 @@ public class GameReviewsSummary {
 
   @Id
   @Column(name = "game_id")
+  @EqualsAndHashCode.Include
   private int id;
 
   @Column(name = "positive")

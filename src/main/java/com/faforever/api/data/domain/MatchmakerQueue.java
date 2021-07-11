@@ -6,7 +6,6 @@ import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -22,6 +21,7 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @Table(name = "matchmaker_queue")
 @Include(name = MatchmakerQueue.TYPE_NAME)
@@ -32,6 +32,7 @@ public class MatchmakerQueue implements DefaultEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
+  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -43,6 +44,7 @@ public class MatchmakerQueue implements DefaultEntity {
   @Column(name = "technical_name")
   @NotNull
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION)
+  @EqualsAndHashCode.Include
   private String technicalName;
 
   @Column(name = "name_key")
@@ -52,12 +54,10 @@ public class MatchmakerQueue implements DefaultEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "featured_mod_id")
-  @EqualsAndHashCode.Exclude
   private FeaturedMod featuredMod;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "leaderboard_id")
-  @EqualsAndHashCode.Exclude
   private Leaderboard leaderboard;
 
 }

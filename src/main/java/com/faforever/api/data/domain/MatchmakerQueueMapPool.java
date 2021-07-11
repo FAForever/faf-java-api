@@ -8,7 +8,6 @@ import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.annotation.Nullable;
 import javax.persistence.Column;
@@ -27,6 +26,7 @@ import java.time.OffsetDateTime;
 @DeletePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @Entity
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @Table(name = "matchmaker_queue_map_pool")
 @Include(name = MatchmakerQueueMapPool.TYPE_NAME)
@@ -37,6 +37,7 @@ public class MatchmakerQueueMapPool implements DefaultEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
+  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -47,7 +48,6 @@ public class MatchmakerQueueMapPool implements DefaultEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "matchmaker_queue_id")
-  @EqualsAndHashCode.Exclude
   private MatchmakerQueue matchmakerQueue;
 
   @Nullable
@@ -63,6 +63,5 @@ public class MatchmakerQueueMapPool implements DefaultEntity {
   @OneToOne
   @JoinColumn(name = "map_pool_id")
   @UpdatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
-  @EqualsAndHashCode.Exclude
   private MapPool mapPool;
 }

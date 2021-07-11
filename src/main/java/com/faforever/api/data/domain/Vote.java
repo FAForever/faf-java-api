@@ -30,6 +30,7 @@ import java.util.Set;
 @ReadPermission(expression = IsEntityOwner.EXPRESSION)
 @UpdatePermission(expression = Prefab.NONE)
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class Vote implements DefaultEntity, OwnableEntity {
   public static final String TYPE_NAME = "vote";
@@ -37,6 +38,7 @@ public class Vote implements DefaultEntity, OwnableEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
+  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -54,7 +56,6 @@ public class Vote implements DefaultEntity, OwnableEntity {
   private VotingSubject votingSubject;
 
   @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, orphanRemoval = true)
-  @EqualsAndHashCode.Exclude
   private Set<VotingAnswer> votingAnswers;
 
   @Transient

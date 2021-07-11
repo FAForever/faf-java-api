@@ -6,7 +6,6 @@ import com.yahoo.elide.annotation.ReadPermission;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -39,6 +38,7 @@ import java.util.Set;
 @Table(name = "group_permission")
 @Include(name = "groupPermission")
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @ReadPermission(expression = ReadUserGroupCheck.EXPRESSION)
 public class GroupPermission implements DefaultEntity, GrantedAuthority {
@@ -69,6 +69,7 @@ public class GroupPermission implements DefaultEntity, GrantedAuthority {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
+  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -78,13 +79,13 @@ public class GroupPermission implements DefaultEntity, GrantedAuthority {
   private OffsetDateTime updateTime;
 
   @Column(name = "technical_name")
+  @EqualsAndHashCode.Include
   private String technicalName;
 
   @Column(name = "name_key")
   private String nameKey;
 
   @ManyToMany(mappedBy = "permissions")
-  @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private Set<UserGroup> userGroups;
 

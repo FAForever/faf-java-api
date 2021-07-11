@@ -4,8 +4,8 @@ import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.Prefab;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.FetchType;
@@ -21,6 +21,7 @@ import javax.validation.constraints.DecimalMin;
 import java.time.OffsetDateTime;
 
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @MappedSuperclass
 public class Review implements DefaultEntity, OwnableEntity {
@@ -28,6 +29,7 @@ public class Review implements DefaultEntity, OwnableEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
+  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")

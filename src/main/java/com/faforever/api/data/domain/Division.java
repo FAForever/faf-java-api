@@ -4,7 +4,6 @@ import com.yahoo.elide.annotation.Include;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -28,6 +27,7 @@ public class Division {
   private int id;
 
   @Column(name = "name", nullable = false)
+  @EqualsAndHashCode.Include
   private String name;
 
   @Column(name = "league")

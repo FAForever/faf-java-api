@@ -35,8 +35,8 @@ import java.util.Set;
 @CreatePermission(expression = WriteUserGroupCheck.EXPRESSION)
 @ReadPermission(expression = UserGroupPublicCheck.EXPRESSION + " or " + WriteUserGroupCheck.EXPRESSION)
 @Data
-@NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@NoArgsConstructor
 public class UserGroup implements DefaultEntity {
 
   @Id

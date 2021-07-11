@@ -9,7 +9,6 @@ import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.Column;
@@ -28,6 +27,7 @@ import static com.faforever.api.data.domain.MapPoolAssignment.TYPE_NAME;
 
 @Entity
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @Table(name = "map_pool_map_version")
 @Include(name = TYPE_NAME)
@@ -41,6 +41,7 @@ public class MapPoolAssignment implements DefaultEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
+  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -56,7 +57,6 @@ public class MapPoolAssignment implements DefaultEntity {
 
   @OneToOne
   @JoinColumn(name = "map_version_id")
-  @EqualsAndHashCode.Exclude
   private MapVersion mapVersion;
 
   @Column(name = "weight")

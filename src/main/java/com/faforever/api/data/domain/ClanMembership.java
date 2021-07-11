@@ -7,7 +7,6 @@ import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -31,6 +30,7 @@ import static com.faforever.api.data.domain.ClanMembership.TYPE_NAME;
 @DeletePermission(expression = IsClanMembershipDeletable.EXPRESSION)
 @UpdatePermission(expression = IsClanMembershipDeletable.EXPRESSION)
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @Access(AccessType.FIELD)
 public class ClanMembership implements DefaultEntity {
@@ -40,6 +40,7 @@ public class ClanMembership implements DefaultEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
+  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -50,11 +51,9 @@ public class ClanMembership implements DefaultEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "clan_id")
-  @EqualsAndHashCode.Exclude
   private Clan clan;
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "player_id")
-  @EqualsAndHashCode.Exclude
   private Player player;
 }
