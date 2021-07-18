@@ -23,9 +23,20 @@ class ModsControllerTest extends AbstractIntegrationTest {
   @WithUserDetails(AUTH_USER)
   @Test
   void missingScope() throws Exception {
-    mockMvc.perform(multipart("/mods/upload")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
-      .andExpect(status().isBadRequest());
+    String zipFile = "Terrain_Deform_for_FA.v0001.zip";
+    try (InputStream inputStream = loadModResourceAsStream(zipFile)) {
+      MockMultipartFile file = new MockMultipartFile("file",
+        zipFile,
+        "application/zip",
+        ByteStreams.toByteArray(inputStream));
+
+      mockMvc.perform(multipart("/mods/upload")
+        .file(file)
+        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
+        .andExpect(status().isForbidden());
+    } finally {
+      FileUtils.deleteDirectory(apiProperties.getMod().getTargetDirectory().toFile());
+    }
   }
 
   @WithUserDetails(AUTH_USER)

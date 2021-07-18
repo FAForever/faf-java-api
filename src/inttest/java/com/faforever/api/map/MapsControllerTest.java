@@ -36,9 +36,12 @@ public class MapsControllerTest extends AbstractIntegrationTest{
   @WithUserDetails(AUTH_USER)
   @Test
   void fileMissing() throws Exception {
+    MockMultipartFile file = new MockMultipartFile("file", "filename.txt", "text/plain", "some xml".getBytes());
+
     mockMvc.perform(multipart("/maps/upload")
+      .file(file)
       .with(getOAuthTokenWithTestUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES)))
-      .andExpect(status().isBadRequest())
+      .andExpect(status().isForbidden())
       .andExpect(jsonPath("$.errors", hasSize(1)))
       .andExpect(jsonPath("$.errors[0].title", is("org.springframework.web.multipart.support.MissingServletRequestPartException")))
       .andExpect(jsonPath("$.errors[0].detail", is("Required request part 'file' is not present")));
