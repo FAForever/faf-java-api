@@ -39,8 +39,6 @@ public class MapsControllerTest extends AbstractIntegrationTest{
   @WithUserDetails(AUTH_USER)
   @Test
   void fileMissing() throws Exception {
-    MockMultipartFile file = new MockMultipartFile("file", "filename.txt", "text/plain", "some xml".getBytes());
-
     mockMvc.perform(multipart("/maps/upload")
       .with(getOAuthTokenWithTestUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES)))
       .andExpect(status().isBadRequest())
