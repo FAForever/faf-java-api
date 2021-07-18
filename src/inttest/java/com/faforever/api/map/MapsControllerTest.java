@@ -1,6 +1,7 @@
 package com.faforever.api.map;
 
 import com.faforever.api.AbstractIntegrationTest;
+import com.faforever.api.security.OAuthScope;
 import com.google.common.io.ByteStreams;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,17 @@ public class MapsControllerTest extends AbstractIntegrationTest{
 
   @WithUserDetails(AUTH_USER)
   @Test
+  void missingScope() throws Exception {
+    mockMvc.perform(multipart("/maps/upload")
+      .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
+      .andExpect(status().isBadRequest());
+  }
+
+  @WithUserDetails(AUTH_USER)
+  @Test
   void fileMissing() throws Exception {
-    mockMvc.perform(multipart("/maps/upload"))
+    mockMvc.perform(multipart("/maps/upload")
+      .with(getOAuthTokenWithTestUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES)))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors", hasSize(1)))
       .andExpect(jsonPath("$.errors[0].title", is("org.springframework.web.multipart.support.MissingServletRequestPartException")))
@@ -40,7 +50,8 @@ public class MapsControllerTest extends AbstractIntegrationTest{
     MockMultipartFile file = new MockMultipartFile("file", "filename.txt", "text/plain", "some xml".getBytes());
 
     mockMvc.perform(multipart("/maps/upload")
-      .file(file))
+      .file(file)
+      .with(getOAuthTokenWithTestUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES)))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors", hasSize(1)))
       .andExpect(jsonPath("$.errors[0].title", is("org.springframework.web.bind.MissingServletRequestParameterException")))
@@ -61,6 +72,7 @@ public class MapsControllerTest extends AbstractIntegrationTest{
 
       mockMvc.perform(multipart("/maps/upload")
         .file(file)
+        .with(getOAuthTokenWithTestUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES))
         .param("metadata", jsonString)
       ).andExpect(status().isOk());
     }
