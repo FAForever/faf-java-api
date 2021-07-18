@@ -39,7 +39,7 @@ public class ModsController {
     @ApiResponse(code = 401, message = "Unauthorized"),
     @ApiResponse(code = 500, message = "Failure")})
   @RequestMapping(path = "/upload", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
-  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._UPLOAD_MAP + "')")
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._UPLOAD_MOD + "')")
   public void uploadMod(@RequestParam("file") MultipartFile file, Authentication authentication) throws IOException {
     if (file == null) {
       throw new ApiException(new Error(ErrorCode.UPLOAD_FILE_MISSING));
