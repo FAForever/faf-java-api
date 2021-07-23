@@ -32,7 +32,6 @@ DELETE FROM `ladder_map`;
 DELETE FROM `leaderboard`;
 DELETE FROM `leaderboard_rating`;
 DELETE FROM `leaderboard_rating_journal`;
-DELETE FROM `lobby_admin`;
 DELETE FROM `login`;
 DELETE FROM `login_log`;
 DELETE FROM `map`;
