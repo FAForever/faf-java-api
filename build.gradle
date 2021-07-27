@@ -155,7 +155,7 @@ task inttest(type: Test) {
   classpath = sourceSets.inttest.runtimeClasspath
 
   testLogging {
-    events("passed", "skipped", "failed", "standard_out", "standard_error")
+    events("failed")
     exceptionFormat = 'full'
   }
 
