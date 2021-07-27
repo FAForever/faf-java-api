@@ -67,7 +67,7 @@ public class VotingSubjectEnricher {
   }
 
   private List<VotingChoice> getWinners(VotingQuestion votingQuestion) {
-    if (!votingQuestion.getAlternativeQuestion()) {
+    if (!votingQuestion.isAlternativeQuestion()) {
       OptionalInt max = votingQuestion.getVotingChoices().stream()
         .mapToInt(value -> value.getVotingAnswers().size()).max();
       if (max.isPresent()) {

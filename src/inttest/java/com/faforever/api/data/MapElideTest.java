@@ -68,7 +68,7 @@ public class MapElideTest extends AbstractIntegrationTest {
         .content(MAP_RECOMMENDED_TRUE_ID_1))
       .andExpect(status().isNoContent());
 
-    assertThat(mapRepository.getOne(1).isRecommended(), is(true));
+    assertThat(mapRepository.getOne(1).getRecommended(), is(true));
   }
 
   @Test
@@ -81,7 +81,7 @@ public class MapElideTest extends AbstractIntegrationTest {
         .content(MAP_RECOMMENDED_TRUE_ID_1))
       .andExpect(status().isForbidden());
 
-    assertThat(mapRepository.getOne(1).isRecommended(), is(false));
+    assertThat(mapRepository.getOne(1).getRecommended(), is(false));
   }
 
   @Test
@@ -94,7 +94,7 @@ public class MapElideTest extends AbstractIntegrationTest {
         .content(MAP_RECOMMENDED_TRUE_ID_1))
       .andExpect(status().isForbidden());
 
-    assertThat(mapRepository.getOne(1).isRecommended(), is(false));
+    assertThat(mapRepository.getOne(1).getRecommended(), is(false));
   }
 
   @Test
@@ -107,7 +107,7 @@ public class MapElideTest extends AbstractIntegrationTest {
         .content(MAP_RECOMMENDED_FALSE_ID_1))
       .andExpect(status().isNoContent());
 
-    assertThat(mapRepository.getOne(1).isRecommended(), is(false));
+    assertThat(mapRepository.getOne(1).getRecommended(), is(false));
   }
 
   @Test

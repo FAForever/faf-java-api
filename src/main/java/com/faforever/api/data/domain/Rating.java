@@ -1,8 +1,7 @@
 package com.faforever.api.data.domain;
 
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 
@@ -14,31 +13,51 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToOne;
 
 @MappedSuperclass
-@Data
-@NoArgsConstructor
+@Setter
 public abstract class Rating {
+  private int id;
+  private int ranking;
+  private Double mean;
+  private Double deviation;
+  private Player player;
+  private Double rating;
+  private int numberOfGames;
 
   @Id
   @Column(name = "id")
-  private int id;
+  public int getId() {
+    return id;
+  }
 
   @Column(name = "ranking")
-  private int ranking;
+  public int getRanking() {
+    return ranking;
+  }
 
   @Column(name = "mean")
-  private Double mean;
+  public Double getMean() {
+    return mean;
+  }
 
   @Column(name = "deviation")
-  private Double deviation;
+  public Double getDeviation() {
+    return deviation;
+  }
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "id", updatable = false, insertable = false)
-  private Player player;
+  public Player getPlayer() {
+    return player;
+  }
 
   @Column(name = "rating", updatable = false, insertable = false)
   @Generated(GenerationTime.ALWAYS)
-  private Double rating;
+  public Double getRating() {
+    return rating;
+  }
 
   @Column(name = "num_games", updatable = false)
-  private int numberOfGames;
+  public int getNumberOfGames() {
+    return numberOfGames;
+  }
 }

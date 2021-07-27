@@ -4,8 +4,7 @@ import com.faforever.api.data.checks.Prefab;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -22,23 +21,34 @@ import java.time.OffsetDateTime;
 @Include(name = "nameRecord")
 @DeletePermission(expression = Prefab.NONE)
 @UpdatePermission(expression = Prefab.NONE)
-@Data
-@NoArgsConstructor
+@Setter
 public class NameRecord {
+  private int id;
+  private OffsetDateTime changeTime;
+  private Player player;
+  private String name;
 
   @Id
   @Column(name = "id")
-  private int id;
+  public int getId() {
+    return id;
+  }
 
   @Column(name = "change_time")
-  private OffsetDateTime changeTime;
+  public OffsetDateTime getChangeTime() {
+    return changeTime;
+  }
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   @NotNull
-  private Player player;
+  public Player getPlayer() {
+    return player;
+  }
 
   @Column(name = "previous_name")
   @NotNull
-  private String name;
+  public String getName() {
+    return name;
+  }
 }

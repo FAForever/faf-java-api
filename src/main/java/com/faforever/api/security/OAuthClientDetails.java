@@ -24,7 +24,7 @@ public class OAuthClientDetails extends BaseClientDetails {
     setClientSecret(oAuthClient.getClientSecret());
 
     List<String> scopes = Arrays.asList((String[]) commaSeparated(oAuthClient.getDefaultScope()).split(","));
-    boolean autoApproveScopes = Optional.ofNullable(oAuthClient.getAutoApproveScopes()).orElse(false);
+    boolean autoApproveScopes = Optional.ofNullable(oAuthClient.isAutoApproveScopes()).orElse(false);
     setAutoApproveScopes(autoApproveScopes ? scopes : List.of());
   }
 

@@ -1,8 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,42 +11,75 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "game_featuredMods")
 @Include(name = FeaturedMod.TYPE_NAME)
-@Data
-@NoArgsConstructor
+@Setter
 public class FeaturedMod {
   public static final String TYPE_NAME = "featuredMod";
 
+  private int id;
+  private String technicalName;
+  private String description;
+  private String displayName;
+  private boolean visible;
+  private int order;
+  private String gitUrl;
+  private String gitBranch;
+  private Boolean allowOverride;
+  private String fileExtension;
+  private String deploymentWebhook;
+
   @Id
   @Column(name = "id")
-  private int id;
+  public int getId() {
+    return id;
+  }
 
   @Column(name = "gamemod")
-  private String technicalName;
+  public String getTechnicalName() {
+    return technicalName;
+  }
 
   @Column(name = "description")
-  private String description;
+  public String getDescription() {
+    return description;
+  }
 
   @Column(name = "name")
-  private String displayName;
+  public String getDisplayName() {
+    return displayName;
+  }
 
   @Column(name = "publish")
-  private boolean visible;
+  public boolean isVisible() {
+    return visible;
+  }
 
   @Column(name = "\"order\"")
-  private int order;
+  public int getOrder() {
+    return order;
+  }
 
   @Column(name = "git_url")
-  private String gitUrl;
+  public String getGitUrl() {
+    return gitUrl;
+  }
 
   @Column(name = "git_branch")
-  private String gitBranch;
+  public String getGitBranch() {
+    return gitBranch;
+  }
 
   @Column(name = "allow_override")
-  private Boolean allowOverride;
+  public Boolean isAllowOverride() {
+    return allowOverride;
+  }
 
   @Column(name = "file_extension")
-  private String fileExtension;
+  public String getFileExtension() {
+    return fileExtension;
+  }
 
   @Column(name = "deployment_webhook ")
-  private String deploymentWebhook;
+  public String getDeploymentWebhook() {
+    return deploymentWebhook;
+  }
 }

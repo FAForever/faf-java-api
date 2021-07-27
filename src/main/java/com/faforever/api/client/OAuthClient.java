@@ -1,6 +1,6 @@
 package com.faforever.api.client;
 
-import lombok.Data;
+import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.util.Assert;
 
@@ -15,43 +15,71 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "oauth_clients")
-@Data
+@Setter
 public class OAuthClient {
+
+  private String id;
+  private String name;
+  private String clientSecret;
+  private ClientType clientType;
+  private String redirectUris;
+  private String defaultRedirectUri;
+  private String defaultScope;
+  private String iconUrl;
+  private Boolean autoApproveScopes;
 
   @Id
   @Column(name = "id")
-  private String id;
+  public String getId() {
+    return id;
+  }
 
   @NotNull
   @Column(name = "name")
-  private String name;
+  public String getName() {
+    return name;
+  }
 
   @NotNull
   @Column(name = "client_secret")
-  private String clientSecret;
+  public String getClientSecret() {
+    return clientSecret;
+  }
 
   @NotNull
   @Column(name = "client_type")
-  private ClientType clientType;
+  public ClientType getClientType() {
+    return clientType;
+  }
 
   @NotNull
   @Column(name = "redirect_uris")
-  private String redirectUris;
+  public String getRedirectUris() {
+    return redirectUris;
+  }
 
   @NotNull
   @Column(name = "default_redirect_uri")
-  private String defaultRedirectUri;
+  public String getDefaultRedirectUri() {
+    return defaultRedirectUri;
+  }
 
   @NotNull
   @Column(name = "default_scope")
-  private String defaultScope;
+  public String getDefaultScope() {
+    return defaultScope;
+  }
 
   @Column(name = "icon_url")
-  private String iconUrl;
+  public String getIconUrl() {
+    return iconUrl;
+  }
 
   @Column(name = "auto_approve_scopes")
   @Nullable
-  private Boolean autoApproveScopes;
+  public Boolean isAutoApproveScopes() {
+    return autoApproveScopes;
+  }
 
   @Converter(autoApply = true)
   public static class ClientTypeConverter implements AttributeConverter<ClientType, String> {

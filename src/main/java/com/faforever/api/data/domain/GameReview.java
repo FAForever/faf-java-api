@@ -6,9 +6,6 @@ import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Entity;
@@ -17,22 +14,20 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import static com.faforever.api.data.domain.GameReview.TYPE_NAME;
-
-@Data
-@NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Include(name = TYPE_NAME)
+@Setter
+@Include(name = "gameReview")
 @Entity
 @Table(name = "game_review")
 @CreatePermission(expression = Prefab.ALL)
 @DeletePermission(expression = IsEntityOwner.EXPRESSION)
 public class GameReview extends Review {
 
-  public static final String TYPE_NAME = "gameReview";
+  private Game game;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "game_id")
   @UpdatePermission(expression = Prefab.ALL)
-  private Game game;
+  public Game getGame() {
+    return game;
+  }
 }

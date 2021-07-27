@@ -1,11 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Column;
@@ -17,30 +13,43 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
-@Data
-@NoArgsConstructor
+@Setter
 @Table(name = "map_statistics")
 @Include(name = MapStatistics.TYPE_NAME)
 @Immutable
 public class MapStatistics {
   public static final String TYPE_NAME = "mapStatistics";
 
+  private Integer id;
+  private Integer downloads;
+  private Integer plays;
+  private Integer draws;
+  private Map map;
+
   @Id
   @Column(name = "map_id")
-  private Integer id;
+  public Integer getId() {
+    return id;
+  }
 
   @Column(name = "downloads")
-  private Integer downloads;
+  public Integer getDownloads() {
+    return downloads;
+  }
 
   @Column(name = "plays")
-  private Integer plays;
+  public Integer getPlays() {
+    return plays;
+  }
 
   @Column(name = "draws")
-  private Integer draws;
+  public Integer getDraws() {
+    return draws;
+  }
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "map_id", insertable = false, updatable = false)
-  @EqualsAndHashCode.Exclude
-  @ToString.Exclude
-  private Map map;
+  public Map getMap() {
+    return map;
+  }
 }

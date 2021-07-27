@@ -12,27 +12,21 @@ import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
-import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "tutorial")
-@Data
-@NoArgsConstructor
+@Setter
 @Include(name = Tutorial.TYPE_NAME)
 @DeletePermission(expression = WriteTutorialCheck.EXPRESSION)
 @UpdatePermission(expression = WriteTutorialCheck.EXPRESSION)
@@ -42,64 +36,85 @@ import java.time.OffsetDateTime;
 @ReadPermission(expression = Prefab.ALL)
 @EntityListeners(TutorialEnricherListener.class)
 @Type(Tutorial.TYPE_NAME)
-public class Tutorial implements DefaultEntity {
-
+public class Tutorial extends AbstractEntity {
   public static final String TYPE_NAME = "tutorial";
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
-  private Integer id;
-
-  @Column(name = "create_time")
-  private OffsetDateTime createTime;
-
-  @Column(name = "update_time")
-  private OffsetDateTime updateTime;
-
-  @Column(name = "description_key")
   private String descriptionKey;
-
-  @Transient
-  @ComputedAttribute
   private String description;
-
-  @Column(name = "title_key")
-  @NotNull
   private String titleKey;
+  private String title;
+  private TutorialCategory category;
+  private String image;
+  private String imageUrl;
+  private Integer ordinal;
+  private Boolean launchable;
+  private MapVersion mapVersion;
+  private String technicalName;
 
   @Transient
   @ComputedAttribute
-  private String title;
+  public String getDescription() {
+    return description;
+  }
 
-  @ManyToOne
+  @Transient
+  @ComputedAttribute
+  public String getTitle() {
+    return title;
+  }
+
+  @ManyToOne()
   @JoinColumn(name = "category")
   @Nullable
-  private TutorialCategory category;
-
-  @Column(name = "image")
-  @Nullable
-  private String image;
-
-  @ComputedAttribute
-  @Transient
-  @Nullable
-  private String imageUrl;
+  public TutorialCategory getCategory() {
+    return category;
+  }
 
   @NotNull
   @Column(name = "ordinal")
-  private Integer ordinal;
+  public Integer getOrdinal() {
+    return ordinal;
+  }
 
   @NotNull
   @Column(name = "launchable")
-  private Boolean launchable;
+  public Boolean getLaunchable() {
+    return launchable;
+  }
 
   @ManyToOne
   @Nullable
   @JoinColumn(name = "map_version_id")
-  private MapVersion mapVersion;
+  public MapVersion getMapVersion() {
+    return mapVersion;
+  }
+
+  @Column(name = "description_key")
+  public String getDescriptionKey() {
+    return descriptionKey;
+  }
+
+  @Column(name = "title_key")
+  @NotNull
+  public String getTitleKey() {
+    return titleKey;
+  }
+
+  @Column(name = "image")
+  @Nullable
+  public String getImage() {
+    return image;
+  }
+
+  @ComputedAttribute
+  @Transient
+  @Nullable
+  public String getImageUrl() {
+    return imageUrl;
+  }
 
   @Column(name = "technical_name")
   @NotNull
-  private String technicalName;
+  public String getTechnicalName() {
+    return technicalName;
+  }
 }

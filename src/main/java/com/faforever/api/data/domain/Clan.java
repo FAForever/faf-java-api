@@ -9,9 +9,7 @@ import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.CascadeType;
@@ -19,9 +17,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -30,7 +25,6 @@ import javax.persistence.Transient;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.OffsetDateTime;
 import java.util.Set;
 
 @Entity
@@ -38,56 +32,61 @@ import java.util.Set;
 @Include(name = Clan.TYPE_NAME)
 @DeletePermission(expression = IsEntityOwner.EXPRESSION)
 @CreatePermission(expression = Prefab.ALL)
-@Data
-@NoArgsConstructor
+@Setter
 @IsLeaderInClan
 @EntityListeners(ClanEnricherListener.class)
-public class Clan implements DefaultEntity, OwnableEntity {
+public class Clan extends AbstractEntity implements OwnableEntity {
 
   public static final String TYPE_NAME = "clan";
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
-  @EqualsAndHashCode.Include
-  private Integer id;
-
-  @Column(name = "create_time")
-  private OffsetDateTime createTime;
-
-  @Column(name = "update_time")
-  private OffsetDateTime updateTime;
+  private String name;
+  private String tag;
+  private Player founder;
+  private Player leader;
+  private String description;
+  private String tagColor;
+  private String websiteUrl;
+  private Set<ClanMembership> memberships;
+  private Boolean requiresInvitation;
 
   @Column(name = "name")
   @NotNull
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION)
-  private String name;
+  public String getName() {
+    return name;
+  }
 
   @Column(name = "tag")
   @Size(max = 3)
   @NotNull
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION)
-  private String tag;
+  public String getTag() {
+    return tag;
+  }
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "founder_id")
-  private Player founder;
+  public Player getFounder() {
+    return founder;
+  }
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "leader_id")
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION)
-  private Player leader;
+  public Player getLeader() {
+    return leader;
+  }
 
   @Column(name = "description")
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION)
-  private String description;
+  public String getDescription() {
+    return description;
+  }
 
   @Column(name = "tag_color")
-  private String tagColor;
-
-  @Transient
-  @ComputedAttribute
-  private String websiteUrl;
+  public String getTagColor() {
+    return tagColor;
+  }
 
   // Cascading is needed for Create & Delete
   @OneToMany(mappedBy = "clan", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -95,10 +94,20 @@ public class Clan implements DefaultEntity, OwnableEntity {
   @UpdatePermission(expression = Prefab.ALL)
   @NotEmpty(message = "At least the leader should be in the clan")
   @BatchSize(size = 1000)
-  private Set<ClanMembership> memberships;
+  public Set<ClanMembership> getMemberships() {
+    return this.memberships;
+  }
 
   @Column(name = "requires_invitation", nullable = false)
-  private Boolean requiresInvitation;
+  public Boolean getRequiresInvitation() {
+    return requiresInvitation;
+  }
+
+  @Transient
+  @ComputedAttribute
+  public String getWebsiteUrl() {
+    return websiteUrl;
+  }
 
   @Override
   @Transient

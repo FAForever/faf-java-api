@@ -6,8 +6,7 @@ import com.faforever.api.security.elide.permission.AdminMapCheck;
 import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
@@ -19,9 +18,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -32,83 +28,101 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
-@NoArgsConstructor
+@Setter
 @Table(name = "map")
 @Include(name = Map.TYPE_NAME)
 @EntityListeners(MapChangeListener.class)
-public class Map implements DefaultEntity, OwnableEntity {
+public class Map extends AbstractEntity implements OwnableEntity {
 
   public static final String TYPE_NAME = "map";
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
-  private Integer id;
-
-  @Column(name = "create_time")
-  private OffsetDateTime createTime;
-
-  @Column(name = "update_time")
-  private OffsetDateTime updateTime;
+  private boolean recommended;
+  private String displayName;
+  private String mapType;
+  private String battleType;
+  private List<MapVersion> versions = new ArrayList<>();
+  private Player author;
+  private MapStatistics statistics;
+  private MapVersion latestVersion;
+  private Integer gamesPlayed;
+  private MapReviewsSummary reviewsSummary;
 
   @Column(name = "recommended")
   @Audit(action = Audit.Action.UPDATE, logStatement = "Updated map `{0}` attribute recommended to: {1}", logExpressions = {"${map.id}", "${map.recommended}"})
   @NotNull
   @UpdatePermission(expression = AdminMapCheck.EXPRESSION)
-  private boolean recommended;
+  public boolean getRecommended() {
+    return recommended;
+  }
 
   @Column(name = "display_name", unique = true)
   @Size(max = 100)
   @NotNull
-  private String displayName;
+  public String getDisplayName() {
+    return displayName;
+  }
 
   @Column(name = "map_type")
   @NotNull
-  private String mapType;
+  public String getMapType() {
+    return mapType;
+  }
 
   @Column(name = "battle_type")
   @NotNull
-  private String battleType;
+  public String getBattleType() {
+    return battleType;
+  }
+
+  @Column(name = "games_played")
+  @NotNull
+  public Integer getGamesPlayed() {
+    return gamesPlayed;
+  }
 
   @OneToMany(mappedBy = "map", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   @NotEmpty
   @Valid
   @BatchSize(size = 1000)
-  private List<MapVersion> versions = new ArrayList<>();
+  public List<MapVersion> getVersions() {
+    return versions;
+  }
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "author")
   @Nullable
   @BatchSize(size = 1000)
-  private Player author;
+  public Player getAuthor() {
+    return author;
+  }
 
   @OneToOne(mappedBy = "map")
-  private MapStatistics statistics;
+  public MapStatistics getStatistics() {
+    return statistics;
+  }
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumnsOrFormulas({
-    @JoinColumnOrFormula(
-      formula = @JoinFormula(
-        value = "(SELECT map_version.id FROM map_version WHERE map_version.map_id = id ORDER BY map_version.version DESC LIMIT 1)",
-        referencedColumnName = "id")
-    )
+      @JoinColumnOrFormula(
+        formula = @JoinFormula(
+          value = "(SELECT map_version.id FROM map_version WHERE map_version.map_id = id ORDER BY map_version.version DESC LIMIT 1)",
+          referencedColumnName = "id")
+      )
   })
   @BatchSize(size = 1000)
-  private MapVersion latestVersion;
-
-  @Column(name = "games_played")
-  @NotNull
-  private Integer gamesPlayed;
+  public MapVersion getLatestVersion() {
+    return latestVersion;
+  }
 
   @OneToOne(mappedBy = "map")
   @UpdatePermission(expression = Prefab.ALL)
-  private MapReviewsSummary reviewsSummary;
+  public MapReviewsSummary getReviewsSummary() {
+    return reviewsSummary;
+  }
 
   @Transient
   @Override

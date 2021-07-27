@@ -6,8 +6,7 @@ import com.faforever.api.data.listeners.GameEnricher;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
 import org.jetbrains.annotations.Nullable;
@@ -30,77 +29,118 @@ import javax.persistence.Transient;
 import java.time.OffsetDateTime;
 import java.util.Set;
 
-import static com.faforever.api.data.domain.Game.TYPE_NAME;
-
 @Entity
 @Table(name = "game_stats")
-@Include(name = TYPE_NAME)
+@Include(name = "game")
 @Immutable
-@Data
-@NoArgsConstructor
+@Setter
 @EntityListeners(GameEnricher.class)
 public class Game {
 
-  public static final String TYPE_NAME = "game";
+  private int id;
+  private OffsetDateTime startTime;
+  private OffsetDateTime endTime;
+  private Long replayTicks;
+  private VictoryCondition victoryCondition;
+  private FeaturedMod featuredMod;
+  private Player host;
+  private MapVersion mapVersion;
+  private String name;
+  private Validity validity;
+  private Set<GamePlayerStats> playerStats;
+  private String replayUrl;
+  private Set<GameReview> reviews;
+  private GameReviewsSummary reviewsSummary;
+  private Boolean replayAvailable;
 
   @Id
   @Column(name = "id")
-  private int id;
+  public int getId() {
+    return id;
+  }
 
   @Column(name = "startTime")
-  private OffsetDateTime startTime;
-
-  @Column(name = "endTime")
-  @Nullable
-  private OffsetDateTime endTime;
+  public OffsetDateTime getStartTime() {
+    return startTime;
+  }
 
   @Column(name = "replay_ticks")
-  private Long replayTicks;
+  public Long getReplayTicks() {
+    return replayTicks;
+  }
 
   @Column(name = "gameType")
   @Convert(converter = VictoryConditionConverter.class)
-  private VictoryCondition victoryCondition;
+  public VictoryCondition getVictoryCondition() {
+    return victoryCondition;
+  }
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "gameMod")
-  private FeaturedMod featuredMod;
+  public FeaturedMod getFeaturedMod() {
+    return featuredMod;
+  }
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "host")
-  private Player host;
+  public Player getHost() {
+    return host;
+  }
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "mapId")
-  private MapVersion mapVersion;
+  public MapVersion getMapVersion() {
+    return mapVersion;
+  }
 
   @Column(name = "gameName")
-  private String name;
+  public String getName() {
+    return name;
+  }
 
   @Column(name = "validity")
   @Enumerated(EnumType.ORDINAL)
-  private Validity validity;
+  public Validity getValidity() {
+    return validity;
+  }
 
   @OneToMany(mappedBy = "game")
   @BatchSize(size = 1000)
-  private Set<GamePlayerStats> playerStats;
+  public Set<GamePlayerStats> getPlayerStats() {
+    return playerStats;
+  }
+
+  @Column(name = "endTime")
+  @Nullable
+  public OffsetDateTime getEndTime() {
+    return endTime;
+  }
 
   @Transient
   @ComputedAttribute
-  private String replayUrl;
+  public String getReplayUrl() {
+    return replayUrl;
+  }
 
   @OneToMany(mappedBy = "game")
   @UpdatePermission(expression = Prefab.ALL)
   @BatchSize(size = 1000)
-  private Set<GameReview> reviews;
+  public Set<GameReview> getReviews() {
+    return reviews;
+  }
 
   @OneToOne(fetch = FetchType.LAZY)
   @PrimaryKeyJoinColumn
   @UpdatePermission(expression = Prefab.ALL)
   @BatchSize(size = 1000)
-  private GameReviewsSummary reviewsSummary;
+  public GameReviewsSummary getReviewsSummary() {
+    return reviewsSummary;
+  }
 
   @Column(name = "replay_available")
-  private Boolean replayAvailable;
+  public Boolean isReplayAvailable() {
+    return replayAvailable;
+  }
 
   /**
    * This ManyToOne relationship leads to a double left outer join through Elide causing an additional full table

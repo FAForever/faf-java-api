@@ -4,8 +4,7 @@ import com.faforever.api.data.listeners.EventLocalizationListener;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,32 +18,48 @@ import javax.persistence.Transient;
 @Entity
 @Table(name = "event_definitions")
 @Include(name = Event.TYPE_NAME)
-@Data
-@NoArgsConstructor
+@Setter
 @EntityListeners(EventLocalizationListener.class)
 public class Event {
 
   public static final String TYPE_NAME = "event";
 
-  @Id
-  @Column(name = "id")
   private String id;
-
-  @Column(name = "name_key")
-  @Exclude
   private String nameKey;
-
-  @Column(name = "image_url")
   private String imageUrl;
-
-  @Column(name = "type")
-  @Enumerated(EnumType.STRING)
   private Type type;
 
   // Set by EventLocalizationListener
+  private String name;
+
+  @Id
+  @Column(name = "id")
+  public String getId() {
+    return id;
+  }
+
+  @Column(name = "name_key")
+  @Exclude
+  public String getNameKey() {
+    return nameKey;
+  }
+
   @Transient
   @ComputedAttribute
-  private String name;
+  public String getName() {
+    return name;
+  }
+
+  @Column(name = "image_url")
+  public String getImageUrl() {
+    return imageUrl;
+  }
+
+  @Column(name = "type")
+  @Enumerated(EnumType.STRING)
+  public Type getType() {
+    return type;
+  }
 
   public enum Type {
     NUMERIC, TIME

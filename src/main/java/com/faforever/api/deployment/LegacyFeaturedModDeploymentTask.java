@@ -95,7 +95,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
 
     String repositoryUrl = featuredMod.getGitUrl();
     String branch = featuredMod.getGitBranch();
-    boolean allowOverride = Optional.ofNullable(featuredMod.getAllowOverride()).orElse(false);
+    boolean allowOverride = Optional.ofNullable(featuredMod.isAllowOverride()).orElse(false);
     String modFilesExtension = featuredMod.getFileExtension();
     Map<String, Short> fileIds = featuredModService.getFileIds(modName);
 

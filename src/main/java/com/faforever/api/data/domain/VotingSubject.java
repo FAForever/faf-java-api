@@ -15,17 +15,12 @@ import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -44,73 +39,94 @@ import java.util.Set;
 @Audit(action = Action.CREATE, logStatement = "Created voting subject with id: {0}", logExpressions = {"${votingSubject.id}"})
 @Audit(action = Action.DELETE, logStatement = "Deleted voting subject with id: {0}", logExpressions = {"${votingSubject.id}"})
 @Audit(action = Action.UPDATE, logStatement = "Updated voting subject with id: {0}", logExpressions = {"${votingSubject.id}"})
-@Data
-@NoArgsConstructor
+@Setter
 @EntityListeners(VotingSubjectEnricher.class)
 @VotingSubjectRevealWinnerCheck
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class VotingSubject implements DefaultEntity {
-
+public class VotingSubject extends AbstractEntity {
   public static final String TYPE_NAME = "votingSubject";
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
-  @EqualsAndHashCode.Include
-  private Integer id;
-
-  @Column(name = "create_time")
-  private OffsetDateTime createTime;
-
-  @Column(name = "update_time")
-  private OffsetDateTime updateTime;
-
+  private String subjectKey;
+  private String subject;
+  private int numberOfVotes;
+  private String topicUrl;
+  private OffsetDateTime beginOfVoteTime;
+  private OffsetDateTime endOfVoteTime;
+  private int minGamesToVote;
+  private String descriptionKey;
+  private String description;
+  private Boolean revealWinner;
+  private Set<Vote> votes;
+  private Set<VotingQuestion> votingQuestions;
 
   @Column(name = "subject_key")
   @NotNull
-  private String subjectKey;
+  public String getSubjectKey() {
+    return subjectKey;
+  }
 
   @ComputedAttribute
   @Transient
-  private String subject;
+  public String getSubject() {
+    return subject;
+  }
+
+  @Column(name = "description_key")
+  public String getDescriptionKey() {
+    return descriptionKey;
+  }
 
   @Transient
   @ComputedAttribute
-  private int numberOfVotes;
-
-  @Column(name = "topic_url")
-  private String topicUrl;
+  public int getNumberOfVotes() {
+    return numberOfVotes;
+  }
 
   @UpdatePermission(expression = "Prefab.Common.UpdateOnCreate")
   @NotNull
   @Column(name = "begin_of_vote_time")
-  private OffsetDateTime beginOfVoteTime;
+  public OffsetDateTime getBeginOfVoteTime() {
+    return beginOfVoteTime;
+  }
 
   @UpdatePermission(expression = "Prefab.Common.UpdateOnCreate")
   @NotNull
   @Column(name = "end_of_vote_time")
-  private OffsetDateTime endOfVoteTime;
+  public OffsetDateTime getEndOfVoteTime() {
+    return endOfVoteTime;
+  }
 
   @DecimalMin("0")
   @Column(name = "min_games_to_vote")
-  private int minGamesToVote;
-
-  @Column(name = "description_key")
-  private String descriptionKey;
+  public int getMinGamesToVote() {
+    return minGamesToVote;
+  }
 
   @ComputedAttribute
   @Transient
-  private String description;
+  public String getDescription() {
+    return description;
+  }
+
+  @Column(name = "topic_url")
+  public String getTopicUrl() {
+    return topicUrl;
+  }
 
   @Column(name = "reveal_winner")
-  private Boolean revealWinner;
+  public Boolean getRevealWinner() {
+    return revealWinner;
+  }
 
   @JsonIgnore
   @Exclude
   @OneToMany(mappedBy = "votingSubject", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<Vote> votes;
+  public Set<Vote> getVotes() {
+    return votes;
+  }
 
   @JsonManagedReference
   @OneToMany(mappedBy = "votingSubject", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<VotingQuestion> votingQuestions;
+  public Set<VotingQuestion> getVotingQuestions() {
+    return votingQuestions;
+  }
 }

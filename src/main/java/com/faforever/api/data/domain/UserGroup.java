@@ -7,15 +7,11 @@ import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -24,7 +20,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.time.OffsetDateTime;
 import java.util.Set;
 
 @Entity
@@ -33,36 +28,48 @@ import java.util.Set;
 @UpdatePermission(expression = WriteUserGroupCheck.EXPRESSION)
 @CreatePermission(expression = WriteUserGroupCheck.EXPRESSION)
 @ReadPermission(expression = UserGroupPublicCheck.EXPRESSION + " or " + WriteUserGroupCheck.EXPRESSION)
-@Data
-@NoArgsConstructor
-public class UserGroup implements DefaultEntity {
+@Setter
+public class
+UserGroup extends AbstractEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
-  private Integer id;
-
-  @Column(name = "create_time")
-  private OffsetDateTime createTime;
-
-  @Column(name = "update_time")
-  private OffsetDateTime updateTime;
+  private String technicalName;
+  private String nameKey;
+  private boolean public_;
+  private UserGroup parent;
+  private Set<UserGroup> children;
+  private Set<Player> members;
+  private Set<GroupPermission> permissions;
 
   @Column(name = "technical_name")
-  private String technicalName;
+  public String getTechnicalName() {
+    return technicalName;
+  }
 
   @Column(name = "name_key")
-  private String nameKey;
+  public String getNameKey() {
+    return nameKey;
+  }
 
   @Column(name = "public")
-  private boolean public_;
+  public boolean isPublic() {
+    return public_;
+  }
 
   @ManyToOne
   @JoinColumn(name = "parent_group_id")
-  private UserGroup parent;
+  public UserGroup getParent() {
+    return parent;
+  }
 
   @OneToMany(mappedBy = "parent")
-  private Set<UserGroup> children;
+  public Set<UserGroup> getChildren() {
+    return children;
+  }
+
+  public void setPublic(boolean public_) {
+    this.public_ = public_;
+  }
+
   @JoinTable(name = "user_group_assignment",
     joinColumns = @JoinColumn(name = "group_id"),
     inverseJoinColumns = @JoinColumn(name = "user_id")
@@ -71,10 +78,10 @@ public class UserGroup implements DefaultEntity {
     CascadeType.PERSIST,
     CascadeType.MERGE
   })
-  @NotNull
-  @Valid
-  private Set<Player> members;
-
+  public @NotNull
+  @Valid Set<Player> getMembers() {
+    return members;
+  }
 
   @JoinTable(name = "group_permission_assignment",
     joinColumns = @JoinColumn(name = "group_id"),
@@ -84,7 +91,8 @@ public class UserGroup implements DefaultEntity {
     CascadeType.PERSIST,
     CascadeType.MERGE
   })
-  @NotNull
-  @Valid
-  private Set<GroupPermission> permissions;
+  public @NotNull
+  @Valid Set<GroupPermission> getPermissions() {
+    return permissions;
+  }
 }

@@ -3,8 +3,7 @@ package com.faforever.api.data.domain;
 import com.faforever.api.security.elide.permission.ReadTeamkillReportCheck;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Column;
@@ -18,8 +17,7 @@ import javax.persistence.Table;
 import java.time.OffsetDateTime;
 
 @Entity
-@Data
-@NoArgsConstructor
+@Setter
 @Table(name = "teamkills")
 @Include(name = Teamkill.TYPE_NAME)
 @Immutable
@@ -27,26 +25,45 @@ import java.time.OffsetDateTime;
 public class Teamkill {
   public static final String TYPE_NAME = "teamkill";
 
+  private int id;
+  private Player teamkiller;
+  private Player victim;
+  private Game game;
+  private long gameTime;
+  private OffsetDateTime reportedAt;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  private int id;
+  public int getId() {
+    return id;
+  }
 
   @ManyToOne
   @JoinColumn(name = "teamkiller")
-  private Player teamkiller;
+  public Player getTeamkiller() {
+    return teamkiller;
+  }
 
   @ManyToOne
   @JoinColumn(name = "victim")
-  private Player victim;
+  public Player getVictim() {
+    return victim;
+  }
 
   @ManyToOne
   @JoinColumn(name = "game_id")
-  private Game game;
+  public Game getGame() {
+    return game;
+  }
 
   @Column(name = "gametime")
-  private long gameTime;
+  public long getGameTime() {
+    return gameTime;
+  }
 
   @Column(name = "reported_at")
-  private OffsetDateTime reportedAt;
+  public OffsetDateTime getReportedAt() {
+    return reportedAt;
+  }
 }

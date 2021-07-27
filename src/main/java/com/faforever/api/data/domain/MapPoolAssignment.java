@@ -6,63 +6,50 @@ import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.time.OffsetDateTime;
-
-import static com.faforever.api.data.domain.MapPoolAssignment.TYPE_NAME;
 
 
 @Entity
-@Data
-@NoArgsConstructor
+@Setter
 @Table(name = "map_pool_map_version")
-@Include(name = TYPE_NAME)
+@Include(name = "mapPoolAssignment")
 @CreatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @UpdatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @DeletePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
-public class MapPoolAssignment implements DefaultEntity {
-
-  public static final String TYPE_NAME = "mapPoolAssignment";
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
-  private Integer id;
-
-  @Column(name = "create_time")
-  private OffsetDateTime createTime;
-
-  @Column(name = "update_time")
-  private OffsetDateTime updateTime;
+public class MapPoolAssignment extends AbstractEntity {
+  private MapPool mapPool;
+  private MapVersion mapVersion;
+  private Integer weight;
+  private java.util.Map<String, Object> mapParams;
 
   @OneToOne
   @JoinColumn(name = "map_pool_id")
   @NotNull
-  private MapPool mapPool;
+  public MapPool getMapPool() {
+    return mapPool;
+  }
 
   @OneToOne
   @JoinColumn(name = "map_version_id")
-  @EqualsAndHashCode.Exclude
-  private MapVersion mapVersion;
+  public MapVersion getMapVersion() {
+    return mapVersion;
+  }
 
   @Column(name = "weight")
   @NotNull
-  private Integer weight;
+  public Integer getWeight() {
+    return weight;
+  }
 
   @Column(name = "map_params")
   @Convert(converter = JsonConverter.class)
-  private java.util.Map<String, Object> mapParams;
+  public java.util.Map<String, Object> getMapParams() { return mapParams; }
 }

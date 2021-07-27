@@ -9,19 +9,11 @@ import com.faforever.api.security.elide.permission.ReadUserGroupCheck;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.Column;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
@@ -33,74 +25,76 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @MappedSuperclass
-@Data
-@NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public abstract class Login implements DefaultEntity, OwnableEntity {
+@Setter
+public abstract class Login extends AbstractEntity implements OwnableEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
-  @EqualsAndHashCode.Include
-  private Integer id;
+  private String login;
+  private String email;
+  private String steamId;
+  private String userAgent;
+  private Set<BanInfo> bans;
+  private Set<UserNote> userNotes;
+  private Set<UserGroup> userGroups;
+  private String recentIpAddress;
+  private OffsetDateTime lastLogin;
 
-  @Column(name = "create_time")
-  private OffsetDateTime createTime;
-
-  @Column(name = "update_time")
-  private OffsetDateTime updateTime;
+  public Login() {
+    this.bans = new HashSet<>(0);
+    this.userNotes = new HashSet<>(0);
+  }
 
   @Column(name = "login")
-  @EqualsAndHashCode.Include
-  protected String login;
+  public String getLogin() {
+    return login;
+  }
 
   @Column(name = "email")
   @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
-  private String email;
+  public String getEmail() {
+    return email;
+  }
 
   @Column(name = "steamid")
   @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
-  private String steamId;
+  public String getSteamId() {
+    return steamId;
+  }
 
-  @OneToMany
-  @JoinTable(name = "unique_id_users",
-    joinColumns = @JoinColumn(name = "user_id"),
-    inverseJoinColumns = @JoinColumn(name = "uniqueid_hash", referencedColumnName = "hash")
-  )
-  @ReadPermission(expression = ReadAccountPrivateDetailsCheck.EXPRESSION)
-  private Set<UniqueId> uniqueIds;
+  @Column(name = "ip")
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
+  public String getRecentIpAddress() {
+    return recentIpAddress;
+  }
+
+  @Column(name = "last_login")
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
+  public OffsetDateTime getLastLogin() {
+    return lastLogin;
+  }
 
   @Column(name = "user_agent")
-  private String userAgent;
+  public String getUserAgent() {
+    return userAgent;
+  }
 
   @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
   // Permission is managed by BanInfo class
   @UpdatePermission(expression = AdminAccountBanCheck.EXPRESSION)
   @BatchSize(size = 1000)
-  private Set<BanInfo> bans = new HashSet<>(0);
+  public Set<BanInfo> getBans() {
+    return this.bans;
+  }
 
   @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
   @UpdatePermission(expression = AdminAccountNoteCheck.EXPRESSION)
   @BatchSize(size = 1000)
-  private Set<UserNote> userNotes = new HashSet<>(0);
-
-  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadUserGroupCheck.EXPRESSION)
-  @UpdatePermission(expression = Prefab.ALL)
-  @ManyToMany(mappedBy = "members")
-  @BatchSize(size = 1000)
-  private Set<UserGroup> userGroups;
-
-  @Column(name = "ip")
-  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
-  private String recentIpAddress;
-
-  @Column(name = "last_login")
-  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
-  private OffsetDateTime lastLogin;
+  public Set<UserNote> getUserNotes() {
+    return this.userNotes;
+  }
 
   @Transient
   public Set<BanInfo> getActiveBans() {
-    return bans.stream().filter(ban -> ban.getBanStatus() == BanStatus.BANNED).collect(Collectors.toSet());
+    return getBans().stream().filter(ban -> ban.getBanStatus() == BanStatus.BANNED).collect(Collectors.toSet());
   }
 
   @Transient
@@ -113,6 +107,14 @@ public abstract class Login implements DefaultEntity, OwnableEntity {
   @Transient
   public boolean isGlobalBanned() {
     return getActiveBans().stream().anyMatch(ban -> ban.getLevel() == BanLevel.GLOBAL);
+  }
+
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadUserGroupCheck.EXPRESSION)
+  @UpdatePermission(expression = Prefab.ALL)
+  @ManyToMany(mappedBy = "members")
+  @BatchSize(size = 1000)
+  public Set<UserGroup> getUserGroups() {
+    return userGroups;
   }
 
   @Override

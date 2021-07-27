@@ -47,9 +47,12 @@ public class ClanElideTest extends AbstractIntegrationTest {
   @Test
   @WithUserDetails(AUTH_CLAN_LEADER)
   public void canDeleteMemberOfOwnClan() throws Exception {
+    assertNotNull(playerRepository.getOne(12).getClan());
+
     mockMvc.perform(
       delete("/data/clanMembership/2")) // magic value from prepClanData.sql
       .andExpect(status().isNoContent());
+    assertNull(playerRepository.getOne(12).getClan());
   }
 
   @Test
@@ -73,9 +76,13 @@ public class ClanElideTest extends AbstractIntegrationTest {
   @Test
   @WithUserDetails(AUTH_CLAN_MEMBER)
   public void canLeaveClan() throws Exception {
+    assertNotNull(playerRepository.getOne(12).getClan());
+
     mockMvc.perform(
       delete("/data/clanMembership/2")) // magic value from prepClanData.sql
       .andExpect(status().isNoContent());
+
+    assertNull(playerRepository.getOne(12).getClan());
   }
 
   @Test
@@ -99,22 +106,30 @@ public class ClanElideTest extends AbstractIntegrationTest {
   @Test
   @WithUserDetails(AUTH_CLAN_LEADER)
   public void canTransferLeadershipAsLeader() throws Exception {
+    assertThat(clanRepository.getOne(1).getLeader().getLogin(), is(AUTH_CLAN_LEADER));
+
     mockMvc.perform(
       patch("/data/clan/1")
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(generateTransferLeadershipContent(1, 12))) // magic value from prepClanData.sql
       .andExpect(status().isNoContent());
+
+    assertThat(clanRepository.getOne(1).getLeader().getLogin(), is(AUTH_CLAN_MEMBER));
   }
 
   @Test
   @WithUserDetails(AUTH_CLAN_MEMBER)
   public void cannotTransferLeadershipAsMember() throws Exception {
+    assertThat(clanRepository.getOne(1).getLeader().getLogin(), is(AUTH_CLAN_LEADER));
+
     mockMvc.perform(
       patch("/data/clan/1")
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(generateTransferLeadershipContent(1, 12))) // magic value from prepClanData.sql
       .andExpect(status().isForbidden())
       .andExpect(jsonPath("$.errors[0].detail", is("UpdatePermission Denied")));
+
+    assertThat(clanRepository.getOne(1).getLeader().getLogin(), is(AUTH_CLAN_LEADER));
   }
 
   @Test

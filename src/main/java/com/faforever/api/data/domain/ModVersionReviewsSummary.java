@@ -1,8 +1,6 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
@@ -16,40 +14,57 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import static com.faforever.api.data.domain.ModVersionReviewsSummary.TYPE_NAME;
-
 @Entity
-@Data
-@NoArgsConstructor
+@Setter
 @Table(name = "mod_version_reviews_summary")
-@Include(name = TYPE_NAME, rootLevel = false)
+@Include(name = "modVersionReviewsSummary", rootLevel = false)
 @Immutable
 public class ModVersionReviewsSummary {
-
-  public static final String TYPE_NAME = "modVersionReviewsSummary";
+  private int id;
+  private float positive;
+  private float negative;
+  private float score;
+  private int reviews;
+  @Nullable
+  private Float lowerBound;
+  private ModVersion modVersion;
 
   @Id
   @Column(name = "id")
-  private int id;
+  public int getId() {
+    return id;
+  }
 
   @Column(name = "positive")
-  private float positive;
+  public float getPositive() {
+    return positive;
+  }
 
   @Column(name = "negative")
-  private float negative;
+  public float getNegative() {
+    return negative;
+  }
 
   @Column(name = "score")
-  private float score;
+  public float getScore() {
+    return score;
+  }
 
   @Column(name = "reviews")
-  private int reviews;
+  public int getReviews() {
+    return reviews;
+  }
 
   @Column(name = "lower_bound")
   @Nullable
-  private Float lowerBound;
+  public float getLowerBound() {
+    return lowerBound;
+  }
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "mod_version_id", insertable = false, updatable = false)
   @BatchSize(size = 1000)
-  private ModVersion modVersion;
+  public ModVersion getModVersion() {
+    return modVersion;
+  }
 }

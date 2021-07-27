@@ -11,8 +11,6 @@ import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -25,8 +23,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "messages")
-@Data
-@NoArgsConstructor
+@Setter
 @Include
 @DeletePermission(expression = WriteMessageCheck.EXPRESSION)
 @UpdatePermission(expression = WriteMessageCheck.EXPRESSION)
@@ -39,21 +36,36 @@ import javax.persistence.Table;
 public class Message {
 
   public static final String TYPE_NAME = "message";
+  private Integer id;
+  private String key;
+  private String language;
+  private String region;
+  private String value;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  private Integer id;
+  public Integer getId() {
+    return id;
+  }
 
   @Column(name = "`key`")
-  private String key;
+  public String getKey() {
+    return key;
+  }
 
   @Column(name = "language")
-  private String language;
+  public String getLanguage() {
+    return language;
+  }
 
   @Column(name = "region")
-  private String region;
+  public String getRegion() {
+    return region;
+  }
 
   @Column(name = "value")
-  private String value;
+  public String getValue() {
+    return value;
+  }
 }

@@ -1,8 +1,6 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -16,30 +14,48 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "coop_leaderboard")
 @Include(name = CoopResult.TYPE_NAME)
-@Data
-@NoArgsConstructor
+@Setter
 public class CoopResult {
 
   public static final String TYPE_NAME = "coopResult";
 
+  private int id;
+  private short mission;
+  private Game game;
+  private boolean secondaryObjectives;
+  private long duration;
+  private short playerCount;
+
   @Id
   @Column(name = "id")
-  private int id;
+  public int getId() {
+    return id;
+  }
 
   @Column(name = "mission")
-  private short mission;
+  public short getMission() {
+    return mission;
+  }
 
   @OneToOne
   @JoinColumn(name = "gameuid")
-  private Game game;
+  public Game getGame() {
+    return game;
+  }
 
   @Column(name = "secondary")
-  private boolean secondaryObjectives;
+  public boolean getSecondaryObjectives() {
+    return secondaryObjectives;
+  }
 
   @Column(name = "time")
   @Convert(converter = TimeConverter.class)
-  private long duration;
+  public long getDuration() {
+    return duration;
+  }
 
   @Column(name = "player_count")
-  private short playerCount;
+  public short getPlayerCount() {
+    return playerCount;
+  }
 }

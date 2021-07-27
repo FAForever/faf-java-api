@@ -8,9 +8,7 @@ import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -18,24 +16,27 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import static com.faforever.api.data.domain.DomainBlacklist.TYPE_NAME;
-
 @Entity
-@Data
-@NoArgsConstructor
+@Setter
 @Table(name = "email_domain_blacklist")
-@Include(name = TYPE_NAME)
+@Include(name = "domainBlacklist")
 @ReadPermission(expression = WriteEmailDomainBanCheck.EXPRESSION)
 @UpdatePermission(expression = WriteEmailDomainBanCheck.EXPRESSION)
 @CreatePermission(expression = WriteEmailDomainBanCheck.EXPRESSION)
 @DeletePermission(expression = WriteEmailDomainBanCheck.EXPRESSION)
 @Audit(action = Action.CREATE, logStatement = "Email domain `{0}` added to blacklist", logExpressions = "${domainBlacklist.domain}")
 @Audit(action = Action.DELETE, logStatement = "Email domain `{0}` removed from blacklist", logExpressions = "${domainBlacklist.domain}")
+@EqualsAndHashCode
 public class DomainBlacklist {
-
-  public static final String TYPE_NAME = "domainBlacklist";
+  private String domain;
 
   @Id
   @Column(name = "domain")
-  private String domain;
+  public String getDomain() {
+    return domain;
+  }
+
+  public void setDomain(String domain) {
+    this.domain = domain;
+  }
 }

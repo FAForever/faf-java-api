@@ -1,57 +1,59 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.time.OffsetDateTime;
 
 @Entity
-@Data
-@NoArgsConstructor
+@Setter
 @Table(name = "leaderboard_rating_journal")
 @Include(name = LeaderboardRatingJournal.TYPE_NAME)
-public class LeaderboardRatingJournal implements DefaultEntity {
+public class LeaderboardRatingJournal extends AbstractEntity {
 
   public static final String TYPE_NAME = "leaderboardRatingJournal";
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
-  private Integer id;
-
-  @Column(name = "create_time")
-  private OffsetDateTime createTime;
-
-  @Column(name = "update_time")
-  private OffsetDateTime updateTime;
-
-  @Column(name = "rating_mean_before")
   private Double meanBefore;
-
-  @Column(name = "rating_deviation_before")
   private Double deviationBefore;
-
-  @Column(name = "rating_mean_after")
   private Double meanAfter;
-
-  @Column(name = "rating_deviation_after")
   private Double deviationAfter;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "leaderboard_id")
   private Leaderboard leaderboard;
+  private GamePlayerStats gamePlayerStats;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "game_player_stats_id")
-  private GamePlayerStats gamePlayerStats;
+  public GamePlayerStats getGamePlayerStats() {
+    return gamePlayerStats;
+  }
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "leaderboard_id")
+  public Leaderboard getLeaderboard() {
+    return leaderboard;
+  }
+
+  @Column(name = "rating_mean_before")
+  public Double getMeanBefore() {
+    return meanBefore;
+  }
+
+  @Column(name = "rating_deviation_before")
+  public Double getDeviationBefore() {
+    return deviationBefore;
+  }
+
+  @Column(name = "rating_mean_after")
+  public Double getMeanAfter() {
+    return meanAfter;
+  }
+
+  @Column(name = "rating_deviation_after")
+  public Double getDeviationAfter() {
+    return deviationAfter;
+  }
 }

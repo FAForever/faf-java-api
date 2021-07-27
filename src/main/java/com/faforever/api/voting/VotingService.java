@@ -62,7 +62,7 @@ public class VotingService {
         errors.add(new Error(ErrorCode.TOO_MANY_ANSWERS, countOfAnswers, maxAnswers));
       }
 
-      if (votingQuestion.getAlternativeQuestion()) {
+      if (votingQuestion.isAlternativeQuestion()) {
         for (int i = 0; i < countOfAnswers; i++) {
           int finalI = i;
           long answersWithOrdinal = votingAnswers.stream()
