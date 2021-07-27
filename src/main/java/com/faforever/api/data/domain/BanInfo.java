@@ -46,14 +46,12 @@ import static com.yahoo.elide.annotation.LifeCycleHookBinding.TransactionPhase.P
 @Audit(action = Action.UPDATE, logStatement = "Updated ban with id `{0}` for player `{1}`", logExpressions = {"${banInfo.id}", "${banInfo.player}"})
 @LifeCycleHookBinding(operation = CREATE, phase = PRESECURITY, hook = BanInfoCreateHook.class)
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class BanInfo implements DefaultEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -75,7 +73,6 @@ public class BanInfo implements DefaultEntity {
 
   @Column(name = "reason")
   @NotNull
-  @EqualsAndHashCode.Include
   private String reason;
 
   @Column(name = "expires_at")
@@ -87,6 +84,7 @@ public class BanInfo implements DefaultEntity {
 
   @ManyToOne
   @JoinColumn(name = "report_id")
+  @EqualsAndHashCode.Exclude
   private ModerationReport moderationReport;
 
   @Column(name = "revoke_reason")

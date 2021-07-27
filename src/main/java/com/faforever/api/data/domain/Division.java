@@ -27,7 +27,6 @@ public class Division {
   private int id;
 
   @Column(name = "name", nullable = false)
-  @EqualsAndHashCode.Include
   private String name;
 
   @Column(name = "league")

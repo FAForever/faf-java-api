@@ -13,8 +13,8 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "login")
 @Data
-@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class User extends Login {
   @Column(name = "password")
   @ReadPermission(expression = Prefab.NONE)

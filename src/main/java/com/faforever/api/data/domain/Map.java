@@ -39,8 +39,8 @@ import java.util.List;
 
 @Entity
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "map")
 @Include(name = Map.TYPE_NAME)
 @EntityListeners(MapChangeListener.class)

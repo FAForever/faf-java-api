@@ -21,14 +21,12 @@ import java.time.OffsetDateTime;
 @Table(name = "player_events")
 @Include(name = "playerEvent")
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class PlayerEvent implements DefaultEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -38,7 +36,6 @@ public class PlayerEvent implements DefaultEntity {
   private OffsetDateTime updateTime;
 
   @Column(name = "player_id")
-  @EqualsAndHashCode.Include
   private int playerId;
 
   @OneToOne

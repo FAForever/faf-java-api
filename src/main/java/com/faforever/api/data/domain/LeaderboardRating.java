@@ -18,7 +18,6 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @Table(name = "leaderboard_rating")
 @Include(name = LeaderboardRating.TYPE_NAME)
@@ -29,7 +28,6 @@ public class LeaderboardRating implements DefaultEntity, OwnableEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -55,10 +53,12 @@ public class LeaderboardRating implements DefaultEntity, OwnableEntity {
 
   @ManyToOne
   @JoinColumn(name = "leaderboard_id")
+  @EqualsAndHashCode.Exclude
   private Leaderboard leaderboard;
 
   @ManyToOne
   @JoinColumn(name = "login_id")
+  @EqualsAndHashCode.Exclude
   private Player player;
 
   @Override

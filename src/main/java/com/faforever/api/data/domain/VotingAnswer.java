@@ -6,7 +6,6 @@ import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
@@ -27,7 +26,6 @@ import java.time.OffsetDateTime;
 @ReadPermission(expression = IsEntityOwner.EXPRESSION)
 @UpdatePermission(expression = Prefab.NONE)
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class VotingAnswer implements DefaultEntity, OwnableEntity {
   public static final String TYPE_NAME = "votingAnswer";
@@ -35,7 +33,6 @@ public class VotingAnswer implements DefaultEntity, OwnableEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -46,7 +43,6 @@ public class VotingAnswer implements DefaultEntity, OwnableEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "vote_id")
-  @EqualsAndHashCode.Include
   private Vote vote;
 
   @Column(name = "alternative_ordinal")
@@ -54,7 +50,6 @@ public class VotingAnswer implements DefaultEntity, OwnableEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "voting_choice_id")
-  @EqualsAndHashCode.Include
   private VotingChoice votingChoice;
 
   @Transient

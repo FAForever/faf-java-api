@@ -18,7 +18,6 @@ import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -46,10 +45,10 @@ import java.util.Set;
 @Audit(action = Action.DELETE, logStatement = "Deleted voting subject with id: {0}", logExpressions = {"${votingSubject.id}"})
 @Audit(action = Action.UPDATE, logStatement = "Updated voting subject with id: {0}", logExpressions = {"${votingSubject.id}"})
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @EntityListeners(VotingSubjectEnricher.class)
 @VotingSubjectRevealWinnerCheck
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class VotingSubject implements DefaultEntity {
 
   public static final String TYPE_NAME = "votingSubject";
@@ -109,11 +108,9 @@ public class VotingSubject implements DefaultEntity {
   @JsonIgnore
   @Exclude
   @OneToMany(mappedBy = "votingSubject", cascade = CascadeType.ALL, orphanRemoval = true)
-  @ToString.Exclude
   private Set<Vote> votes;
 
   @JsonManagedReference
   @OneToMany(mappedBy = "votingSubject", cascade = CascadeType.ALL, orphanRemoval = true)
-  @ToString.Exclude
   private Set<VotingQuestion> votingQuestions;
 }

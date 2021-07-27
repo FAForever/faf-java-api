@@ -35,7 +35,6 @@ import java.time.OffsetDateTime;
 @Audit(action = Action.CREATE, logStatement = "Avatar ''{0}'' has been assigned to player ''{1}''", logExpressions = {"${avatarAssignment.avatar.id}", "${avatarAssignment.player.id}"})
 @Audit(action = Action.DELETE, logStatement = "Avatar ''{0}'' has been revoked from player ''{1}''", logExpressions = {"${avatarAssignment.avatar.id}", "${avatarAssignment.player.id}"})
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @Type(AvatarAssignment.TYPE_NAME)
 public class AvatarAssignment implements DefaultEntity, OwnableEntity {
@@ -45,7 +44,6 @@ public class AvatarAssignment implements DefaultEntity, OwnableEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-
   private Integer id;
 
   @Column(name = "create_time")
@@ -68,12 +66,14 @@ public class AvatarAssignment implements DefaultEntity, OwnableEntity {
   @JoinColumn(name = "idUser")
   @NotNull
   @Relationship(Player.TYPE_NAME)
+  @EqualsAndHashCode.Exclude
   private Player player;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "idAvatar")
   @NotNull
   @Relationship(Avatar.TYPE_NAME)
+  @EqualsAndHashCode.Exclude
   private Avatar avatar;
 
   @Override

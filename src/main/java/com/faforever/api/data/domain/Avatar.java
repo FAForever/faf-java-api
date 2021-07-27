@@ -29,7 +29,6 @@ import java.util.List;
 @Table(name = "avatars_list")
 @Include(name = Avatar.TYPE_NAME)
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @Type(Avatar.TYPE_NAME)
 @EntityListeners(AvatarEnricherListener.class)
@@ -40,7 +39,6 @@ public class Avatar implements DefaultEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -65,5 +63,6 @@ public class Avatar implements DefaultEntity {
   @OneToMany(mappedBy = "avatar", cascade = CascadeType.ALL, orphanRemoval = true)
   // Permission is managed by AvatarAssignment class
   @UpdatePermission(expression = Prefab.ALL)
+  @EqualsAndHashCode.Exclude
   private List<AvatarAssignment> assignments;
 }

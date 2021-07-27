@@ -24,13 +24,11 @@ import java.time.OffsetDateTime;
 @DeletePermission(expression = Prefab.NONE)
 @UpdatePermission(expression = Prefab.NONE)
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class NameRecord {
 
   @Id
   @Column(name = "id")
-  @EqualsAndHashCode.Include
   private int id;
 
   @Column(name = "change_time")
@@ -39,6 +37,7 @@ public class NameRecord {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   @NotNull
+  @EqualsAndHashCode.Exclude
   private Player player;
 
   @Column(name = "previous_name")

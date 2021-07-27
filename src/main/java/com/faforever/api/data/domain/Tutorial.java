@@ -13,7 +13,6 @@ import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +32,6 @@ import java.time.OffsetDateTime;
 @Entity
 @Table(name = "tutorial")
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @Include(name = Tutorial.TYPE_NAME)
 @DeletePermission(expression = WriteTutorialCheck.EXPRESSION)
@@ -51,7 +49,6 @@ public class Tutorial implements DefaultEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -69,7 +66,6 @@ public class Tutorial implements DefaultEntity {
 
   @Column(name = "title_key")
   @NotNull
-  @EqualsAndHashCode.Include
   private String titleKey;
 
   @Transient

@@ -10,7 +10,6 @@ import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
@@ -34,14 +33,12 @@ import java.time.OffsetDateTime;
 @DeletePermission(expression = Prefab.NONE)
 @Audit(action = Action.CREATE, logStatement = "Note `{0}` for user `{1}` added (watched=`{2}`) with text: {3}", logExpressions = {"${userNote.id}", "${userNote.player.id}", "${userNote.watched}", "${userNote.note}"})
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class UserNote implements DefaultEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")

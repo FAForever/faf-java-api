@@ -2,7 +2,6 @@ package com.faforever.api.data.domain;
 
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
@@ -16,13 +15,11 @@ import javax.persistence.OneToOne;
 
 @MappedSuperclass
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public abstract class Rating {
 
   @Id
   @Column(name = "id")
-  @EqualsAndHashCode.Include
   private int id;
 
   @Column(name = "ranking")

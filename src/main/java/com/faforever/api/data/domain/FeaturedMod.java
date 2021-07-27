@@ -2,7 +2,6 @@ package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
@@ -14,18 +13,15 @@ import javax.persistence.Table;
 @Table(name = "game_featuredMods")
 @Include(name = FeaturedMod.TYPE_NAME)
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class FeaturedMod {
   public static final String TYPE_NAME = "featuredMod";
 
   @Id
   @Column(name = "id")
-  @EqualsAndHashCode.Include
   private int id;
 
   @Column(name = "gamemod")
-  @EqualsAndHashCode.Include
   private String technicalName;
 
   @Column(name = "description")

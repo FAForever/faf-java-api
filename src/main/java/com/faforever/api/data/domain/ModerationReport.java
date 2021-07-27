@@ -49,8 +49,8 @@ import static com.yahoo.elide.annotation.LifeCycleHookBinding.TransactionPhase.P
 @Entity
 @Table(name = "moderation_report")
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
+@ToString(exclude = {"reportedUsers", "bans"})
 @Include(name = ModerationReport.TYPE_NAME)
 @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + AdminModerationReportCheck.EXPRESSION)
 @DeletePermission(expression = Prefab.NONE)
@@ -65,7 +65,6 @@ public class ModerationReport implements DefaultEntity, OwnableEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -90,7 +89,6 @@ public class ModerationReport implements DefaultEntity, OwnableEntity {
   @NotNull
   @Column(name = "report_description")
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " and " + IsInAwaitingState.EXPRESSION)
-  @EqualsAndHashCode.Include
   private String reportDescription;
 
   @Column(name = "game_incident_timecode")
@@ -100,6 +98,7 @@ public class ModerationReport implements DefaultEntity, OwnableEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "game_id", referencedColumnName = "id")
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " and " + IsInAwaitingState.EXPRESSION)
+  @EqualsAndHashCode.Exclude
   private Game game;
 
   @Column(name = "moderator_notice")
@@ -131,14 +130,14 @@ public class ModerationReport implements DefaultEntity, OwnableEntity {
     inverseJoinColumns = @JoinColumn(name = "player_id")
   )
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " and " + IsInAwaitingState.EXPRESSION)
-  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
   private Set<Player> reportedUsers;
 
   @OneToMany(mappedBy = "moderationReport")
   @ReadPermission(expression = AdminModerationReportCheck.EXPRESSION)
   // Permission is managed by BanInfo class
   @UpdatePermission(expression = Prefab.ALL)
-  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
   private Collection<BanInfo> bans;
 
   @Override

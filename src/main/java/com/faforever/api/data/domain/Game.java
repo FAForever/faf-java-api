@@ -41,7 +41,7 @@ import static com.faforever.api.data.domain.Game.TYPE_NAME;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = false)
 @EntityListeners(GameEnricher.class)
 public class Game {
 
