@@ -14,6 +14,8 @@ import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.Column;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
@@ -37,6 +39,8 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
   private Set<UserGroup> userGroups;
   private String recentIpAddress;
   private OffsetDateTime lastLogin;
+  private Set<UniqueId> uniqueIds;
+
 
   public Login() {
     this.bans = new HashSet<>(0);
@@ -115,6 +119,16 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
   @BatchSize(size = 1000)
   public Set<UserGroup> getUserGroups() {
     return userGroups;
+  }
+
+  @OneToMany
+  @JoinTable(name = "unique_id_users",
+    joinColumns = @JoinColumn(name = "user_id"),
+    inverseJoinColumns = @JoinColumn(name = "uniqueid_hash", referencedColumnName = "hash")
+  )
+  @ReadPermission(expression = ReadAccountPrivateDetailsCheck.EXPRESSION)
+  public Set<UniqueId> getUniqueIds() {
+    return uniqueIds;
   }
 
   @Override

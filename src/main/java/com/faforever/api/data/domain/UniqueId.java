@@ -10,6 +10,7 @@ import lombok.ToString;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "uniqueid")
@@ -19,7 +20,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
-public class UniqueId extends AbstractEntity {
+public class UniqueId extends AbstractEntity implements Serializable {
 
   public static final String TYPE_NAME = "uniqueId";
 
