@@ -1,72 +1,89 @@
 package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Table;
-import java.io.Serializable;
-import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "uniqueid")
 @Include(name = UniqueId.TYPE_NAME, rootLevel = false)
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
-public class UniqueId implements DefaultEntity, Serializable {
+public class UniqueId extends AbstractEntity {
+
   public static final String TYPE_NAME = "uniqueId";
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
-  @EqualsAndHashCode.Include
-  @ToString.Include
-  private Integer id;
+  private String hash;
+  private String uuid;
+  private String memorySerialNumber;
+  private String deviceId;
+  private String manufacturer;
+  private String name;
+  private String processorId;
+  private String SMBIOSBIOSVersion;
+  private String serialNumber;
+  private String volumeSerialNumber;
+
 
   @Column(name = "hash")
   @EqualsAndHashCode.Include
   @ToString.Include
-  private String hash;
+  public String getHash() {
+    return hash;
+  }
 
   @Column(name = "uuid")
-  private String uuid;
+  public String getUuid() {
+    return uuid;
+  }
 
   @Column(name = "mem_SerialNumber")
-  private String memorySerialNumber;
+  public String getMemorySerialNumber() {
+    return memorySerialNumber;
+  }
 
   @Column(name = "deviceID")
-  private String deviceId;
+  public String getDeviceId() {
+    return deviceId;
+  }
 
   @Column(name = "manufacturer")
-  private String manufacturer;
+  public String getManufacturer() {
+    return manufacturer;
+  }
 
   @Column(name = "name")
-  private String name;
+  public String getName() {
+    return name;
+  }
 
   @Column(name = "processorId")
-  private String processorId;
+  public String getProcessorId() {
+    return processorId;
+  }
 
   @Column(name = "SMBIOSBIOSVersion")
-  private String SMBIOSBIOSVersion;
+  public String getSMBIOSBIOSVersion() {
+    return SMBIOSBIOSVersion;
+  }
 
   @Column(name = "serialNumber")
-  private String serialNumber;
+  public String getSerialNumber() {
+    return serialNumber;
+  }
 
   @Column(name = "volumeSerialNumber")
-  private String volumeSerialNumber;
-
-  @Column(name = "create_time")
-  private OffsetDateTime createTime;
-
-  @Column(name = "update_time")
-  private OffsetDateTime updateTime;
+  public String getVolumeSerialNumber() {
+    return volumeSerialNumber;
+  }
 }
