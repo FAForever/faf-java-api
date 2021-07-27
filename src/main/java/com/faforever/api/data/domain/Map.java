@@ -7,7 +7,6 @@ import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JoinColumnOrFormula;
@@ -40,7 +39,6 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "map")
 @Include(name = Map.TYPE_NAME)
 @EntityListeners(MapChangeListener.class)
@@ -51,7 +49,6 @@ public class Map implements DefaultEntity, OwnableEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  @EqualsAndHashCode.Include
   private Integer id;
 
   @Column(name = "create_time")
@@ -69,7 +66,6 @@ public class Map implements DefaultEntity, OwnableEntity {
   @Column(name = "display_name", unique = true)
   @Size(max = 100)
   @NotNull
-  @EqualsAndHashCode.Include
   private String displayName;
 
   @Column(name = "map_type")

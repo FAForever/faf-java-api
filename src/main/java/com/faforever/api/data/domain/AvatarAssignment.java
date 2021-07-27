@@ -11,7 +11,6 @@ import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
@@ -66,14 +65,12 @@ public class AvatarAssignment implements DefaultEntity, OwnableEntity {
   @JoinColumn(name = "idUser")
   @NotNull
   @Relationship(Player.TYPE_NAME)
-  @EqualsAndHashCode.Exclude
   private Player player;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "idAvatar")
   @NotNull
   @Relationship(Avatar.TYPE_NAME)
-  @EqualsAndHashCode.Exclude
   private Avatar avatar;
 
   @Override

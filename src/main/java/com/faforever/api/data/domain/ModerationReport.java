@@ -15,7 +15,6 @@ import com.yahoo.elide.annotation.LifeCycleHookBinding;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
@@ -98,7 +97,6 @@ public class ModerationReport implements DefaultEntity, OwnableEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "game_id", referencedColumnName = "id")
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " and " + IsInAwaitingState.EXPRESSION)
-  @EqualsAndHashCode.Exclude
   private Game game;
 
   @Column(name = "moderator_notice")
@@ -130,14 +128,12 @@ public class ModerationReport implements DefaultEntity, OwnableEntity {
     inverseJoinColumns = @JoinColumn(name = "player_id")
   )
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " and " + IsInAwaitingState.EXPRESSION)
-  @EqualsAndHashCode.Exclude
   private Set<Player> reportedUsers;
 
   @OneToMany(mappedBy = "moderationReport")
   @ReadPermission(expression = AdminModerationReportCheck.EXPRESSION)
   // Permission is managed by BanInfo class
   @UpdatePermission(expression = Prefab.ALL)
-  @EqualsAndHashCode.Exclude
   private Collection<BanInfo> bans;
 
   @Override

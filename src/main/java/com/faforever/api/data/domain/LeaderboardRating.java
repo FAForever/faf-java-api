@@ -2,7 +2,6 @@ package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
@@ -53,12 +52,10 @@ public class LeaderboardRating implements DefaultEntity, OwnableEntity {
 
   @ManyToOne
   @JoinColumn(name = "leaderboard_id")
-  @EqualsAndHashCode.Exclude
   private Leaderboard leaderboard;
 
   @ManyToOne
   @JoinColumn(name = "login_id")
-  @EqualsAndHashCode.Exclude
   private Player player;
 
   @Override

@@ -8,7 +8,6 @@ import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.CascadeType;
@@ -63,6 +62,5 @@ public class Avatar implements DefaultEntity {
   @OneToMany(mappedBy = "avatar", cascade = CascadeType.ALL, orphanRemoval = true)
   // Permission is managed by AvatarAssignment class
   @UpdatePermission(expression = Prefab.ALL)
-  @EqualsAndHashCode.Exclude
   private List<AvatarAssignment> assignments;
 }

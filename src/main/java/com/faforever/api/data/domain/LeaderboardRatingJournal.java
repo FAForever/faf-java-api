@@ -2,7 +2,6 @@ package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
@@ -50,11 +49,9 @@ public class LeaderboardRatingJournal implements DefaultEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "leaderboard_id")
-  @EqualsAndHashCode.Exclude
   private Leaderboard leaderboard;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "game_player_stats_id")
-  @EqualsAndHashCode.Exclude
   private GamePlayerStats gamePlayerStats;
 }

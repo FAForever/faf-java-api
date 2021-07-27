@@ -40,7 +40,6 @@ import java.util.Set;
 @CreatePermission(expression = Prefab.ALL)
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @IsLeaderInClan
 @EntityListeners(ClanEnricherListener.class)
 public class Clan implements DefaultEntity, OwnableEntity {
@@ -62,7 +61,6 @@ public class Clan implements DefaultEntity, OwnableEntity {
   @Column(name = "name")
   @NotNull
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION)
-  @EqualsAndHashCode.Include
   private String name;
 
   @Column(name = "tag")

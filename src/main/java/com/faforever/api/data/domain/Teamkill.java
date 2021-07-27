@@ -4,7 +4,6 @@ import com.faforever.api.security.elide.permission.ReadTeamkillReportCheck;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Immutable;
 
@@ -21,7 +20,6 @@ import java.time.OffsetDateTime;
 @Entity
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "teamkills")
 @Include(name = Teamkill.TYPE_NAME)
 @Immutable
@@ -32,7 +30,6 @@ public class Teamkill {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  @EqualsAndHashCode.Include
   private int id;
 
   @ManyToOne
