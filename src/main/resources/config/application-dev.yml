@@ -2,8 +2,8 @@ faf-api:
   jwt:
     secretKeyPath: ${JWT_PRIVATE_KEY_PATH:test-pki-private.key}
     publicKeyPath: ${JWT_PUBLIC_KEY_PATH:test-pki-public.key}
-    fafHydraJwksUrl: ${JWT_FAF_HYDRA_JWKS_URL:https://hydra.test.faforever.com/.well-known/jwks.json}
-    fafHydraIssuer: ${JWT_FAF_HYDRA_ISSUER:https://hydra.test.faforever.com/}
+    fafHydraJwksUrl: ${JWT_FAF_HYDRA_JWKS_URL:http://localhost:4444/.well-known/jwks.json}
+    fafHydraIssuer: ${JWT_FAF_HYDRA_ISSUER:http://localhost:4444/}
   map:
     target-directory: ${MAP_UPLOAD_PATH:build/cache/map/maps}
     directory-preview-path-small: ${MAP_PREVIEW_PATH_SMALL:build/cache/map_previews/small}
@@ -46,7 +46,7 @@ faf-api:
   password-reset:
     password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT:http://localhost:8020/account/password/confirmReset?username=%s&token=%s}
     subject: ${PASSWORD_RESET_EMAIL_SUBJECT:FAF password reset}
-    html-format: ${PASSWORD_RESET_EMAIL_BODY:Registration email body}
+    html-format: ${PASSWORD_RESET_EMAIL_BODY:Reset email body for user {0} with reset link {1}}
   steam:
     realm: ${STEAM_REALM:http://localhost}
     api-key: ${STEAM_API_KEY:banana}

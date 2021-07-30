@@ -1,6 +1,7 @@
 package com.faforever.api.security;
 
 import com.faforever.api.config.FafApiProperties;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -35,11 +36,15 @@ public class FafMultiTokenStore implements TokenStore {
 
   private final FafApiProperties fafApiProperties;
 
-  public FafMultiTokenStore(FafApiProperties fafApiProperties, JwtAccessTokenConverter jwtAccessTokenConverter) {
+  public FafMultiTokenStore(FafApiProperties fafApiProperties,
+                            @Qualifier("classicAccessTokenConverter")
+                            JwtAccessTokenConverter jwtAccessTokenConverter,
+                            @Qualifier("hydraAccessTokenConverter")
+                            JwtAccessTokenConverter hydraAccessTokenConverter) {
     this.fafApiProperties = fafApiProperties;
 
     classicTokenStore = new JwtTokenStore(jwtAccessTokenConverter);
-    hydraTokenStore = new JwkTokenStore(fafApiProperties.getJwt().getFafHydraJwksUrl(), jwtAccessTokenConverter);
+    hydraTokenStore = new JwkTokenStore(fafApiProperties.getJwt().getFafHydraJwksUrl(), hydraAccessTokenConverter);
   }
 
   @Override
