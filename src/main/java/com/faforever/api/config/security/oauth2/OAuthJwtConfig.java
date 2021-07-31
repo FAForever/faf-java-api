@@ -56,13 +56,8 @@ public class OAuthJwtConfig {
   }
 
   @Bean(name = "hydraAccessTokenConverter")
-  protected JwtAccessTokenConverter hydraAccessTokenConverter() throws IOException {
-    String secretKey = Files.readString(fafApiProperties.getJwt().getSecretKeyPath());
-    String publicKey = Files.readString(fafApiProperties.getJwt().getPublicKeyPath());
-
+  protected JwtAccessTokenConverter hydraAccessTokenConverter() {
     JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
-    jwtAccessTokenConverter.setSigningKey(secretKey);
-    jwtAccessTokenConverter.setVerifierKey(publicKey);
     ((DefaultAccessTokenConverter) jwtAccessTokenConverter.getAccessTokenConverter()).setUserTokenConverter(new FafUserAuthenticationConverter());
     ((DefaultAccessTokenConverter) jwtAccessTokenConverter.getAccessTokenConverter()).setScopeAttribute("scp");
     return jwtAccessTokenConverter;
