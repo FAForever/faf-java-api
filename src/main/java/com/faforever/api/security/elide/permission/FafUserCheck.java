@@ -26,18 +26,19 @@ abstract class FafUserCheck extends UserCheck {
 
   private boolean checkOAuthScopes(String... scope) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (!(authentication instanceof OAuth2Authentication)) {
+    if (!(authentication instanceof OAuth2Authentication oAuth2Authentication)) {
       log.trace("Authentication is no OAuth2Authentication: {}", authentication);
       return false;
     }
 
-    OAuth2Authentication oAuth2Authentication = ((OAuth2Authentication) authentication);
     OAuth2Request oAuth2Request = oAuth2Authentication.getOAuth2Request();
 
     List<String> missedScopes = new ArrayList<>();
 
+    Set<String> scopes = oAuth2Request.getScope();
+
     for (String currentScope : scope) {
-      if (!oAuth2Request.getScope().contains(currentScope)) {
+      if (!scopes.contains(currentScope)) {
         missedScopes.add(currentScope);
       }
     }
@@ -46,7 +47,7 @@ abstract class FafUserCheck extends UserCheck {
       if (missedScopes.isEmpty()) {
         log.trace("All requested scopes are granted: {}", String.join(", ", scope));
       } else {
-        log.trace("Scopes '{}' are not granted in requested scopes: {} for client with id {}", String.join(", ", missedScopes), String.join(", ", oAuth2Request.getScope()), oAuth2Request.getResourceIds());
+        log.trace("Scopes '{}' are not granted in requested scopes: {} for client with id {}", String.join(", ", missedScopes), String.join(", ", scopes), oAuth2Request.getResourceIds());
       }
     }
 
