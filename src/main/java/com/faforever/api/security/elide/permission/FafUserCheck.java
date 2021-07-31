@@ -33,12 +33,11 @@ abstract class FafUserCheck extends UserCheck {
 
     OAuth2Authentication oAuth2Authentication = ((OAuth2Authentication) authentication);
     OAuth2Request oAuth2Request = oAuth2Authentication.getOAuth2Request();
-    var requestScopes = ((FafUserDetails) oAuth2Authentication.getPrincipal()).getScopes();
 
     List<String> missedScopes = new ArrayList<>();
 
     for (String currentScope : scope) {
-      if (!requestScopes.contains(currentScope)) {
+      if (!oAuth2Request.getScope().contains(currentScope)) {
         missedScopes.add(currentScope);
       }
     }

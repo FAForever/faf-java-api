@@ -36,7 +36,7 @@ public class FafUserDetailsService implements UserDetailsService {
     authorities.addAll(getUserRoles(user));
     authorities.addAll(getPermissionRoles(user));
 
-    return new FafUserDetails(user, authorities, Set.of());
+    return new FafUserDetails(user, authorities);
   }
 
   private Collection<GrantedAuthority> getUserRoles(User user) {
