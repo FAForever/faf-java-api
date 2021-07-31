@@ -1,6 +1,7 @@
 package com.faforever.api.security;
 
 import com.faforever.api.config.FafApiProperties;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Component
+@Slf4j
 public class FafMultiTokenStore implements TokenStore {
   private JsonParser objectMapper = JsonParserFactory.create();
 
@@ -58,8 +60,10 @@ public class FafMultiTokenStore implements TokenStore {
     Map<String, Object> claims = objectMapper.parseMap(unverifiedJwt.getClaims());
 
     if (Objects.equals(claims.get("iss"), fafApiProperties.getJwt().getFafHydraIssuer())) {
+      log.trace("Reading authentication for Hydra token");
       return hydraTokenStore.readAuthentication(token);
     } else {
+      log.trace("Reading authentication for legacy API token");
       return classicTokenStore.readAuthentication(token);
     }
   }
@@ -72,8 +76,10 @@ public class FafMultiTokenStore implements TokenStore {
   @Override
   public OAuth2AccessToken readAccessToken(String tokenValue) {
     try {
+      log.trace("Reading access token for legacy api token");
       return classicTokenStore.readAccessToken(tokenValue);
     } catch (Exception e) {
+      log.trace("Reading access token for legacy api token failed. Fallback to reading access token for Hydra token");
       return hydraTokenStore.readAccessToken(tokenValue);
     }
   }
