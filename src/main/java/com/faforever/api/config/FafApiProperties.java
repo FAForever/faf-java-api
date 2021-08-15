@@ -39,6 +39,7 @@ public class FafApiProperties {
   private Tutorial tutorial = new Tutorial();
   private Nodebb nodebb = new Nodebb();
   private Recaptcha recaptcha = new Recaptcha();
+  private Monitoring monitoring = new Monitoring();
 
   @Data
   public static class OAuth2 {
@@ -266,5 +267,10 @@ public class FafApiProperties {
   public static class Recaptcha {
     private boolean enabled;
     private String secret;
+  }
+
+  @Data
+  public static class Monitoring {
+    private double slowRequestThresholdSeconds = 1.0;
   }
 }

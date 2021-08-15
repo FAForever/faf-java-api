@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -35,15 +34,10 @@ public class RequestIdFilter implements Filter {
   private static final String REQUEST_ID_HEADER = "X-Request-ID";
 
   @Override
-  public void init(FilterConfig filterConfig) {
-  }
-
-  @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     String requestId = null;
 
-    if (request instanceof HttpServletRequest) {
-      HttpServletRequest httpRequest = (HttpServletRequest) request;
+    if (request instanceof HttpServletRequest httpRequest) {
       requestId = httpRequest.getHeader(REQUEST_ID_HEADER);
     }
 
@@ -63,10 +57,6 @@ public class RequestIdFilter implements Filter {
       log.trace("Removing request id key '{}' from logging context", REQUEST_ID_KEY);
       MDC.remove(REQUEST_ID_KEY);
     }
-  }
-
-  @Override
-  public void destroy() {
   }
 
 }
