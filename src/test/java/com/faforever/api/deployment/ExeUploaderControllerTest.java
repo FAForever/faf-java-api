@@ -36,6 +36,8 @@ public class ExeUploaderControllerTest {
   private FafApiProperties fafApiProperties;
   @MockBean
   private FafApiProperties.Deployment deployment;
+  @MockBean
+  private FafApiProperties.Monitoring monitoring;
 
   @Mock
   private MockMultipartFile file;
@@ -48,8 +50,10 @@ public class ExeUploaderControllerTest {
   @BeforeEach
   public void setUp() {
     when(fafApiProperties.getDeployment()).thenReturn(deployment);
+    when(fafApiProperties.getMonitoring()).thenReturn(monitoring);
     when(deployment.getAllowedExeExtension()).thenReturn("exe");
     when(deployment.getTestingExeUploadKey()).thenReturn(API_KEY);
+    when(monitoring.getSlowRequestThresholdSeconds()).thenReturn(1.0);
     file = new MockMultipartFile("file",
       "ForgedAlliance.exe",
       "application/octet-stream",
