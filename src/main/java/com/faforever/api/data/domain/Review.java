@@ -16,7 +16,7 @@ import javax.validation.constraints.DecimalMin;
 
 @Setter
 @MappedSuperclass
-public class Review extends AbstractEntity implements OwnableEntity {
+public class Review extends AbstractEntity<Review> implements OwnableEntity {
   private String text;
   private Byte score;
   private Player player;

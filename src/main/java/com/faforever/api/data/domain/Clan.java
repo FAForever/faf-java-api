@@ -35,7 +35,7 @@ import java.util.Set;
 @Setter
 @IsLeaderInClan
 @EntityListeners(ClanEnricherListener.class)
-public class Clan extends AbstractEntity implements OwnableEntity {
+public class Clan extends AbstractEntity<Clan> implements OwnableEntity {
 
   public static final String TYPE_NAME = "clan";
 

@@ -42,7 +42,7 @@ import java.util.Set;
 @Setter
 @EntityListeners(VotingSubjectEnricher.class)
 @VotingSubjectRevealWinnerCheck
-public class VotingSubject extends AbstractEntity {
+public class VotingSubject extends AbstractEntity<VotingSubject> {
   public static final String TYPE_NAME = "votingSubject";
 
   private String subjectKey;

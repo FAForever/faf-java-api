@@ -10,10 +10,11 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import java.time.OffsetDateTime;
 
+@SuppressWarnings("unchecked")
 @MappedSuperclass
 @Setter
 @EqualsAndHashCode(of = "id")
-public abstract class AbstractEntity {
+public abstract class AbstractEntity<T extends AbstractEntity<T>> {
   protected Integer id;
   protected OffsetDateTime createTime;
   protected OffsetDateTime updateTime;
@@ -25,14 +26,29 @@ public abstract class AbstractEntity {
     return id;
   }
 
+  public T setId(Integer id) {
+    this.id = id;
+    return (T) this;
+  }
+
   @Column(name = "create_time")
   public OffsetDateTime getCreateTime() {
     return createTime;
   }
 
+  public T setCreateTime(OffsetDateTime createTime) {
+    this.createTime = createTime;
+    return (T) this;
+  }
+
   @Column(name = "update_time")
   public OffsetDateTime getUpdateTime() {
     return updateTime;
+  }
+
+  public T setUpdateTime(OffsetDateTime updateTime) {
+    this.updateTime = updateTime;
+    return (T) this;
   }
 
   /**

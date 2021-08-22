@@ -31,7 +31,7 @@ import java.util.List;
 @Include(name = Mod.TYPE_NAME)
 @Setter
 @EntityListeners(ModChangeListener.class)
-public class Mod extends AbstractEntity implements OwnableEntity {
+public class Mod extends AbstractEntity<Mod> implements OwnableEntity {
 
   public static final String TYPE_NAME = "mod";
 

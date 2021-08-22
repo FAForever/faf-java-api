@@ -17,7 +17,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @Table(name = "matchmaker_queue")
 @Include(name = MatchmakerQueue.TYPE_NAME)
-public class MatchmakerQueue extends AbstractEntity {
+public class MatchmakerQueue extends AbstractEntity<MatchmakerQueue> {
 
   public static final String TYPE_NAME = "matchmakerQueue";
 

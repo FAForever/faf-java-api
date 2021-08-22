@@ -14,7 +14,7 @@ import javax.persistence.Table;
 @Setter
 @Table(name = "leaderboard_rating_journal")
 @Include(name = LeaderboardRatingJournal.TYPE_NAME)
-public class LeaderboardRatingJournal extends AbstractEntity {
+public class LeaderboardRatingJournal extends AbstractEntity<LeaderboardRatingJournal> {
 
   public static final String TYPE_NAME = "leaderboardRatingJournal";
 

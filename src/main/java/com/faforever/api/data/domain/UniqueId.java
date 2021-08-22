@@ -20,7 +20,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
-public class UniqueId extends AbstractEntity implements Serializable {
+public class UniqueId extends AbstractEntity<UniqueId> implements Serializable {
 
   public static final String TYPE_NAME = "uniqueId";
 

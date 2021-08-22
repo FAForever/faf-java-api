@@ -19,7 +19,7 @@ import javax.persistence.Table;
 @DeletePermission(expression = IsClanMembershipDeletable.EXPRESSION)
 @UpdatePermission(expression = IsClanMembershipDeletable.EXPRESSION)
 @Setter
-public class ClanMembership extends AbstractEntity {
+public class ClanMembership extends AbstractEntity<ClanMembership> {
 
   private Clan clan;
   private Player player;

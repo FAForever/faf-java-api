@@ -25,7 +25,7 @@ import java.util.Set;
 @UpdatePermission(expression = Prefab.NONE)
 @EqualsAndHashCode(of = {"player", "votingSubject"}, callSuper = false)
 @Setter
-public class Vote extends AbstractEntity implements OwnableEntity {
+public class Vote extends AbstractEntity<Vote> implements OwnableEntity {
   public static final String TYPE_NAME = "vote";
 
   private Player player;
