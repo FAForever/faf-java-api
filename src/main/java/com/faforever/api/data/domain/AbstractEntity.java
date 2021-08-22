@@ -1,7 +1,6 @@
 package com.faforever.api.data.domain;
 
 import lombok.EqualsAndHashCode;
-import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -12,7 +11,6 @@ import java.time.OffsetDateTime;
 
 @SuppressWarnings("unchecked")
 @MappedSuperclass
-@Setter
 @EqualsAndHashCode(of = "id")
 public abstract class AbstractEntity<T extends AbstractEntity<T>> {
   protected Integer id;
