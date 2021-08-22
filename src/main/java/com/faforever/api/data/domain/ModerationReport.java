@@ -52,7 +52,7 @@ import static com.yahoo.elide.annotation.LifeCycleHookBinding.TransactionPhase.P
 @Audit(action = Action.UPDATE, logStatement = "Moderation report `{0}` has been updated", logExpressions = "${moderationReport}")
 @LifeCycleHookBinding(operation = CREATE, phase = PRESECURITY, hook = ModerationReportHook.class)
 @LifeCycleHookBinding(operation = UPDATE, phase = PRESECURITY, hook = ModerationReportHook.class)
-public class ModerationReport extends AbstractEntity implements OwnableEntity {
+public class ModerationReport extends AbstractEntity<ModerationReport> implements OwnableEntity {
   public static final String TYPE_NAME = "moderationReport";
   private ModerationReportStatus reportStatus;
   private Player reporter;

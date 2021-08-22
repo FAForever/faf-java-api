@@ -43,7 +43,7 @@ import java.util.Set;
 @Include(name = VotingQuestion.TYPE_NAME)
 @Setter
 @EntityListeners(VotingQuestionEnricher.class)
-public class VotingQuestion extends AbstractEntity {
+public class VotingQuestion extends AbstractEntity<VotingQuestion> {
   public static final String TYPE_NAME = "votingQuestion";
 
   private Integer numberOfAnswers;

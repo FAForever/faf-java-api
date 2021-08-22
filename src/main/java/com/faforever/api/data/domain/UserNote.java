@@ -28,7 +28,7 @@ import javax.validation.constraints.NotNull;
 @DeletePermission(expression = Prefab.NONE)
 @Audit(action = Action.CREATE, logStatement = "Note `{0}` for user `{1}` added (watched=`{2}`) with text: {3}", logExpressions = {"${userNote.id}", "${userNote.player.id}", "${userNote.watched}", "${userNote.note}"})
 @Setter
-public class UserNote extends AbstractEntity {
+public class UserNote extends AbstractEntity<UserNote> {
   private Player player;
   private Player author;
   private boolean watched;

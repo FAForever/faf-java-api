@@ -31,7 +31,7 @@ import java.time.OffsetDateTime;
 @Audit(action = Action.DELETE, logStatement = "Avatar ''{0}'' has been revoked from player ''{1}''", logExpressions = {"${avatarAssignment.avatar.id}", "${avatarAssignment.player.id}"})
 @Setter
 @Type(AvatarAssignment.TYPE_NAME)
-public class AvatarAssignment extends AbstractEntity implements OwnableEntity {
+public class AvatarAssignment extends AbstractEntity<AvatarAssignment> implements OwnableEntity {
   public static final String TYPE_NAME = "avatarAssignment";
 
   private Boolean selected = Boolean.FALSE;

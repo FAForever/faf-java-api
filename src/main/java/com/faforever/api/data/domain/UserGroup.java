@@ -30,7 +30,7 @@ import java.util.Set;
 @ReadPermission(expression = UserGroupPublicCheck.EXPRESSION + " or " + WriteUserGroupCheck.EXPRESSION)
 @Setter
 public class
-UserGroup extends AbstractEntity {
+UserGroup extends AbstractEntity<UserGroup> {
 
   private String technicalName;
   private String nameKey;

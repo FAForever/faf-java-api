@@ -24,7 +24,7 @@ import javax.persistence.Table;
 @CreatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @UpdatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @DeletePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
-public class MapPoolAssignment extends AbstractEntity {
+public class MapPoolAssignment extends AbstractEntity<MapPoolAssignment> {
   private MapPool mapPool;
   private MapVersion mapVersion;
   private Integer weight;

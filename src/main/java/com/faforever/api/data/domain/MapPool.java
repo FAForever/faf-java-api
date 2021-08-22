@@ -25,7 +25,7 @@ import java.util.Set;
 @CreatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @UpdatePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
 @DeletePermission(expression = WriteMatchmakerMapCheck.EXPRESSION)
-public class MapPool extends AbstractEntity {
+public class MapPool extends AbstractEntity<MapPool> {
   private String name;
   private MatchmakerQueueMapPool matchmakerQueueMapPool;
   @Deprecated

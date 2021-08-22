@@ -32,7 +32,7 @@ import java.util.Set;
 @Include(name = "groupPermission")
 @Setter
 @ReadPermission(expression = ReadUserGroupCheck.EXPRESSION)
-public class GroupPermission extends AbstractEntity implements GrantedAuthority {
+public class GroupPermission extends AbstractEntity<GroupPermission> implements GrantedAuthority {
 
   // Any changes to the permissions here need to be added to the dto class as well!
   public static final String ROLE_READ_AUDIT_LOG = "ROLE_READ_AUDIT_LOG";

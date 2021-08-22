@@ -41,7 +41,7 @@ import static com.yahoo.elide.annotation.LifeCycleHookBinding.TransactionPhase.P
 @Audit(action = Action.UPDATE, logStatement = "Updated ban with id `{0}` for player `{1}`", logExpressions = {"${banInfo.id}", "${banInfo.player}"})
 @LifeCycleHookBinding(operation = CREATE, phase = PRESECURITY, hook = BanInfoCreateHook.class)
 @Setter
-public class BanInfo extends AbstractEntity {
+public class BanInfo extends AbstractEntity<BanInfo> {
   private Player player;
   private Player author;
   private String reason;

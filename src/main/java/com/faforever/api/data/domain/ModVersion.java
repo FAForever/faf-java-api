@@ -30,7 +30,7 @@ import java.util.List;
 @Include(name = ModVersion.TYPE_NAME)
 @Setter
 @EntityListeners(ModVersionEnricher.class)
-public class ModVersion extends AbstractEntity implements OwnableEntity {
+public class ModVersion extends AbstractEntity<ModVersion> implements OwnableEntity {
 
   public static final String TYPE_NAME = "modVersion";
 

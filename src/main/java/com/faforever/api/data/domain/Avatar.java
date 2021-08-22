@@ -25,7 +25,7 @@ import java.util.List;
 @Setter
 @Type(Avatar.TYPE_NAME)
 @EntityListeners(AvatarEnricherListener.class)
-public class Avatar extends AbstractEntity {
+public class Avatar extends AbstractEntity<Avatar> {
 
   public static final String TYPE_NAME = "avatar";
 

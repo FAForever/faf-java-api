@@ -22,7 +22,7 @@ import javax.persistence.Table;
 @Setter
 @Table(name = "matchmaker_queue_map_pool")
 @Include(name = MatchmakerQueueMapPool.TYPE_NAME)
-public class MatchmakerQueueMapPool extends AbstractEntity {
+public class MatchmakerQueueMapPool extends AbstractEntity<MatchmakerQueueMapPool> {
 
   public static final String TYPE_NAME = "matchmakerQueueMapPool";
 

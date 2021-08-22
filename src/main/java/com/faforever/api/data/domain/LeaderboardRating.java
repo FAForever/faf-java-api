@@ -14,7 +14,7 @@ import javax.persistence.Transient;
 @Setter
 @Table(name = "leaderboard_rating")
 @Include(name = LeaderboardRating.TYPE_NAME)
-public class LeaderboardRating extends AbstractEntity implements OwnableEntity {
+public class LeaderboardRating extends AbstractEntity<Leaderboard> implements OwnableEntity {
 
   public static final String TYPE_NAME = "leaderboardRating";
 

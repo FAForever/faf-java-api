@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 @MappedSuperclass
 @Setter
-public abstract class Login extends AbstractEntity implements OwnableEntity {
+public abstract class Login extends AbstractEntity<Login> implements OwnableEntity {
 
   private String login;
   private String email;
