@@ -1,6 +1,7 @@
 package com.faforever.api.error;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
@@ -103,6 +104,11 @@ class GlobalControllerExceptionHandler {
       ex.getMessage()
     ));
     return response;
+  }
+
+  @ExceptionHandler(ClientAbortException.class)
+  public void warn(Throwable ex) {
+    log.warn("Client aborted connection: {}", ex.getMessage());
   }
 
   @ExceptionHandler(Exception.class)
