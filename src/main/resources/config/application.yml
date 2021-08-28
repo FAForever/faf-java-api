@@ -27,6 +27,8 @@ faf-api:
     base-url: ${NODEBB_BASE_URL:false}
     admin-user-id: ${NODEBB_ADMIN_USERID:1}
     master-token: ${NODEBB_MASTER_TOKEN:false}
+  gog:
+    token-format: ${GOG_TOKEN_FORMAT:FAF_%s}
 
 spring:
   application:
@@ -99,3 +101,4 @@ logging:
     console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%36.36X{requestId:- no request context}]){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"
   level:
     com.faforever: ${LOG_LEVEL:info}
+    org.springframework.security: "debug"

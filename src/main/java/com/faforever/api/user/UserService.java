@@ -423,6 +423,10 @@ public class UserService {
     return new CallbackResult(callbackUrl, errors);
   }
 
+  public String buildGogToken(User user) {
+    return String.format(properties.getGog().getTokenFormat(), user.getId());
+  }
+
   @Value
   static class CallbackResult {
     String callbackUrl;

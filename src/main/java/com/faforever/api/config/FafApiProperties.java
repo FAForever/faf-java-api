@@ -29,6 +29,7 @@ public class FafApiProperties {
   private Registration registration = new Registration();
   private PasswordReset passwordReset = new PasswordReset();
   private Steam steam = new Steam();
+  private Gog gog = new Gog();
   private Mail mail = new Mail();
   private Challonge challonge = new Challonge();
   private User user = new User();
@@ -199,6 +200,11 @@ public class FafApiProperties {
     private String getOwnedGamesUrlFormat = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001?key={key}&steamid={steamId}&format={format}&appids_filter[0]={faAppId}";
     private String linkToSteamRedirectUrlFormat;
     private String steamPasswordResetRedirectUrlFormat;
+  }
+
+  @Data
+  public static class Gog {
+    private String tokenFormat;
   }
 
   @Data

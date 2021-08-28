@@ -166,6 +166,25 @@ public class UsersController {
     userService.resynchronizeAccount(userService.getUser(authentication));
   }
 
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
+  @ApiOperation("Obtain the authorization token used for linking to a GOG account.")
+  @GetMapping(path = "/obtainGogToken", produces = APPLICATION_JSON_VALUE) //TODO: get/obtain in name? naming pattern?
+  public Map<String, Serializable> obtainGogToken(Authentication authentication) {
+    String gogToken = userService.buildGogToken(userService.getUser(authentication));
+    return Map.of("gogToken", gogToken);
+
+
+  }
+
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
+  @ApiOperation("Attempt to link a GOG account to this account.")
+  @PostMapping(path = "/linkGog", produces = APPLICATION_JSON_VALUE)
+  public void linkGog(HttpServletRequest request,
+                                                  @RequestParam("gogUsername") String gogUsername,
+                                                  Authentication authentication) {
+    throw ApiException.of(ErrorCode.GOG_LINK_GAMES_NOT_PUBLIC);
+  }
+
   @SneakyThrows
   private void redirectCallbackResult(HttpServletResponse response, CallbackResult result) {
     if (result.getErrors().isEmpty()) {

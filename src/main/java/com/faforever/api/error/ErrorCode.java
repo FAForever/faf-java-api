@@ -101,7 +101,14 @@ public enum ErrorCode {
   INVALID_FEATURED_MOD(191, "Invalid featured mod name", "The featured mod name ''{0}'' is not allowed in this context."),
   API_KEY_INVALID(192, "Api key is invalid", "The api key is invalid."),
   UNKNOWN_STEAM_ID(193, "Unable to resolve steam id", "The Steam ID ''{0}'' does not match any account."),
-  RECAPTCHA_VALIDATION_FAILED(194, "Recaptcha validation failed", "The response code from the recaptcha did not pass the verification.");
+  RECAPTCHA_VALIDATION_FAILED(194, "Recaptcha validation failed", "The response code from the recaptcha did not pass the verification."),
+  GOG_ID_UNCHANGEABLE(195, "Linking to GOG failed", "Your Account is already linked to GOG. Just login with our client and start playing."),
+  GOG_LINK_GAMES_NOT_PUBLIC(196, "Linking to GOG failed", "Your games list is not public."),
+  GOG_LINK_PROFILE_NOT_PUBLIC(197, "Linking to GOG failed", "Your profile is not public."),
+  GOG_LINK_PROFILE_TOKEN_NOT_SET(198, "Linking to GOG failed", "The link token couldn't be found on your profile. Make sure to set your status."),
+  GOG_LINK_NO_FA_GAME(199, "Linking to GOG failed", "You do not own Forged Alliance on GOG."),
+  GOG_LINK_USER_NOT_FOUND(200, "Linking to GOG failed", "You do not own Forged Alliance on GOG."),
+  GOG_LINK_INVALID_USERNAME(201, "Linking to GOG failed", "The specified username is invalid.");
 
 
   private final int code;
