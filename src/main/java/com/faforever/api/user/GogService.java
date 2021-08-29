@@ -13,12 +13,25 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -31,15 +44,18 @@ public class GogService {
   private static final Pattern PROFILE_USER_STATUS_PATTERN = Pattern.compile("window\\.profilesData\\.profileUserPreferences\\s=\\s\\{\"bio\":\"(.*?)\"");
   private static final String GOG_FA_GAME_ID = "1444785261";
 
+  private final UserService userService;
   private final FafApiProperties properties;
   private final Gson gson = new Gson();
 
   public void linkGogAccount(String gogUsername, User user) { // TODO: rate limit?
+    log.debug("Verifying and attempting to link user {} to gog account {}", user.getId(), gogUsername);
+
     if(! verifyGogUsername(gogUsername)) {
       throw ApiException.of(ErrorCode.GOG_LINK_INVALID_USERNAME);
     }
 
-    if(!verifyProfileToken(gogUsername)) {
+    if(!verifyProfileToken(gogUsername, user)) {
       throw ApiException.of(ErrorCode.GOG_LINK_PROFILE_TOKEN_NOT_SET);
     }
 
@@ -54,9 +70,47 @@ public class GogService {
     return username.length() <= 30 && username.length() >= 3 && GOG_USERNAME_PATTERN.matcher(username).matches();
   }
 
-  private boolean verifyProfileToken(String gogUsername) {
-    return true;
+  private boolean verifyProfileToken(String gogUsername, User user) {
+    String targetToken = userService.buildGogToken(user);
+    String profileStatus = getProfileStatus(gogUsername);
+
+    return profileStatus.length() < 100 && Objects.equals(targetToken, profileStatus.trim());
   }
+
+  private String getProfileStatus(String gogUsername) {
+    String profilePageUrl = String.format(properties.getGog().getProfilePageUrl(), gogUsername);
+    String profilePageHtml = new RestTemplate().getForObject(profilePageUrl, String.class);
+
+    // The returned HTML is malformed, it contains two non-ended <link> tags, therefore we remove the header to produce valid XML
+    int startOfHead = profilePageHtml.indexOf("<head>");
+    int endOfHead = profilePageHtml.indexOf("</head>");
+    String profilePageHtmlWithoutHead = profilePageHtml.substring(0, startOfHead) + profilePageHtml.substring(endOfHead + "</head>".length());
+
+    try {
+      DocumentBuilderFactory builder = DocumentBuilderFactory.newInstance();
+      builder.setValidating(false);
+      Document xmlDocument = builder.newDocumentBuilder().parse(new ByteArrayInputStream(profilePageHtmlWithoutHead.getBytes(StandardCharsets.UTF_8)));
+      XPath xpath = XPathFactory.newInstance().newXPath();
+      NodeList nodes = (NodeList) xpath.compile("/html/body/script").evaluate(xmlDocument, XPathConstants.NODE);
+
+      for(int i = 0;i < nodes.getLength();i++) {
+        String scriptText = nodes.item(i).getTextContent();
+        Matcher matcher = PROFILE_USER_STATUS_PATTERN.matcher(scriptText);
+
+        if(matcher.find()) {
+          return matcher.group(1);
+        }
+      }
+
+      throw ApiException.of(ErrorCode.GOG_LINK_PROFILE_TOKEN_NOT_SET);
+
+    } catch(ParserConfigurationException | SAXException | IOException | XPathExpressionException e) {
+      log.error("Couldn't parse GOG profile page XML for " + gogUsername, e);
+      throw ApiException.of(ErrorCode.GOG_LINK_INTERNAL_SERVER_ERROR);
+    }
+  }
+
+
 
   private boolean verifyGameOwnership(String gogUsername) {
     List<GogGamesListPage.GogGamesListEntry> allGames = getAllGames(gogUsername); // TODO: data not available?
@@ -95,8 +149,6 @@ public class GogService {
       }
     }
   }
-
-
 
   @Data
   @AllArgsConstructor
