@@ -38,6 +38,7 @@ public class UsersController {
   private final SteamService steamService;
   private final RecaptchaService recaptchaService;
   private final ObjectMapper objectMapper;
+  private final GogService gogService;
 
   @ApiOperation("Registers a new account that needs to be activated.")
   @PostMapping(path = "/register", produces = APPLICATION_JSON_VALUE)
@@ -182,7 +183,7 @@ public class UsersController {
   public void linkGog(HttpServletRequest request,
                                                   @RequestParam("gogUsername") String gogUsername,
                                                   Authentication authentication) {
-    throw ApiException.of(ErrorCode.GOG_LINK_GAMES_NOT_PUBLIC);
+    gogService.linkGogAccount(gogUsername, userService.getUser(authentication));
   }
 
   @SneakyThrows

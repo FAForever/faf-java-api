@@ -205,6 +205,7 @@ public class FafApiProperties {
   @Data
   public static class Gog {
     private String tokenFormat;
+    private String gamesListUrl;
   }
 
   @Data

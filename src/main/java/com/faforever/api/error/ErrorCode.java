@@ -107,7 +107,7 @@ public enum ErrorCode {
   GOG_LINK_PROFILE_NOT_PUBLIC(197, "Linking to GOG failed", "Your profile is not public."),
   GOG_LINK_PROFILE_TOKEN_NOT_SET(198, "Linking to GOG failed", "The link token couldn't be found on your profile. Make sure to set your status."),
   GOG_LINK_NO_FA_GAME(199, "Linking to GOG failed", "You do not own Forged Alliance on GOG."),
-  GOG_LINK_USER_NOT_FOUND(200, "Linking to GOG failed", "You do not own Forged Alliance on GOG."),
+  GOG_LINK_USER_NOT_FOUND(200, "Linking to GOG failed", "GOG user account not found."),
   GOG_LINK_INVALID_USERNAME(201, "Linking to GOG failed", "The specified username is invalid.");
 
 
