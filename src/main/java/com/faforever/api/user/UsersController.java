@@ -38,7 +38,6 @@ public class UsersController {
   private final SteamService steamService;
   private final RecaptchaService recaptchaService;
   private final ObjectMapper objectMapper;
-  private final GogService gogService;
 
   @ApiOperation("Registers a new account that needs to be activated.")
   @PostMapping(path = "/register", produces = APPLICATION_JSON_VALUE)
@@ -183,7 +182,7 @@ public class UsersController {
   public void linkGog(HttpServletRequest request,
                                                   @RequestParam("gogUsername") String gogUsername,
                                                   Authentication authentication) {
-    gogService.linkGogAccount(gogUsername, userService.getUser(authentication));
+    userService.linkGogAccount(gogUsername.toLowerCase(), userService.getUser(authentication));
   }
 
   @SneakyThrows

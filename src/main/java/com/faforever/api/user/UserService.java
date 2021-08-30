@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static com.faforever.api.error.ErrorCode.TOKEN_INVALID;
@@ -62,6 +63,7 @@ public class UserService {
   private final AnopeUserRepository anopeUserRepository;
   private final FafTokenService fafTokenService;
   private final SteamService steamService;
+  private final GogService gogService;
   private final GlobalRatingRepository globalRatingRepository;
   private final Ladder1v1RatingRepository ladder1v1RatingRepository;
   private final MeterRegistry meterRegistry;
@@ -87,7 +89,7 @@ public class UserService {
                      AnopeUserRepository anopeUserRepository,
                      FafTokenService fafTokenService,
                      SteamService steamService,
-                     GlobalRatingRepository globalRatingRepository,
+                     GogService gogService, GlobalRatingRepository globalRatingRepository,
                      Ladder1v1RatingRepository ladder1v1RatingRepository,
                      MeterRegistry meterRegistry,
                      ApplicationEventPublisher eventPublisher) {
@@ -99,6 +101,7 @@ public class UserService {
     this.anopeUserRepository = anopeUserRepository;
     this.fafTokenService = fafTokenService;
     this.steamService = steamService;
+    this.gogService = gogService;
     this.globalRatingRepository = globalRatingRepository;
     this.ladder1v1RatingRepository = ladder1v1RatingRepository;
     this.eventPublisher = eventPublisher;
@@ -425,6 +428,36 @@ public class UserService {
 
   public String buildGogToken(User user) {
     return String.format(properties.getGog().getTokenFormat(), user.getId());
+  }
+
+  public void linkGogAccount(String gogUsername, User user) { // TODO: rate limit?
+    log.debug("Verifying and attempting to link user {} to gog account {}", user.getId(), gogUsername);
+
+    if(! gogService.verifyGogUsername(gogUsername)) {
+      throw ApiException.of(ErrorCode.GOG_LINK_INVALID_USERNAME);
+    }
+
+    if(! gogService.verifyProfileToken(gogUsername, user, buildGogToken(user))) {
+      throw ApiException.of(ErrorCode.GOG_LINK_PROFILE_TOKEN_NOT_SET);
+    }
+
+    if(! gogService.verifyGameOwnership(gogUsername)) {
+      throw ApiException.of(ErrorCode.GOG_LINK_NO_FA_GAME);
+    }
+
+    Optional<User> userWithSameId = userRepository.findOneByGogId(gogUsername);
+    if(userWithSameId.isPresent()) {
+      throw ApiException.of(ErrorCode.GOG_ID_ALREADY_LINKED, userWithSameId.get().getLogin());
+    }
+
+    if(user.getGogId() != null) {
+      throw ApiException.of(ErrorCode.GOG_ID_UNCHANGEABLE);
+    }
+
+    user.setGogId(gogUsername);
+    userRepository.save(user);
+
+    log.debug("Successfully linked user {} to gog account {}", user.getId(), gogUsername);
   }
 
   @Value

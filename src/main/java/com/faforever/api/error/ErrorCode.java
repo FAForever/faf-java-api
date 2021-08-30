@@ -89,7 +89,7 @@ public enum ErrorCode {
   CAN_NOT_REVEAL_RESULTS_WHEN_VOTING_IS_NOT_FINISHED(179, "Vote still ongoing", "You can reveal results when voting is ongoing. Please set reveal results only after voting finished."),
   VOTING_SUBJECT_DOES_NOT_EXIST(180, "Voting subject does not exist", "There is no voting subject with the ID ''{0}''."),
   VOTING_CHOICE_DOES_NOT_EXIST(181, "Invalid choice", "There is no voting choice with the ID ''{0}''."),
-  STEAM_ID_ALREADY_LINKED(182, " Steam account already linked to a FAF account", "You linked this account already to user with name ''{0}''."),
+  STEAM_ID_ALREADY_LINKED(182, "Steam account already linked to a FAF account", "You linked this account already to user with name ''{0}''."),
   MAP_NAME_INVALID_CHARACTER(183, "Map name invalid", "Only latin characters, numbers, blanks and the minus are allowed."),
   MOD_NAME_INVALID(184, "Mod name invalid", "The name of the mod in the scenario file can only contain printable ASCII characters and blanks."),
   MAP_NAME_INVALID_MINUS_OCCURENCE(185, "Map name invalid", "Only a maximum of {0} minus characters are allowed."),
@@ -109,7 +109,8 @@ public enum ErrorCode {
   GOG_LINK_NO_FA_GAME(199, "Linking to GOG failed", "You do not own Forged Alliance on GOG."),
   GOG_LINK_USER_NOT_FOUND(200, "Linking to GOG failed", "GOG user account not found."),
   GOG_LINK_INVALID_USERNAME(201, "Linking to GOG failed", "The specified username is invalid."),
-  GOG_LINK_INTERNAL_SERVER_ERROR(202, "Linking to GOG failed", "An internal server error occured while attempting to link accounts. Please contact our tech support.");
+  GOG_LINK_INTERNAL_SERVER_ERROR(202, "Linking to GOG failed", "An internal server error occured while attempting to link accounts. Please contact our tech support."),
+  GOG_ID_ALREADY_LINKED(203, "GOG account already linked to a FAF account", "You linked this account already to user with name ''{0}''.");
 
 
   private final int code;

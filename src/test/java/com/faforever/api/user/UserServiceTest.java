@@ -85,6 +85,8 @@ public class UserServiceTest {
   @Mock
   private SteamService steamService;
   @Mock
+  private GogService gogService;
+  @Mock
   private FafTokenService fafTokenService;
   @Mock
   private GlobalRatingRepository globalRatingRepository;
@@ -121,6 +123,7 @@ public class UserServiceTest {
       anopeUserRepository,
       fafTokenService,
       steamService,
+      gogService,
       globalRatingRepository,
       ladder1v1RatingRepository,
       meterRegistry,
