@@ -29,13 +29,16 @@ import javax.persistence.Transient;
 import java.time.OffsetDateTime;
 import java.util.Set;
 
+import static com.faforever.api.data.domain.Game.TYPE_NAME;
+
 @Entity
 @Table(name = "game_stats")
-@Include(name = "game")
+@Include(name = TYPE_NAME)
 @Immutable
 @Setter
 @EntityListeners(GameEnricher.class)
 public class Game {
+  public final static String TYPE_NAME = "game";
 
   private int id;
   private OffsetDateTime startTime;

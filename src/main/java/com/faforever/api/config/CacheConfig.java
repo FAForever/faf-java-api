@@ -8,6 +8,7 @@ import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.CoopResult;
 import com.faforever.api.data.domain.Event;
 import com.faforever.api.data.domain.FeaturedMod;
+import com.faforever.api.data.domain.Game;
 import com.faforever.api.data.domain.Leaderboard;
 import com.faforever.api.data.domain.LeaderboardRating;
 import com.faforever.api.data.domain.Map;
@@ -57,6 +58,7 @@ public class CacheConfig {
       new CaffeineCache(CoopResult.TYPE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
       new CaffeineCache(Event.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
       new CaffeineCache(FeaturedMod.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
+      new CaffeineCache(Game.TYPE_NAME, newBuilder().expireAfterWrite(1, MINUTES).build()),
       new CaffeineCache(Map.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
       new CaffeineCache(MapVersion.TYPE_NAME, newBuilder().expireAfterWrite(60, MINUTES).build()),
       new CaffeineCache(MapStatistics.TYPE_NAME, newBuilder().expireAfterWrite(1, MINUTES).build()),
