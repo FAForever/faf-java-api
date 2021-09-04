@@ -33,6 +33,7 @@ public abstract class Login extends AbstractEntity<Login> implements OwnableEnti
   private String login;
   private String email;
   private String steamId;
+  private String gogId;
   private String userAgent;
   private Set<BanInfo> bans;
   private Set<UserNote> userNotes;
@@ -62,6 +63,12 @@ public abstract class Login extends AbstractEntity<Login> implements OwnableEnti
   @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
   public String getSteamId() {
     return steamId;
+  }
+
+  @Column(name = "gog_id")
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
+  public String getGogId() {
+    return gogId;
   }
 
   @Column(name = "ip")
