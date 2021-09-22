@@ -19,7 +19,6 @@ import com.faforever.api.security.FafUserDetails;
 import com.google.common.hash.Hashing;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
@@ -33,7 +32,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static com.faforever.api.error.ErrorCode.TOKEN_INVALID;
@@ -46,7 +44,6 @@ public class UserService {
   static final String KEY_EMAIL = "email";
   static final String KEY_USER_ID = "id";
   static final String KEY_STEAM_CALLBACK_URL = "callbackUrl";
-  static final String KEY_PASSWORD = "password";
 
   private static final Pattern USERNAME_PATTERN = Pattern.compile("[A-Za-z][A-Za-z0-9_-]{2,15}$");
   private static final String USER_REGISTRATIONS_COUNT = "user.registrations.count";
@@ -208,7 +205,7 @@ public class UserService {
       .setDeviation(deviation));
     // <<<
 
-    log.debug("User has been activated: {}", user);
+    log.info("User has been activated: {}", user);
 
     broadcastUserChange(user);
     userActivationCounter.increment();
@@ -251,7 +248,7 @@ public class UserService {
         });
 
     }
-    log.debug("Changing username for user ''{}'' to ''{}'', forced:''{}''", user.getLogin(), newLogin, force);
+    log.info("Changing username for user ''{}'' to ''{}'', forced:''{}''", user.getLogin(), newLogin, force);
     NameRecord nameRecord = new NameRecord()
       .setName(user.getLogin())
       .setPlayer(playerRepository.getOne(user.getId()));
@@ -430,39 +427,37 @@ public class UserService {
     return String.format(properties.getGog().getTokenFormat(), user.getId());
   }
 
-  public void linkGogAccount(String gogUsername, User user) { // TODO: rate limit?
+  @Transactional
+  public void linkToGogAccount(String gogUsername, User user) {
     log.debug("Verifying and attempting to link user {} to gog account {}", user.getId(), gogUsername);
 
-    if(! gogService.verifyGogUsername(gogUsername)) {
+    if (user.getGogId() != null) {
+      throw ApiException.of(ErrorCode.GOG_ID_UNCHANGEABLE);
+    }
+
+    if (!gogService.verifyGogUsername(gogUsername)) {
       throw ApiException.of(ErrorCode.GOG_LINK_INVALID_USERNAME);
     }
 
-    if(! gogService.verifyProfileToken(gogUsername, user, buildGogToken(user))) {
+    if (!gogService.verifyProfileToken(gogUsername, user, buildGogToken(user))) {
       throw ApiException.of(ErrorCode.GOG_LINK_PROFILE_TOKEN_NOT_SET);
     }
 
-    if(! gogService.verifyGameOwnership(gogUsername)) {
+    if (!gogService.verifyGameOwnership(gogUsername)) {
       throw ApiException.of(ErrorCode.GOG_LINK_NO_FA_GAME);
     }
 
-    Optional<User> userWithSameId = userRepository.findOneByGogId(gogUsername);
-    if(userWithSameId.isPresent()) {
-      throw ApiException.of(ErrorCode.GOG_ID_ALREADY_LINKED, userWithSameId.get().getLogin());
-    }
-
-    if(user.getGogId() != null) {
-      throw ApiException.of(ErrorCode.GOG_ID_UNCHANGEABLE);
-    }
+    userRepository.findOneByGogId(gogUsername)
+      .ifPresent(userWithSameId -> {
+        throw ApiException.of(ErrorCode.GOG_ID_ALREADY_LINKED, userWithSameId.getLogin());
+      });
 
     user.setGogId(gogUsername);
     userRepository.save(user);
 
-    log.debug("Successfully linked user {} to gog account {}", user.getId(), gogUsername);
+    log.info("Successfully linked user {} to gog account {}", user.getId(), gogUsername);
   }
 
-  @Value
-  static class CallbackResult {
-    String callbackUrl;
-    List<Error> errors;
+  record CallbackResult(String callbackUrl, List<Error> errors) {
   }
 }

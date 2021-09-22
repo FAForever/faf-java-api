@@ -28,7 +28,7 @@ faf-api:
     admin-user-id: ${NODEBB_ADMIN_USERID:1}
     master-token: ${NODEBB_MASTER_TOKEN:false}
   gog:
-    token-format: ${GOG_TOKEN_FORMAT:FAF_%s}
+    token-format: ${GOG_TOKEN_FORMAT:{{FAF:%s}}}
     profile-page-url: ${GOG_PROFILE_URL:https://www.gog.com/u/%s}
     games-list-url: ${GOG_GAMES_LIST_URL:https://www.gog.com/u/%s/games/stats?sort=recent_playtime&order=desc&page=%d}
 
