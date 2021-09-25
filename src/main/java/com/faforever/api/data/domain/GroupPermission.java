@@ -1,8 +1,10 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.security.elide.permission.ReadUserGroupCheck;
+import com.faforever.api.security.elide.permission.WriteUserGroupCheck;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
+import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -72,6 +74,7 @@ public class GroupPermission extends AbstractEntity<GroupPermission> implements 
   }
 
   @ManyToMany(mappedBy = "permissions")
+  @UpdatePermission(expression = WriteUserGroupCheck.EXPRESSION)
   public Set<UserGroup> getUserGroups() {
     return userGroups;
   }

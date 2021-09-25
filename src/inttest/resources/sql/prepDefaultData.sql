@@ -17,7 +17,8 @@ INSERT INTO user_group (id, technical_name, name_key, parent_group_id, public)
 VALUES (1, 'ADMINISTRATOR', 'administrator', null, true),
        (2, 'MODERATOR', 'moderator', null, true),
        (3, 'faf_server_administrators', 'user_group.faf.server_administrators', null, true),
-       (4, 'faf_moderators_global', 'user_group.faf.moderators.global', null, true);
+       (4, 'faf_moderators_global', 'user_group.faf.moderators.global', null, true),
+       (5, 'faf_illuminati', 'user_group.faf.illuminati', null, false);
 
 INSERT INTO user_group (technical_name, name_key, public, parent_group_id)
 VALUES ('', 'user_group.faf.server_administrators', 1, @devops_id);

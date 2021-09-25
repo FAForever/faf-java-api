@@ -2,6 +2,7 @@ package com.faforever.api.data.domain;
 
 
 import com.faforever.api.data.checks.UserGroupPublicCheck;
+import com.faforever.api.security.elide.permission.ReadUserGroupCheck;
 import com.faforever.api.security.elide.permission.WriteUserGroupCheck;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.Include;
@@ -27,7 +28,7 @@ import java.util.Set;
 @Include(name = "userGroup")
 @UpdatePermission(expression = WriteUserGroupCheck.EXPRESSION)
 @CreatePermission(expression = WriteUserGroupCheck.EXPRESSION)
-@ReadPermission(expression = UserGroupPublicCheck.EXPRESSION + " or " + WriteUserGroupCheck.EXPRESSION)
+@ReadPermission(expression = UserGroupPublicCheck.EXPRESSION + " or " + ReadUserGroupCheck.EXPRESSION)
 @Setter
 public class
 UserGroup extends AbstractEntity<UserGroup> {
