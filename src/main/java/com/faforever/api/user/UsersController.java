@@ -36,6 +36,7 @@ public class UsersController {
   private final FafApiProperties fafApiProperties;
   private final UserService userService;
   private final SteamService steamService;
+  private final GogService gogService;
   private final RecaptchaService recaptchaService;
   private final ObjectMapper objectMapper;
 
@@ -170,7 +171,7 @@ public class UsersController {
   @ApiOperation("Build the authorization token used for linking to a GOG account.")
   @GetMapping(path = "/buildGogProfileToken", produces = APPLICATION_JSON_VALUE)
   public Map<String, Serializable> buildGogProfileToken(Authentication authentication) {
-    String gogToken = userService.buildGogToken(userService.getUser(authentication));
+    String gogToken = gogService.buildGogToken(userService.getUser(authentication));
     return Map.of("gogToken", gogToken);
   }
 
@@ -179,7 +180,7 @@ public class UsersController {
   @PostMapping(path = "/linkToGog", produces = APPLICATION_JSON_VALUE)
   public void linkToGog(@RequestParam("gogUsername") String gogUsername,
                         Authentication authentication) {
-    userService.linkToGogAccount(gogUsername.toLowerCase(), userService.getUser(authentication));
+    userService.linkToGogAccount(gogUsername, userService.getUser(authentication));
   }
 
   @SneakyThrows

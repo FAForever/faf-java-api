@@ -20,6 +20,7 @@ import com.google.common.hash.Hashing;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -86,7 +87,8 @@ public class UserService {
                      AnopeUserRepository anopeUserRepository,
                      FafTokenService fafTokenService,
                      SteamService steamService,
-                     GogService gogService, GlobalRatingRepository globalRatingRepository,
+                     GogService gogService,
+                     GlobalRatingRepository globalRatingRepository,
                      Ladder1v1RatingRepository ladder1v1RatingRepository,
                      MeterRegistry meterRegistry,
                      ApplicationEventPublisher eventPublisher) {
@@ -423,12 +425,8 @@ public class UserService {
     return new CallbackResult(callbackUrl, errors);
   }
 
-  public String buildGogToken(User user) {
-    return String.format(properties.getGog().getTokenFormat(), user.getId());
-  }
-
   @Transactional
-  public void linkToGogAccount(String gogUsername, User user) {
+  public void linkToGogAccount(@NotNull String gogUsername, @NotNull User user) {
     log.debug("Verifying and attempting to link user {} to gog account {}", user.getId(), gogUsername);
 
     if (user.getGogId() != null) {
@@ -439,7 +437,7 @@ public class UserService {
       throw ApiException.of(ErrorCode.GOG_LINK_INVALID_USERNAME);
     }
 
-    if (!gogService.verifyProfileToken(gogUsername, user, buildGogToken(user))) {
+    if (!gogService.verifyProfileToken(gogUsername, user, gogService.buildGogToken(user))) {
       throw ApiException.of(ErrorCode.GOG_LINK_PROFILE_TOKEN_NOT_SET);
     }
 

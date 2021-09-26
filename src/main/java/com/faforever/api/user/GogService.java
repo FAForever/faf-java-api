@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -27,13 +28,19 @@ import java.util.regex.Pattern;
 public class GogService {
   private static final Pattern GOG_USERNAME_PATTERN = Pattern.compile("[a-zA-Z\\d-_!?.]+");
   private static final Pattern PROFILE_USER_STATUS_PATTERN = Pattern.compile("window\\.profilesData\\.profileUserPreferences\\s=\\s\\{\"bio\":\"(.*?)\"");
-  private static final String GOG_FA_GAME_ID = "1444785261";
+  static final String GOG_FA_GAME_ID = "1444785261";
 
   private final FafApiProperties properties;
   private final RestTemplate restTemplate;
 
-  boolean verifyGogUsername(String username) {
-    return username.length() <= 30 && username.length() >= 3 && GOG_USERNAME_PATTERN.matcher(username).matches();
+  public String buildGogToken(User user) {
+    return String.format(properties.getGog().getTokenFormat(), user.getId());
+  }
+
+  boolean verifyGogUsername(@NotNull String username) {
+    return username.length() <= 30 &&
+      username.length() >= 3 &&
+      GOG_USERNAME_PATTERN.matcher(username).matches();
   }
 
   boolean verifyProfileToken(String gogUsername, User user, String targetToken) {
@@ -55,11 +62,6 @@ public class GogService {
         log.error("Couldn't retrieve gog profile page for {}", profilePageUrl);
         throw ApiException.of(ErrorCode.GOG_LINK_INTERNAL_SERVER_ERROR);
       }
-    }
-
-    if (profilePageHtml == null) {
-      log.error("Couldn't retrieve gog profile page for {}", profilePageUrl);
-      throw ApiException.of(ErrorCode.GOG_LINK_INTERNAL_SERVER_ERROR);
     }
 
     Document document = Jsoup.parse(profilePageHtml);
@@ -109,20 +111,20 @@ public class GogService {
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)
-  private static record GogGamesListPage(int pages, @JsonProperty("_embedded") GogGamesListEmbeddedList embeddedGames) {
+  static record GogGamesListPage(int pages, @JsonProperty("_embedded") GogGamesListEmbeddedList embeddedGames) {
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)
-  private static record GogGamesListEmbeddedList(List<GogGamesListEntry> items) {
+  static record GogGamesListEmbeddedList(List<GogGamesListEntry> items) {
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)
-  private static record GogGamesListEntry(GogGamesListEntryGameDetails game) {
+  static record GogGamesListEntry(GogGamesListEntryGameDetails game) {
 
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)
-  private static record GogGamesListEntryGameDetails(String id) {
+  static record GogGamesListEntryGameDetails(String id) {
   }
 
 }
