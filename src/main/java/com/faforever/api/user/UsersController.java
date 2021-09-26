@@ -36,6 +36,7 @@ public class UsersController {
   private final FafApiProperties fafApiProperties;
   private final UserService userService;
   private final SteamService steamService;
+  private final GogService gogService;
   private final RecaptchaService recaptchaService;
   private final ObjectMapper objectMapper;
 
@@ -166,13 +167,29 @@ public class UsersController {
     userService.resynchronizeAccount(userService.getUser(authentication));
   }
 
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
+  @ApiOperation("Build the authorization token used for linking to a GOG account.")
+  @GetMapping(path = "/buildGogProfileToken", produces = APPLICATION_JSON_VALUE)
+  public Map<String, Serializable> buildGogProfileToken(Authentication authentication) {
+    String gogToken = gogService.buildGogToken(userService.getUser(authentication));
+    return Map.of("gogToken", gogToken);
+  }
+
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
+  @ApiOperation("Attempt to link a GOG account to this account.")
+  @PostMapping(path = "/linkToGog", produces = APPLICATION_JSON_VALUE)
+  public void linkToGog(@RequestParam("gogUsername") String gogUsername,
+                        Authentication authentication) {
+    userService.linkToGogAccount(gogUsername, userService.getUser(authentication));
+  }
+
   @SneakyThrows
   private void redirectCallbackResult(HttpServletResponse response, CallbackResult result) {
-    if (result.getErrors().isEmpty()) {
-      response.sendRedirect(result.getCallbackUrl());
+    if (result.errors().isEmpty()) {
+      response.sendRedirect(result.callbackUrl());
     } else {
-      UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(result.getCallbackUrl());
-      String errorsJson = objectMapper.writeValueAsString(result.getErrors());
+      UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(result.callbackUrl());
+      String errorsJson = objectMapper.writeValueAsString(result.errors());
       uriBuilder.queryParam("errors", errorsJson);
       response.sendRedirect(uriBuilder.toUriString());
     }

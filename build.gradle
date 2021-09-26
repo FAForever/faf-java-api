@@ -243,6 +243,8 @@ dependencies {
   implementation("org.apache.commons:commons-compress:${commonsCompressVersion}")
   implementation("org.json:json:${jsonVersion}")
 
+  implementation("org.jsoup:jsoup:${jsoupVersion}")
+
   implementation("com.github.jasminb:jsonapi-converter:${jsonapiConverterVersion}")
   runtimeOnly("mysql:mysql-connector-java:${mysqlConnectorVersion}")
 

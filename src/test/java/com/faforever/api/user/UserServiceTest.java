@@ -85,6 +85,8 @@ public class UserServiceTest {
   @Mock
   private SteamService steamService;
   @Mock
+  private GogService gogService;
+  @Mock
   private FafTokenService fafTokenService;
   @Mock
   private GlobalRatingRepository globalRatingRepository;
@@ -121,6 +123,7 @@ public class UserServiceTest {
       anopeUserRepository,
       fafTokenService,
       steamService,
+      gogService,
       globalRatingRepository,
       ladder1v1RatingRepository,
       meterRegistry,
@@ -461,8 +464,8 @@ public class UserServiceTest {
 
     CallbackResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
 
-    assertThat(result.getCallbackUrl(), is(TEST_CALLBACK_URL));
-    assertThat(result.getErrors(), is(empty()));
+    assertThat(result.callbackUrl(), is(TEST_CALLBACK_URL));
+    assertThat(result.errors(), is(empty()));
     assertThat(user.getSteamId(), is(STEAM_ID));
     verifyNoMoreInteractions(eventPublisher);
   }
@@ -477,8 +480,8 @@ public class UserServiceTest {
     when(userRepository.findById(5)).thenReturn(Optional.empty());
 
     CallbackResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
-    assertThat(result.getCallbackUrl(), is(TEST_CALLBACK_URL));
-    assertThat(result.getErrors(), contains(new Error(ErrorCode.TOKEN_INVALID)));
+    assertThat(result.callbackUrl(), is(TEST_CALLBACK_URL));
+    assertThat(result.errors(), contains(new Error(ErrorCode.TOKEN_INVALID)));
 
     verifyNoMoreInteractions(eventPublisher);
   }
@@ -496,8 +499,8 @@ public class UserServiceTest {
 
     CallbackResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
 
-    assertThat(result.getCallbackUrl(), is(TEST_CALLBACK_URL));
-    assertThat(result.getErrors(), contains(new Error(ErrorCode.STEAM_LINK_NO_FA_GAME)));
+    assertThat(result.callbackUrl(), is(TEST_CALLBACK_URL));
+    assertThat(result.errors(), contains(new Error(ErrorCode.STEAM_LINK_NO_FA_GAME)));
     verifyNoMoreInteractions(eventPublisher);
   }
 
@@ -517,8 +520,8 @@ public class UserServiceTest {
 
     CallbackResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
 
-    assertThat(result.getCallbackUrl(), is(TEST_CALLBACK_URL));
-    assertThat(result.getErrors(), contains(new Error(ErrorCode.STEAM_ID_ALREADY_LINKED, otherUser.getLogin())));
+    assertThat(result.callbackUrl(), is(TEST_CALLBACK_URL));
+    assertThat(result.errors(), contains(new Error(ErrorCode.STEAM_ID_ALREADY_LINKED, otherUser.getLogin())));
     verifyNoMoreInteractions(eventPublisher);
   }
 

@@ -19,8 +19,8 @@ import com.faforever.api.security.FafUserDetails;
 import com.google.common.hash.Hashing;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -45,7 +45,6 @@ public class UserService {
   static final String KEY_EMAIL = "email";
   static final String KEY_USER_ID = "id";
   static final String KEY_STEAM_CALLBACK_URL = "callbackUrl";
-  static final String KEY_PASSWORD = "password";
 
   private static final Pattern USERNAME_PATTERN = Pattern.compile("[A-Za-z][A-Za-z0-9_-]{2,15}$");
   private static final String USER_REGISTRATIONS_COUNT = "user.registrations.count";
@@ -62,6 +61,7 @@ public class UserService {
   private final AnopeUserRepository anopeUserRepository;
   private final FafTokenService fafTokenService;
   private final SteamService steamService;
+  private final GogService gogService;
   private final GlobalRatingRepository globalRatingRepository;
   private final Ladder1v1RatingRepository ladder1v1RatingRepository;
   private final MeterRegistry meterRegistry;
@@ -87,6 +87,7 @@ public class UserService {
                      AnopeUserRepository anopeUserRepository,
                      FafTokenService fafTokenService,
                      SteamService steamService,
+                     GogService gogService,
                      GlobalRatingRepository globalRatingRepository,
                      Ladder1v1RatingRepository ladder1v1RatingRepository,
                      MeterRegistry meterRegistry,
@@ -99,6 +100,7 @@ public class UserService {
     this.anopeUserRepository = anopeUserRepository;
     this.fafTokenService = fafTokenService;
     this.steamService = steamService;
+    this.gogService = gogService;
     this.globalRatingRepository = globalRatingRepository;
     this.ladder1v1RatingRepository = ladder1v1RatingRepository;
     this.eventPublisher = eventPublisher;
@@ -205,7 +207,7 @@ public class UserService {
       .setDeviation(deviation));
     // <<<
 
-    log.debug("User has been activated: {}", user);
+    log.info("User has been activated: {}", user);
 
     broadcastUserChange(user);
     userActivationCounter.increment();
@@ -248,7 +250,7 @@ public class UserService {
         });
 
     }
-    log.debug("Changing username for user ''{}'' to ''{}'', forced:''{}''", user.getLogin(), newLogin, force);
+    log.info("Changing username for user ''{}'' to ''{}'', forced:''{}''", user.getLogin(), newLogin, force);
     NameRecord nameRecord = new NameRecord()
       .setName(user.getLogin())
       .setPlayer(playerRepository.getOne(user.getId()));
@@ -423,9 +425,29 @@ public class UserService {
     return new CallbackResult(callbackUrl, errors);
   }
 
-  @Value
-  static class CallbackResult {
-    String callbackUrl;
-    List<Error> errors;
+  @Transactional
+  public void linkToGogAccount(@NotNull String gogUsername, @NotNull User user) {
+    log.debug("Verifying and attempting to link user {} to gog account {}", user.getId(), gogUsername);
+
+    if (user.getGogId() != null) {
+      throw ApiException.of(ErrorCode.GOG_ID_UNCHANGEABLE);
+    }
+
+    gogService.verifyGogUsername(gogUsername);
+    gogService.verifyProfileToken(gogUsername, user, gogService.buildGogToken(user));
+    gogService.verifyGameOwnership(gogUsername);
+
+    userRepository.findOneByGogId(gogUsername)
+      .ifPresent(userWithSameId -> {
+        throw ApiException.of(ErrorCode.GOG_ID_ALREADY_LINKED, userWithSameId.getLogin());
+      });
+
+    user.setGogId(gogUsername);
+    userRepository.save(user);
+
+    log.info("Successfully linked user {} to gog account {}", user.getId(), gogUsername);
+  }
+
+  record CallbackResult(String callbackUrl, List<Error> errors) {
   }
 }
