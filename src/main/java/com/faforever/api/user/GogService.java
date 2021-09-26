@@ -37,16 +37,22 @@ public class GogService {
     return String.format(properties.getGog().getTokenFormat(), user.getId());
   }
 
-  boolean verifyGogUsername(@NotNull String username) {
-    return username.length() <= 30 &&
+  void verifyGogUsername(@NotNull String username) {
+    boolean isValid = username.length() <= 30 &&
       username.length() >= 3 &&
       GOG_USERNAME_PATTERN.matcher(username).matches();
+
+    if(!isValid) {
+      throw ApiException.of(ErrorCode.GOG_LINK_INVALID_USERNAME);
+    }
   }
 
-  boolean verifyProfileToken(String gogUsername, User user, String targetToken) {
+  void verifyProfileToken(String gogUsername, User user, String targetToken) {
     String profileStatus = getProfileStatus(gogUsername);
 
-    return profileStatus.length() < 100 && Objects.equals(targetToken, profileStatus.trim());
+    if(profileStatus.length() > 100 || !Objects.equals(targetToken, profileStatus.trim())) {
+      throw ApiException.of(ErrorCode.GOG_LINK_PROFILE_TOKEN_NOT_SET);
+    }
   }
 
   private String getProfileStatus(String gogUsername) {
@@ -77,7 +83,7 @@ public class GogService {
     throw ApiException.of(ErrorCode.GOG_LINK_PROFILE_NOT_PUBLIC);
   }
 
-  boolean verifyGameOwnership(String gogUsername) {
+  void verifyGameOwnership(String gogUsername) {
     int numberOfPages = 1;
 
     for (int i = 1; i <= numberOfPages; i++) {
@@ -86,13 +92,13 @@ public class GogService {
         .anyMatch(game -> Objects.equals(game.game.id, GOG_FA_GAME_ID));
 
       if (gameFound) {
-        return true;
+        return;
       }
 
       numberOfPages = nextPage.pages();
     }
 
-    return false;
+    throw ApiException.of(ErrorCode.GOG_LINK_NO_FA_GAME);
   }
 
 

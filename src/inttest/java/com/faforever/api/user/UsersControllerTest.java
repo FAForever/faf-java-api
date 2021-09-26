@@ -538,9 +538,6 @@ public class UsersControllerTest extends AbstractIntegrationTest {
     params.add("gogUsername", "someUsername");
 
     when(gogService.buildGogToken(any())).thenReturn("theToken");
-    when(gogService.verifyGogUsername("someUsername")).thenReturn(true);
-    when(gogService.verifyProfileToken(eq("someUsername"), any(), eq("theToken"))).thenReturn(true);
-    when(gogService.verifyGameOwnership("someUsername")).thenReturn(true);
 
     mockMvc.perform(
       post("/users/linkToGog")

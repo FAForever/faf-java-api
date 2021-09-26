@@ -23,9 +23,7 @@ import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
 import static com.faforever.api.user.GogService.GOG_FA_GAME_ID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -69,7 +67,13 @@ class GogServiceTest {
     "true,Brutus5000",
   })
   void verifyGogUsername(boolean allowed, String name) {
-    assertThat(instance.verifyGogUsername(name), is(allowed));
+    if(allowed) {
+      instance.verifyGogUsername(name);
+    }
+    else {
+      ApiException result = assertThrows(ApiException.class, () -> instance.verifyGogUsername(name));
+      assertThat(result, hasErrorCode(ErrorCode.GOG_LINK_INVALID_USERNAME));
+    }
   }
 
   @Test
@@ -163,7 +167,7 @@ class GogServiceTest {
         </html>
         """);
 
-    assertTrue(instance.verifyProfileToken(GOG_USERNAME, user, "{{FAF:76365}}"));
+    instance.verifyProfileToken(GOG_USERNAME, user, "{{FAF:76365}}");
   }
 
   @Test
@@ -180,7 +184,7 @@ class GogServiceTest {
         )
       )));
 
-    assertTrue(instance.verifyGameOwnership(GOG_USERNAME));
+    instance.verifyGameOwnership(GOG_USERNAME);
   }
 
   @Test
@@ -190,7 +194,8 @@ class GogServiceTest {
     when(restTemplate.getForObject(String.format(GAME_LIST_PAGE_URL, GOG_USERNAME, 1), GogService.GogGamesListPage.class))
       .thenReturn(new GogService.GogGamesListPage(1, new GogService.GogGamesListEmbeddedList(List.of())));
 
-    assertFalse(instance.verifyGameOwnership(GOG_USERNAME));
+    ApiException result = assertThrows(ApiException.class, () -> instance.verifyGameOwnership(GOG_USERNAME));
+    assertThat(result, hasErrorCode(ErrorCode.GOG_LINK_NO_FA_GAME));
   }
 
   @Test

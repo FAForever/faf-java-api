@@ -433,17 +433,9 @@ public class UserService {
       throw ApiException.of(ErrorCode.GOG_ID_UNCHANGEABLE);
     }
 
-    if (!gogService.verifyGogUsername(gogUsername)) {
-      throw ApiException.of(ErrorCode.GOG_LINK_INVALID_USERNAME);
-    }
-
-    if (!gogService.verifyProfileToken(gogUsername, user, gogService.buildGogToken(user))) {
-      throw ApiException.of(ErrorCode.GOG_LINK_PROFILE_TOKEN_NOT_SET);
-    }
-
-    if (!gogService.verifyGameOwnership(gogUsername)) {
-      throw ApiException.of(ErrorCode.GOG_LINK_NO_FA_GAME);
-    }
+    gogService.verifyGogUsername(gogUsername);
+    gogService.verifyProfileToken(gogUsername, user, gogService.buildGogToken(user));
+    gogService.verifyGameOwnership(gogUsername);
 
     userRepository.findOneByGogId(gogUsername)
       .ifPresent(userWithSameId -> {
