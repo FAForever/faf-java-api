@@ -9,7 +9,7 @@ jobs:
     container: adoptopenjdk:16-jdk-hotspot
     services:
       faf-db:
-        image: mysql:5.7
+        image: mariadb:10.6
         ports:
           - 3306:3306
         options: >-
@@ -23,7 +23,7 @@ jobs:
           MYSQL_USER: faf-java-api
           MYSQL_PASSWORD: banana
       faf-league-db:
-        image: mysql:5.7
+        image: mariadb:10.6
         options: >-
           --health-cmd "mysqladmin ping --silent"
           --health-interval 10s
