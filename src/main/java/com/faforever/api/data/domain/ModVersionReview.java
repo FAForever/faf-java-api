@@ -15,7 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Setter
-@Include(rootLevel = true, type = "modVersionReview")
+@Include(name = "modVersionReview")
 @Entity
 @Table(name = "mod_version_review")
 @CreatePermission(expression = Prefab.ALL)
@@ -26,7 +26,7 @@ public class ModVersionReview extends Review {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "mod_version_id")
-  @UpdatePermission(expression = Prefab.ALL_AND_UPDATE_ON_CREATE)
+  @UpdatePermission(expression = Prefab.ALL)
   public ModVersion getModVersion() {
     return modVersion;
   }

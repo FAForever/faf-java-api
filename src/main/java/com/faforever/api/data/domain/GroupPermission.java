@@ -1,8 +1,10 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.security.elide.permission.ReadUserGroupCheck;
+import com.faforever.api.security.elide.permission.WriteUserGroupCheck;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
+import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -29,10 +31,10 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "group_permission")
-@Include(rootLevel = true, type = "groupPermission")
+@Include(name = "groupPermission")
 @Setter
 @ReadPermission(expression = ReadUserGroupCheck.EXPRESSION)
-public class GroupPermission extends AbstractEntity implements GrantedAuthority {
+public class GroupPermission extends AbstractEntity<GroupPermission> implements GrantedAuthority {
 
   // Any changes to the permissions here need to be added to the dto class as well!
   public static final String ROLE_READ_AUDIT_LOG = "ROLE_READ_AUDIT_LOG";
@@ -72,6 +74,7 @@ public class GroupPermission extends AbstractEntity implements GrantedAuthority 
   }
 
   @ManyToMany(mappedBy = "permissions")
+  @UpdatePermission(expression = WriteUserGroupCheck.EXPRESSION)
   public Set<UserGroup> getUserGroups() {
     return userGroups;
   }

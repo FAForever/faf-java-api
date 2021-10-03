@@ -33,10 +33,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
@@ -47,13 +45,13 @@ import static com.faforever.api.error.ErrorCode.MAP_NAME_INVALID_MINUS_OCCURENCE
 import static com.faforever.api.error.ErrorCode.MAP_NAME_TOO_LONG;
 import static com.faforever.api.error.ErrorCode.MAP_NAME_TOO_SHORT;
 import static com.faforever.api.error.ErrorCode.MAP_SCRIPT_LINE_MISSING;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
@@ -115,7 +113,7 @@ public class MapServiceTest {
     void testMapNameMultiErrorsButNoScenarioValidation() {
       String mapName = "123Invalid-in$-many-ways-atOnce" + StringUtils.repeat("x", 50);
       ApiException result = assertThrows(ApiException.class, () -> instance.validateMapName(mapName));
-      List<ErrorCode> errorCodes = Arrays.stream(result.getErrors()).map(Error::getErrorCode).collect(Collectors.toList());
+      List<ErrorCode> errorCodes = Arrays.stream(result.getErrors()).map(Error::getErrorCode).toList();
       assertThat(errorCodes, hasItems(MAP_NAME_INVALID_CHARACTER, MAP_NAME_TOO_LONG, MAP_NAME_INVALID_MINUS_OCCURENCE));
       assertThat(errorCodes, not(contains(MAP_SCRIPT_LINE_MISSING)));
     }
@@ -283,13 +281,26 @@ public class MapServiceTest {
     }
 
     @Test
+    void annonymousAuthor() {
+      when(fafApiProperties.getMap()).thenReturn(mapProperties);
+
+      Player me = new Player();
+      me.setId(1);
+
+      com.faforever.api.data.domain.Map map = new com.faforever.api.data.domain.Map().setAuthor(null);
+      when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.of(map));
+
+      uploadFails(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR, "command_conquer_rush.v0007.zip");
+    }
+
+    @Test
     void versionExistsAlready() {
       when(fafApiProperties.getMap()).thenReturn(mapProperties);
 
       com.faforever.api.data.domain.Map map = new com.faforever.api.data.domain.Map()
         .setDisplayName("someName")
         .setAuthor(author)
-        .setVersions(Collections.singletonList(new MapVersion().setVersion(7)));
+        .setVersions(List.of(new MapVersion().setVersion(7)));
 
       when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.of(map));
 

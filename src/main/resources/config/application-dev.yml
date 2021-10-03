@@ -1,8 +1,9 @@
 faf-api:
-  version: dev
   jwt:
     secretKeyPath: ${JWT_PRIVATE_KEY_PATH:test-pki-private.key}
     publicKeyPath: ${JWT_PUBLIC_KEY_PATH:test-pki-public.key}
+    fafHydraJwksUrl: ${JWT_FAF_HYDRA_JWKS_URL:http://localhost:4444/.well-known/jwks.json}
+    fafHydraIssuer: ${JWT_FAF_HYDRA_ISSUER:http://localhost:4444/}
   map:
     target-directory: ${MAP_UPLOAD_PATH:build/cache/map/maps}
     directory-preview-path-small: ${MAP_PREVIEW_PATH_SMALL:build/cache/map_previews/small}
@@ -41,16 +42,19 @@ faf-api:
   registration:
     activation-url-format: ${ACTIVATION_URL_FORMAT:http://localhost:8020/account/activate?username=%s&token=%s}
     subject: ${REGISTRATION_EMAIL_SUBJECT:FAF user registration}
-    html-format: ${REGISTRATION_EMAIL_BODY:Registration email body}
+    html-format: ${REGISTRATION_EMAIL_BODY:"Registration email body for user {0} with activation link {1}"}
   password-reset:
     password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT:http://localhost:8020/account/password/confirmReset?username=%s&token=%s}
     subject: ${PASSWORD_RESET_EMAIL_SUBJECT:FAF password reset}
-    html-format: ${PASSWORD_RESET_EMAIL_BODY:Registration email body}
+    html-format: ${PASSWORD_RESET_EMAIL_BODY:Reset email body for user {0} with reset link {1}}
   steam:
     realm: ${STEAM_REALM:http://localhost}
     api-key: ${STEAM_API_KEY:banana}
     link-to-steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL_FORMAT:http://localhost:8010/users/linkToSteam?token=%s}
     steam-password-reset-redirect-url-format: ${STEAM_PASSWORD_RESET_REDIRECT_URL_FORMAT:http://localhost:8010/users/requestPasswordResetViaSteam}
+  recaptcha:
+    enabled: ${RECAPTCHA_ENABLED:false}
+    secret: ${RECAPTCHA_SECRET}
 
 spring:
   datasource:
@@ -58,6 +62,11 @@ spring:
     name: faf
     username: ${DATABASE_USERNAME:faf-java-api}
     password: ${DATABASE_PASSWORD:banana}
+  league-datasource:
+    url: jdbc:mysql://${LEAGUE_DATABASE_ADDRESS:127.0.0.1}/${LEAGUE_DATABASE_NAME:faf-league}?useSSL=false
+    name: faf-league
+    username: ${LEAGUE_DATABASE_USERNAME:faf-league-service}
+    password: ${LEAGUE_DATABASE_PASSWORD:banana}
   jpa:
     show-sql: true
   boot:

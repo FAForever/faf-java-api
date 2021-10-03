@@ -20,7 +20,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "ladder_division_score")
-@Include(rootLevel = true)
+@Include
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")

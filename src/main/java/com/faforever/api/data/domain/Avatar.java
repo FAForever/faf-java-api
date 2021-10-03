@@ -21,11 +21,11 @@ import java.util.List;
 
 @Entity
 @Table(name = "avatars_list")
-@Include(rootLevel = true, type = Avatar.TYPE_NAME)
+@Include(name = Avatar.TYPE_NAME)
 @Setter
 @Type(Avatar.TYPE_NAME)
 @EntityListeners(AvatarEnricherListener.class)
-public class Avatar extends AbstractEntity {
+public class Avatar extends AbstractEntity<Avatar> {
 
   public static final String TYPE_NAME = "avatar";
 

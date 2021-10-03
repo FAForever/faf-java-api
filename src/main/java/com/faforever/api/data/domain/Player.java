@@ -6,7 +6,6 @@ import com.faforever.api.security.elide.permission.AdminModerationReportCheck;
 import com.github.jasminb.jsonapi.annotations.Type;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
-import com.yahoo.elide.annotation.SharePermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
@@ -22,9 +21,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "login")
-@Include(rootLevel = true, type = Player.TYPE_NAME)
-// Needed to change leader of a clan
-@SharePermission
+@Include(name = Player.TYPE_NAME)
 @Setter
 @Type(Player.TYPE_NAME)
 public class Player extends Login {
@@ -39,13 +36,13 @@ public class Player extends Login {
   private Set<ModerationReport> reportedOnModerationReports;
 
   @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
-  @BatchSize(size = 1000)
+  @Deprecated
   public Ladder1v1Rating getLadder1v1Rating() {
     return ladder1v1Rating;
   }
 
   @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
-  @BatchSize(size = 1000)
+  @Deprecated
   public GlobalRating getGlobalRating() {
     return globalRating;
   }
@@ -65,6 +62,7 @@ public class Player extends Login {
   // Permission is managed by NameRecord class
   @UpdatePermission(expression = Prefab.ALL)
   @OneToMany(mappedBy = "player")
+  @BatchSize(size = 1000)
   public Set<NameRecord> getNames() {
     return this.names;
   }

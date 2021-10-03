@@ -13,7 +13,6 @@ import javax.validation.ValidationException;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.text.MessageFormat;
-import java.util.Collections;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -91,7 +90,7 @@ public class GlobalControllerExceptionHandlerTest {
     clan.setName("Clan");
     clan.setLeader(player);
     clan.setFounder(player);
-    clan.setMemberships(Collections.emptyList());
+    clan.setMemberships(Set.of());
 
     final Set<ConstraintViolation<Clan>> constraintViolations = validator.validate(clan);
     final ConstraintViolationException ex = new ConstraintViolationException(COMMON_MESSAGE, constraintViolations);

@@ -10,7 +10,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "game_featuredMods")
-@Include(rootLevel = true, type = FeaturedMod.TYPE_NAME)
+@Include(name = FeaturedMod.TYPE_NAME)
 @Setter
 public class FeaturedMod {
   public static final String TYPE_NAME = "featuredMod";

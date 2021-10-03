@@ -18,7 +18,7 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "name_history")
-@Include(rootLevel = true, type = "nameRecord")
+@Include(name = "nameRecord")
 @DeletePermission(expression = Prefab.NONE)
 @UpdatePermission(expression = Prefab.NONE)
 @Setter

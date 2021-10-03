@@ -29,6 +29,7 @@ public class FafApiProperties {
   private Registration registration = new Registration();
   private PasswordReset passwordReset = new PasswordReset();
   private Steam steam = new Steam();
+  private Gog gog = new Gog();
   private Mail mail = new Mail();
   private Challonge challonge = new Challonge();
   private User user = new User();
@@ -38,6 +39,8 @@ public class FafApiProperties {
   private Rating rating = new Rating();
   private Tutorial tutorial = new Tutorial();
   private Nodebb nodebb = new Nodebb();
+  private Recaptcha recaptcha = new Recaptcha();
+  private Monitoring monitoring = new Monitoring();
 
   @Data
   public static class OAuth2 {
@@ -53,6 +56,8 @@ public class FafApiProperties {
     private Path publicKeyPath;
     private int accessTokenValiditySeconds = 3600;
     private int refreshTokenValiditySeconds = 3600;
+    private String fafHydraJwksUrl;
+    private String fafHydraIssuer;
   }
 
   @Data
@@ -198,6 +203,13 @@ public class FafApiProperties {
   }
 
   @Data
+  public static class Gog {
+    private String tokenFormat;
+    private String profilePageUrl;
+    private String gamesListUrl;
+  }
+
+  @Data
   public static class Challonge {
     private String baseUrl = "https://api.challonge.com";
     private String key;
@@ -257,5 +269,16 @@ public class FafApiProperties {
      */
     private int adminUserId;
     private String masterToken;
+  }
+
+  @Data
+  public static class Recaptcha {
+    private boolean enabled;
+    private String secret;
+  }
+
+  @Data
+  public static class Monitoring {
+    private double slowRequestThresholdSeconds = 1.0;
   }
 }

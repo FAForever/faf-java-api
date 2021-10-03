@@ -3,7 +3,7 @@ package com.faforever.api.data.domain;
 import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.IsInAwaitingState;
 import com.faforever.api.data.checks.Prefab;
-import com.faforever.api.security.FafUserDetails;
+import com.faforever.api.data.hook.ModerationReportHook;
 import com.faforever.api.security.elide.permission.AdminModerationReportCheck;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yahoo.elide.annotation.Audit;
@@ -11,11 +11,9 @@ import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
-import com.yahoo.elide.annotation.OnCreatePreSecurity;
-import com.yahoo.elide.annotation.OnUpdatePreSecurity;
+import com.yahoo.elide.annotation.LifeCycleHookBinding;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
-import com.yahoo.elide.core.RequestScope;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -38,17 +36,23 @@ import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Set;
 
+import static com.yahoo.elide.annotation.LifeCycleHookBinding.Operation.CREATE;
+import static com.yahoo.elide.annotation.LifeCycleHookBinding.Operation.UPDATE;
+import static com.yahoo.elide.annotation.LifeCycleHookBinding.TransactionPhase.PRESECURITY;
+
 @Entity
 @Table(name = "moderation_report")
 @Setter
 @ToString(exclude = {"reportedUsers", "bans"})
-@Include(rootLevel = true, type = ModerationReport.TYPE_NAME)
+@Include(name = ModerationReport.TYPE_NAME)
 @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + AdminModerationReportCheck.EXPRESSION)
 @DeletePermission(expression = Prefab.NONE)
 @CreatePermission(expression = Prefab.ALL)
 @Audit(action = Action.CREATE, logStatement = "Moderation report `{0}` has been reported", logExpressions = "${moderationReport}")
 @Audit(action = Action.UPDATE, logStatement = "Moderation report `{0}` has been updated", logExpressions = "${moderationReport}")
-public class ModerationReport extends AbstractEntity implements OwnableEntity {
+@LifeCycleHookBinding(operation = CREATE, phase = PRESECURITY, hook = ModerationReportHook.class)
+@LifeCycleHookBinding(operation = UPDATE, phase = PRESECURITY, hook = ModerationReportHook.class)
+public class ModerationReport extends AbstractEntity<ModerationReport> implements OwnableEntity {
   public static final String TYPE_NAME = "moderationReport";
   private ModerationReportStatus reportStatus;
   private Player reporter;
@@ -73,7 +77,7 @@ public class ModerationReport extends AbstractEntity implements OwnableEntity {
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "reporter_id", referencedColumnName = "id")
-  @CreatePermission(expression = Prefab.ALL_AND_UPDATE_ON_CREATE)
+  @CreatePermission(expression = Prefab.ALL)
   public Player getReporter() {
     return reporter;
   }
@@ -132,7 +136,7 @@ public class ModerationReport extends AbstractEntity implements OwnableEntity {
     joinColumns = @JoinColumn(name = "report_id"),
     inverseJoinColumns = @JoinColumn(name = "player_id")
   )
-  @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " and " + IsInAwaitingState.EXPRESSION + " or " + Prefab.UPDATE_ON_CREATE)
+  @UpdatePermission(expression = IsEntityOwner.EXPRESSION + " and " + IsInAwaitingState.EXPRESSION)
   public Set<Player> getReportedUsers() {
     return reportedUsers;
   }
@@ -150,30 +154,5 @@ public class ModerationReport extends AbstractEntity implements OwnableEntity {
   @JsonIgnore
   public Login getEntityOwner() {
     return getReporter();
-  }
-
-  @OnCreatePreSecurity
-  public void assignReporter(RequestScope scope) {
-    this.setReportStatus(ModerationReportStatus.AWAITING);
-    final Object caller = scope.getUser().getOpaqueUser();
-    if (caller instanceof FafUserDetails) {
-      final FafUserDetails fafUser = (FafUserDetails) caller;
-      final Player reporter = new Player();
-      reporter.setId(fafUser.getId());
-      this.reporter = reporter;
-    }
-  }
-
-  @OnUpdatePreSecurity
-  public void updateLastModerator(RequestScope scope) {
-    final Object caller = scope.getUser().getOpaqueUser();
-    if (caller instanceof FafUserDetails) {
-      final FafUserDetails fafUser = (FafUserDetails) caller;
-      if (fafUser.hasPermission(GroupPermission.ROLE_ADMIN_MODERATION_REPORT)) {
-        final Player lastModerator = new Player();
-        lastModerator.setId(fafUser.getId());
-        this.lastModerator = lastModerator;
-      }
-    }
   }
 }

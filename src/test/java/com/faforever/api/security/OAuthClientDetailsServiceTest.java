@@ -3,8 +3,8 @@ package com.faforever.api.security;
 import com.faforever.api.client.OAuthClient;
 import com.faforever.api.client.OAuthClientRepository;
 import com.faforever.api.config.FafApiProperties;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -15,7 +15,7 @@ import org.springframework.security.oauth2.provider.ClientRegistrationException;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)

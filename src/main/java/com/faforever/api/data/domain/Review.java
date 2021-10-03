@@ -16,7 +16,7 @@ import javax.validation.constraints.DecimalMin;
 
 @Setter
 @MappedSuperclass
-public class Review extends AbstractEntity implements OwnableEntity {
+public class Review extends AbstractEntity<Review> implements OwnableEntity {
   private String text;
   private Byte score;
   private Player player;
@@ -37,7 +37,7 @@ public class Review extends AbstractEntity implements OwnableEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
-  @UpdatePermission(expression = Prefab.ALL_AND_UPDATE_ON_CREATE)
+  @UpdatePermission(expression = Prefab.ALL)
   public Player getPlayer() {
     return player;
   }

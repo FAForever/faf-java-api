@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
 
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -16,7 +17,7 @@ import javax.persistence.Table;
 @Entity
 @Setter
 @Table(name = "map_version_reviews_summary")
-@Include(type = "mapVersionReviewsSummary")
+@Include(name = "mapVersionReviewsSummary", rootLevel = false)
 @Immutable
 public class MapVersionReviewsSummary {
   private int id;
@@ -24,11 +25,12 @@ public class MapVersionReviewsSummary {
   private float negative;
   private float score;
   private int reviews;
-  private float lowerBound;
+  @Nullable
+  private Float lowerBound;
   private MapVersion mapVersion;
 
   @Id
-  @Column(name = "map_version_id")
+  @Column(name = "id")
   public int getId() {
     return id;
   }
@@ -54,7 +56,8 @@ public class MapVersionReviewsSummary {
   }
 
   @Column(name = "lower_bound")
-  public float getLowerBound() {
+  @Nullable
+  public Float getLowerBound() {
     return lowerBound;
   }
 

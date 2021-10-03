@@ -45,10 +45,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.faforever.api.map.MapService.ScenarioMapInfo.CONFIGURATION_STANDARD_TEAMS_ARMIES;
@@ -92,7 +90,7 @@ public class MapService {
     validateMapName(mapName);
     MapNameBuilder mapNameBuilder = new MapNameBuilder(mapName);
 
-    Integer nextVersion = mapRepository.findOneByDisplayName(mapNameBuilder.getDisplayName())
+    int nextVersion = mapRepository.findOneByDisplayName(mapNameBuilder.getDisplayName())
       .map(map -> map.getVersions().stream()
         .mapToInt(MapVersion::getVersion)
         .map(i -> i + 1)
@@ -167,7 +165,7 @@ public class MapService {
 
     Path rootTempFolder = contentService.createTempDir();
 
-    try {
+    try (mapDataInputStream) {
       Path unzippedFileFolder = unzipToTemporaryDirectory(mapDataInputStream, rootTempFolder);
       Path mapFolder = validateMapFolderStructure(unzippedFileFolder);
       validateRequiredFiles(mapFolder, MANDATORY_FILES);
@@ -197,7 +195,6 @@ public class MapService {
 
       zipMapData(mapFolderAfterRenaming, mapNameBuilder.buildFinalZipPath(mapLua.getMapVersion$()));
     } finally {
-      mapDataInputStream.close();
       FileSystemUtils.deleteRecursively(rootTempFolder);
     }
   }
@@ -219,6 +216,8 @@ public class MapService {
     log.debug("Unzipping uploaded file ''{}'' to: {}", mapDataInputStream, unzippedDirectory);
 
     Unzipper.from(mapDataInputStream)
+      .zipBombByteCountThreshold(5_000_000)
+      .zipBombProtectionFactor(200)
       .to(unzippedDirectory)
       .unzip();
 
@@ -234,7 +233,7 @@ public class MapService {
 
     try (Stream<Path> mapFolderStream = Files.list(zipContentFolder)) {
       mapFolder = mapFolderStream
-        .filter(path -> Files.isDirectory(path))
+        .filter(Files::isDirectory)
         .findFirst()
         .orElseThrow(() -> ApiException.of(ErrorCode.MAP_MISSING_MAP_FOLDER_INSIDE_ZIP));
     }
@@ -253,12 +252,12 @@ public class MapService {
     try (Stream<Path> mapFileStream = Files.list(mapFolder)) {
       List<String> fileNames = mapFileStream
         .map(Path::toString)
-        .collect(Collectors.toList());
+        .toList();
 
       List<Error> errors = Arrays.stream(requiredFiles)
         .filter(requiredEnding -> fileNames.stream().noneMatch(fileName -> fileName.endsWith(requiredEnding)))
         .map(requiredEnding -> new Error(ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING, requiredEnding))
-        .collect(Collectors.toList());
+        .toList();
 
       if (!errors.isEmpty()) {
         throw ApiException.of(errors);
@@ -285,24 +284,24 @@ public class MapService {
     validateLuaPathVariable(mapLua, FILE_DECLARATION_SAVE, mapNameBuilder, FILE_ENDING_SAVE).ifPresent(errors::add);
     validateLuaPathVariable(mapLua, FILE_DECLARATION_SCRIPT, mapNameBuilder, FILE_ENDING_SCRIPT).ifPresent(errors::add);
 
-    if (!mapLua.getDescription().isPresent()) {
+    if (mapLua.getDescription().isEmpty()) {
       errors.add(new Error(ErrorCode.MAP_DESCRIPTION_MISSING));
     }
     if (mapLua.hasInvalidTeam()) {
       errors.add(new Error(ErrorCode.MAP_FIRST_TEAM_FFA));
     }
-    if (!mapLua.getType().isPresent()) {
+    if (mapLua.getType().isEmpty()) {
       errors.add(new Error(ErrorCode.MAP_TYPE_MISSING));
     }
-    if (!mapLua.getSize().isPresent()) {
+    if (mapLua.getSize().isEmpty()) {
       errors.add(new Error(ErrorCode.MAP_SIZE_MISSING));
     }
 
-    if (!mapLua.getMapVersion().isPresent()) {
+    if (mapLua.getMapVersion().isEmpty()) {
       errors.add(new Error(ErrorCode.MAP_VERSION_MISSING));
     }
 
-    if (!mapLua.getNoRushRadius().isPresent()) {
+    if (mapLua.getNoRushRadius().isEmpty()) {
       // The game can start without it, but the GPG map editor will crash on opening such a map.
       errors.add(new Error(ErrorCode.NO_RUSH_RADIUS_MISSING));
     }
@@ -342,12 +341,10 @@ public class MapService {
     Optional<Map> existingMapOptional = mapRepository.findOneByDisplayName(displayName);
     existingMapOptional
       .ifPresent(existingMap -> {
-        Optional.ofNullable(existingMap.getAuthor())
-          .filter(existingMapAuthor -> !Objects.equals(existingMapAuthor, author))
-          .ifPresent(existingMapAuthor -> {
-            throw ApiException.of(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR, existingMap.getDisplayName());
-          });
-
+        final Player existingMapAuthor = existingMap.getAuthor();
+        if (existingMapAuthor == null || !existingMapAuthor.equals(author)) {
+          throw ApiException.of(ErrorCode.MAP_NOT_ORIGINAL_AUTHOR, existingMap.getDisplayName());
+        }
         if (existingMap.getVersions().stream()
           .anyMatch(mapVersion -> mapVersion.getVersion() == newVersion)) {
           throw ApiException.of(ErrorCode.MAP_VERSION_EXISTS, existingMap.getDisplayName(), newVersion);
@@ -366,6 +363,8 @@ public class MapService {
         new Map()
           .setDisplayName(mapName)
           .setAuthor(author)
+          .setGamesPlayed(0)
+          .setRecommended(false)
       );
 
     LuaValue standardTeamsConfig = mapLua.getFirstTeam$();
@@ -381,6 +380,7 @@ public class MapService {
       .setHeight(size.get(2).toint())
       .setHidden(false)
       .setRanked(isRanked)
+      .setGamesPlayed(0)
       .setMaxPlayers(standardTeamsConfig.get(CONFIGURATION_STANDARD_TEAMS_ARMIES).length())
       .setVersion(mapLua.getMapVersion$())
       .setMap(map)
@@ -403,7 +403,7 @@ public class MapService {
         .forEach(path -> noCatch(() -> {
           List<String> lines = Files.readAllLines(path, MAP_CHARSET).stream()
             .map(line -> line.replaceAll("(?i)" + oldNameFolder, newNameFolder))
-            .collect(Collectors.toList());
+            .toList();
           Files.write(path, lines, MAP_CHARSET);
         }));
     }

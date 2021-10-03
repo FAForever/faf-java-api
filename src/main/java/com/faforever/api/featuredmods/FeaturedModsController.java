@@ -12,13 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/featuredMods")
@@ -38,7 +36,7 @@ public class FeaturedModsController {
                                                      @RequestParam(value = "page[number]", required = false) Integer page) {
     Integer innerPage = Optional.ofNullable(page).orElse(0);
     if (innerPage > 1) {
-      return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(Collections.emptyList())));
+      return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(List.of())));
     }
 
     Map<Integer, FeaturedMod> mods = Maps.uniqueIndex(featuredModService.getFeaturedMods(), FeaturedMod::getId);
@@ -48,7 +46,7 @@ public class FeaturedModsController {
 
     List<Resource> values = featuredModService.getFiles(featuredMod.getTechnicalName(), innerVersion).stream()
       .map(modFileMapper())
-      .collect(Collectors.toList());
+      .toList();
 
     return CompletableFuture.completedFuture(new JsonApiDocument(new Data<>(values)));
   }

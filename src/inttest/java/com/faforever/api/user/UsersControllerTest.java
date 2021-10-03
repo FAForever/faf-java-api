@@ -29,12 +29,12 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,6 +53,9 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   @MockBean
   private SteamService steamService;
 
+  @MockBean
+  private GogService gogService;
+
   @Autowired
   private FafTokenService fafTokenService;
 
@@ -64,27 +67,12 @@ public class UsersControllerTest extends AbstractIntegrationTest {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("username", NEW_USER);
     params.add("email", NEW_EMAIL);
-    params.add("password", NEW_PASSWORD);
 
     mockMvc.perform(post("/users/register")
-      .with(getOAuthTokenWithoutUser(OAuthScope._CREATE_USER))
       .params(params)
     ).andExpect(status().isOk());
 
     verify(emailSender, times(1)).sendMail(anyString(), anyString(), eq(NEW_EMAIL), anyString(), anyString());
-  }
-
-  @Test
-  public void registerMissingCreateUserScope() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
-    params.add("username", NEW_USER);
-    params.add("email", NEW_EMAIL);
-    params.add("password", NEW_PASSWORD);
-
-    mockMvc.perform(post("/users/register").params(params))
-      .andExpect(status().isForbidden());
-
-    verify(emailSender, never()).sendMail(anyString(), anyString(), eq(NEW_EMAIL), anyString(), anyString());
   }
 
   @Test
@@ -96,7 +84,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
     params.add("password", NEW_PASSWORD);
 
     MvcResult result = mockMvc.perform(post("/users/register")
-      .with(getOAuthTokenWithoutUser(OAuthScope._CREATE_USER))
+      .with(getOAuthTokenWithoutUser())
       .params(params)
     ).andExpect(status().is4xxClientError())
       .andReturn();
@@ -511,6 +499,50 @@ public class UsersControllerTest extends AbstractIntegrationTest {
     mockMvc.perform(
       post("/users/resyncAccount")
         .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA)))
+      .andExpect(status().isOk());
+  }
+
+  @Test
+  @WithUserDetails(AUTH_USER)
+  public void buildGogProfileToken() throws Exception {
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("gogUsername", "someUsername");
+    when(gogService.buildGogToken(any())).thenReturn("theToken");
+
+    mockMvc.perform(
+      get("/users/buildGogProfileToken")
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
+        .params(params))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.gogToken", is("theToken")));
+
+    verify(gogService).buildGogToken(any());
+  }
+
+  @Test
+  @WithUserDetails(AUTH_USER)
+  public void linkToGogWithoutOAuthScopeFails() throws Exception {
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("gogUsername", "someUsername");
+
+    mockMvc.perform(
+      post("/users/linkToGog")
+        .params(params))
+      .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails(AUTH_USER)
+  public void linkToGogWithoutSuccess() throws Exception {
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("gogUsername", "someUsername");
+
+    when(gogService.buildGogToken(any())).thenReturn("theToken");
+
+    mockMvc.perform(
+      post("/users/linkToGog")
+        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
+        .params(params))
       .andExpect(status().isOk());
   }
 }

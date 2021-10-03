@@ -6,17 +6,13 @@ import com.faforever.api.data.domain.BanLevel;
 import com.faforever.api.data.domain.Mod;
 import com.faforever.api.data.domain.ModVersion;
 import com.faforever.api.data.domain.Player;
-import com.faforever.api.error.ApiExceptionMatcher;
+import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ErrorCode;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.ExpectedExceptionSupport;
-import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -30,24 +26,24 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith({MockitoExtension.class, ExternalResourceSupport.class, ExpectedExceptionSupport.class})
+@ExtendWith(MockitoExtension.class)
 public class ModServiceTest {
 
   private static final String TEST_MOD = "/mods/No Friendly Fire.zip";
   private static final String TEST_MOD_INVALID_STRUCTURE = "/mods/Mod with top level files.zip";
 
-  @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  @TempDir
+  public Path temporaryFolder;
 
   private ModService instance;
 
@@ -57,10 +53,10 @@ public class ModServiceTest {
   private ModVersionRepository modVersionRepository;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     FafApiProperties properties = new FafApiProperties();
-    properties.getMod().setTargetDirectory(temporaryFolder.getRoot().toPath().resolve("mods"));
-    properties.getMod().setThumbnailTargetDirectory(temporaryFolder.getRoot().toPath().resolve("thumbnails"));
+    properties.getMod().setTargetDirectory(temporaryFolder.resolve("mods"));
+    properties.getMod().setThumbnailTargetDirectory(temporaryFolder.resolve("thumbnails"));
 
     instance = new ModService(properties, modRepository, modVersionRepository);
   }
@@ -76,8 +72,8 @@ public class ModServiceTest {
 
     instance.processUploadedMod(uploadedFile, uploader);
 
-    assertThat(Files.exists(temporaryFolder.getRoot().toPath().resolve("mods/no_friendly_fire.v0003.zip")), is(true));
-    assertThat(Files.exists(temporaryFolder.getRoot().toPath().resolve("thumbnails/no_friendly_fire.v0003.png")), is(true));
+    assertThat(Files.exists(temporaryFolder.resolve("mods/no_friendly_fire.v0003.zip")), is(true));
+    assertThat(Files.exists(temporaryFolder.resolve("thumbnails/no_friendly_fire.v0003.png")), is(true));
 
     ArgumentCaptor<Mod> modCaptor = ArgumentCaptor.forClass(Mod.class);
     verify(modRepository).save(modCaptor.capture());
@@ -109,9 +105,9 @@ public class ModServiceTest {
     Path uploadedFile = prepareMod(TEST_MOD);
 
     when(modVersionRepository.existsByUid("26778D4E-BA75-5CC2-CBA8-63795BDE74AA")).thenReturn(true);
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.MOD_UID_EXISTS));
 
-    instance.processUploadedMod(uploadedFile, new Player());
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadedFile, new Player()));
+    assertThat(result, hasErrorCode(ErrorCode.MOD_UID_EXISTS));
   }
 
   @Test
@@ -124,9 +120,8 @@ public class ModServiceTest {
         .setLevel(BanLevel.VAULT)
     ));
 
-    expectedException.expect(Forbidden.class);
 
-    instance.processUploadedMod(uploadedFile, uploader);
+    assertThrows(Forbidden.class, () -> instance.processUploadedMod(uploadedFile, uploader));
   }
 
   @Test
@@ -137,9 +132,8 @@ public class ModServiceTest {
     when(modRepository.existsByDisplayNameAndUploaderIsNot("No Friendly Fire", uploader)).thenReturn(true);
     when(modRepository.findOneByDisplayName("No Friendly Fire")).thenReturn(Optional.of(new Mod()));
 
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.MOD_NOT_ORIGINAL_AUTHOR));
-
-    instance.processUploadedMod(uploadedFile, uploader);
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadedFile, uploader));
+    assertThat(result, hasErrorCode(ErrorCode.MOD_NOT_ORIGINAL_AUTHOR));
   }
 
   @Test
@@ -148,14 +142,13 @@ public class ModServiceTest {
 
     Player uploader = new Player();
 
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.MOD_STRUCTURE_INVALID));
-
-    instance.processUploadedMod(uploadedFile, uploader);
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadedFile, uploader));
+    assertThat(result, hasErrorCode(ErrorCode.MOD_STRUCTURE_INVALID));
   }
 
   @NotNull
   private Path prepareMod(String path) throws IOException {
-    Path uploadedFile = temporaryFolder.getRoot().toPath().resolve("uploaded-mod.zip");
+    Path uploadedFile = temporaryFolder.resolve("uploaded-mod.zip");
     try (InputStream inputStream = new BufferedInputStream(getClass().getResourceAsStream(path))) {
       Files.copy(inputStream, uploadedFile);
     }

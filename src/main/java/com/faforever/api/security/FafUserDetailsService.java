@@ -1,6 +1,5 @@
 package com.faforever.api.security;
 
-import com.faforever.api.data.domain.LegacyAccessLevel;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,7 +32,6 @@ public class FafUserDetailsService implements UserDetailsService {
       .orElseThrow(() -> new UsernameNotFoundException("User could not be found: " + usernameOrEmail));
 
     ArrayList<GrantedAuthority> authorities = new ArrayList<>();
-    authorities.add(LegacyAccessLevel.ROLE_USER);
 
     authorities.addAll(getUserRoles(user));
     authorities.addAll(getPermissionRoles(user));
@@ -48,9 +45,7 @@ public class FafUserDetailsService implements UserDetailsService {
     userRoles.add(UserRole.USER);
 
     user.getUserGroups().stream()
-      .map(userGroup -> UserRole.fromString(userGroup.getTechnicalName()))
-      .filter(Optional::isPresent)
-      .map(Optional::get)
+      .flatMap(userGroup -> UserRole.fromString(userGroup.getTechnicalName()).stream())
       .forEach(userRoles::add);
 
     return userRoles;

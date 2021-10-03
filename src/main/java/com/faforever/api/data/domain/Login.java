@@ -10,9 +10,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.Column;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
@@ -25,17 +28,20 @@ import java.util.stream.Collectors;
 
 @MappedSuperclass
 @Setter
-public abstract class Login extends AbstractEntity implements OwnableEntity {
+public abstract class Login extends AbstractEntity<Login> implements OwnableEntity {
 
   private String login;
   private String email;
   private String steamId;
+  private String gogId;
   private String userAgent;
   private Set<BanInfo> bans;
   private Set<UserNote> userNotes;
   private Set<UserGroup> userGroups;
   private String recentIpAddress;
   private OffsetDateTime lastLogin;
+  private Set<UniqueId> uniqueIds;
+
 
   public Login() {
     this.bans = new HashSet<>(0);
@@ -59,6 +65,12 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
     return steamId;
   }
 
+  @Column(name = "gog_id")
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
+  public String getGogId() {
+    return gogId;
+  }
+
   @Column(name = "ip")
   @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
   public String getRecentIpAddress() {
@@ -79,12 +91,14 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
   @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
   // Permission is managed by BanInfo class
   @UpdatePermission(expression = AdminAccountBanCheck.EXPRESSION)
+  @BatchSize(size = 1000)
   public Set<BanInfo> getBans() {
     return this.bans;
   }
 
   @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
   @UpdatePermission(expression = AdminAccountNoteCheck.EXPRESSION)
+  @BatchSize(size = 1000)
   public Set<UserNote> getUserNotes() {
     return this.userNotes;
   }
@@ -109,8 +123,19 @@ public abstract class Login extends AbstractEntity implements OwnableEntity {
   @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadUserGroupCheck.EXPRESSION)
   @UpdatePermission(expression = Prefab.ALL)
   @ManyToMany(mappedBy = "members")
+  @BatchSize(size = 1000)
   public Set<UserGroup> getUserGroups() {
     return userGroups;
+  }
+
+  @OneToMany
+  @JoinTable(name = "unique_id_users",
+    joinColumns = @JoinColumn(name = "user_id"),
+    inverseJoinColumns = @JoinColumn(name = "uniqueid_hash", referencedColumnName = "hash")
+  )
+  @ReadPermission(expression = ReadAccountPrivateDetailsCheck.EXPRESSION)
+  public Set<UniqueId> getUniqueIds() {
+    return uniqueIds;
   }
 
   @Override

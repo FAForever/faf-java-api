@@ -16,11 +16,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -51,7 +51,7 @@ public class GitHubDeploymentServiceTest {
     Push push = mock(Push.class);
 
     GHRepository repository = mock(GHRepository.class);
-    when(repository.gitHttpTransportUrl()).thenReturn(EXAMPLE_REPO_URL);
+    when(repository.getHttpTransportUrl()).thenReturn(EXAMPLE_REPO_URL);
     when(push.getRepository()).thenReturn(repository);
     when(push.getRef()).thenReturn("refs/heads/junit");
 
@@ -71,13 +71,13 @@ public class GitHubDeploymentServiceTest {
       .thenReturn(Optional.of(new FeaturedMod().setTechnicalName("faf")));
 
     GHRepository repository = mock(GHRepository.class);
-    when(repository.gitHttpTransportUrl()).thenReturn(EXAMPLE_REPO_URL);
+    when(repository.getHttpTransportUrl()).thenReturn(EXAMPLE_REPO_URL);
 
     GHDeploymentBuilder deploymentBuilder = mock(GHDeploymentBuilder.class);
     when(deploymentBuilder.autoMerge(false)).thenReturn(deploymentBuilder);
     when(deploymentBuilder.environment(ENVIRONMENT)).thenReturn(deploymentBuilder);
     when(deploymentBuilder.payload("faf")).thenReturn(deploymentBuilder);
-    when(deploymentBuilder.requiredContexts(Collections.emptyList())).thenReturn(deploymentBuilder);
+    when(deploymentBuilder.requiredContexts(List.of())).thenReturn(deploymentBuilder);
     when(repository.createDeployment("refs/heads/junit")).thenReturn(deploymentBuilder);
 
     when(push.getRepository()).thenReturn(repository);
@@ -113,7 +113,7 @@ public class GitHubDeploymentServiceTest {
     // Couldn't be mocked since calling ghDeployment.getId() threw an NPE
     GHDeployment ghDeployment = new GHDeployment() {
       @Override
-      public int getId() {
+      public long getId() {
         return 1;
       }
 
@@ -134,7 +134,9 @@ public class GitHubDeploymentServiceTest {
 
     GHDeploymentStatusBuilder builder = mock(GHDeploymentStatusBuilder.class);
     when(builder.description(any())).thenReturn(builder);
-    when(ghRepository.createDeployStatus(anyInt(), any())).thenReturn(builder);
+    GHDeployment deploymentMock = mock(GHDeployment.class);
+    when(ghRepository.getDeployment(anyLong())).thenReturn(deploymentMock);
+    when(deploymentMock.createStatus(any())).thenReturn(builder);
     when(deployment.getRepository()).thenReturn(ghRepository);
 
     LegacyFeaturedModDeploymentTask task = mock(LegacyFeaturedModDeploymentTask.class);

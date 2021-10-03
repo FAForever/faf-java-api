@@ -10,6 +10,7 @@ import com.yahoo.elide.jsonapi.models.Resource;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import lombok.Builder;
+import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,12 +28,9 @@ import java.util.stream.Collectors;
  * Provides the route {@code /me} which returns the currently logged in user's information.
  */
 @RestController
+@RequiredArgsConstructor
 public class MeController {
   private final PlayerService playerService;
-
-  public MeController(PlayerService playerService) {
-    this.playerService = playerService;
-  }
 
   @RequestMapping(method = RequestMethod.GET, value = "/me")
   @ApiOperation("Returns the authentication object of the current user")
@@ -62,6 +60,7 @@ public class MeController {
             .tag(player.getClan().getTag())
             .name(player.getClan().getName())
             .build(),
+          "lastLogin", Optional.ofNullable(player.getLastLogin()),
           "groups", groups,
           "permissions", grantedAuthorities
         ),

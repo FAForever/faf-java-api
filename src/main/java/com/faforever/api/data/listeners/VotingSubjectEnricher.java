@@ -14,7 +14,6 @@ import javax.persistence.PostLoad;
 import javax.persistence.PreUpdate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -63,7 +62,7 @@ public class VotingSubjectEnricher {
     if ((winners == null || winners.isEmpty()) && ended && votingSubject.getRevealWinner()) {
       votingQuestion.setWinners(getWinners(votingQuestion));
     } else {
-      votingQuestion.setWinners(Collections.emptyList());
+      votingQuestion.setWinners(List.of());
     }
   }
 
@@ -75,7 +74,7 @@ public class VotingSubjectEnricher {
         return votingQuestion.getVotingChoices().stream()
           .filter(votingChoice -> votingChoice.getVotingAnswers().size() == max.getAsInt()).collect(toList());
       }
-      return Collections.emptyList();
+      return List.of();
     }
 
     //All the answers sorted by their choice, but only those that are the 1st choice
@@ -111,7 +110,7 @@ public class VotingSubjectEnricher {
     }
     Optional<Entry<VotingChoice, List<VotingAnswer>>> first = votersByChoice.entrySet().stream().findFirst();
 
-    return first.map(votingChoiceListEntry -> Collections.singletonList(votingChoiceListEntry.getKey())).orElse(Collections.emptyList());
+    return first.map(votingChoiceListEntry -> List.of(votingChoiceListEntry.getKey())).orElse(List.of());
   }
 
   private void moveOnToTheNextAnswer(Map<VotingChoice, List<VotingAnswer>> votersByChoice, VotingAnswer votingAnswer) {

@@ -36,18 +36,21 @@ public class UsersController {
   private final FafApiProperties fafApiProperties;
   private final UserService userService;
   private final SteamService steamService;
+  private final GogService gogService;
+  private final RecaptchaService recaptchaService;
   private final ObjectMapper objectMapper;
 
   @ApiOperation("Registers a new account that needs to be activated.")
   @PostMapping(path = "/register", produces = APPLICATION_JSON_VALUE)
-  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._CREATE_USER + "')")
   public void register(HttpServletRequest request,
                        @RequestParam("username") String username,
-                       @RequestParam("email") String email) {
+                       @RequestParam("email") String email,
+                       @RequestParam(value = "recaptchaResponse", required = false) String recaptchaResponse) {
     if (request.isUserInRole("USER")) {
       throw new ApiException(new Error(ErrorCode.ALREADY_REGISTERED));
     }
 
+    recaptchaService.validateResponse(recaptchaResponse);
     userService.register(username, email);
   }
 
@@ -107,7 +110,9 @@ public class UsersController {
 
   @ApiOperation("Sends a password reset request to the username OR email linked by this account.")
   @PostMapping(path = "/requestPasswordReset", produces = APPLICATION_JSON_VALUE)
-  public void requestPasswordReset(@RequestParam("identifier") String identifier) {
+  public void requestPasswordReset(@RequestParam("identifier") String identifier,
+                                   @RequestParam(value = "recaptchaResponse", required = false) String recaptchaResponse) {
+    recaptchaService.validateResponse(recaptchaResponse);
     userService.requestPasswordReset(identifier);
   }
 
@@ -162,13 +167,29 @@ public class UsersController {
     userService.resynchronizeAccount(userService.getUser(authentication));
   }
 
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
+  @ApiOperation("Build the authorization token used for linking to a GOG account.")
+  @GetMapping(path = "/buildGogProfileToken", produces = APPLICATION_JSON_VALUE)
+  public Map<String, Serializable> buildGogProfileToken(Authentication authentication) {
+    String gogToken = gogService.buildGogToken(userService.getUser(authentication));
+    return Map.of("gogToken", gogToken);
+  }
+
+  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
+  @ApiOperation("Attempt to link a GOG account to this account.")
+  @PostMapping(path = "/linkToGog", produces = APPLICATION_JSON_VALUE)
+  public void linkToGog(@RequestParam("gogUsername") String gogUsername,
+                        Authentication authentication) {
+    userService.linkToGogAccount(gogUsername, userService.getUser(authentication));
+  }
+
   @SneakyThrows
   private void redirectCallbackResult(HttpServletResponse response, CallbackResult result) {
-    if (result.getErrors().isEmpty()) {
-      response.sendRedirect(result.getCallbackUrl());
+    if (result.errors().isEmpty()) {
+      response.sendRedirect(result.callbackUrl());
     } else {
-      UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(result.getCallbackUrl());
-      String errorsJson = objectMapper.writeValueAsString(result.getErrors());
+      UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(result.callbackUrl());
+      String errorsJson = objectMapper.writeValueAsString(result.errors());
       uriBuilder.queryParam("errors", errorsJson);
       response.sendRedirect(uriBuilder.toUriString());
     }

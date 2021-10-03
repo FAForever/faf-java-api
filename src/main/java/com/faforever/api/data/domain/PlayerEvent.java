@@ -14,9 +14,9 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "player_events")
-@Include(rootLevel = true, type = "playerEvent")
+@Include(name = "playerEvent")
 @Setter
-public class PlayerEvent extends AbstractEntity {
+public class PlayerEvent extends AbstractEntity<PlayerEvent> {
 
   private int playerId;
   private Player player;

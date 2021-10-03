@@ -2,14 +2,17 @@ buildscript {
   repositories {
     jcenter()
     mavenCentral()
-    maven { url 'https://repo.spring.io/plugins-release' }
-    maven { url "https://plugins.gradle.org/m2/" }
   }
   dependencies {
-    classpath("org.springframework.build.gradle:propdeps-plugin:${propdepsVersion}")
-    classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
     classpath("gradle.plugin.org.kt3k.gradle.plugin:coveralls-gradle-plugin:${coverallsGradlePluginVersion}")
   }
+}
+
+plugins {
+  id "java"
+  id "org.springframework.boot" version "${springBootVersion}"
+  id "io.spring.dependency-management" version "${springDependencyManagementVersion}"
+  id "idea"
 }
 
 // source: https://github.com/mendhak/Gradle-Travis-Colored-Output/blob/master/ColoredOutput.gradle
@@ -94,23 +97,17 @@ tasks.withType(Test) {
 
 }
 
-apply plugin: 'java'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
-apply plugin: 'propdeps'
-apply plugin: 'idea'
-
 group = 'faforever'
-version = 'snapshot'
 
-sourceCompatibility = 11
-targetCompatibility = 11
+sourceCompatibility = 16
+targetCompatibility = 16
+
+bootJar.enabled = true
+jar.enabled = false
 
 repositories {
   mavenCentral()
-  maven { url "https://repo.jenkins-ci.org/public/" }
   maven { url "https://jitpack.io" }
-  maven { url "https://dl.bintray.com/typesafe/maven-releases" }
 }
 
 compileJava.dependsOn(processResources)
@@ -157,17 +154,22 @@ task inttest(type: Test) {
   setTestClassesDirs(files(sourceSets.inttest.output))
   classpath = sourceSets.inttest.runtimeClasspath
 
+  testLogging {
+    events("failed")
+    exceptionFormat = 'full'
+  }
+
   useJUnitPlatform()
 
   mustRunAfter test
 }
 
-bootJar {
-  layered()
+processInttestResources {
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
-// JACOCO & COVERALLS
 
+// JACOCO & COVERALLS
 apply plugin: 'jacoco'
 apply plugin: 'com.github.kt3k.coveralls'
 jacocoTestReport {
@@ -212,7 +214,6 @@ dependencies {
 
   runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
-  implementation("org.springframework.boot:spring-boot-starter-jdbc")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-web")
   implementation("org.springframework.boot:spring-boot-starter-jetty")
@@ -227,7 +228,6 @@ dependencies {
   implementation("org.kohsuke:github-api:${githubApiVersion}")
   implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springSecurityOauth2AutoConfigureVersion}")
   implementation("org.springframework.security.oauth:spring-security-oauth2:${springSecurityOauth2Version}")
-  implementation("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
   implementation("org.eclipse.jgit:org.eclipse.jgit:${jgitVersionn}")
   implementation("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
   implementation("com.google.guava:guava:${guavaVersion}")
@@ -236,29 +236,26 @@ dependencies {
   implementation("com.yahoo.elide:elide-core:${elideVersion}")
   implementation("com.yahoo.elide:elide-swagger:${elideVersion}")
   implementation("com.yahoo.elide:elide-datastore-hibernate5:${elideVersion}")
+  implementation("com.yahoo.elide:elide-datastore-multiplex:${elideVersion}")
 
   implementation("org.luaj:luaj-jse:${luajVersion}")
-  implementation("com.github.micheljung:nocatch:${nocatchVersion}")
+  implementation("io.github.micheljung:nocatch:${nocatchVersion}")
   implementation("org.apache.commons:commons-compress:${commonsCompressVersion}")
   implementation("org.json:json:${jsonVersion}")
+
+  implementation("org.jsoup:jsoup:${jsoupVersion}")
 
   implementation("com.github.jasminb:jsonapi-converter:${jsonapiConverterVersion}")
   runtimeOnly("mysql:mysql-connector-java:${mysqlConnectorVersion}")
 
-  optional("org.springframework.boot:spring-boot-configuration-processor")
-
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("org.junit.jupiter:junit-jupiter")
-  testImplementation("org.junit.jupiter:junit-jupiter-params")
   testImplementation("junit-addons:junit-addons:${junitAddonsVersion}")
-  testImplementation("org.mockito:mockito-junit-jupiter")
-  testImplementation("org.junit.jupiter:junit-jupiter-migrationsupport")
-  testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
-  testImplementation("com.h2database:h2:${h2Version}")
   testImplementation("com.jayway.jsonpath:json-path:${jsonPath}")
   testImplementation("com.jayway.jsonpath:json-path-assert:${jsonPathAssert}")
+  testImplementation("org.testcontainers:junit-jupiter:${testContainersVersion}")
+  testImplementation("org.testcontainers:mysql:1.15.0")
 
   codacy("com.github.codacy:codacy-coverage-reporter:${codacyCoverageReporterVersion}")
 }

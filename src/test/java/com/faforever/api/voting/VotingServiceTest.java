@@ -7,34 +7,29 @@ import com.faforever.api.data.domain.VotingChoice;
 import com.faforever.api.data.domain.VotingQuestion;
 import com.faforever.api.data.domain.VotingSubject;
 import com.faforever.api.error.ApiException;
-import com.faforever.api.error.ApiExceptionMatcher;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.game.GamePlayerStatsRepository;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.ExpectedExceptionSupport;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.Set;
 
-import static org.junit.Assert.assertTrue;
+import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith({MockitoExtension.class, ExpectedExceptionSupport.class})
+@ExtendWith(MockitoExtension.class)
 public class VotingServiceTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private VotingService instance;
   @Mock
@@ -61,7 +56,7 @@ public class VotingServiceTest {
     VotingQuestion votingQuestion = new VotingQuestion();
     votingQuestion.setAlternativeQuestion(false);
     votingQuestion.setMaxAnswers(1);
-    votingSubject.setVotingQuestions(Collections.singleton(votingQuestion));
+    votingSubject.setVotingQuestions(Set.of(votingQuestion));
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
@@ -81,9 +76,9 @@ public class VotingServiceTest {
 
     vote.setVotingSubject(votingSubject);
 
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.VOTING_SUBJECT_DOES_NOT_EXIST));
+    ApiException result = assertThrows(ApiException.class, () -> instance.saveVote(vote, new Player()));
+    assertThat(result, hasErrorCode(ErrorCode.VOTING_SUBJECT_DOES_NOT_EXIST));
 
-    instance.saveVote(vote, new Player());
     verify(voteRepository, never()).save(vote);
   }
 
@@ -97,7 +92,7 @@ public class VotingServiceTest {
     VotingQuestion votingQuestion = new VotingQuestion();
     votingQuestion.setAlternativeQuestion(false);
     votingQuestion.setMaxAnswers(1);
-    votingSubject.setVotingQuestions(Collections.singleton(votingQuestion));
+    votingSubject.setVotingQuestions(Set.of(votingQuestion));
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
@@ -105,11 +100,9 @@ public class VotingServiceTest {
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.of(new Vote()));
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
 
-    try {
-      instance.saveVote(vote, player);
-    } catch (ApiException e) {
-      assertTrue(Arrays.stream(e.getErrors()).anyMatch(error -> error.getErrorCode().equals(ErrorCode.VOTED_TWICE)));
-    }
+    ApiException result = assertThrows(ApiException.class, () -> instance.saveVote(vote, player));
+    assertThat(result, hasErrorCode(ErrorCode.VOTED_TWICE));
+
     verify(voteRepository, never()).save(vote);
   }
 
@@ -122,7 +115,7 @@ public class VotingServiceTest {
 
     VotingQuestion votingQuestion = new VotingQuestion();
     votingQuestion.setAlternativeQuestion(true);
-    votingSubject.setVotingQuestions(Collections.singleton(votingQuestion));
+    votingSubject.setVotingQuestions(Set.of(votingQuestion));
     votingQuestion.setMaxAnswers(2);
 
     Vote vote = new Vote();
@@ -140,7 +133,7 @@ public class VotingServiceTest {
     votingAnswer2.setVotingChoice(votingChoice2);
     votingAnswer2.setAlternativeOrdinal(1);
 
-    vote.setVotingAnswers(new HashSet<>(Arrays.asList(votingAnswer, votingAnswer2)));
+    vote.setVotingAnswers(Set.of(votingAnswer, votingAnswer2));
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
@@ -162,7 +155,7 @@ public class VotingServiceTest {
 
     VotingQuestion votingQuestion = new VotingQuestion();
     votingQuestion.setAlternativeQuestion(true);
-    votingSubject.setVotingQuestions(Collections.singleton(votingQuestion));
+    votingSubject.setVotingQuestions(Set.of(votingQuestion));
     votingQuestion.setMaxAnswers(2);
 
     Vote vote = new Vote();
@@ -174,7 +167,7 @@ public class VotingServiceTest {
     votingAnswer.setVotingChoice(votingChoice);
     votingAnswer.setAlternativeOrdinal(0);
 
-    vote.setVotingAnswers(new HashSet<>(Collections.singletonList(votingAnswer)));
+    vote.setVotingAnswers(Set.of(votingAnswer));
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
@@ -182,9 +175,9 @@ public class VotingServiceTest {
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
 
-    expectedException.expect(ApiExceptionMatcher.hasErrorCode(ErrorCode.VOTING_CHOICE_DOES_NOT_EXIST));
+    ApiException result = assertThrows(ApiException.class, () -> instance.saveVote(vote, player));
+    assertThat(result, hasErrorCode(ErrorCode.VOTING_CHOICE_DOES_NOT_EXIST));
 
-    instance.saveVote(vote, player);
     verify(voteRepository, never()).save(vote);
   }
 
@@ -197,7 +190,7 @@ public class VotingServiceTest {
 
     VotingQuestion votingQuestion = new VotingQuestion();
     votingQuestion.setAlternativeQuestion(true);
-    votingSubject.setVotingQuestions(Collections.singleton(votingQuestion));
+    votingSubject.setVotingQuestions(Set.of(votingQuestion));
     votingQuestion.setMaxAnswers(2);
 
     Vote vote = new Vote();
@@ -215,7 +208,7 @@ public class VotingServiceTest {
     votingAnswer2.setVotingChoice(votingChoice2);
     votingAnswer2.setAlternativeOrdinal(1);
 
-    vote.setVotingAnswers(new HashSet<>(Arrays.asList(votingAnswer, votingAnswer2)));
+    vote.setVotingAnswers(Set.of(votingAnswer, votingAnswer2));
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
@@ -224,11 +217,9 @@ public class VotingServiceTest {
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
     when(votingChoiceRepository.findById(anyInt())).thenReturn(Optional.of(votingChoice)).thenReturn(Optional.of(votingChoice2));
 
-    try {
-      instance.saveVote(vote, player);
-    } catch (ApiException e) {
-      assertTrue(Arrays.stream(e.getErrors()).anyMatch(error -> error.getErrorCode().equals(ErrorCode.MALFORMATTED_ALTERNATIVE_ORDINALS)));
-    }
+    ApiException result = assertThrows(ApiException.class, () -> instance.saveVote(vote, player));
+    assertThat(result, hasErrorCode(ErrorCode.MALFORMATTED_ALTERNATIVE_ORDINALS));
+
     verify(voteRepository, never()).save(vote);
   }
 
@@ -241,7 +232,7 @@ public class VotingServiceTest {
 
     VotingQuestion votingQuestion = new VotingQuestion();
     votingQuestion.setAlternativeQuestion(true);
-    votingSubject.setVotingQuestions(Collections.singleton(votingQuestion));
+    votingSubject.setVotingQuestions(Set.of(votingQuestion));
     votingQuestion.setMaxAnswers(1);
 
     Vote vote = new Vote();
@@ -257,7 +248,7 @@ public class VotingServiceTest {
     votingChoice2.setVotingQuestion(votingQuestion);
     votingAnswer2.setVotingChoice(votingChoice2);
 
-    vote.setVotingAnswers(new HashSet<>(Arrays.asList(votingAnswer, votingAnswer2)));
+    vote.setVotingAnswers(Set.of(votingAnswer, votingAnswer2));
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
@@ -266,11 +257,59 @@ public class VotingServiceTest {
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
     when(votingChoiceRepository.findById(anyInt())).thenReturn(Optional.of(votingChoice)).thenReturn(Optional.of(votingChoice2));
 
-    try {
-      instance.saveVote(vote, player);
-    } catch (ApiException e) {
-      assertTrue(Arrays.stream(e.getErrors()).anyMatch(error -> error.getErrorCode().equals(ErrorCode.TOO_MANY_ANSWERS)));
-    }
+    ApiException result = assertThrows(ApiException.class, () -> instance.saveVote(vote, player));
+    assertThat(result, hasErrorCode(ErrorCode.TOO_MANY_ANSWERS));
+
     verify(voteRepository, never()).save(vote);
+  }
+
+  @Test
+  public void notSaveVoteOnNotEnoughGames() {
+    Vote vote = new Vote();
+    VotingSubject votingSubject = new VotingSubject();
+    votingSubject.setId(1);
+    votingSubject.setBeginOfVoteTime(OffsetDateTime.now());
+    votingSubject.setEndOfVoteTime(OffsetDateTime.MAX);
+    VotingQuestion votingQuestion = new VotingQuestion();
+    votingQuestion.setAlternativeQuestion(false);
+    votingQuestion.setMaxAnswers(1);
+    votingSubject.setVotingQuestions(Set.of(votingQuestion));
+    votingSubject.setMinGamesToVote(100);
+
+    vote.setVotingSubject(votingSubject);
+    Player player = new Player();
+
+    when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
+    when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
+
+    ApiException result = assertThrows(ApiException.class, () -> instance.saveVote(vote, player));
+    assertThat(result, hasErrorCode(ErrorCode.NOT_ENOUGH_GAMES));
+
+    verify(voteRepository, never()).save(vote);
+  }
+
+  @Test
+  public void saveVoteOnNotEnoughGamesButSteamLinkAndAccountAge() {
+    Vote vote = new Vote();
+    VotingSubject votingSubject = new VotingSubject();
+    votingSubject.setId(1);
+    votingSubject.setBeginOfVoteTime(OffsetDateTime.now());
+    votingSubject.setEndOfVoteTime(OffsetDateTime.MAX);
+    VotingQuestion votingQuestion = new VotingQuestion();
+    votingQuestion.setAlternativeQuestion(false);
+    votingQuestion.setMaxAnswers(1);
+    votingSubject.setVotingQuestions(Set.of(votingQuestion));
+    votingSubject.setMinGamesToVote(100);
+
+    vote.setVotingSubject(votingSubject);
+    Player player = new Player();
+    player.setSteamId("someSteamId");
+    player.setCreateTime(OffsetDateTime.now().minus(5, ChronoUnit.YEARS));
+
+    when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
+    when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
+
+    instance.saveVote(vote, player);
+    verify(voteRepository).save(vote);
   }
 }

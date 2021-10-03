@@ -5,7 +5,6 @@ import com.faforever.api.user.UserDataSyncService;
 import com.faforever.api.user.UserUpdatedEvent;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -87,22 +86,17 @@ public class NodebbService implements UserDataSyncService, InitializingBean {
     return new HttpEntity<>(payload, headers);
   }
 
-  @Value
   @JsonIgnoreProperties(ignoreUnknown = true)
-  public static class UserResponse {
-    Integer uid;
-    String username;
+  public record UserResponse(Integer uid, String username) {
   }
 
-  @Value
-  private class UserUpdate {
+  private record UserUpdate(
     /**
-     * ID of the user to impersonate for the http call (should be an admin user if username change is disabled)
+     ID of the user to impersonate for the http call (should be an admin user if username change is disabled)
      */
-    String _uid;
-
-    String username;
-
-    String email;
+    String _uid,
+    String username,
+    String email
+  ) {
   }
 }

@@ -40,10 +40,10 @@ import java.util.Set;
 @Audit(action = Action.CREATE, logStatement = "Created voting question with id:{0}", logExpressions = {"${votingQuestion.id}"})
 @Audit(action = Action.DELETE, logStatement = "Deleted voting question with id:{0}", logExpressions = {"${votingQuestion.id}"})
 @Audit(action = Action.UPDATE, logStatement = "Updated voting question with id:{0}", logExpressions = {"${votingQuestion.id}"})
-@Include(rootLevel = true, type = VotingQuestion.TYPE_NAME)
+@Include(name = VotingQuestion.TYPE_NAME)
 @Setter
 @EntityListeners(VotingQuestionEnricher.class)
-public class VotingQuestion extends AbstractEntity {
+public class VotingQuestion extends AbstractEntity<VotingQuestion> {
   public static final String TYPE_NAME = "votingQuestion";
 
   private Integer numberOfAnswers;
@@ -58,7 +58,6 @@ public class VotingQuestion extends AbstractEntity {
   private List<VotingChoice> winners;
   private Set<VotingChoice> votingChoices;
 
-  @UpdatePermission(expression = Prefab.UPDATE_ON_CREATE)
   @Column(name = "alternative_voting")
   public Boolean isAlternativeQuestion() {
     return alternativeQuestion;

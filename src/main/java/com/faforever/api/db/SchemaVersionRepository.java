@@ -9,6 +9,6 @@ import java.util.Optional;
 @Repository
 public interface SchemaVersionRepository extends JpaRepository<SchemaVersion, Integer> {
 
-  @Query("select s.version from SchemaVersion s where s.installedRank = (select max (s.installedRank) from SchemaVersion s)")
+  @Query("select s.version from SchemaVersion s where s.installedRank = (select max (s.installedRank) from SchemaVersion s where s.version is not null)")
   Optional<String> findMaxVersion();
 }

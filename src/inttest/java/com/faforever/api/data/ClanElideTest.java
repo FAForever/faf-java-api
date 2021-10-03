@@ -19,12 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -61,7 +61,7 @@ public class ClanElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       delete("/data/clanMembership/4")) // magic value from prepClanData.sql
       .andExpect(status().isForbidden())
-      .andExpect(jsonPath("$.errors[0]", is("ForbiddenAccessException")));
+      .andExpect(jsonPath("$.errors[0].detail", is("DeletePermission Denied")));
   }
 
   @Test
@@ -70,7 +70,7 @@ public class ClanElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       delete("/data/clanMembership/1")) // magic value from prepClanData.sql
       .andExpect(status().isForbidden())
-      .andExpect(jsonPath("$.errors[0]", is("ForbiddenAccessException")));
+      .andExpect(jsonPath("$.errors[0].detail", is("DeletePermission Denied")));
   }
 
   @Test
@@ -91,7 +91,7 @@ public class ClanElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       delete("/data/clanMembership/3")) // magic value from prepClanData.sql
       .andExpect(status().isForbidden())
-      .andExpect(jsonPath("$.errors[0]", is("ForbiddenAccessException")));
+      .andExpect(jsonPath("$.errors[0].detail", is("DeletePermission Denied")));
   }
 
   @Test
@@ -127,7 +127,7 @@ public class ClanElideTest extends AbstractIntegrationTest {
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(generateTransferLeadershipContent(1, 12))) // magic value from prepClanData.sql
       .andExpect(status().isForbidden())
-      .andExpect(jsonPath("$.errors[0]", is("ForbiddenAccessException")));
+      .andExpect(jsonPath("$.errors[0].detail", is("UpdatePermission Denied")));
 
     assertThat(clanRepository.getOne(1).getLeader().getLogin(), is(AUTH_CLAN_LEADER));
   }
@@ -194,7 +194,7 @@ public class ClanElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       delete("/data/clan/1"))
       .andExpect(status().isForbidden())
-      .andExpect(jsonPath("$.errors[0]", is("ForbiddenAccessException")));
+      .andExpect(jsonPath("$.errors[0].detail", is("DeletePermission Denied")));
 
     //FIXME: for some weird Elide/Hibernate error, the transaction has ended after the error and the JpaRepository is empty
     //-> If you can fix this, uncomment the following lines

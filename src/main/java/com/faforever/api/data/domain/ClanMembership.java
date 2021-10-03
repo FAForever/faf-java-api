@@ -1,7 +1,6 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsClanMembershipDeletable;
-import com.faforever.api.data.checks.Prefab;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
@@ -16,11 +15,11 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "clan_membership")
-@Include(rootLevel = true, type = "clanMembership")
+@Include(name = "clanMembership")
 @DeletePermission(expression = IsClanMembershipDeletable.EXPRESSION)
-@UpdatePermission(expression = IsClanMembershipDeletable.EXPRESSION + " or " + Prefab.UPDATE_ON_CREATE)
+@UpdatePermission(expression = IsClanMembershipDeletable.EXPRESSION)
 @Setter
-public class ClanMembership extends AbstractEntity {
+public class ClanMembership extends AbstractEntity<ClanMembership> {
 
   private Clan clan;
   private Player player;

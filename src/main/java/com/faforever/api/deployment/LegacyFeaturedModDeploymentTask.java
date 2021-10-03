@@ -10,12 +10,12 @@ import com.faforever.api.utils.FilePermissionUtil;
 import com.faforever.commons.fa.ForgedAllianceExePatcher;
 import com.faforever.commons.mod.ModReader;
 import com.google.common.io.ByteStreams;
-import lombok.Data;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -29,9 +29,21 @@ import javax.validation.ValidationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -98,7 +110,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
 
     Deployment deployment = apiProperties.getDeployment();
     Path targetFolder = Paths.get(deployment.getFeaturedModsTargetDirectory(), String.format(deployment.getFilesDirectoryFormat(), modName));
-    List<StagedFile> files = packageDirectories(repositoryDirectory, version, fileIds, targetFolder);
+    List<StagedFile> files = packageFiles(repositoryDirectory, version, fileIds, targetFolder);
 
     if ("faf".equals(modName)) {
       createPatchedExe(version, fileIds, targetFolder).ifPresent(files::add);
@@ -177,12 +189,12 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     updateStatus("Updating database");
     List<FeaturedModFile> featuredModFiles = files.stream()
       .map(file -> new FeaturedModFile()
-        .setMd5(noCatch(() -> hash(file.getTargetFile().toFile(), md5())).toString())
-        .setFileId(file.getFileId())
-        .setName(file.getTargetFile().getFileName().toString())
+        .setMd5(noCatch(() -> hash(file.targetFile().toFile(), md5())).toString())
+        .setFileId(file.fileId())
+        .setName(file.targetFile().getFileName().toString())
         .setVersion(version)
       )
-      .collect(Collectors.toList());
+      .toList();
 
     featuredModService.save(modName, version, featuredModFiles);
   }
@@ -198,15 +210,21 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
    * @return the list of deployed files
    */
   @SneakyThrows
-  private List<StagedFile> packageDirectories(Path repositoryDirectory, short version, Map<String, Short> fileIds, Path targetFolder) {
+  @SuppressWarnings("unchecked")
+  private List<StagedFile> packageFiles(Path repositoryDirectory, short version, Map<String, Short> fileIds, Path targetFolder) {
     updateStatus("Packaging files");
     try (Stream<Path> stream = Files.list(repositoryDirectory)) {
       return stream
-        .filter((path) -> Files.isDirectory(path) && !path.getFileName().toString().startsWith("."))
-        .map(path -> packDirectory(path, version, targetFolder, fileIds))
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .collect(Collectors.toList());
+        .flatMap(path -> {
+          if (Files.isDirectory(path) && !path.getFileName().toString().startsWith(".")) {
+            return packDirectory(path, version, targetFolder, fileIds).stream();
+          } else if (Files.isRegularFile(path)) {
+            return packFile(path, version, targetFolder, fileIds).stream();
+          } else{
+            return Stream.empty();
+          }
+        })
+        .collect(Collectors.toCollection(ArrayList::new));
     }
   }
 
@@ -215,8 +233,8 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
    * complete, and makes the file readable for everyone.
    */
   private StagedFile finalizeFile(StagedFile file) {
-    Path source = file.getTmpFile();
-    Path target = file.getTargetFile();
+    Path source = file.tmpFile();
+    Path target = file.targetFile();
 
     log.trace("Setting default file permission of '{}'", source);
     FilePermissionUtil.setDefaultFilePermission(source);
@@ -253,6 +271,31 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     return Optional.of(new StagedFile(fileId, tmpNxtFile, targetNxtFile, clientFileName));
   }
 
+  /**
+   * Creates a ZIP file with the file ending configured in {@link #featuredMod}. The content of the ZIP file is the
+   * content of the directory. If no file ID is available, an empty optional is returned.
+   */
+  @SneakyThrows
+  private Optional<StagedFile> packFile(Path file, Short version, Path targetFolder, Map<String, Short> fileIds) {
+    String fullFileName = file.getFileName().toString();
+    String baseName = FilenameUtils.getBaseName(fullFileName);
+    String extension = FilenameUtils.getExtension(fullFileName);
+    Path targetFile = targetFolder.resolve(String.format("%s_%d.%s", baseName, version, extension));
+    Path tmpFile = toTmpFile(targetFile);
+
+    Short fileId = fileIds.get(fullFileName);
+    if (fileId == null) {
+      log.debug("Skipping file '{}' because there's no file ID available", fullFileName);
+      return Optional.empty();
+    }
+
+    log.trace("Copying '{}' to '{}'", file, targetFolder);
+
+    createDirectories(targetFolder, FilePermissionUtil.directoryPermissionFileAttributes());
+    Files.copy(file, tmpFile, StandardCopyOption.REPLACE_EXISTING);
+    return Optional.of(new StagedFile(fileId, tmpFile, targetFile, fullFileName));
+  }
+
   private void checkoutCode(Path repositoryDirectory, String repoUrl, String branch) throws IOException {
     if (Files.notExists(repositoryDirectory)) {
       createDirectories(repositoryDirectory.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
@@ -279,22 +322,27 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
    * a seekable byte channel.
    */
   private void zipDirectory(Path directoryToZip, ZipArchiveOutputStream outputStream) throws IOException {
-    Files.walkFileTree(directoryToZip, new SimpleFileVisitor<Path>() {
+    Files.walkFileTree(directoryToZip, new SimpleFileVisitor<>() {
       public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
         String relativized = directoryToZip.getParent().relativize(dir).toString();
         if (!relativized.isEmpty()) {
-          outputStream.putArchiveEntry(new ZipArchiveEntry(relativized + "/"));
+          ZipArchiveEntry zipArchiveEntry = new ZipArchiveEntry(relativized + "/");
+          zipArchiveEntry.setLastModifiedTime(FileTime.from(Instant.EPOCH));
+          outputStream.putArchiveEntry(zipArchiveEntry);
           outputStream.closeArchiveEntry();
         }
+
         return FileVisitResult.CONTINUE;
       }
 
       public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
         log.trace("Zipping file {}", file.toAbsolutePath());
-        outputStream.putArchiveEntry(new ZipArchiveEntry(
+        ZipArchiveEntry zipArchiveEntry = new ZipArchiveEntry(
           file.toFile(),
-          directoryToZip.getParent().relativize(file).toString().replace(File.separatorChar, '/'))
-        );
+          directoryToZip.getParent().relativize(file).toString().replace(File.separatorChar, '/'));
+        zipArchiveEntry.setLastModifiedTime(FileTime.from(Instant.EPOCH));
+
+        outputStream.putArchiveEntry(zipArchiveEntry);
 
         try (InputStream inputStream = Files.newInputStream(file)) {
           ByteStreams.copy(inputStream, outputStream);
@@ -309,23 +357,23 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
    * Describes a file that is ready to be deployed. All files should be staged as temporary files first so they can be
    * renamed to their target file name in one go, thus minimizing the time of inconsistent file system state.
    */
-  @Data
-  private class StagedFile {
+  private record StagedFile(
     /**
      * ID of the file as stored in the database.
      */
-    private final short fileId;
+    short fileId,
     /**
      * The staged file, already in the correct location, that is ready to be renamed.
      */
-    private final Path tmpFile;
+    Path tmpFile,
     /**
      * The final file name and location.
      */
-    private final Path targetFile;
+    Path targetFile,
     /**
      * Name of the file as the client will know it.
      */
-    private final String clientFileName;
+    String clientFileName
+  ) {
   }
 }

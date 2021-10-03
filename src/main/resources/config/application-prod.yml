@@ -2,6 +2,8 @@ faf-api:
   jwt:
     secretKeyPath: ${JWT_PRIVATE_KEY_PATH}
     publicKeyPath: ${JWT_PUBLIC_KEY_PATH}
+    fafHydraJwksUrl: ${JWT_FAF_HYDRA_JWKS_URL}
+    fafHydraIssuer: ${JWT_FAF_HYDRA_ISSUER}
   map:
     target-directory: ${MAP_UPLOAD_PATH}
     directory-preview-path-small: ${MAP_PREVIEW_PATH_SMALL}
@@ -52,6 +54,9 @@ faf-api:
     api-key: ${STEAM_API_KEY}
     link-to-steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL_FORMAT}
     steam-password-reset-redirect-url-format: ${STEAM_PASSWORD_RESET_REDIRECT_URL_FORMAT}
+  recaptcha:
+    enabled: ${RECAPTCHA_ENABLED}
+    secret: ${RECAPTCHA_SECRET}
 
 spring:
   datasource:
@@ -59,6 +64,11 @@ spring:
     name: faf
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
+  league-datasource:
+    url: jdbc:mysql://${LEAGUE_DATABASE_ADDRESS}/${LEAGUE_DATABASE_NAME}?useSSL=false
+    name: faf-league
+    username: ${LEAGUE_DATABASE_USERNAME}
+    password: ${LEAGUE_DATABASE_PASSWORD}
   jpa:
     show-sql: false
   boot:
@@ -74,4 +84,5 @@ spring:
               password: ${ADMIN_CLIENT_PASSWORD}
 
 logging:
-  path: ${LOG_FILE_DIRECTORY:/tmp}
+  file:
+    path: ${LOG_FILE_DIRECTORY:/tmp}

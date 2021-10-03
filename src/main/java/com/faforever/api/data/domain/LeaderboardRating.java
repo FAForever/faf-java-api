@@ -5,7 +5,6 @@ import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -14,8 +13,8 @@ import javax.persistence.Transient;
 @Entity
 @Setter
 @Table(name = "leaderboard_rating")
-@Include(rootLevel = true, type = LeaderboardRating.TYPE_NAME)
-public class LeaderboardRating extends AbstractEntity implements OwnableEntity {
+@Include(name = LeaderboardRating.TYPE_NAME)
+public class LeaderboardRating extends AbstractEntity<Leaderboard> implements OwnableEntity {
 
   public static final String TYPE_NAME = "leaderboardRating";
 
@@ -27,13 +26,13 @@ public class LeaderboardRating extends AbstractEntity implements OwnableEntity {
   private Leaderboard leaderboard;
   private Player player;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "player_id")
+  @ManyToOne
+  @JoinColumn(name = "login_id")
   public Player getPlayer() {
     return player;
   }
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "leaderboard_id")
   public Leaderboard getLeaderboard() {
     return leaderboard;

@@ -1,18 +1,17 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.Prefab;
-import com.faforever.api.security.FafUserDetails;
+import com.faforever.api.data.hook.BanInfoCreateHook;
+import com.faforever.api.data.hook.BanInfoRevokeAuthorUpdateHook;
 import com.faforever.api.security.elide.permission.AdminAccountBanCheck;
 import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
-import com.yahoo.elide.annotation.OnCreatePreSecurity;
-import com.yahoo.elide.annotation.OnUpdatePreSecurity;
+import com.yahoo.elide.annotation.LifeCycleHookBinding;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
-import com.yahoo.elide.core.RequestScope;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -26,9 +25,13 @@ import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 
+import static com.yahoo.elide.annotation.LifeCycleHookBinding.Operation.CREATE;
+import static com.yahoo.elide.annotation.LifeCycleHookBinding.Operation.UPDATE;
+import static com.yahoo.elide.annotation.LifeCycleHookBinding.TransactionPhase.PRESECURITY;
+
 @Entity
 @Table(name = "ban")
-@Include(rootLevel = true, type = "banInfo")
+@Include(name = "banInfo")
 // Bans can never be deleted, only disabled over BanDisableData
 @DeletePermission(expression = Prefab.NONE)
 @ReadPermission(expression = AdminAccountBanCheck.EXPRESSION)
@@ -36,8 +39,9 @@ import java.time.OffsetDateTime;
 @UpdatePermission(expression = AdminAccountBanCheck.EXPRESSION)
 @Audit(action = Action.CREATE, logStatement = "Applied ban with id `{0}` for player `{1}`", logExpressions = {"${banInfo.id}", "${banInfo.player}"})
 @Audit(action = Action.UPDATE, logStatement = "Updated ban with id `{0}` for player `{1}`", logExpressions = {"${banInfo.id}", "${banInfo.player}"})
+@LifeCycleHookBinding(operation = CREATE, phase = PRESECURITY, hook = BanInfoCreateHook.class)
 @Setter
-public class BanInfo extends AbstractEntity {
+public class BanInfo extends AbstractEntity<BanInfo> {
   private Player player;
   private Player author;
   private String reason;
@@ -92,6 +96,7 @@ public class BanInfo extends AbstractEntity {
   }
 
   @Column(name = "revoke_reason")
+  @LifeCycleHookBinding(operation = UPDATE, phase = PRESECURITY, hook = BanInfoRevokeAuthorUpdateHook.class)
   public String getRevokeReason() {
     return revokeReason;
   }
@@ -104,6 +109,7 @@ public class BanInfo extends AbstractEntity {
   }
 
   @Column(name = "revoke_time")
+  @LifeCycleHookBinding(operation = UPDATE, phase = PRESECURITY, hook = BanInfoRevokeAuthorUpdateHook.class)
   public OffsetDateTime getRevokeTime() {
     return revokeTime;
   }
@@ -119,36 +125,5 @@ public class BanInfo extends AbstractEntity {
     return expiresAt.isAfter(OffsetDateTime.now())
       ? BanStatus.BANNED
       : BanStatus.EXPIRED;
-  }
-
-  @OnCreatePreSecurity
-  public void assignReporter(RequestScope scope) {
-    final Object caller = scope.getUser().getOpaqueUser();
-    if (caller instanceof FafUserDetails) {
-      final FafUserDetails fafUser = (FafUserDetails) caller;
-      final Player author = new Player();
-      author.setId(fafUser.getId());
-      this.author = author;
-    }
-  }
-
-  @OnUpdatePreSecurity("revokeTime")
-  public void revokeTimeUpdated(RequestScope scope) {
-    assignRevokeAuthor(scope);
-  }
-
-  @OnUpdatePreSecurity("revokeReason")
-  public void revokeReasonUpdated(RequestScope scope) {
-    assignRevokeAuthor(scope);
-  }
-
-  private void assignRevokeAuthor(RequestScope scope) {
-    final Object caller = scope.getUser().getOpaqueUser();
-    if (caller instanceof FafUserDetails) {
-      final FafUserDetails fafUser = (FafUserDetails) caller;
-      final Player author = new Player();
-      author.setId(fafUser.getId());
-      this.revokeAuthor = author;
-    }
   }
 }

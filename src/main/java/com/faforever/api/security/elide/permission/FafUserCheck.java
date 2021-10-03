@@ -1,9 +1,10 @@
 package com.faforever.api.security.elide.permission;
 
+import com.faforever.api.security.ElideUser;
 import com.faforever.api.security.FafUserDetails;
 import com.faforever.api.security.OAuthScope;
-import com.yahoo.elide.security.User;
-import com.yahoo.elide.security.checks.UserCheck;
+import com.yahoo.elide.core.security.User;
+import com.yahoo.elide.core.security.checks.UserCheck;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,18 +26,19 @@ abstract class FafUserCheck extends UserCheck {
 
   private boolean checkOAuthScopes(String... scope) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (!(authentication instanceof OAuth2Authentication)) {
+    if (!(authentication instanceof OAuth2Authentication oAuth2Authentication)) {
       log.trace("Authentication is no OAuth2Authentication: {}", authentication);
       return false;
     }
 
-    OAuth2Authentication oAuth2Authentication = ((OAuth2Authentication) authentication);
     OAuth2Request oAuth2Request = oAuth2Authentication.getOAuth2Request();
 
     List<String> missedScopes = new ArrayList<>();
 
+    Set<String> scopes = oAuth2Request.getScope();
+
     for (String currentScope : scope) {
-      if (!oAuth2Request.getScope().contains(currentScope)) {
+      if (!scopes.contains(currentScope)) {
         missedScopes.add(currentScope);
       }
     }
@@ -45,7 +47,7 @@ abstract class FafUserCheck extends UserCheck {
       if (missedScopes.isEmpty()) {
         log.trace("All requested scopes are granted: {}", String.join(", ", scope));
       } else {
-        log.trace("Scopes '{}' are not granted in requested scopes: {} for client with id {}", String.join(", ", missedScopes), String.join(", ", oAuth2Request.getScope()), oAuth2Request.getResourceIds());
+        log.trace("Scopes '{}' are not granted in requested scopes: {} for client with id {}", String.join(", ", missedScopes), String.join(", ", scopes), oAuth2Request.getResourceIds());
       }
     }
 
@@ -53,12 +55,12 @@ abstract class FafUserCheck extends UserCheck {
   }
 
   protected boolean checkUserPermission(User user, String... userPermissionRole) {
-    if (!(user.getOpaqueUser() instanceof FafUserDetails)) {
-      log.warn("UserCheck applied on wrong User type: {}", user);
+    if (!(user instanceof ElideUser) || ((ElideUser) user).getFafUserDetails().isEmpty()) {
+      log.warn("UserCheck applied on wrong User type: {}", user.getPrincipal());
       return false;
     }
 
-    FafUserDetails userDetails = (FafUserDetails) user.getOpaqueUser();
+    FafUserDetails userDetails = ((ElideUser) user).getFafUserDetails().get();
 
     Set<String> grantedUserRoles = userDetails.getAuthorities().stream()
       .map(GrantedAuthority::getAuthority)

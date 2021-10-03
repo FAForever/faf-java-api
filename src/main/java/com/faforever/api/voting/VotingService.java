@@ -10,31 +10,26 @@ import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.game.GamePlayerStatsRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.transaction.Transactional;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class VotingService {
+  public static final int ACCOUNT_AGE_YEARS_VOTE_QUALIFIED = 3;
   private final VoteRepository voteRepository;
   private final VotingSubjectRepository votingSubjectRepository;
   private final GamePlayerStatsRepository gamePlayerStatsRepository;
   private final VotingChoiceRepository votingChoiceRepository;
-
-  public VotingService(VoteRepository voteRepository, VotingSubjectRepository votingSubjectRepository, GamePlayerStatsRepository gamePlayerStatsRepository, VotingChoiceRepository votingChoiceRepository) {
-    this.voteRepository = voteRepository;
-    this.votingSubjectRepository = votingSubjectRepository;
-    this.gamePlayerStatsRepository = gamePlayerStatsRepository;
-    this.votingChoiceRepository = votingChoiceRepository;
-  }
 
   @Transactional
   public void saveVote(Vote vote, Player player) {
@@ -43,7 +38,7 @@ public class VotingService {
     List<Error> errors = ableToVote(player, vote.getVotingSubject().getId());
 
     if (vote.getVotingAnswers() == null) {
-      vote.setVotingAnswers(Collections.emptySet());
+      vote.setVotingAnswers(Set.of());
     }
 
     VotingSubject subject = votingSubjectRepository.findById(vote.getVotingSubject().getId())
@@ -60,7 +55,7 @@ public class VotingService {
     subject.getVotingQuestions().forEach(votingQuestion -> {
       List<VotingAnswer> votingAnswers = vote.getVotingAnswers().stream()
         .filter(votingAnswer -> votingAnswer.getVotingChoice().getVotingQuestion().equals(votingQuestion))
-        .collect(Collectors.toList());
+        .toList();
       long countOfAnswers = votingAnswers.size();
       int maxAnswers = votingQuestion.getMaxAnswers();
       if (maxAnswers < countOfAnswers) {
@@ -106,7 +101,9 @@ public class VotingService {
       errors.add(new Error(ErrorCode.VOTE_ALREADY_ENDED, subject.getEndOfVoteTime()));
     }
 
-    if (gamesPlayed < subject.getMinGamesToVote()) {
+    boolean accountQualifiedBySteamAndAge = player.getSteamId() != null && OffsetDateTime.now().minusYears(ACCOUNT_AGE_YEARS_VOTE_QUALIFIED).isAfter(player.getCreateTime());
+
+    if (!accountQualifiedBySteamAndAge && gamesPlayed < subject.getMinGamesToVote()) {
       errors.add(new Error(ErrorCode.NOT_ENOUGH_GAMES, gamesPlayed, subject.getMinGamesToVote()));
     }
     return errors;
@@ -116,6 +113,6 @@ public class VotingService {
     List<VotingSubject> all = votingSubjectRepository.findAll();
     return all.stream()
       .filter(votingSubject -> ableToVote(player, votingSubject.getId()).isEmpty())
-      .collect(Collectors.toList());
+      .toList();
   }
 }

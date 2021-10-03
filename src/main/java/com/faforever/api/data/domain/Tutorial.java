@@ -27,7 +27,7 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Table(name = "tutorial")
 @Setter
-@Include(rootLevel = true, type = Tutorial.TYPE_NAME)
+@Include(name = Tutorial.TYPE_NAME)
 @DeletePermission(expression = WriteTutorialCheck.EXPRESSION)
 @UpdatePermission(expression = WriteTutorialCheck.EXPRESSION)
 @CreatePermission(expression = WriteTutorialCheck.EXPRESSION)
@@ -36,7 +36,7 @@ import javax.validation.constraints.NotNull;
 @ReadPermission(expression = Prefab.ALL)
 @EntityListeners(TutorialEnricherListener.class)
 @Type(Tutorial.TYPE_NAME)
-public class Tutorial extends AbstractEntity {
+public class Tutorial extends AbstractEntity<Tutorial> {
   public static final String TYPE_NAME = "tutorial";
   private String descriptionKey;
   private String description;

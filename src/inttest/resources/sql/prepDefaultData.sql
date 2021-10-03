@@ -1,7 +1,7 @@
 INSERT INTO oauth_clients (id, name, client_secret, client_type, redirect_uris, default_redirect_uri, default_scope)
 VALUES ('test', 'test', '{noop}test', 'public', 'http://localhost https://www.getpostman.com/oauth2/callback ',
         'http://localhost',
-        'read_events read_achievements upload_map upload_mod upload_avatar write_account_data vote');
+        'read_events read_achievements upload_map upload_mod upload_avatar write_account_data vote read_sensible_userdata');
 
 INSERT INTO login (id, login, email, password, steamid, ip)
 VALUES (1, 'USER', 'user@faforever.com', '92b7b421992ef490f3b75898ec0e511f1a5c02422819d89719b20362b023ee4f', NULL,
@@ -17,7 +17,8 @@ INSERT INTO user_group (id, technical_name, name_key, parent_group_id, public)
 VALUES (1, 'ADMINISTRATOR', 'administrator', null, true),
        (2, 'MODERATOR', 'moderator', null, true),
        (3, 'faf_server_administrators', 'user_group.faf.server_administrators', null, true),
-       (4, 'faf_moderators_global', 'user_group.faf.moderators.global', null, true);
+       (4, 'faf_moderators_global', 'user_group.faf.moderators.global', null, true),
+       (5, 'faf_illuminati', 'user_group.faf.illuminati', null, false);
 
 INSERT INTO user_group (technical_name, name_key, public, parent_group_id)
 VALUES ('', 'user_group.faf.server_administrators', 1, @devops_id);
@@ -75,17 +76,20 @@ VALUES (1, 1),
        (2, 22);
 
 INSERT INTO name_history (change_time, user_id, previous_name)
-VALUES (NOW(), 2, 'OLD_MODERATOR');
+VALUES (NOW() - INTERVAL 10 YEAR, 3, 'OLD_ADMIN'),
+       (NOW(), 2, 'OLD_MODERATOR');
 
-INSERT INTO game_featuredMods (id, gamemod, name, description, publish, git_url, git_branch, file_extension, allow_override)
-VALUES
-  (1, 'faf', 'FAF', 'Forged Alliance Forever', 1, 'https://github.com/FAForever/fa.git', 'deploy/faf', 'nx2', FALSE),
-  (6, 'ladder1v1', 'FAF', 'Ladder games', 1, 'https://github.com/FAForever/fa.git', 'deploy/faf', 'nx2', TRUE),
-  (25, 'coop', 'Coop', 'Multiplayer campaign games', 1, 'https://github.com/FAForever/fa-coop.git', 'master', 'cop', TRUE);
+INSERT INTO game_featuredMods (id, gamemod, name, description, publish, git_url, git_branch, file_extension,
+                               allow_override)
+VALUES (1, 'faf', 'FAF', 'Forged Alliance Forever', 1, 'https://github.com/FAForever/fa.git', 'deploy/faf', 'nx2',
+        FALSE),
+       (6, 'ladder1v1', 'FAF', 'Ladder games', 1, 'https://github.com/FAForever/fa.git', 'deploy/faf', 'nx2', TRUE),
+       (25, 'coop', 'Coop', 'Multiplayer campaign games', 1, 'https://github.com/FAForever/fa-coop.git', 'master',
+        'cop', TRUE);
 
-INSERT INTO leaderboard (id, technical_name, name_key, description_key) VALUES
-  (1, 'global', 'leaderboard.global.name', 'leaderboard.global.description'),
-  (2, 'ladder_1v1', 'leaderboard.ladder_1v1.name', 'leaderboard.ladder_1v1.description');
+INSERT INTO leaderboard (id, technical_name, name_key, description_key)
+VALUES (1, 'global', 'leaderboard.global.name', 'leaderboard.global.description'),
+       (2, 'ladder_1v1', 'leaderboard.ladder_1v1.name', 'leaderboard.ladder_1v1.description');
 
 INSERT INTO matchmaker_queue (id, technical_name, featured_mod_id, leaderboard_id, name_key, team_size, enabled) VALUES
   (1, 'ladder1v1', 1, 2, 'matchmaker_queue.ladder1v1', 1, 1);

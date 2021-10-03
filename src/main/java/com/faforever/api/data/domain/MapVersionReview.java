@@ -15,7 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Setter
-@Include(rootLevel = true, type = "mapVersionReview")
+@Include(name = "mapVersionReview")
 @Entity
 @Table(name = "map_version_review")
 @CreatePermission(expression = Prefab.ALL)
@@ -26,7 +26,7 @@ public class MapVersionReview extends Review {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "map_version_id")
-  @UpdatePermission(expression = Prefab.ALL_AND_UPDATE_ON_CREATE)
+  @UpdatePermission(expression = Prefab.ALL)
   public MapVersion getMapVersion() {
     return mapVersion;
   }

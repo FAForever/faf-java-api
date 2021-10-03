@@ -1,11 +1,12 @@
 name: Build
-on: [push]
+on: [ push, pull_request ]
 env:
-  FAF_DB_VERSION: v102
+  FLYWAY_VERSION: 7.5.4
+  FAF_DB_VERSION: v121
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: adoptopenjdk:11-jdk-hotspot-bionic
+    container: adoptopenjdk:16-jdk-hotspot
     services:
       faf-db:
         image: mysql:5.7
@@ -21,7 +22,27 @@ jobs:
           MYSQL_DATABASE: faf
           MYSQL_USER: faf-java-api
           MYSQL_PASSWORD: banana
+      faf-league-db:
+        image: mysql:5.7
+        options: >-
+          --health-cmd "mysqladmin ping --silent"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          MYSQL_ROOT_PASSWORD: banana
+          MYSQL_DATABASE: faf-league
+          MYSQL_USER: faf-league-service
+          MYSQL_PASSWORD: banana
     steps:
+      - name: Get the version
+        id: get_version
+        run: |
+          if echo $GITHUB_REF | grep -Eq '^refs\/tags\/.*'; then
+              echo ::set-output name=API_VERSION::${GITHUB_REF#refs/tags/}
+          else
+              echo ::set-output name=API_VERSION::${GITHUB_SHA}
+          fi
       - name: Install tools
         run: apt update && apt install -y git wget
       - name: Checkout code
@@ -34,13 +55,15 @@ jobs:
           FLYWAY_LOCATIONS: filesystem:db/migrations
         run: |-
           git clone --depth 1 --branch $FAF_DB_VERSION https://github.com/FAForever/db
-          wget -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/6.5.3/flyway-commandline-6.5.3-linux-x64.tar.gz | tar xvz && ln -s `pwd`/flyway-6.5.3/flyway /usr/local/bin
+          wget -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/${FLYWAY_VERSION}/flyway-commandline-${FLYWAY_VERSION}-linux-x64.tar.gz | tar xvz && ln -s `pwd`/flyway-${FLYWAY_VERSION}/flyway /usr/local/bin
           flyway migrate
       - name: Gradle build
         env:
-          GRADLE_CLI_OPTS: "--console=plain --stacktrace --quiet"
+          API_VERSION: ${{ steps.get_version.outputs.API_VERSION }}
+          GRADLE_CLI_OPTS: ""
           DATABASE_ADDRESS: faf-db
-        run: "chmod +x ./gradlew && ./gradlew ${GRADLE_CLI_OPTS} build"
+          LEAGUE_DATABASE_ADDRESS: faf-league-db
+        run: "chmod +x ./gradlew && ./gradlew ${GRADLE_CLI_OPTS} -Pversion=${API_VERSION} build jacocoTestReport"
       - name: Build and push Docker images
         if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/tags')
         uses: docker/build-push-action@v1.1.1
@@ -49,3 +72,8 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: faforever/faf-java-api
           tag_with_ref: true
+      - name: Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./build/reports/jacoco/test/jacocoTestReport.xml
+          name: codecov

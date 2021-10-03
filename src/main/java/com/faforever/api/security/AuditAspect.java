@@ -1,6 +1,6 @@
 package com.faforever.api.security;
 
-import com.yahoo.elide.audit.InvalidSyntaxException;
+import com.yahoo.elide.core.audit.InvalidSyntaxException;
 import de.odysseus.el.ExpressionFactoryImpl;
 import de.odysseus.el.util.SimpleContext;
 import lombok.extern.slf4j.Slf4j;

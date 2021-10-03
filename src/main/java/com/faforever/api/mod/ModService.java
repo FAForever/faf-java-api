@@ -15,6 +15,7 @@ import com.faforever.api.utils.NameUtil;
 import com.faforever.commons.io.Unzipper;
 import com.faforever.commons.mod.ModReader;
 import com.google.common.primitives.Ints;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -44,6 +45,7 @@ import static java.text.MessageFormat.format;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ModService {
 
   /** Legacy path prefix put in front of every mod file. This should be eliminated ASAP. */
@@ -51,12 +53,6 @@ public class ModService {
   private final FafApiProperties properties;
   private final ModRepository modRepository;
   private final ModVersionRepository modVersionRepository;
-
-  public ModService(FafApiProperties properties, ModRepository modRepository, ModVersionRepository modVersionRepository) {
-    this.properties = properties;
-    this.modRepository = modRepository;
-    this.modVersionRepository = modVersionRepository;
-  }
 
   @SneakyThrows
   @Transactional
@@ -270,7 +266,8 @@ public class ModService {
         .setAuthor(modInfo.getAuthor())
         .setDisplayName(modInfo.getName())
         .setVersions(new ArrayList<>())
-        .setUploader(uploader));
+        .setUploader(uploader))
+        .setRecommended(false);
     mod.getVersions().add(modVersion);
 
     modVersion.setMod(mod);

@@ -15,35 +15,35 @@ import javax.persistence.Table;
 @Entity
 @Setter
 @Table(name = "map_statistics")
-@Include(rootLevel = true, type = MapStatistics.TYPE_NAME)
+@Include(name = MapStatistics.TYPE_NAME)
 @Immutable
 public class MapStatistics {
   public static final String TYPE_NAME = "mapStatistics";
 
-  private int id;
-  private int downloads;
-  private int plays;
-  private int draws;
+  private Integer id;
+  private Integer downloads;
+  private Integer plays;
+  private Integer draws;
   private Map map;
 
   @Id
   @Column(name = "map_id")
-  public int getId() {
+  public Integer getId() {
     return id;
   }
 
   @Column(name = "downloads")
-  public int getDownloads() {
+  public Integer getDownloads() {
     return downloads;
   }
 
   @Column(name = "plays")
-  public int getPlays() {
+  public Integer getPlays() {
     return plays;
   }
 
   @Column(name = "draws")
-  public int getDraws() {
+  public Integer getDraws() {
     return draws;
   }
 

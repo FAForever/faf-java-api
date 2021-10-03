@@ -15,9 +15,9 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "player_achievements")
-@Include(rootLevel = true, type = "playerAchievement")
+@Include(name = "playerAchievement")
 @Setter
-public class PlayerAchievement extends AbstractEntity {
+public class PlayerAchievement extends AbstractEntity<PlayerAchievement> {
 
   private Integer currentSteps;
   private AchievementState state;
