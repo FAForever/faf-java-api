@@ -13,7 +13,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 public abstract class LeagueAbstractIntegrationTest extends AbstractIntegrationTest {
   private static final MariaDBContainer<?> leagueServiceDBContainer = new MariaDBContainer<>("mariadb:10.6");
-  protected static GenericContainer<?> leagueServiceContainer = new GenericContainer<>("faforever/faf-league-service:0.1.2");
+  protected static GenericContainer<?> leagueServiceContainer = new GenericContainer<>("faforever/faf-league-service:0.1.5");
 
   static {
     leagueServiceDBContainer
