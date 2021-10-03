@@ -12,16 +12,16 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
 public abstract class LeagueAbstractIntegrationTest extends AbstractIntegrationTest {
-  private static final MariaDBContainer<?> leagueServiceDBContainer;
+  private static final MariaDBContainer<?> leagueServiceDBContainer = new MariaDBContainer<>("mariadb:10.6");
   protected static GenericContainer<?> leagueServiceContainer = new GenericContainer<>("faforever/faf-league-service:0.1.2");
 
   static {
-    leagueServiceDBContainer = new MariaDBContainer<>("mariadb:10.6")
+    leagueServiceDBContainer
       .withUsername("faf-league-service")
       .withPassword("banana")
       .withDatabaseName("faf-league")
-      .withReuse(true);
-    leagueServiceDBContainer.start();
+      .withReuse(true)
+      .start();
 
     final Logger logger = LoggerFactory.getLogger(LeagueAbstractIntegrationTest.class);
     Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(logger);
