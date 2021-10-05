@@ -119,6 +119,8 @@ public class FafApiProperties {
     private Path thumbnailTargetDirectory = Paths.get("static/mod_thumbnails");
     /** The maximum allowed length of a mod's name. */
     private int maxNameLength = 100;
+    /** The minimum allowed length of a mod's name. */
+    private int minNameLength = 3;
   }
 
   @Data

@@ -25,8 +25,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -45,7 +48,7 @@ public class ModServiceTest {
   @TempDir
   public Path temporaryFolder;
 
-  private ModService instance;
+  private ModService service;
 
   @Mock
   private ModRepository modRepository;
@@ -58,19 +61,19 @@ public class ModServiceTest {
     properties.getMod().setTargetDirectory(temporaryFolder.resolve("mods"));
     properties.getMod().setThumbnailTargetDirectory(temporaryFolder.resolve("thumbnails"));
 
-    instance = new ModService(properties, modRepository, modVersionRepository);
+    service = new ModService(properties, modRepository, modVersionRepository);
   }
 
   @Test
   @SuppressWarnings("unchecked")
   public void processUploadedMod() throws Exception {
-    Path uploadedFile = prepareMod(TEST_MOD);
+    Path uploadFile = prepareMod(TEST_MOD);
 
     Player uploader = new Player();
 
     when(modRepository.save(any(Mod.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-    instance.processUploadedMod(uploadedFile, uploader);
+    service.processUploadedMod(uploadFile, uploader);
 
     assertThat(Files.exists(temporaryFolder.resolve("mods/no_friendly_fire.v0003.zip")), is(true));
     assertThat(Files.exists(temporaryFolder.resolve("thumbnails/no_friendly_fire.v0003.png")), is(true));
@@ -102,17 +105,17 @@ public class ModServiceTest {
 
   @Test
   public void testExistingUid() throws Exception {
-    Path uploadedFile = prepareMod(TEST_MOD);
+    Path uploadFile = prepareMod(TEST_MOD);
 
     when(modVersionRepository.existsByUid("26778D4E-BA75-5CC2-CBA8-63795BDE74AA")).thenReturn(true);
 
-    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadedFile, new Player()));
+    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
     assertThat(result, hasErrorCode(ErrorCode.MOD_UID_EXISTS));
   }
 
   @Test
   public void testUploaderVaultBanned() throws Exception {
-    Path uploadedFile = prepareMod(TEST_MOD);
+    Path uploadFile = prepareMod(TEST_MOD);
 
     Player uploader = mock(Player.class);
     when(uploader.getActiveBanOf(BanLevel.VAULT)).thenReturn(Optional.of(
@@ -120,40 +123,123 @@ public class ModServiceTest {
         .setLevel(BanLevel.VAULT)
     ));
 
-
-    assertThrows(Forbidden.class, () -> instance.processUploadedMod(uploadedFile, uploader));
+    assertThrows(Forbidden.class, () -> service.processUploadedMod(uploadFile, uploader));
   }
 
   @Test
   public void testNotOriginalUploader() throws Exception {
-    Path uploadedFile = prepareMod(TEST_MOD);
+    Path uploadFile = prepareMod(TEST_MOD);
 
     Player uploader = new Player();
     when(modRepository.existsByDisplayNameAndUploaderIsNot("No Friendly Fire", uploader)).thenReturn(true);
     when(modRepository.findOneByDisplayName("No Friendly Fire")).thenReturn(Optional.of(new Mod()));
 
-    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadedFile, uploader));
+    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, uploader));
     assertThat(result, hasErrorCode(ErrorCode.MOD_NOT_ORIGINAL_AUTHOR));
   }
 
   @Test
   public void testInvalidFileStructure() throws Exception {
-    Path uploadedFile = prepareMod(TEST_MOD_INVALID_STRUCTURE);
-
-    Player uploader = new Player();
-
-    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadedFile, uploader));
+    Path uploadFile = prepareMod(TEST_MOD_INVALID_STRUCTURE);
+    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
     assertThat(result, hasErrorCode(ErrorCode.MOD_STRUCTURE_INVALID));
+  }
+
+  @Test
+  public void testDisplayNameMissing() throws Exception {
+    Path uploadFile = prepareModDynamic(luaContent().setName(null));
+    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    assertThat(result, hasErrorCode(ErrorCode.MOD_NAME_MISSING));
+  }
+
+  @Test
+  public void testDisplayNameTooLong() throws Exception {
+    Path uploadFile = prepareModDynamic(luaContent().setName(randomAlphanumeric(111)));
+    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    assertThat(result, hasErrorCode(ErrorCode.MOD_NAME_TOO_LONG));
+  }
+
+  @Test
+  public void testDisplayNameTooShort() throws Exception {
+    Path uploadFile = prepareModDynamic(luaContent().setName(randomAlphanumeric(2)));
+    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    assertThat(result, hasErrorCode(ErrorCode.MOD_NAME_TOO_SHORT));
+  }
+
+  @Test
+  public void testDisplayNameInvalidContent() throws Exception {
+    Path uploadFile = prepareModDynamic(luaContent().setName("A função, Ãugent"));
+    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    assertThat(result, hasErrorCode(ErrorCode.MOD_NAME_INVALID));
+  }
+
+  @Test
+  public void testUidMissing() throws Exception {
+    Path uploadFile = prepareModDynamic(luaContent().setUid(null));
+    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    assertThat(result, hasErrorCode(ErrorCode.MOD_UID_MISSING));
+  }
+
+  @Test
+  public void testVersionMissing() throws Exception {
+    Path uploadFile = prepareModDynamic(luaContent().setVersion(null));
+    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    assertThat(result, hasErrorCode(ErrorCode.MOD_VERSION_MISSING));
+  }
+
+  @Test
+  public void testVersionNotANumber() throws Exception {
+    Path uploadFile = prepareModDynamic(luaContent().setVersion("NotANumber"));
+    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    assertThat(result, hasErrorCode(ErrorCode.MOD_VERSION_NOT_A_NUMBER));
+  }
+
+  @Test
+  public void testDescriptionMissing() throws Exception {
+    Path uploadFile = prepareModDynamic(luaContent().setDesc(null));
+    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    assertThat(result, hasErrorCode(ErrorCode.MOD_DESCRIPTION_MISSING));
+  }
+
+  @Test
+  public void testAuthorMissing() throws Exception {
+    Path uploadFile = prepareModDynamic(luaContent().setAuthor(null));
+    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    assertThat(result, hasErrorCode(ErrorCode.MOD_AUTHOR_MISSING));
+  }
+
+  @NotNull
+  private LuaContent luaContent() {
+    return new LuaContent()
+      .setName(randomAlphanumeric(50))
+      .setVersion("3")
+      .setAuthor("The Author")
+      .setCopyright("The Copyright")
+      .setDesc("This is the description of a valid Lua Content.")
+      .setUid("26778D4E-BA75-5CC2-CBA8-63795BDE74AA")
+      .setExclusive(false)
+      .setUiOnly(false)
+      .setIconPath("/mods/foobar/mod_icon.png");
   }
 
   @NotNull
   private Path prepareMod(String path) throws IOException {
-    Path uploadedFile = temporaryFolder.resolve("uploaded-mod.zip");
+    Path uploadFile = temporaryFolder.resolve("uploaded-mod.zip");
     try (InputStream inputStream = new BufferedInputStream(getClass().getResourceAsStream(path))) {
-      Files.copy(inputStream, uploadedFile);
+      Files.copy(inputStream, uploadFile);
     }
-    return uploadedFile;
+    return uploadFile;
   }
 
-  // TODO test error cases
+  @NotNull
+  private Path prepareModDynamic(LuaContent lc) throws IOException {
+    Path uploadFile = temporaryFolder.resolve("uploaded-dynamic-mod.zip");
+    ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(uploadFile));
+    zos.putNextEntry(new ZipEntry("foobar/mod_info.lua"));
+    zos.write(lc.asLuaString().getBytes());
+    zos.closeEntry();
+    zos.close();
+    return uploadFile;
+  }
+
 }
