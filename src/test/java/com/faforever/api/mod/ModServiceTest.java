@@ -234,11 +234,11 @@ public class ModServiceTest {
   @NotNull
   private Path prepareModDynamic(LuaContent lc) throws IOException {
     Path uploadFile = temporaryFolder.resolve("uploaded-dynamic-mod.zip");
-    ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(uploadFile));
-    zos.putNextEntry(new ZipEntry("foobar/mod_info.lua"));
-    zos.write(lc.asLuaString().getBytes());
-    zos.closeEntry();
-    zos.close();
+    try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(uploadFile))) {
+      zos.putNextEntry(new ZipEntry("foobar/mod_info.lua"));
+      zos.write(lc.asLuaString().getBytes());
+      zos.closeEntry();
+    }
     return uploadFile;
   }
 
