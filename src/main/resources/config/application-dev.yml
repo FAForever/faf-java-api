@@ -2,8 +2,8 @@ faf-api:
   jwt:
     secretKeyPath: ${JWT_PRIVATE_KEY_PATH:test-pki-private.key}
     publicKeyPath: ${JWT_PUBLIC_KEY_PATH:test-pki-public.key}
-    fafHydraJwksUrl: ${JWT_FAF_HYDRA_JWKS_URL:http://localhost:4444/.well-known/jwks.json}
-    fafHydraIssuer: ${JWT_FAF_HYDRA_ISSUER:http://localhost:4444/}
+    fafHydraJwksUrl: ${JWT_FAF_HYDRA_JWKS_URL:https://hydra.test.faforever.com/.well-known/jwks.json}
+    fafHydraIssuer: ${JWT_FAF_HYDRA_ISSUER:https://hydra.test.faforever.com/}
   map:
     target-directory: ${MAP_UPLOAD_PATH:build/cache/map/maps}
     directory-preview-path-small: ${MAP_PREVIEW_PATH_SMALL:build/cache/map_previews/small}
@@ -58,12 +58,12 @@ faf-api:
 
 spring:
   datasource:
-    url: jdbc:mysql://${DATABASE_ADDRESS:127.0.0.1}/${DATABASE_NAME:faf}?useSSL=false
+    url: jdbc:mariadb://${DATABASE_ADDRESS:127.0.0.1}/${DATABASE_NAME:faf}?useSSL=false
     name: faf
     username: ${DATABASE_USERNAME:faf-java-api}
     password: ${DATABASE_PASSWORD:banana}
   league-datasource:
-    url: jdbc:mysql://${LEAGUE_DATABASE_ADDRESS:127.0.0.1}/${LEAGUE_DATABASE_NAME:faf-league}?useSSL=false
+    url: jdbc:mariadb://${LEAGUE_DATABASE_ADDRESS:127.0.0.1}/${LEAGUE_DATABASE_NAME:faf-league}?useSSL=false
     name: faf-league
     username: ${LEAGUE_DATABASE_USERNAME:faf-league-service}
     password: ${LEAGUE_DATABASE_PASSWORD:banana}

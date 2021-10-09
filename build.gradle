@@ -246,7 +246,7 @@ dependencies {
   implementation("org.jsoup:jsoup:${jsoupVersion}")
 
   implementation("com.github.jasminb:jsonapi-converter:${jsonapiConverterVersion}")
-  runtimeOnly("mysql:mysql-connector-java:${mysqlConnectorVersion}")
+  runtimeOnly("org.mariadb.jdbc:mariadb-java-client:${mariaDBConnectorVersion}")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
@@ -255,7 +255,7 @@ dependencies {
   testImplementation("com.jayway.jsonpath:json-path:${jsonPath}")
   testImplementation("com.jayway.jsonpath:json-path-assert:${jsonPathAssert}")
   testImplementation("org.testcontainers:junit-jupiter:${testContainersVersion}")
-  testImplementation("org.testcontainers:mysql:1.15.0")
+  testImplementation("org.testcontainers:mariadb:1.16.0")
 
   codacy("com.github.codacy:codacy-coverage-reporter:${codacyCoverageReporterVersion}")
 }
