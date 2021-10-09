@@ -36,13 +36,11 @@ spring:
   application:
     name: FAF Java API
   datasource:
-    type: com.zaxxer.hikari.HikariDataSource
     configuration:
       connection-test-query: SELECT 1 FROM DUAL
       minimum-idle: 2
       maximum-pool-size: 12
   league-datasource:
-    type: com.zaxxer.hikari.HikariDataSource
     configuration:
       connection-test-query: SELECT 1 FROM DUAL
       minimum-idle: 2
@@ -54,7 +52,7 @@ spring:
     properties:
       hibernate:
         current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
-        dialect: org.hibernate.dialect.MySQL5Dialect
+        dialect: org.hibernate.dialect.MariaDB103Dialect
   jackson:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
