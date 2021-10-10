@@ -23,6 +23,7 @@ public class LeagueSeason {
   private Integer id;
   private League league;
   private Leaderboard leaderboard;
+  private Integer placementGames;
   private String nameKey;
   private OffsetDateTime startDate;
   private OffsetDateTime endDate;
@@ -44,6 +45,11 @@ public class LeagueSeason {
   @JoinColumn(name = "leaderboard_id")
   public Leaderboard getLeaderboard() {
     return leaderboard;
+  }
+
+  @Column(name = "placement_games")
+  public Integer getPlacementGames() {
+    return placementGames;
   }
 
   @Column(name = "name_key")
