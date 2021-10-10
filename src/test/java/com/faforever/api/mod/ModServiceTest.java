@@ -48,7 +48,7 @@ public class ModServiceTest {
   @TempDir
   public Path temporaryFolder;
 
-  private ModService service;
+  private ModService instance;
 
   @Mock
   private ModRepository modRepository;
@@ -61,7 +61,7 @@ public class ModServiceTest {
     properties.getMod().setTargetDirectory(temporaryFolder.resolve("mods"));
     properties.getMod().setThumbnailTargetDirectory(temporaryFolder.resolve("thumbnails"));
 
-    service = new ModService(properties, modRepository, modVersionRepository);
+    instance = new ModService(properties, modRepository, modVersionRepository);
   }
 
   @Test
@@ -73,7 +73,7 @@ public class ModServiceTest {
 
     when(modRepository.save(any(Mod.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-    service.processUploadedMod(uploadFile, uploader);
+    instance.processUploadedMod(uploadFile, uploader);
 
     assertThat(Files.exists(temporaryFolder.resolve("mods/no_friendly_fire.v0003.zip")), is(true));
     assertThat(Files.exists(temporaryFolder.resolve("thumbnails/no_friendly_fire.v0003.png")), is(true));
@@ -109,7 +109,7 @@ public class ModServiceTest {
 
     when(modVersionRepository.existsByUid("26778D4E-BA75-5CC2-CBA8-63795BDE74AA")).thenReturn(true);
 
-    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, new Player()));
     assertThat(result, hasErrorCode(ErrorCode.MOD_UID_EXISTS));
   }
 
@@ -123,7 +123,7 @@ public class ModServiceTest {
         .setLevel(BanLevel.VAULT)
     ));
 
-    assertThrows(Forbidden.class, () -> service.processUploadedMod(uploadFile, uploader));
+    assertThrows(Forbidden.class, () -> instance.processUploadedMod(uploadFile, uploader));
   }
 
   @Test
@@ -134,77 +134,77 @@ public class ModServiceTest {
     when(modRepository.existsByDisplayNameAndUploaderIsNot("No Friendly Fire", uploader)).thenReturn(true);
     when(modRepository.findOneByDisplayName("No Friendly Fire")).thenReturn(Optional.of(new Mod()));
 
-    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, uploader));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, uploader));
     assertThat(result, hasErrorCode(ErrorCode.MOD_NOT_ORIGINAL_AUTHOR));
   }
 
   @Test
   public void testInvalidFileStructure() throws Exception {
     Path uploadFile = prepareMod(TEST_MOD_INVALID_STRUCTURE);
-    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, new Player()));
     assertThat(result, hasErrorCode(ErrorCode.MOD_STRUCTURE_INVALID));
   }
 
   @Test
   public void testDisplayNameMissing() throws Exception {
     Path uploadFile = prepareModDynamic(luaContent().setName(null));
-    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, new Player()));
     assertThat(result, hasErrorCode(ErrorCode.MOD_NAME_MISSING));
   }
 
   @Test
   public void testDisplayNameTooLong() throws Exception {
     Path uploadFile = prepareModDynamic(luaContent().setName(randomAlphanumeric(111)));
-    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, new Player()));
     assertThat(result, hasErrorCode(ErrorCode.MOD_NAME_TOO_LONG));
   }
 
   @Test
   public void testDisplayNameTooShort() throws Exception {
     Path uploadFile = prepareModDynamic(luaContent().setName(randomAlphanumeric(2)));
-    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, new Player()));
     assertThat(result, hasErrorCode(ErrorCode.MOD_NAME_TOO_SHORT));
   }
 
   @Test
   public void testDisplayNameInvalidContent() throws Exception {
     Path uploadFile = prepareModDynamic(luaContent().setName("A função, Ãugent"));
-    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, new Player()));
     assertThat(result, hasErrorCode(ErrorCode.MOD_NAME_INVALID));
   }
 
   @Test
   public void testUidMissing() throws Exception {
     Path uploadFile = prepareModDynamic(luaContent().setUid(null));
-    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, new Player()));
     assertThat(result, hasErrorCode(ErrorCode.MOD_UID_MISSING));
   }
 
   @Test
   public void testVersionMissing() throws Exception {
     Path uploadFile = prepareModDynamic(luaContent().setVersion(null));
-    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, new Player()));
     assertThat(result, hasErrorCode(ErrorCode.MOD_VERSION_MISSING));
   }
 
   @Test
   public void testVersionNotANumber() throws Exception {
     Path uploadFile = prepareModDynamic(luaContent().setVersion("NotANumber"));
-    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, new Player()));
     assertThat(result, hasErrorCode(ErrorCode.MOD_VERSION_NOT_A_NUMBER));
   }
 
   @Test
   public void testDescriptionMissing() throws Exception {
     Path uploadFile = prepareModDynamic(luaContent().setDesc(null));
-    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, new Player()));
     assertThat(result, hasErrorCode(ErrorCode.MOD_DESCRIPTION_MISSING));
   }
 
   @Test
   public void testAuthorMissing() throws Exception {
     Path uploadFile = prepareModDynamic(luaContent().setAuthor(null));
-    ApiException result = assertThrows(ApiException.class, () -> service.processUploadedMod(uploadFile, new Player()));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, new Player()));
     assertThat(result, hasErrorCode(ErrorCode.MOD_AUTHOR_MISSING));
   }
 
