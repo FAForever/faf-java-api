@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.luaj.vm2.LuaValue;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -48,7 +49,9 @@ import static java.text.MessageFormat.format;
 @RequiredArgsConstructor
 public class ModService {
 
-  /** Legacy path prefix put in front of every mod file. This should be eliminated ASAP. */
+  /**
+   * Legacy path prefix put in front of every mod file. This should be eliminated ASAP.
+   */
   public static final String MOD_PATH_PREFIX = "mods/";
   private final FafApiProperties properties;
   private final ModRepository modRepository;
@@ -181,32 +184,39 @@ public class ModService {
     return !modRepository.existsByDisplayNameAndUploaderIsNot(displayName, uploader);
   }
 
+  private boolean nullOrNil(String value) {
+    return value == null || value.equalsIgnoreCase(LuaValue.NIL.toString());
+  }
+
   private void validateModInfo(com.faforever.commons.mod.Mod modInfo) {
     List<Error> errors = new ArrayList<>();
     String name = modInfo.getName();
-    if (name == null) {
+    if (nullOrNil(name)) {
       errors.add(new Error(ErrorCode.MOD_NAME_MISSING));
     } else {
       if (name.length() > properties.getMod().getMaxNameLength()) {
         errors.add(new Error(ErrorCode.MOD_NAME_TOO_LONG, properties.getMod().getMaxNameLength(), name.length()));
       }
+      if (name.length() < properties.getMod().getMinNameLength()) {
+        errors.add(new Error(ErrorCode.MOD_NAME_TOO_SHORT, properties.getMod().getMinNameLength(), name.length()));
+      }
       if (!NameUtil.isPrintableAsciiString(name)) {
         errors.add(new Error(ErrorCode.MOD_NAME_INVALID));
       }
     }
-    if (modInfo.getUid() == null) {
+    if (nullOrNil(modInfo.getUid())) {
       errors.add(new Error(ErrorCode.MOD_UID_MISSING));
     }
-    if (modInfo.getVersion() == null) {
+    if (modInfo.getVersion() == null || nullOrNil(modInfo.getVersion().toString())) {
       errors.add(new Error(ErrorCode.MOD_VERSION_MISSING));
     }
     if (Ints.tryParse(modInfo.getVersion().toString()) == null) {
       errors.add(new Error(ErrorCode.MOD_VERSION_NOT_A_NUMBER, modInfo.getVersion().toString()));
     }
-    if (modInfo.getDescription() == null) {
+    if (nullOrNil(modInfo.getDescription())) {
       errors.add(new Error(ErrorCode.MOD_DESCRIPTION_MISSING));
     }
-    if (modInfo.getAuthor() == null) {
+    if (nullOrNil(modInfo.getAuthor())) {
       errors.add(new Error(ErrorCode.MOD_AUTHOR_MISSING));
     }
 
@@ -267,7 +277,7 @@ public class ModService {
         .setDisplayName(modInfo.getName())
         .setVersions(new ArrayList<>())
         .setUploader(uploader))
-        .setRecommended(false);
+      .setRecommended(false);
     mod.getVersions().add(modVersion);
 
     modVersion.setMod(mod);

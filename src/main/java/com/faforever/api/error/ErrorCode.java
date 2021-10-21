@@ -110,7 +110,8 @@ public enum ErrorCode {
   GOG_LINK_USER_NOT_FOUND(200, "Linking to GOG failed", "GOG user account not found."),
   GOG_LINK_INVALID_USERNAME(201, "Linking to GOG failed", "The specified username is invalid."),
   GOG_LINK_INTERNAL_SERVER_ERROR(202, "Linking to GOG failed", "An internal server error occured while attempting to link accounts. Please contact our tech support."),
-  GOG_ID_ALREADY_LINKED(203, "GOG account already linked to a FAF account", "You linked this account already to user with name ''{0}''.");
+  GOG_ID_ALREADY_LINKED(203, "GOG account already linked to a FAF account", "You linked this account already to user with name ''{0}''."),
+  MOD_NAME_TOO_SHORT(204, "Invalid mod name", "The mod name must have a minimum length of {0, number} characters, was: {1, number}");
 
 
   private final int code;
