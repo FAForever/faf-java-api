@@ -24,6 +24,7 @@ public class MatchmakerQueue extends AbstractEntity<MatchmakerQueue> {
   private String params;
   private FeaturedMod featuredMod;
   private Leaderboard leaderboard;
+  private int teamSize;
 
   @Column(name = "technical_name")
   @NotNull
@@ -55,4 +56,9 @@ public class MatchmakerQueue extends AbstractEntity<MatchmakerQueue> {
     return leaderboard;
   }
 
+  @Column(name = "team_size")
+  @NotNull
+  public int getTeamSize() {
+    return teamSize;
+  }
 }
