@@ -99,8 +99,8 @@ tasks.withType(Test) {
 
 group = 'faforever'
 
-sourceCompatibility = 16
-targetCompatibility = 16
+sourceCompatibility = 17
+targetCompatibility = 17
 
 bootJar.enabled = true
 jar.enabled = false
