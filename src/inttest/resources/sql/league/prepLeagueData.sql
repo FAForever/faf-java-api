@@ -3,8 +3,8 @@ VALUES (1, 'leaderboard1'),
        (2, 'leaderboard2');
 
 INSERT INTO league (id, technical_name, name_key, description_key)
-VALUES (1, 'league1', 'league_name_1', 'league_description_1'),
-       (2, 'league2', 'league_name_2', 'league_description_2');
+VALUES (1, 'league1', 'league_name_1', 'league_description_1', 'league_imageUrl_1', 'league_mediumImageUrl_1', 'league_smallImageUrl_1'),
+       (2, 'league2', 'league_name_2', 'league_description_2', 'league_imageUrl_2', 'league_mediumImageUrl_2', 'league_smallImageUrl_2');
 
 INSERT INTO league_season (id, league_id, leaderboard_id, name_key, start_date, end_date)
 VALUES (1, 1, 1, 'season1', NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH)),
