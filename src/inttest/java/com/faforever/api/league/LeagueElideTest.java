@@ -39,9 +39,9 @@ class LeagueElideTest extends LeagueAbstractIntegrationTest {
       .andExpect(jsonPath("$.data.attributes.technicalName", is("league1")))
       .andExpect(jsonPath("$.data.attributes.nameKey", is("league_name_1")))
       .andExpect(jsonPath("$.data.attributes.descriptionKey", is("league_description_1")))
-      .andExpect(jsonPath("$.data.attributes.imageUrl", is("league_imageUrl_1")))
-      .andExpect(jsonPath("$.data.attributes.mediumImageUrl", is("league_mediumImageUrl_1")))
-      .andExpect(jsonPath("$.data.attributes.smallImageUrl", is("league_smallImageUrl_1")));
+      .andExpect(jsonPath("$.data.attributes.imageUrl", is("https://example1.com/")))
+      .andExpect(jsonPath("$.data.attributes.mediumImageUrl", is("https://example1.com/medium/")))
+      .andExpect(jsonPath("$.data.attributes.smallImageUrl", is("https://example1.com/small/")));
   }
 
   @Test
