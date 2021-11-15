@@ -18,9 +18,6 @@ public class League extends AbstractEntity<League> {
   private String technicalName;
   private String nameKey;
   private String descriptionKey;
-  private String imageUrl;
-  private String mediumImageUrl;
-  private String smallImageUrl;
 
   @Column(name = "technical_name")
   public String getTechnicalName() {
@@ -35,20 +32,5 @@ public class League extends AbstractEntity<League> {
   @Column(name = "description_key")
   public String getDescriptionKey() {
     return descriptionKey;
-  }
-
-  @Column(name = "image_url")
-  public String getImageUrl() {
-    return imageUrl;
-  }
-
-  @Column(name = "medium_image_url")
-  public String getMediumImageUrl() {
-    return mediumImageUrl;
-  }
-
-  @Column(name = "small_image_url")
-  public String getSmallImageUrl() {
-    return smallImageUrl;
   }
 }
