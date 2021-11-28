@@ -9,6 +9,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 
 import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -34,7 +35,16 @@ class LeagueSeasonSubdivisionElideTest extends LeagueAbstractIntegrationTest {
     mockMvc.perform(
       get("/data/leagueSeasonDivisionSubdivision/1")
     )
-      .andExpect(status().isOk());
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data.attributes.subdivisionIndex", is(1)))
+      .andExpect(jsonPath("$.data.attributes.nameKey", is("subdivision_name_1")))
+      .andExpect(jsonPath("$.data.attributes.descriptionKey", is("subdivision_description_1")))
+      .andExpect(jsonPath("$.data.attributes.minRating", is(0.0)))
+      .andExpect(jsonPath("$.data.attributes.maxRating", is(1000.0)))
+      .andExpect(jsonPath("$.data.attributes.highestScore", is(50)))
+      .andExpect(jsonPath("$.data.attributes.imageUrl", is("https://example1.com/division_name_1subdivision_name_1.png")))
+      .andExpect(jsonPath("$.data.attributes.mediumImageUrl", is("https://example1.com/medium/division_name_1subdivision_name_1.png")))
+      .andExpect(jsonPath("$.data.attributes.smallImageUrl", is("https://example1.com/small/division_name_1subdivision_name_1.png")));
   }
 
   @Test

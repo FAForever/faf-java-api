@@ -1,19 +1,23 @@
 package com.faforever.api.league.domain;
 
+import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
 import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Setter
+@EntityListeners(LeagueSeasonDivisionSubdivisionEnricher.class)
 @Table(name = "league_season_division_subdivision")
 @Include(name = LeagueSeasonDivisionSubdivision.TYPE_NAME)
 public class LeagueSeasonDivisionSubdivision {
@@ -27,6 +31,9 @@ public class LeagueSeasonDivisionSubdivision {
   private Double minRating;
   private Double maxRating;
   private Integer highestScore;
+  private String imageUrl;
+  private String mediumImageUrl;
+  private String smallImageUrl;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -69,5 +76,23 @@ public class LeagueSeasonDivisionSubdivision {
   @Column(name = "highest_score")
   public Integer getHighestScore() {
     return highestScore;
+  }
+
+  @Transient
+  @ComputedAttribute
+  public String getImageUrl() {
+    return imageUrl;
+  }
+
+  @Transient
+  @ComputedAttribute
+  public String getMediumImageUrl() {
+    return mediumImageUrl;
+  }
+
+  @Transient
+  @ComputedAttribute
+  public String getSmallImageUrl() {
+    return smallImageUrl;
   }
 }
