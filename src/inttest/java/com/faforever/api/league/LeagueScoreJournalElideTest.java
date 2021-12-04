@@ -34,7 +34,7 @@ public class LeagueScoreJournalElideTest extends LeagueAbstractIntegrationTest {
         get("/data/leagueScoreJournal?filter=loginId==1;leagueSeason.id==1")
       )
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.data[*]", hasSize(1)));
+      .andExpect(jsonPath("$.data[*]", hasSize(2)));
   }
 
   @Test
@@ -100,7 +100,7 @@ public class LeagueScoreJournalElideTest extends LeagueAbstractIntegrationTest {
               "type": "leagueScoreJournal",
               "id": 1,
               "attributes": {
-                "score": 15
+                "scoreAfter": 15
               }
             }
           }
