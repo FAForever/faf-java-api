@@ -47,23 +47,23 @@ public class LeagueScoreJournal {
   }
 
   @ManyToOne
-  @JoinColumn(name = "subdivision_id")
+  @JoinColumn(name = "subdivision_id_before")
   public LeagueSeasonDivisionSubdivision getLeagueSeasonDivisionSubdivisionBefore() {
     return leagueSeasonDivisionSubdivisionBefore;
   }
 
   @ManyToOne
-  @JoinColumn(name = "subdivision_id")
+  @JoinColumn(name = "subdivision_id_after")
   public LeagueSeasonDivisionSubdivision getLeagueSeasonDivisionSubdivisionAfter() {
     return leagueSeasonDivisionSubdivisionAfter;
   }
 
-  @Column(name = "score")
+  @Column(name = "score_before")
   public Integer getScoreBefore() {
     return scoreBefore;
   }
 
-  @Column(name = "score")
+  @Column(name = "score_after")
   public Integer getScoreAfter() {
     return scoreAfter;
   }
