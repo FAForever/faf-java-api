@@ -8,9 +8,10 @@ VALUES (1, 'league1', 'league_name_1', 'league_description_1',
        (2, 'league2', 'league_name_2', 'league_description_2',
        'https://example2.com/', 'https://example2.com/medium/', 'https://example2.com/small/');
 
-INSERT INTO league_season (id, league_id, leaderboard_id, name_key, start_date, end_date)
-VALUES (1, 1, 1, 'season1', NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH)),
-       (2, 2, 2, 'season2', DATE_SUB(NOW(), INTERVAL 1 MONTH), DATE_SUB(NOW(), INTERVAL 1 DAY));
+INSERT INTO league_season (id, league_id, leaderboard_id, placement_games, season_number,
+                           name_key, start_date, end_date)
+VALUES (1, 1, 1, 10, 1, 'season1', NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH)),
+       (2, 2, 2, 10, 2, 'season2', DATE_SUB(NOW(), INTERVAL 1 MONTH), DATE_SUB(NOW(), INTERVAL 1 DAY));
 
 INSERT INTO league_season_division (id, league_season_id, division_index, name_key, description_key)
 VALUES (1, 1, 1, 'division_name_1', 'division_description_1'),
