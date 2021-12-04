@@ -25,7 +25,7 @@ public class LeagueScoreJournalElideTest extends LeagueAbstractIntegrationTest {
         get("/data/leagueScoreJournal")
       )
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.data[*]", hasSize(11)));
+      .andExpect(jsonPath("$.data[*]", hasSize(4)));
   }
 
   @Test

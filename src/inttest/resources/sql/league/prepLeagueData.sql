@@ -34,3 +34,10 @@ VALUES (1, 1, 1, 1, 10, 10),
        (6, 1, 2, 6, 21, 20),
        (7, 1, 2, 7, 22, 20),
        (8, 1, 2, 8, 23, 20);
+
+INSERT INTO league_score_journal (id, login_id, league_season_id, subdivision_id_before, subdivision_id_after,
+                                  score_before, score_after, game_count)
+VALUES (1, 1, 1, 14, 15, 10, 2, 22),
+       (2, 1, 1, 15, 15, 2, 3, 23),
+       (3, 5, 1, 3, 3, 7, 6, 11),
+       (4, 5, 1, 3, 3, 6, 5, 12);

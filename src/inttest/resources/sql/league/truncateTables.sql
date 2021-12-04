@@ -1,6 +1,8 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
 DELETE
+FROM `league_score_journal`;
+DELETE
 FROM `league_season_score`;
 DELETE
 FROM `league_season_division_subdivision`;
