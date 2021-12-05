@@ -73,7 +73,7 @@ public class LeagueScoreJournalElideTest extends LeagueAbstractIntegrationTest {
                     "type": "leagueSeasonDivisionSubdivision",
                     "id": "1"
                   }
-                }
+                },
                 "leagueSeasonDivisionSubdivisionAfter": {
                   "data": {
                     "type": "leagueSeasonDivisionSubdivision",
