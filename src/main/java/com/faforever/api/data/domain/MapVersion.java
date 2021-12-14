@@ -95,7 +95,7 @@ public class MapVersion extends AbstractEntity<MapVersion> implements OwnableEnt
     return gamesPlayed;
   }
 
-  @UpdatePermission(expression = AdminMapCheck.EXPRESSION + " or (" + IsEntityOwner.EXPRESSION + " and " + BooleanChange.TO_FALSE_EXPRESSION + ")")
+  @UpdatePermission(expression = AdminMapCheck.EXPRESSION)
   @Audit(action = Action.UPDATE, logStatement = "Updated map version `{0}` attribute ranked to: {1}", logExpressions = {"${mapVersion.id}", "${mapVersion.ranked}"})
   @Column(name = "ranked")
   public boolean isRanked() {
