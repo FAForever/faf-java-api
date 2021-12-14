@@ -102,6 +102,16 @@ public class MapVersionElideTest extends AbstractIntegrationTest {
 
   @WithUserDetails(AUTH_USER)
   @Test
+  public void canUpdateHideToTrueAsEntityOwner() throws Exception {
+    mockMvc.perform(
+        patch("/data/mapVersion/1")
+          .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
+          .content(MAP_VERSION_HIDE_TRUE_ID_1))
+      .andExpect(status().isNoContent());
+  }
+
+  @WithUserDetails(AUTH_USER)
+  @Test
   public void cannotUpdateHideToFalseAsEntityOwner() throws Exception {
     mockMvc.perform(
       patch("/data/mapVersion/1")
@@ -112,12 +122,12 @@ public class MapVersionElideTest extends AbstractIntegrationTest {
 
   @WithUserDetails(AUTH_USER)
   @Test
-  public void canUpdateRankedToFalseAsEntityOwner() throws Exception {
+  public void cannotUpdateRankedToFalseAsEntityOwner() throws Exception {
     mockMvc.perform(
       patch("/data/mapVersion/1")
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(MAP_VERSION_RANKED_FALSE_ID_1))
-      .andExpect(status().isNoContent());
+      .andExpect(status().isForbidden());
   }
 
   @WithUserDetails(AUTH_USER)
