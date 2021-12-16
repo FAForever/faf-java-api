@@ -243,7 +243,7 @@ dependencies {
   implementation("com.yahoo.elide:elide-swagger:${elideVersion}")
   implementation("com.yahoo.elide:elide-datastore-hibernate5:${elideVersion}")
   implementation("com.yahoo.elide:elide-datastore-multiplex:${elideVersion}")
-  implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.5.0")
+  implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.6.1")
   implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.1.RELEASE")
   implementation("io.springfox:springfox-boot-starter:3.0.0")
   implementation("com.github.FAForever:faf-java-commons:0e5d22ffff6e4dea81bac494d532627fcca8ebc4")
