@@ -173,7 +173,6 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
   private void verifyVersion(int version, boolean allowOverride, String modName) {
     if (!allowOverride) {
       // Normally I'd create a proper query, but this is a hotfix and a protest against the DB-driven patcher
-      // Luckily, BiReUS is coming "soon".
       OptionalInt existingVersion = featuredModService.getFiles(modName, version).stream()
         .mapToInt(FeaturedModFile::getVersion)
         .filter(value -> value == version)

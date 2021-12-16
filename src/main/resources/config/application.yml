@@ -1,36 +1,88 @@
 faf-api:
   version: #faf-api.version#
+  anope:
+    database-name: ${ANOPE_DATABASE_NAME:faf-anope}
   avatar:
     max-size-bytes: ${AVATAR_MAX_SIZE_BYTES:4096}
     image-width: ${AVATAR_IMAGE_WIDTH:40}
     image-height: ${AVATAR_IMAGE_HEIGHT:20}
-  clan:
-    invite-link-expire-duration-minutes: ${CLAN_INVITE_LINK_EXPIRE_DURATION_MINUTES:604800}
+    download-url-format: ${AVATAR_DOWNLOAD_URL_FORMAT:https://content.${FAF_DOMAIN}/faf/avatars/%s}
+    target-directory: ${AVATAR_TARGET_DIRECTORY:/content/avatars}
+    allowed-extensions: ${AVATAR_ALLOWED_FILE_EXTENSIONS:png}
   challonge:
     key: ${CHALLONGE_KEY:}
+  clan:
+    invite-link-expire-duration-minutes: ${CLAN_INVITE_LINK_EXPIRE_DURATION_MINUTES:604800}
+    website-url-format: ${CLAN_WEBSITE_URL_FORMAT:https://clans.${FAF_DOMAIN}/clan/%s}
   database:
     schema-version: ${DATABASE_SCHEMA_VERSION:122}
+  deployment:
+    forged-alliance-exe-path: ${FORGED_ALLIANCE_EXE_PATH:/content/legacy-featured-mod-files/updates_faf_files/ForgedAlliance.exe}
+    repositories-directory: ${REPOSITORIES_DIRECTORY:/repositories}
+    featured-mods-target-directory: ${FEATURED_MODS_TARGET_DIRECTORY:/content/legacy-featured-mod-files}
+    testing-exe-upload-key: ${TESTING_EXE_UPLOAD_KEY}
+    forged-alliance-beta-exe-path: ${EXE_UPLOAD_BETA_PATH:/content/legacy-featured-mod-files/updates_fafbeta_files}
+    forged-alliance-develop-exe-path: ${EXE_UPLOAD_DEVELOP_PATH:/content/legacy-featured-mod-files/updates_fafdevelop_files}
+  featured-mod:
+    file-url-format: ${FEATURED_MOD_URL_FORMAT:https://content.${FAF_DOMAIN}/legacy-featured-mod-files/%s/%s}
+  git-hub:
+    access-token: ${GITHUB_ACCESS_TOKEN:false}
+    webhook-secret: ${GITHUB_WEBHOOK_SECRET:false}
+    deployment-environment: ${GITHUB_DEPLOYMENT_ENVIRONMENT:production}
+  gog:
+    token-format: ${GOG_TOKEN_FORMAT:{{FAF:%s}}}
+    profile-page-url: ${GOG_PROFILE_URL:https://www.gog.com/u/%s}
+    games-list-url: ${GOG_GAMES_LIST_URL:https://www.gog.com/u/%s/games/stats?sort=recent_playtime&order=desc&page=%d}
+  jwt:
+    secretKeyPath: ${JWT_PRIVATE_KEY_PATH:/pki/secret.key}
+    publicKeyPath: ${JWT_PUBLIC_KEY_PATH:/pki/public.key}
+    fafHydraJwksUrl: ${JWT_FAF_HYDRA_JWKS_URL:https://hydra.${FAF_DOMAIN}/.well-known/jwks.json}
+    fafHydraIssuer: ${JWT_FAF_HYDRA_ISSUER:https://hydra.${FAF_DOMAIN}/}
+  mail:
+    from-email-name: ${EMAIL_FROM_NAME}
+    from-email-address: ${EMAIL_FROM_ADDRESS}
+  map:
+    target-directory: ${MAP_UPLOAD_PATH:/content/maps}
+    directory-preview-path-small: ${MAP_PREVIEW_PATH_SMALL:/content/maps/previews/small}
+    directory-preview-path-large: ${MAP_PREVIEW_PATH_LARGE:/content/maps/previews/large}
+    small-previews-url-format: ${MAP_SMALL_PREVIEWS_URL_FORMAT:https://content.${FAF_DOMAIN}/maps/previews/small/%s}
+    large-previews-url-format: ${MAP_LARGE_PREVIEWS_URL_FORMAT:https://content.${FAF_DOMAIN}/maps/previews/large/%s}
+    download-url-format: ${MAP_DOWNLOAD_URL_FORMAT:https://content.${FAF_DOMAIN}/maps/%s}
   mautic:
     base-url: ${MAUTIC_BASE_URL:false}
     client-id: ${MAUTIC_CLIENT_ID:false}
     client-secret: ${MAUTIC_CLIENT_SECRET:false}
     access-token-url: ${MAUTIC_ACCESS_TOKEN_URL:false}
-  git-hub:
-    access-token: ${GITHUB_ACCESS_TOKEN:false}
-    webhook-secret: ${GITHUB_WEBHOOK_SECRET:false}
-  anope:
-    database-name: ${ANOPE_DATABASE_NAME:faf-anope}
-  rating:
-    default-mean: 1500
-    default-deviation: 500
+  mod:
+    download-url-format: ${MOD_DOWNLOAD_URL_FORMAT:https://content.${FAF_DOMAIN}/mods/%s}
+    preview-url-format: ${MOD_PREVIEW_URL_FORMAT:https://content.${FAF_DOMAIN}/mods/%s}
   nodebb:
     base-url: ${NODEBB_BASE_URL:false}
     admin-user-id: ${NODEBB_ADMIN_USERID:1}
     master-token: ${NODEBB_MASTER_TOKEN:false}
-  gog:
-    token-format: ${GOG_TOKEN_FORMAT:{{FAF:%s}}}
-    profile-page-url: ${GOG_PROFILE_URL:https://www.gog.com/u/%s}
-    games-list-url: ${GOG_GAMES_LIST_URL:https://www.gog.com/u/%s/games/stats?sort=recent_playtime&order=desc&page=%d}
+  password-reset:
+    password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT:https://www.${FAF_DOMAIN}/account/password/confirmReset?username=%s&token=%s}
+    subject: ${PASSWORD_RESET_EMAIL_SUBJECT:FAF password reset}
+    html-format: ${PASSWORD_RESET_EMAIL_BODY:Reset email body for user {0} with reset link {1}}
+  rating:
+    default-mean: 1500
+    default-deviation: 500
+  recaptcha:
+    enabled: ${RECAPTCHA_ENABLED:false}
+    secret: ${RECAPTCHA_SECRET}
+  registration:
+    activation-url-format: ${ACTIVATION_URL_FORMAT:https://www.${FAF_DOMAIN}/account/activate?username=%s&token=%s}
+    subject: ${REGISTRATION_EMAIL_SUBJECT:FAF user registration}
+    html-format: ${REGISTRATION_EMAIL_BODY:"Registration email body for user {0} with activation link {1}"}
+  replay:
+    download-url-format: ${REPLAY_DOWNLOAD_URL_FORMAT:https://replays.${FAF_DOMAIN}/%s}
+  steam:
+    realm: ${STEAM_REALM:https://api.${FAF_DOMAIN}}
+    api-key: ${STEAM_API_KEY}
+    link-to-steam-redirect-url-format: ${STEAM_LINK_REDIRECT_URL_FORMAT:https://api.${FAF_DOMAIN}/users/linkToSteam?token=%s}
+    steam-password-reset-redirect-url-format: ${STEAM_PASSWORD_RESET_REDIRECT_URL_FORMAT:https://api.${FAF_DOMAIN}/users/requestPasswordResetViaSteam}
+  tutorial:
+    thumbnail-url-format: ${TUTORIAL_THUMBNAIL_URL_FORMAT:https://content.${FAF_DOMAIN}/faf/tutorials/thumbs/%s}
 
 spring:
   application:
@@ -41,6 +93,10 @@ spring:
       minimum-idle: 2
       maximum-pool-size: 12
   league-datasource:
+    url: jdbc:mariadb://${LEAGUE_DATABASE_ADDRESS:127.0.0.1}/${LEAGUE_DATABASE_NAME:faf-league}?useSSL=false
+    name: faf-league
+    username: ${LEAGUE_DATABASE_USERNAME:faf-league-service}
+    password: ${LEAGUE_DATABASE_PASSWORD}
     configuration:
       connection-test-query: SELECT 1 FROM DUAL
       minimum-idle: 2
@@ -57,7 +113,7 @@ spring:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
   profiles:
-    active: ${API_PROFILE:dev}
+    active: ${API_PROFILE}
   servlet:
     multipart:
       max-file-size: 350MB
@@ -101,3 +157,5 @@ logging:
     console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%36.36X{requestId:- no request context}]){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"
   level:
     com.faforever: ${LOG_LEVEL:info}
+  file:
+    path: ${LOG_FILE_DIRECTORY:}
