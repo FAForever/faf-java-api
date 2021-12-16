@@ -234,7 +234,7 @@ dependencies {
   implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.0.RELEASE")
   implementation("org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r")
   implementation("org.jetbrains:annotations:13.0")
-  implementation("com.google.guava:guava:30.1.1-jre")
+  implementation("com.google.guava:guava:31.0.1-jre")
   implementation("io.springfox:springfox-boot-starter:3.0.0")
   implementation("javax.inject:javax.inject:1")
   def elideVersion = "5.0.11"
