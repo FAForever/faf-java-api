@@ -210,13 +210,12 @@ ext {
 }
 
 dependencies {
+  // Spring Boot managed dependencies
   implementation("org.projectlombok:lombok")
   annotationProcessor("org.projectlombok:lombok")
   testAnnotationProcessor("org.projectlombok:lombok")
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
   testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-
-  runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-web")
@@ -225,40 +224,41 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
   implementation("org.springframework.boot:spring-boot-starter-mail")
   implementation("org.springframework.boot:spring-boot-starter-validation")
-  implementation("de.codecentric:spring-boot-admin-starter-client:2.3.1")
-
   implementation("com.github.ben-manes.caffeine:caffeine")
-  implementation("com.github.FAForever:faf-java-commons:0e5d22ffff6e4dea81bac494d532627fcca8ebc4")
-  implementation("org.kohsuke:github-api:1.301")
-  implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.5.0")
-  implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.1.RELEASE")
-  implementation("org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r")
-  implementation("org.jetbrains:annotations:23.0.0")
-  implementation("com.google.guava:guava:31.0.1-jre")
-  implementation("io.springfox:springfox-boot-starter:3.0.0")
-  implementation("javax.inject:javax.inject:1")
+
+  testImplementation("org.springframework.boot:spring-boot-starter-test")
+  testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
+  testImplementation("org.springframework.security:spring-security-test")
+  testImplementation("com.jayway.jsonpath:json-path")
+  testImplementation("com.jayway.jsonpath:json-path-assert")
+
+  runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+  runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
+
+  // Manually managed dependencies
   def elideVersion = "5.1.2"
   implementation("com.yahoo.elide:elide-core:${elideVersion}")
   implementation("com.yahoo.elide:elide-swagger:${elideVersion}")
   implementation("com.yahoo.elide:elide-datastore-hibernate5:${elideVersion}")
   implementation("com.yahoo.elide:elide-datastore-multiplex:${elideVersion}")
-
+  implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.5.0")
+  implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.1.RELEASE")
+  implementation("io.springfox:springfox-boot-starter:3.0.0")
+  implementation("de.codecentric:spring-boot-admin-starter-client:2.3.1")
+  implementation("com.github.FAForever:faf-java-commons:0e5d22ffff6e4dea81bac494d532627fcca8ebc4")
+  implementation("org.kohsuke:github-api:1.301")
+  implementation("org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r")
+  implementation("org.jetbrains:annotations:23.0.0")
+  implementation("com.google.guava:guava:31.0.1-jre")
+  implementation("javax.inject:javax.inject:1")
   implementation("org.luaj:luaj-jse:3.0.1")
   implementation("io.github.micheljung:nocatch:2.0")
   implementation("org.apache.commons:commons-compress:1.21")
   implementation("org.json:json:20210307")
-
   implementation("org.jsoup:jsoup:1.14.3")
-
   implementation("com.github.jasminb:jsonapi-converter:0.11")
-  runtimeOnly("org.mariadb.jdbc:mariadb-java-client:2.1.2")
 
-  testImplementation("org.springframework.boot:spring-boot-starter-test")
-  testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
-  testImplementation("org.springframework.security:spring-security-test")
   testImplementation("junit-addons:junit-addons:1.4")
-  testImplementation("com.jayway.jsonpath:json-path:2.6.0")
-  testImplementation("com.jayway.jsonpath:json-path-assert:2.6.0")
   testImplementation("org.testcontainers:junit-jupiter:1.16.2")
   testImplementation("org.testcontainers:mariadb:1.16.2")
 
