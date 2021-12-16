@@ -43,8 +43,8 @@ class LeagueSeasonSubdivisionElideTest extends LeagueAbstractIntegrationTest {
       .andExpect(jsonPath("$.data.attributes.maxRating", is(1000.0)))
       .andExpect(jsonPath("$.data.attributes.highestScore", is(50)))
       .andExpect(jsonPath("$.data.attributes.imageUrl", is("https://example1.com/division_name_1subdivision_name_1.png")))
-      .andExpect(jsonPath("$.data.attributes.mediumImageUrl", is("https://example1.com/medium/division_name_1subdivision_name_1.png")))
-      .andExpect(jsonPath("$.data.attributes.smallImageUrl", is("https://example1.com/small/division_name_1subdivision_name_1.png")));
+      .andExpect(jsonPath("$.data.attributes.mediumImageUrl", is("https://example1.com/medium/division_name_1subdivision_name_1_medium.png")))
+      .andExpect(jsonPath("$.data.attributes.smallImageUrl", is("https://example1.com/small/division_name_1subdivision_name_1_small.png")));
   }
 
   @Test
