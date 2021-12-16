@@ -2,7 +2,6 @@ package com.faforever.api.config;
 
 import com.faforever.api.config.elide.SpringHibernateDataStore;
 import com.yahoo.elide.core.datastore.DataStore;
-import org.hibernate.ScrollMode;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -59,6 +58,6 @@ public class LeagueDatasourceConfig {
     @Qualifier(LEAGUE_TRANSACTION_MANAGER) PlatformTransactionManager leagueTransactionManager,
     @Qualifier("leagueEntityManagerFactory") EntityManager entityManager
   ) {
-    return new SpringHibernateDataStore(leagueTransactionManager, entityManager, true, ScrollMode.FORWARD_ONLY);
+    return new SpringHibernateDataStore(leagueTransactionManager, entityManager);
   }
 }

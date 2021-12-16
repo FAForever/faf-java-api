@@ -18,43 +18,39 @@ package com.faforever.api.config.elide;
 
 import com.yahoo.elide.core.RequestScope;
 import com.yahoo.elide.core.exceptions.TransactionException;
-import com.yahoo.elide.datastores.hibernate5.HibernateTransaction;
-import org.hibernate.ScrollMode;
+import com.yahoo.elide.datastores.jpa.transaction.AbstractJpaTransaction;
+import com.yahoo.elide.datastores.jpql.query.DefaultQueryLogger;
 import org.hibernate.Session;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 
 import java.io.IOException;
 
-/**
- * Spring Hibernate Transaction.
- *
- * @author olOwOlo
- */
-public class SpringHibernateTransaction extends HibernateTransaction {
+public class SpringHibernateTransaction extends AbstractJpaTransaction {
 
   private final Session session;
   private final TransactionStatus txStatus;
   private final PlatformTransactionManager txManager;
 
-  /**
-   * Constructor.
-   *
-   * @param session Hibernate session
-   * @param txManager Spring PlatformTransactionManager
-   * @param txStatus Spring Transaction status
-   * @param isScrollEnabled Whether or not scrolling is enabled
-   * @param scrollMode Scroll mode to use if scrolling enabled
-   */
-  protected SpringHibernateTransaction(Session session,
-                                       PlatformTransactionManager txManager,
-                                       TransactionStatus txStatus,
-                                       boolean isScrollEnabled,
-                                       ScrollMode scrollMode) {
-    super(session, isScrollEnabled, scrollMode);
+  protected SpringHibernateTransaction(
+    Session session,
+    PlatformTransactionManager txManager,
+    TransactionStatus txStatus
+  ) {
+    super(session, em -> em.unwrap(Session.class).cancelQuery(), new DefaultQueryLogger(), true, true);
     this.session = session;
     this.txManager = txManager;
     this.txStatus = txStatus;
+  }
+
+  @Override
+  public void begin() {
+    //no op
+  }
+
+  @Override
+  public boolean isOpen() {
+    return session.isOpen() && !txStatus.isCompleted();
   }
 
   @Override
@@ -69,10 +65,9 @@ public class SpringHibernateTransaction extends HibernateTransaction {
 
   @Override
   public void close() throws IOException {
-    if (session.isOpen() && !txStatus.isCompleted()) {
+    if (isOpen()) {
       txManager.rollback(txStatus);
       throw new IOException("Transaction not closed");
     }
   }
-
 }

@@ -3,12 +3,15 @@ package com.faforever.api.config.elide;
 import com.faforever.api.security.ExtendedAuditLogger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yahoo.elide.Elide;
+import com.yahoo.elide.ElideSettings;
 import com.yahoo.elide.ElideSettingsBuilder;
+import com.yahoo.elide.core.TransactionRegistry;
 import com.yahoo.elide.core.datastore.DataStore;
 import com.yahoo.elide.core.dictionary.EntityDictionary;
 import com.yahoo.elide.core.dictionary.Injector;
 import com.yahoo.elide.core.filter.dialect.CaseSensitivityStrategy;
 import com.yahoo.elide.core.filter.dialect.RSQLFilterDialect;
+import com.yahoo.elide.core.utils.DefaultClassScanner;
 import com.yahoo.elide.core.utils.coerce.CoerceUtil;
 import com.yahoo.elide.datastores.multiplex.MultiplexManager;
 import com.yahoo.elide.jsonapi.JsonApiMapper;
@@ -22,6 +25,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Map;
+import java.util.Set;
 
 @Configuration
 public class ElideConfig {
@@ -38,17 +42,18 @@ public class ElideConfig {
 
   @Bean
   public Elide elide(DataStore multiplexDataStore, ObjectMapper objectMapper, EntityDictionary entityDictionary, ExtendedAuditLogger extendedAuditLogger) {
-    RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary, new CaseSensitivityStrategy.UseColumnCollation());
+    RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary, new CaseSensitivityStrategy.UseColumnCollation(), true);
 
     registerAdditionalConverters();
 
-    return new Elide(new ElideSettingsBuilder(multiplexDataStore)
+    final ElideSettings elideSettings = new ElideSettingsBuilder(multiplexDataStore)
       .withJsonApiMapper(new JsonApiMapper(objectMapper))
       .withAuditLogger(extendedAuditLogger)
       .withEntityDictionary(entityDictionary)
       .withJoinFilterDialect(rsqlFilterDialect)
       .withSubqueryFilterDialect(rsqlFilterDialect)
-      .build());
+      .build();
+    return new Elide(elideSettings, new TransactionRegistry(), elideSettings.getDictionary().getScanner(), true);
   }
 
   /**
@@ -81,7 +86,7 @@ public class ElideConfig {
 
   @Bean
   public EntityDictionary entityDictionary(AutowireCapableBeanFactory beanFactory) {
-    final EntityDictionary entityDictionary = new EntityDictionary(Map.of(), new Injector() {
+    final EntityDictionary entityDictionary = new EntityDictionary(Map.of(), Map.of(), new Injector() {
       @Override
       public void inject(Object entity) {
         beanFactory.autowireBean(entity);
@@ -91,7 +96,10 @@ public class ElideConfig {
       public <T> T instantiate(Class<T> cls) {
         return beanFactory.createBean(cls);
       }
-    });
+    },
+      CoerceUtil::lookup,
+      Set.of(),
+      new DefaultClassScanner());
 
     entityDictionary.scanForSecurityChecks();
 

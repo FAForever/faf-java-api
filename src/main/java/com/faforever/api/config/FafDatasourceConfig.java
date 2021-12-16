@@ -2,7 +2,6 @@ package com.faforever.api.config;
 
 import com.faforever.api.config.elide.SpringHibernateDataStore;
 import com.yahoo.elide.core.datastore.DataStore;
-import org.hibernate.ScrollMode;
 import org.hibernate.cfg.AvailableSettings;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -77,6 +76,6 @@ public class FafDatasourceConfig {
     @Qualifier("fafTransactionManager") PlatformTransactionManager fafTransactionManager,
     @Qualifier("fafEntityManagerFactory") EntityManager entityManager
   ) {
-    return new SpringHibernateDataStore(fafTransactionManager, entityManager, true, ScrollMode.FORWARD_ONLY);
+    return new SpringHibernateDataStore(fafTransactionManager, entityManager);
   }
 }
