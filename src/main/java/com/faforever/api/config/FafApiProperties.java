@@ -142,7 +142,6 @@ public class FafApiProperties {
   @Data
   public static class FeaturedMod {
     private String fileUrlFormat;
-    private String bireusUrlFormat;
   }
 
   @Data
