@@ -4,14 +4,14 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath("gradle.plugin.org.kt3k.gradle.plugin:coveralls-gradle-plugin:${coverallsGradlePluginVersion}")
+    classpath("gradle.plugin.org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.12.0")
   }
 }
 
 plugins {
   id "java"
-  id "org.springframework.boot" version "${springBootVersion}"
-  id "io.spring.dependency-management" version "${springDependencyManagementVersion}"
+  id "org.springframework.boot" version "2.5.4"
+  id "io.spring.dependency-management" version "1.0.11.RELEASE"
   id "idea"
 }
 
@@ -205,6 +205,10 @@ test {
   }
 }
 
+ext {
+
+}
+
 dependencies {
   implementation("org.projectlombok:lombok")
   annotationProcessor("org.projectlombok:lombok")
@@ -221,42 +225,43 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
   implementation("org.springframework.boot:spring-boot-starter-mail")
   implementation("org.springframework.boot:spring-boot-starter-validation")
-  implementation("de.codecentric:spring-boot-admin-starter-client:${springBootAdminClientVersion}")
+  implementation("de.codecentric:spring-boot-admin-starter-client:2.3.1")
 
   implementation("com.github.ben-manes.caffeine:caffeine")
-  implementation("com.github.FAForever:faf-java-commons:${fafCommonsVersion}")
-  implementation("org.kohsuke:github-api:${githubApiVersion}")
-  implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springSecurityOauth2AutoConfigureVersion}")
-  implementation("org.springframework.security.oauth:spring-security-oauth2:${springSecurityOauth2Version}")
-  implementation("org.eclipse.jgit:org.eclipse.jgit:${jgitVersionn}")
-  implementation("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
-  implementation("com.google.guava:guava:${guavaVersion}")
-  implementation("io.springfox:springfox-boot-starter:${springfoxSwaggerVersion}")
-  implementation("javax.inject:javax.inject:${javaxInjectVersion}")
+  implementation("com.github.FAForever:faf-java-commons:0e5d22ffff6e4dea81bac494d532627fcca8ebc4")
+  implementation("org.kohsuke:github-api:1.127")
+  implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.5.0")
+  implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.0.RELEASE")
+  implementation("org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r")
+  implementation("org.jetbrains:annotations:13.0")
+  implementation("com.google.guava:guava:30.1.1-jre")
+  implementation("io.springfox:springfox-boot-starter:3.0.0")
+  implementation("javax.inject:javax.inject:1")
+  def elideVersion = "5.0.11"
   implementation("com.yahoo.elide:elide-core:${elideVersion}")
   implementation("com.yahoo.elide:elide-swagger:${elideVersion}")
   implementation("com.yahoo.elide:elide-datastore-hibernate5:${elideVersion}")
   implementation("com.yahoo.elide:elide-datastore-multiplex:${elideVersion}")
 
-  implementation("org.luaj:luaj-jse:${luajVersion}")
-  implementation("io.github.micheljung:nocatch:${nocatchVersion}")
-  implementation("org.apache.commons:commons-compress:${commonsCompressVersion}")
-  implementation("org.json:json:${jsonVersion}")
+  implementation("org.luaj:luaj-jse:3.0.1")
+  implementation("io.github.micheljung:nocatch:2.0")
+  implementation("org.apache.commons:commons-compress:1.20")
+  implementation("org.json:json:20210307")
 
-  implementation("org.jsoup:jsoup:${jsoupVersion}")
+  implementation("org.jsoup:jsoup:1.14.2")
 
-  implementation("com.github.jasminb:jsonapi-converter:${jsonapiConverterVersion}")
-  runtimeOnly("org.mariadb.jdbc:mariadb-java-client:${mariaDBConnectorVersion}")
+  implementation("com.github.jasminb:jsonapi-converter:0.11")
+  runtimeOnly("org.mariadb.jdbc:mariadb-java-client:2.1.2")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("junit-addons:junit-addons:${junitAddonsVersion}")
-  testImplementation("com.jayway.jsonpath:json-path:${jsonPath}")
-  testImplementation("com.jayway.jsonpath:json-path-assert:${jsonPathAssert}")
-  testImplementation("org.testcontainers:junit-jupiter:${testContainersVersion}")
+  testImplementation("junit-addons:junit-addons:1.4")
+  testImplementation("com.jayway.jsonpath:json-path:2.6.0")
+  testImplementation("com.jayway.jsonpath:json-path-assert:2.6.0")
+  testImplementation("org.testcontainers:junit-jupiter:1.15.2")
   testImplementation("org.testcontainers:mariadb:1.16.0")
 
-  codacy("com.github.codacy:codacy-coverage-reporter:${codacyCoverageReporterVersion}")
+  codacy("com.github.codacy:codacy-coverage-reporter:6.2.0")
 }
 
