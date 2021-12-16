@@ -69,17 +69,6 @@ spring:
     password: ${LEAGUE_DATABASE_PASSWORD:banana}
   jpa:
     show-sql: true
-  boot:
-    admin:
-      client:
-        url: ${ADMIN_SERVER_URL:http://localhost:8030}
-        username: ${ADMIN_SERVER_USERNAME:admin}
-        password: ${ADMIN_SERVER_PASSWORD:banana}
-        instance:
-          metadata:
-            user:
-              name: ${ADMIN_CLIENT_USERNAME:faf-java-api}
-              password: ${ADMIN_CLIENT_PASSWORD:banana}
 logging:
   level:
     com.faforever.api: debug
