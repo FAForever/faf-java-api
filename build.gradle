@@ -233,7 +233,7 @@ dependencies {
   implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.5.0")
   implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.1.RELEASE")
   implementation("org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r")
-  implementation("org.jetbrains:annotations:13.0")
+  implementation("org.jetbrains:annotations:23.0.0")
   implementation("com.google.guava:guava:31.0.1-jre")
   implementation("io.springfox:springfox-boot-starter:3.0.0")
   implementation("javax.inject:javax.inject:1")
