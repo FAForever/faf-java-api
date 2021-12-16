@@ -1,7 +1,7 @@
 # FAF API
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/12eecd69a3cf4f6c96ffa043a7d70198)](https://www.codacy.com/app/micheljung/faf-java-api?utm_source=github.com&utm_medium=referral&utm_content=micheljung/faf-java-api&utm_campaign=badger)
-[![Build Status](https://travis-ci.org/FAForever/faf-java-api.svg?branch=master)](https://travis-ci.org/FAForever/faf-java-api)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/9ac3915f155c4bfb869b8fe123b6832e)](https://www.codacy.com/gh/FAForever/faf-java-api/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=FAForever/faf-java-api&amp;utm_campaign=Badge_Grade)
+[![Build](https://github.com/FAForever/faf-java-api/actions/workflows/build.yaml/badge.svg)](https://github.com/FAForever/faf-java-api/actions/workflows/build.yaml)
 [![Coverage Status](https://coveralls.io/repos/github/FAForever/faf-java-api/badge.svg?branch=develop)](https://coveralls.io/github/FAForever/faf-java-api?branch=develop)
  
 This is the official FAForever API. Amongst others, the API offers the following functionality:
