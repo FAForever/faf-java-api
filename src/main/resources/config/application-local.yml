@@ -74,4 +74,3 @@ spring:
 logging:
   level:
     com.faforever.api: debug
-

@@ -17,99 +17,38 @@
 package com.faforever.api.config.elide;
 
 import com.google.common.base.Preconditions;
-import com.yahoo.elide.core.datastore.DataStore;
 import com.yahoo.elide.core.datastore.DataStoreTransaction;
-import com.yahoo.elide.core.dictionary.EntityDictionary;
-import com.yahoo.elide.core.utils.TypeHelper;
-import org.hibernate.ScrollMode;
+import com.yahoo.elide.datastores.jpa.JpaDataStore;
 import org.hibernate.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import javax.persistence.EntityManager;
-import javax.persistence.metamodel.EntityType;
-import java.util.Objects;
-import java.util.Set;
 
-/**
- * Spring Hibernate DataStore.
- *
- * @author olOwOlo
- */
-public class SpringHibernateDataStore implements DataStore {
-
-  private static final Logger logger = LoggerFactory.getLogger(SpringHibernateDataStore.class);
+public class SpringHibernateDataStore extends JpaDataStore {
 
   protected final PlatformTransactionManager txManager;
   protected final EntityManager entityManager;
-  protected final boolean isScrollEnabled;
-  protected final ScrollMode scrollMode;
   protected final HibernateTransactionSupplier transactionSupplier;
 
-  /**
-   * Constructor.
-   *
-   * @param txManager Spring PlatformTransactionManager
-   * @param entityManager EntityManager
-   * @param isScrollEnabled Whether or not scrolling is enabled on driver
-   * @param scrollMode Scroll mode to use for scrolling driver
-   */
-  public SpringHibernateDataStore(PlatformTransactionManager txManager,
-                                  EntityManager entityManager,
-                                  boolean isScrollEnabled,
-                                  ScrollMode scrollMode) {
-    this(txManager, entityManager, isScrollEnabled, scrollMode, SpringHibernateTransaction::new);
+  public SpringHibernateDataStore(
+    PlatformTransactionManager txManager,
+    EntityManager entityManager
+  ) {
+    this(txManager, entityManager, SpringHibernateTransaction::new);
   }
 
-  /**
-   * <p>Constructor.</p>
-   * Useful for extending the store and relying on existing code to instantiate custom hibernate transaction.
-   *
-   * @param txManager Spring PlatformTransactionManager
-   * @param entityManager EntityManager factory
-   * @param isScrollEnabled Whether or not scrolling is enabled on driver
-   * @param scrollMode Scroll mode to use for scrolling driver
-   * @param transactionSupplier Supplier for transaction
-   */
-  protected SpringHibernateDataStore(PlatformTransactionManager txManager,
-                                     EntityManager entityManager,
-                                     boolean isScrollEnabled,
-                                     ScrollMode scrollMode,
-                                     HibernateTransactionSupplier transactionSupplier) {
+  protected SpringHibernateDataStore(
+    PlatformTransactionManager txManager,
+    EntityManager entityManager,
+    HibernateTransactionSupplier transactionSupplier
+  ) {
+    super(() -> entityManager, null);
     this.txManager = txManager;
     this.entityManager = entityManager;
-    this.isScrollEnabled = isScrollEnabled;
-    this.scrollMode = scrollMode;
     this.transactionSupplier = transactionSupplier;
-  }
-
-  @Override
-  public void populateEntityDictionary(EntityDictionary dictionary) {
-    Set<EntityType<?>> entities = entityManager.getMetamodel().getEntities();
-    /* bind all entities */
-    entities.stream()
-      .map(EntityType::getJavaType)
-      .filter(Objects::nonNull)
-      .forEach(mappedClass -> {
-        try {
-          // Ignore this result.
-          // We are just checking to see if it throws an exception meaning that
-          // provided class was _not_ an entity.
-          dictionary.lookupEntityClass(TypeHelper.getClassType(mappedClass));
-          // Bind if successful
-          dictionary.bindEntity(mappedClass);
-        } catch (IllegalArgumentException e) {
-          // Ignore this entity
-          // Turns out that hibernate may include non-entity types in this list when using things
-          // like envers. Since they are not entities, we do not want to bind them into the entity
-          // dictionary
-          logger.debug("Ignoring entity", e);
-        }
-      });
   }
 
   @Override
@@ -123,7 +62,21 @@ public class SpringHibernateDataStore implements DataStore {
     Session session = entityManager.unwrap(Session.class);
     Preconditions.checkNotNull(session);
 
-    return transactionSupplier.get(session, txManager, txStatus, isScrollEnabled, scrollMode);
+    return transactionSupplier.get(session, txManager, txStatus);
+  }
+
+  @Override
+  public DataStoreTransaction beginReadTransaction() {
+    // begin a spring transaction
+    DefaultTransactionDefinition def = new DefaultTransactionDefinition();
+    def.setName("elide read transaction");
+    def.setReadOnly(true);
+    TransactionStatus txStatus = txManager.getTransaction(def);
+
+    Session session = entityManager.unwrap(Session.class);
+    Preconditions.checkNotNull(session);
+
+    return transactionSupplier.get(session, txManager, txStatus);
   }
 
   /**
@@ -131,7 +84,6 @@ public class SpringHibernateDataStore implements DataStore {
    */
   @FunctionalInterface
   public interface HibernateTransactionSupplier {
-    SpringHibernateTransaction get(Session session, PlatformTransactionManager txManager,
-                                   TransactionStatus txStatus, boolean isScrollEnabled, ScrollMode scrollMode);
+    SpringHibernateTransaction get(Session session, PlatformTransactionManager txManager, TransactionStatus txStatus);
   }
 }

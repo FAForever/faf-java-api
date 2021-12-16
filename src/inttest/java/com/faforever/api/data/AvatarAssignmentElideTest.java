@@ -185,15 +185,15 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
   public void ownerCanUpdateAvatarAssignmentSelection() throws Exception {
     final AvatarAssignment avatarAssignment = (AvatarAssignment) new AvatarAssignment()
       .setSelected(true)
-      .setId("1");
+      .setId("2");
     mockMvc.perform(
-      patch("/data/avatarAssignment/{assignmentId}", 1)
+        patch("/data/avatarAssignment/{assignmentId}", 2)
         .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isNoContent());
     mockMvc.perform(
-      get("/data/avatarAssignment/{assignmentId}", 1)
+        get("/data/avatarAssignment/{assignmentId}", 2)
         .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data.attributes.selected", is(true)));
