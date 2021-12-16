@@ -12,10 +12,10 @@ public class LeagueSeasonDivisionSubdivisionEnricher {
   @PostLoad
   public void enhance(LeagueSeasonDivisionSubdivision subdivision) {
     League league = subdivision.getLeagueSeasonDivision().getLeagueSeason().getLeague();
-    String filename = subdivision.getLeagueSeasonDivision().getNameKey() + subdivision.getNameKey() + ".png";
+    String divisionName = subdivision.getLeagueSeasonDivision().getNameKey() + subdivision.getNameKey();
 
-    subdivision.setImageUrl(league.getImageUrl() + filename);
-    subdivision.setMediumImageUrl(league.getMediumImageUrl() + filename);
-    subdivision.setSmallImageUrl(league.getSmallImageUrl() + filename);
+    subdivision.setImageUrl(league.getImageUrl() + divisionName + ".png");
+    subdivision.setMediumImageUrl(league.getMediumImageUrl() + divisionName + "_medium.png");
+    subdivision.setSmallImageUrl(league.getSmallImageUrl() + divisionName + "_small.png");
   }
 }
