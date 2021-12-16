@@ -237,7 +237,7 @@ dependencies {
   implementation("com.google.guava:guava:31.0.1-jre")
   implementation("io.springfox:springfox-boot-starter:3.0.0")
   implementation("javax.inject:javax.inject:1")
-  def elideVersion = "5.0.11"
+  def elideVersion = "5.1.2"
   implementation("com.yahoo.elide:elide-core:${elideVersion}")
   implementation("com.yahoo.elide:elide-swagger:${elideVersion}")
   implementation("com.yahoo.elide:elide-datastore-hibernate5:${elideVersion}")
@@ -251,7 +251,7 @@ dependencies {
   implementation("org.jsoup:jsoup:1.14.2")
 
   implementation("com.github.jasminb:jsonapi-converter:0.11")
-  runtimeOnly("org.mariadb.jdbc:mariadb-java-client:2.1.2")
+  runtimeOnly("org.mariadb.jdbc:mariadb-java-client:2.7.4")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
