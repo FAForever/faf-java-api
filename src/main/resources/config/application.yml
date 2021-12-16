@@ -88,6 +88,10 @@ spring:
   application:
     name: FAF Java API
   datasource:
+    url: jdbc:mariadb://${DATABASE_ADDRESS}/${DATABASE_NAME:faf}?useSSL=false
+    name: faf
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
     configuration:
       connection-test-query: SELECT 1 FROM DUAL
       minimum-idle: 2
