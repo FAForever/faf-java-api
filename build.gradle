@@ -229,7 +229,7 @@ dependencies {
 
   implementation("com.github.ben-manes.caffeine:caffeine")
   implementation("com.github.FAForever:faf-java-commons:0e5d22ffff6e4dea81bac494d532627fcca8ebc4")
-  implementation("org.kohsuke:github-api:1.127")
+  implementation("org.kohsuke:github-api:1.301")
   implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.5.0")
   implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.0.RELEASE")
   implementation("org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r")
