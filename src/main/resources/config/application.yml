@@ -54,8 +54,10 @@ faf-api:
     client-secret: ${MAUTIC_CLIENT_SECRET:false}
     access-token-url: ${MAUTIC_ACCESS_TOKEN_URL:false}
   mod:
+    target-directory: ${MOD_UPLOAD_PATH:/content/mods}
     download-url-format: ${MOD_DOWNLOAD_URL_FORMAT:https://content.${FAF_DOMAIN}/mods/%s}
     preview-url-format: ${MOD_PREVIEW_URL_FORMAT:https://content.${FAF_DOMAIN}/mods/%s}
+    thumbnail-target-directory: ${MOD_THUMBNAIL_TARGET_DIRECTORY:/content/mods/thumbs}
   nodebb:
     base-url: ${NODEBB_BASE_URL:false}
     admin-user-id: ${NODEBB_ADMIN_USERID:1}
