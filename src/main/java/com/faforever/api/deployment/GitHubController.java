@@ -63,9 +63,9 @@ public class GitHubController {
 
   private void verifyRequest(String payload, String signature) throws DecoderException {
     String secret = apiProperties.getGitHub().getWebhookSecret();
-    MacSigner macSigner = new MacSigner(HMAC_SHA1, new SecretKeySpec(secret.getBytes(StandardCharsets.US_ASCII), HMAC_SHA1));
+    MacSigner macSigner = new MacSigner(HMAC_SHA1, new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), HMAC_SHA1));
 
-    byte[] content = payload.getBytes(StandardCharsets.US_ASCII);
+    byte[] content = payload.getBytes(StandardCharsets.UTF_8);
     // Signature starts with "sha1="
     macSigner.verify(content, Hex.decodeHex(signature.substring(5)));
   }
