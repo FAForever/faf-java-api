@@ -1,8 +1,10 @@
 package com.faforever.api.user;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.data.domain.AccountLink;
 import com.faforever.api.data.domain.GlobalRating;
 import com.faforever.api.data.domain.Ladder1v1Rating;
+import com.faforever.api.data.domain.LinkedServiceType;
 import com.faforever.api.data.domain.NameRecord;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.email.EmailService;
@@ -46,6 +48,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -70,12 +73,15 @@ public class UserServiceTest {
   private static final String STEAM_LOGIN_URL = "steamLoginUrl";
   private static final String IP_ADDRESS = "127.0.0.1";
   private static final FafPasswordEncoder fafPasswordEncoder = new FafPasswordEncoder();
+  public static final String GOG_USERNAME = "someGOG";
 
   private UserService instance;
   @Mock
   private EmailService emailService;
   @Mock
   private UserRepository userRepository;
+  @Mock
+  private AccountLinkRepository accountLinkRepository;
   @Mock
   private PlayerRepository playerRepository;
   @Mock
@@ -118,6 +124,7 @@ public class UserServiceTest {
     instance = new UserService(emailService,
       playerRepository,
       userRepository,
+      accountLinkRepository,
       nameRecordRepository,
       properties,
       anopeUserRepository,
@@ -444,7 +451,8 @@ public class UserServiceTest {
   @Test
   public void buildSteamLinkUrlAlreadyLinked() {
     User user = validUser;
-    user.setSteamId(STEAM_ID);
+
+    when(accountLinkRepository.existsByUserAndServiceType(user, LinkedServiceType.STEAM)).thenReturn(true);
 
     ApiException exception = assertThrows(ApiException.class, () -> instance.buildSteamLinkUrl(user, TEST_CALLBACK_URL));
     assertThat(exception, hasErrorCode(ErrorCode.STEAM_ID_UNCHANGEABLE));
@@ -461,14 +469,68 @@ public class UserServiceTest {
 
     User user = validUser;
     when(userRepository.findById(5)).thenReturn(Optional.of(user));
-    when(userRepository.findOneBySteamId(STEAM_ID)).thenReturn(Optional.empty());
+    when(accountLinkRepository.findOneByServiceIdAndServiceType(STEAM_ID, LinkedServiceType.STEAM)).thenReturn(Optional.empty());
+    when(accountLinkRepository.existsById(anyString())).thenReturn(false);
 
     CallbackResult result = instance.linkToSteam(TOKEN_VALUE, STEAM_ID);
 
+    ArgumentCaptor<AccountLink> captor = ArgumentCaptor.forClass(AccountLink.class);
+
+    verify(accountLinkRepository).save(captor.capture());
+
+    assertThat(captor.getValue().getServiceId(), is(STEAM_ID));
+    assertThat(captor.getValue().getServiceType(), is(LinkedServiceType.STEAM));
+    assertThat(captor.getValue().getUser(), is(user));
+    assertThat(captor.getValue().getOwnership(), is(true));
+    assertThat(captor.getValue().getPublic(), is(false));
     assertThat(result.callbackUrl(), is(TEST_CALLBACK_URL));
     assertThat(result.errors(), is(empty()));
-    assertThat(user.getSteamId(), is(STEAM_ID));
     verifyNoMoreInteractions(eventPublisher);
+  }
+
+  @Test
+  public void linkToGog() {
+    User user = validUser;
+    when(accountLinkRepository.existsByUserAndServiceType(user, LinkedServiceType.GOG)).thenReturn(false);
+    when(accountLinkRepository.findOneByServiceIdAndServiceType(GOG_USERNAME, LinkedServiceType.GOG)).thenReturn(Optional.empty());
+    when(accountLinkRepository.existsById(anyString())).thenReturn(false);
+
+    instance.linkToGogAccount(GOG_USERNAME, user);
+
+    ArgumentCaptor<AccountLink> captor = ArgumentCaptor.forClass(AccountLink.class);
+
+    verify(accountLinkRepository).save(captor.capture());
+
+    assertThat(captor.getValue().getServiceId(), is(GOG_USERNAME));
+    assertThat(captor.getValue().getServiceType(), is(LinkedServiceType.GOG));
+    assertThat(captor.getValue().getUser(), is(user));
+    assertThat(captor.getValue().getOwnership(), is(true));
+    assertThat(captor.getValue().getPublic(), is(false));
+    verifyNoMoreInteractions(eventPublisher);
+  }
+
+  @Test
+  public void linkToGogAlreadyLinked() {
+    User user = validUser;
+    when(accountLinkRepository.existsByUserAndServiceType(user, LinkedServiceType.GOG)).thenReturn(true);
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.linkToGogAccount(GOG_USERNAME, user));
+    assertThat(exception, hasErrorCode(ErrorCode.GOG_ID_UNCHANGEABLE));
+
+    verifyNoMoreInteractions(accountLinkRepository);
+    verifyNoMoreInteractions(gogService);
+  }
+
+  @Test
+  public void linkToGogLinkedToOtherUser() {
+    User user = validUser;
+    when(accountLinkRepository.existsByUserAndServiceType(user, LinkedServiceType.GOG)).thenReturn(false);
+    when(accountLinkRepository.findOneByServiceIdAndServiceType(GOG_USERNAME, LinkedServiceType.GOG)).thenReturn(Optional.of(new AccountLink()));
+
+    ApiException exception = assertThrows(ApiException.class, () -> instance.linkToGogAccount(GOG_USERNAME, user));
+    assertThat(exception, hasErrorCode(ErrorCode.GOG_ID_ALREADY_LINKED));
+
+    verifyNoMoreInteractions(accountLinkRepository);
   }
 
   @Test
@@ -515,7 +577,9 @@ public class UserServiceTest {
     when(steamService.ownsForgedAlliance(any())).thenReturn(true);
     User otherUser = new User();
     otherUser.setLogin("axel12");
-    when(userRepository.findOneBySteamId(STEAM_ID)).thenReturn(Optional.of(otherUser));
+    AccountLink otherLink = new AccountLink();
+    otherLink.setUser(otherUser);
+    when(accountLinkRepository.findOneByServiceIdAndServiceType(STEAM_ID, LinkedServiceType.STEAM)).thenReturn(Optional.of(otherLink));
 
     when(userRepository.findById(6)).thenReturn(Optional.of(validUser));
 
@@ -527,7 +591,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void testResyncAccount() {
+  public void testReSyncAccount() {
     instance.resynchronizeAccount(validUser);
 
     verify(eventPublisher).publishEvent(any(UserUpdatedEvent.class));

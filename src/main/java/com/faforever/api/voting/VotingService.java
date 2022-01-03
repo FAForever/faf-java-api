@@ -101,9 +101,9 @@ public class VotingService {
       errors.add(new Error(ErrorCode.VOTE_ALREADY_ENDED, subject.getEndOfVoteTime()));
     }
 
-    boolean accountQualifiedBySteamAndAge = player.getSteamId() != null && OffsetDateTime.now().minusYears(ACCOUNT_AGE_YEARS_VOTE_QUALIFIED).isAfter(player.getCreateTime());
+    boolean accountQualifiedByAge = OffsetDateTime.now().minusYears(ACCOUNT_AGE_YEARS_VOTE_QUALIFIED).isAfter(player.getCreateTime());
 
-    if (!accountQualifiedBySteamAndAge && gamesPlayed < subject.getMinGamesToVote()) {
+    if (!accountQualifiedByAge && gamesPlayed < subject.getMinGamesToVote()) {
       errors.add(new Error(ErrorCode.NOT_ENOUGH_GAMES, gamesPlayed, subject.getMinGamesToVote()));
     }
     return errors;

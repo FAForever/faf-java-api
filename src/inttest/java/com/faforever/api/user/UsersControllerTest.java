@@ -3,6 +3,7 @@ package com.faforever.api.user;
 
 import com.faforever.api.AbstractIntegrationTest;
 import com.faforever.api.data.domain.GroupPermission;
+import com.faforever.api.data.domain.LinkedServiceType;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.email.EmailSender;
 import com.faforever.api.error.ErrorCode;
@@ -24,7 +25,6 @@ import static junitx.framework.Assert.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -60,6 +60,9 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Autowired
   private UserRepository userRepository;
+
+  @Autowired
+  private AccountLinkRepository accountLinkRepository;
 
   @Test
   public void registerWithSuccess() throws Exception {
@@ -292,9 +295,10 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void linkToSteam() throws Exception {
-    assertThat(userRepository.getById(1).getSteamId(), nullValue());
-
     String steamId = "12345";
+
+    assertThat(accountLinkRepository.findOneByServiceIdAndServiceType(steamId, LinkedServiceType.STEAM).isEmpty(), is(true));
+
     String callbackUrl = "http://faforever.com";
     String token = fafTokenService.createToken(
       FafTokenType.LINK_TO_STEAM,
@@ -312,15 +316,14 @@ public class UsersControllerTest extends AbstractIntegrationTest {
       .andExpect(status().isFound())
       .andExpect(redirectedUrl(callbackUrl));
 
-    assertThat(userRepository.getById(1).getSteamId(), is(steamId));
+    assertThat(accountLinkRepository.findOneByServiceIdAndServiceType(steamId, LinkedServiceType.STEAM).get().getUser().getId(), is(1));
   }
 
   @Test
   public void linkToSteamAlreadyLinkedAccount() throws Exception {
     String steamId = "1234";
-    assertThat(userRepository.getById(1).getSteamId(), nullValue());
-    User userThatOwnsSteamId = userRepository.getById(2);
-    assertThat(userThatOwnsSteamId.getSteamId(), is(steamId));
+    User userThatOwnsSteamId = accountLinkRepository.findOneByServiceIdAndServiceType(steamId, LinkedServiceType.STEAM).get().getUser();
+    assertThat(userThatOwnsSteamId.getId(), is(2));
 
     String callbackUrl = "http://faforever.com";
     String token = fafTokenService.createToken(
@@ -340,7 +343,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
       .andExpect(redirectedUrlPattern(callbackUrl + "?errors=*" + ErrorCode.STEAM_ID_ALREADY_LINKED.getCode() + "*" + userThatOwnsSteamId.getLogin() + "*"));
     //We expect and error with code STEAM_ID_ALREADY_LINKED and that the error message contains the user that this steam account was linked to already which is MODERATOR with id 2
 
-    assertThat(userRepository.getById(1).getSteamId(), nullValue());
+    assertThat(accountLinkRepository.existsByUserAndServiceType(userRepository.getReferenceById(1), LinkedServiceType.STEAM), is(false));
   }
 
   @Test
@@ -508,7 +511,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void linkToGogWithoutSuccess() throws Exception {
+  public void linkToGogSuccess() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("gogUsername", "someUsername");
 
@@ -519,5 +522,23 @@ public class UsersControllerTest extends AbstractIntegrationTest {
         .with(getOAuthTokenForUserId(USERID_USER, OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().isOk());
+
+    assertThat(accountLinkRepository.existsByUserAndServiceType(userRepository.getReferenceById(1), LinkedServiceType.GOG), is(true));
+  }
+
+  @Test
+  public void linkToGogAlreadyLinked() throws Exception {
+    MultiValueMap<String, String> params = new HttpHeaders();
+    params.add("gogUsername", "username");
+
+    when(gogService.buildGogToken(any())).thenReturn("theToken");
+
+    mockMvc.perform(
+        post("/users/linkToGog")
+          .with(getOAuthTokenForUserId(USERID_USER, OAuthScope._WRITE_ACCOUNT_DATA))
+          .params(params))
+      .andExpect(status().isUnprocessableEntity());
+
+    assertThat(accountLinkRepository.existsByUserAndServiceType(userRepository.getReferenceById(1), LinkedServiceType.GOG), is(false));
   }
 }

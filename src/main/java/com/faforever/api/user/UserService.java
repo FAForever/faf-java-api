@@ -1,8 +1,10 @@
 package com.faforever.api.user;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.data.domain.AccountLink;
 import com.faforever.api.data.domain.GlobalRating;
 import com.faforever.api.data.domain.Ladder1v1Rating;
+import com.faforever.api.data.domain.LinkedServiceType;
 import com.faforever.api.data.domain.NameRecord;
 import com.faforever.api.data.domain.User;
 import com.faforever.api.email.EmailService;
@@ -33,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static com.faforever.api.error.ErrorCode.TOKEN_INVALID;
@@ -57,6 +59,7 @@ public class UserService {
   private final EmailService emailService;
   private final PlayerRepository playerRepository;
   private final UserRepository userRepository;
+  private final AccountLinkRepository accountLinkRepository;
   private final NameRecordRepository nameRecordRepository;
   private final FafApiProperties properties;
   private final FafPasswordEncoder passwordEncoder;
@@ -84,6 +87,7 @@ public class UserService {
   public UserService(EmailService emailService,
                      PlayerRepository playerRepository,
                      UserRepository userRepository,
+                     AccountLinkRepository accountLinkRepository,
                      NameRecordRepository nameRecordRepository,
                      FafApiProperties properties,
                      AnopeUserRepository anopeUserRepository,
@@ -97,6 +101,7 @@ public class UserService {
     this.emailService = emailService;
     this.playerRepository = playerRepository;
     this.userRepository = userRepository;
+    this.accountLinkRepository = accountLinkRepository;
     this.nameRecordRepository = nameRecordRepository;
     this.properties = properties;
     this.anopeUserRepository = anopeUserRepository;
@@ -262,7 +267,7 @@ public class UserService {
     log.info("Changing username for user ''{}'' to ''{}'', forced:''{}''", user.getLogin(), newLogin, force);
     NameRecord nameRecord = new NameRecord()
       .setName(user.getLogin())
-      .setPlayer(playerRepository.getById(user.getId()));
+      .setPlayer(playerRepository.getReferenceById(user.getId()));
     nameRecordRepository.save(nameRecord);
 
     user.setLogin(newLogin);
@@ -342,7 +347,8 @@ public class UserService {
   CallbackResult requestPasswordResetViaSteam(String steamId) {
     log.debug("Preparing password reset request for Steam ID: {}", steamId);
 
-    return userRepository.findOneBySteamId(steamId)
+    return accountLinkRepository.findOneByServiceIdAndServiceType(steamId, LinkedServiceType.STEAM)
+      .map(AccountLink::getUser)
       .map(steamUser -> {
           String token = fafTokenService.createToken(
             FafTokenType.PASSWORD_RESET,
@@ -378,7 +384,7 @@ public class UserService {
 
   public String buildSteamLinkUrl(User user, String callbackUrl) {
     log.debug("Building Steam link url for user id: {}", user.getId());
-    if (user.getSteamId() != null && !Objects.equals(user.getSteamId(), "")) {
+    if (accountLinkRepository.existsByUserAndServiceType(user, LinkedServiceType.STEAM)) {
       log.debug("User with id '{}' already linked to steam", user.getId());
       throw ApiException.of(ErrorCode.STEAM_ID_UNCHANGEABLE);
     }
@@ -413,13 +419,28 @@ public class UserService {
         throw ApiException.of(ErrorCode.STEAM_LINK_NO_FA_GAME);
       }
 
-      userRepository.findOneBySteamId(steamId)
-        .ifPresent(userWithSameId -> {
-          throw ApiException.of(ErrorCode.STEAM_ID_ALREADY_LINKED, userWithSameId.getLogin());
+      accountLinkRepository.findOneByServiceIdAndServiceType(steamId, LinkedServiceType.STEAM)
+        .ifPresent(linkWithSameId -> {
+          if (linkWithSameId.getUser() != null) {
+            throw ApiException.of(ErrorCode.STEAM_ID_ALREADY_LINKED, linkWithSameId.getUser().getLogin());
+          } else {
+            throw ApiException.of(ErrorCode.STEAM_ID_ALREADY_LINKED);
+          }
         });
 
-      user.setSteamId(steamId);
-      userRepository.save(user);
+      String newId = UUID.randomUUID().toString();
+      while (accountLinkRepository.existsById(newId)) {
+        newId = UUID.randomUUID().toString();
+      }
+
+      AccountLink accountLink = new AccountLink()
+        .setId(newId)
+        .setUser(user)
+        .setServiceId(steamId)
+        .setServiceType(LinkedServiceType.STEAM)
+        .setOwnership(true)
+        .setPublic(false);
+      accountLinkRepository.save(accountLink);
     } catch (ApiException e) {
       errors.addAll(Arrays.asList(e.getErrors()));
     }
@@ -438,7 +459,7 @@ public class UserService {
   public void linkToGogAccount(@NotNull String gogUsername, @NotNull User user) {
     log.debug("Verifying and attempting to link user {} to gog account {}", user.getId(), gogUsername);
 
-    if (user.getGogId() != null) {
+    if (accountLinkRepository.existsByUserAndServiceType(user, LinkedServiceType.GOG)) {
       throw ApiException.of(ErrorCode.GOG_ID_UNCHANGEABLE);
     }
 
@@ -446,13 +467,28 @@ public class UserService {
     gogService.verifyProfileToken(gogUsername, user, gogService.buildGogToken(user));
     gogService.verifyGameOwnership(gogUsername);
 
-    userRepository.findOneByGogId(gogUsername)
+    accountLinkRepository.findOneByServiceIdAndServiceType(gogUsername, LinkedServiceType.GOG)
       .ifPresent(userWithSameId -> {
-        throw ApiException.of(ErrorCode.GOG_ID_ALREADY_LINKED, userWithSameId.getLogin());
+        if (userWithSameId.getUser() != null) {
+          throw ApiException.of(ErrorCode.GOG_ID_ALREADY_LINKED, userWithSameId.getUser().getLogin());
+        } else {
+          throw ApiException.of(ErrorCode.GOG_ID_ALREADY_LINKED);
+        }
       });
 
-    user.setGogId(gogUsername);
-    userRepository.save(user);
+    String newId = UUID.randomUUID().toString();
+    while (accountLinkRepository.existsById(newId)) {
+      newId = UUID.randomUUID().toString();
+    }
+
+    AccountLink accountLink = new AccountLink()
+      .setId(newId)
+      .setUser(user)
+      .setServiceId(gogUsername)
+      .setServiceType(LinkedServiceType.GOG)
+      .setOwnership(true)
+      .setPublic(false);
+    accountLinkRepository.save(accountLink);
 
     log.info("Successfully linked user {} to gog account {}", user.getId(), gogUsername);
   }

@@ -60,6 +60,7 @@ public class VotingServiceTest {
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
+    player.setCreateTime(OffsetDateTime.MIN);
 
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
@@ -96,6 +97,7 @@ public class VotingServiceTest {
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
+    player.setCreateTime(OffsetDateTime.MIN);
 
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.of(new Vote()));
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
@@ -137,6 +139,7 @@ public class VotingServiceTest {
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
+    player.setCreateTime(OffsetDateTime.MIN);
 
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
@@ -171,6 +174,7 @@ public class VotingServiceTest {
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
+    player.setCreateTime(OffsetDateTime.MIN);
 
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
@@ -212,6 +216,7 @@ public class VotingServiceTest {
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
+    player.setCreateTime(OffsetDateTime.MIN);
 
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
@@ -252,6 +257,7 @@ public class VotingServiceTest {
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
+    player.setCreateTime(OffsetDateTime.MIN);
 
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
@@ -278,6 +284,7 @@ public class VotingServiceTest {
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
+    player.setCreateTime(OffsetDateTime.now());
 
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
     when(votingSubjectRepository.findById(votingSubject.getId())).thenReturn(Optional.of(votingSubject));
@@ -303,7 +310,6 @@ public class VotingServiceTest {
 
     vote.setVotingSubject(votingSubject);
     Player player = new Player();
-    player.setSteamId("someSteamId");
     player.setCreateTime(OffsetDateTime.now().minus(5, ChronoUnit.YEARS));
 
     when(voteRepository.findByPlayerAndVotingSubjectId(player, votingSubject.getId())).thenReturn(Optional.empty());
