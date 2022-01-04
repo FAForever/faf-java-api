@@ -165,3 +165,10 @@ logging:
     com.faforever: ${LOG_LEVEL:info}
   file:
     path: ${LOG_FILE_DIRECTORY:}
+springdoc:
+  swagger-ui:
+    urls:
+      - url: /elide/docs
+        name: data
+      - url: /v3/api-docs
+        name: custom
