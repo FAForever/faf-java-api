@@ -245,7 +245,7 @@ dependencies {
   implementation("com.yahoo.elide:elide-datastore-multiplex:${elideVersion}")
   implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.6.2")
   implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.1.RELEASE")
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.3")
+  implementation("org.springdoc:springdoc-openapi-ui:1.6.4")
   implementation("org.springdoc:springdoc-openapi-security:1.6.3")
   implementation("com.github.FAForever:faf-java-commons:0e5d22ffff6e4dea81bac494d532627fcca8ebc4")
   implementation("org.kohsuke:github-api:1.301")
