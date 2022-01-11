@@ -1,38 +1,72 @@
 package com.faforever.api.security;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.error.ApiException;
+import com.faforever.api.error.ErrorCode;
+import com.faforever.api.security.crypto.RsaKeyHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.security.jwt.Jwt;
-import org.springframework.security.jwt.JwtHelper;
-import org.springframework.security.jwt.crypto.sign.RsaSigner;
-import org.springframework.security.jwt.crypto.sign.RsaVerifier;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JOSEObjectType;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.Payload;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jose.jwk.RSAKey;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.security.interfaces.RSAPublicKey;
+import java.text.ParseException;
 
 @Service
 public class JwtService {
-  private final RsaSigner rsaSigner;
-  private final RsaVerifier rsaVerifier;
+  private final RSASSASigner rsaSigner;
+  private final RSASSAVerifier rsaVerifier;
   private final ObjectMapper objectMapper;
 
   @Inject
-  public JwtService(FafApiProperties fafApiProperties, ObjectMapper objectMapper) throws IOException {
+  public JwtService(FafApiProperties fafApiProperties, ObjectMapper objectMapper) throws Exception {
     String secretKey = Files.readString(fafApiProperties.getJwt().getSecretKeyPath());
     String publicKey = Files.readString(fafApiProperties.getJwt().getPublicKeyPath());
 
-    this.rsaSigner = new RsaSigner(secretKey);
-    this.rsaVerifier = new RsaVerifier(publicKey);
+    RSAKey parsedSecretKey = (RSAKey) RSAKey.parseFromPEMEncodedObjects(secretKey);
+    RSAPublicKey parsedPublicKey = RsaKeyHelper.parsePublicKey(publicKey.trim());
+
+    this.rsaSigner = new RSASSASigner(parsedSecretKey);
+    this.rsaVerifier = new RSASSAVerifier(parsedPublicKey);
     this.objectMapper = objectMapper;
   }
 
-  public String sign(Object data) throws IOException {
-    return JwtHelper.encode(objectMapper.writeValueAsString(data), this.rsaSigner).getEncoded();
+  public String sign(Object data) throws IOException{
+    JWSObject jwsObject = new JWSObject(
+      new JWSHeader.Builder(JWSAlgorithm.RS256)
+        .type(JOSEObjectType.JWT)
+        .build(),
+      new Payload(objectMapper.writeValueAsString(data))
+    );
+
+    try {
+      jwsObject.sign(rsaSigner);
+    } catch (JOSEException e) {
+      throw new IOException(e);
+    }
+
+    return jwsObject.serialize();
   }
 
-  public Jwt decodeAndVerify(String stringToken) {
-    return JwtHelper.decodeAndVerify(stringToken, this.rsaVerifier);
+  public String decodeAndVerify(String stringToken) throws IOException {
+    try {
+      JWSObject jwsObject = JWSObject.parse(stringToken);
+      if (!jwsObject.verify(rsaVerifier)) {
+        throw ApiException.of(ErrorCode.TOKEN_INVALID);
+      }
+      return jwsObject.getPayload().toString();
+    } catch (ParseException | JOSEException e) {
+      throw new IOException(e);
+    }
   }
 }
