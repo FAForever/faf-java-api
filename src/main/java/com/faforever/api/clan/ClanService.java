@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -94,8 +93,8 @@ public class ClanService {
 
   @SneakyThrows
   void acceptPlayerInvitationToken(String stringToken, Authentication authentication) {
-    Jwt token = jwtService.decodeAndVerify(stringToken);
-    InvitationResult invitation = objectMapper.readValue(token.getClaims(), InvitationResult.class);
+    String decodedToken = jwtService.decodeAndVerify(stringToken);
+    InvitationResult invitation = objectMapper.readValue(decodedToken, InvitationResult.class);
 
     if (invitation.isExpired()) {
       throw new ApiException(new Error(ErrorCode.CLAN_ACCEPT_TOKEN_EXPIRE));

@@ -21,7 +21,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.jwt.Jwt;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -212,11 +211,8 @@ public class ClanServiceTest {
   public void acceptPlayerInvitationTokenExpire() throws IOException {
     String stringToken = "1234";
     long expire = System.currentTimeMillis();
-    Jwt jwtToken = Mockito.mock(Jwt.class);
 
-    when(jwtToken.getClaims()).thenReturn(
-      String.format("{\"expire\":%s}", expire));
-    when(jwtService.decodeAndVerify(any())).thenReturn(jwtToken);
+    when(jwtService.decodeAndVerify(any())).thenReturn(String.format("{\"expire\":%s}", expire));
 
     ApiException result = assertThrows(ApiException.class, () -> instance.acceptPlayerInvitationToken(stringToken, null));
     assertThat(result, hasErrorCode(ErrorCode.CLAN_ACCEPT_TOKEN_EXPIRE));
@@ -229,11 +225,7 @@ public class ClanServiceTest {
     String stringToken = "1234";
 
     long expire = System.currentTimeMillis() + 1000 * 3;
-    Jwt jwtToken = Mockito.mock(Jwt.class);
-
-    when(jwtToken.getClaims()).thenReturn(
-      String.format("{\"expire\":%s,\"clan\":{\"id\":42}}", expire));
-    when(jwtService.decodeAndVerify(any())).thenReturn(jwtToken);
+    when(jwtService.decodeAndVerify(any())).thenReturn(String.format("{\"expire\":%s,\"clan\":{\"id\":42}}", expire));
 
     ApiException result = assertThrows(ApiException.class, () -> instance.acceptPlayerInvitationToken(stringToken, null));
     assertThat(result, hasErrorCode(ErrorCode.CLAN_NOT_EXISTS));
@@ -248,12 +240,9 @@ public class ClanServiceTest {
     Clan clan = ClanFactory.builder().build();
 
     long expire = System.currentTimeMillis() + 1000 * 3;
-    Jwt jwtToken = Mockito.mock(Jwt.class);
-
-    when(jwtToken.getClaims()).thenReturn(
-      String.format("{\"expire\":%s,\"newMember\":{\"id\":2},\"clan\":{\"id\":%s}}",
-        expire, clan.getId()));
-    when(jwtService.decodeAndVerify(any())).thenReturn(jwtToken);
+    String tokenResult = String.format("{\"expire\":%s,\"newMember\":{\"id\":2},\"clan\":{\"id\":%s}}",
+      expire, clan.getId());
+    when(jwtService.decodeAndVerify(any())).thenReturn(tokenResult);
     when(clanRepository.findById(clan.getId())).thenReturn(Optional.of(clan));
 
     ProgrammingError result = assertThrows(ProgrammingError.class, () -> instance.acceptPlayerInvitationToken(stringToken, null));
@@ -275,12 +264,9 @@ public class ClanServiceTest {
     otherPlayer.setId(3);
 
     long expire = System.currentTimeMillis() + 1000 * 3;
-    Jwt jwtToken = Mockito.mock(Jwt.class);
-
-    when(jwtToken.getClaims()).thenReturn(
-      String.format("{\"expire\":%s,\"newMember\":{\"id\":%s},\"clan\":{\"id\":%s}}",
-        expire, newMember.getId(), clan.getId()));
-    when(jwtService.decodeAndVerify(any())).thenReturn(jwtToken);
+    String tokenResult = String.format("{\"expire\":%s,\"newMember\":{\"id\":%s},\"clan\":{\"id\":%s}}",
+      expire, newMember.getId(), clan.getId());
+    when(jwtService.decodeAndVerify(any())).thenReturn(tokenResult);
     when(clanRepository.findById(clan.getId())).thenReturn(Optional.of(clan));
     when(playerRepository.findById(newMember.getId())).thenReturn(Optional.of(newMember));
     when(playerService.getPlayer(any())).thenReturn(otherPlayer);
@@ -302,12 +288,10 @@ public class ClanServiceTest {
     newMember.setClanMembership(new ClanMembership().setClan(clan).setPlayer(newMember));
 
     long expire = System.currentTimeMillis() + 1000 * 3;
-    Jwt jwtToken = Mockito.mock(Jwt.class);
+    String tokenResult = String.format("{\"expire\":%s,\"newMember\":{\"id\":%s},\"clan\":{\"id\":%s}}",
+      expire, newMember.getId(), clan.getId());
 
-    when(jwtToken.getClaims()).thenReturn(
-      String.format("{\"expire\":%s,\"newMember\":{\"id\":%s},\"clan\":{\"id\":%s}}",
-        expire, newMember.getId(), clan.getId()));
-    when(jwtService.decodeAndVerify(any())).thenReturn(jwtToken);
+    when(jwtService.decodeAndVerify(any())).thenReturn(tokenResult);
     when(clanRepository.findById(clan.getId())).thenReturn(Optional.of(clan));
     when(playerRepository.findById(newMember.getId())).thenReturn(Optional.of(newMember));
     when(playerService.getPlayer(any())).thenReturn(newMember);
@@ -325,12 +309,10 @@ public class ClanServiceTest {
     Player newMember = new Player();
     newMember.setId(2);
     long expire = System.currentTimeMillis() + 1000 * 3;
-    Jwt jwtToken = Mockito.mock(Jwt.class);
+    String tokenResult = String.format("{\"expire\":%s,\"newMember\":{\"id\":%s},\"clan\":{\"id\":%s}}",
+      expire, newMember.getId(), clan.getId());
 
-    when(jwtToken.getClaims()).thenReturn(
-        String.format("{\"expire\":%s,\"newMember\":{\"id\":%s},\"clan\":{\"id\":%s}}",
-            expire, newMember.getId(), clan.getId()));
-    when(jwtService.decodeAndVerify(any())).thenReturn(jwtToken);
+    when(jwtService.decodeAndVerify(any())).thenReturn(tokenResult);
     when(clanRepository.findById(clan.getId())).thenReturn(Optional.of(clan));
     when(playerRepository.findById(newMember.getId())).thenReturn(Optional.of(newMember));
     when(playerService.getPlayer(any())).thenReturn(newMember);
