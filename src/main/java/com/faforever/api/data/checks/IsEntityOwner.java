@@ -2,7 +2,6 @@ package com.faforever.api.data.checks;
 
 import com.faforever.api.data.domain.OwnableEntity;
 import com.faforever.api.security.ElideUser;
-import com.faforever.api.security.FafUserDetails;
 import com.yahoo.elide.annotation.SecurityCheck;
 import com.yahoo.elide.core.security.ChangeSpec;
 import com.yahoo.elide.core.security.RequestScope;
@@ -21,7 +20,7 @@ public class IsEntityOwner {
     public boolean ok(OwnableEntity entity, RequestScope requestScope, Optional<ChangeSpec> changeSpec) {
       final ElideUser caller = (ElideUser) requestScope.getUser();
       return entity.getEntityOwner() != null
-        && entity.getEntityOwner().getId().equals(caller.getFafUserDetails().map(FafUserDetails::getId).orElse(null));
+        && entity.getEntityOwner().getId().equals(caller.getFafId().orElse(null));
     }
   }
 }

@@ -12,10 +12,10 @@ import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.rating.GlobalRatingRepository;
 import com.faforever.api.rating.Ladder1v1RatingRepository;
+import com.faforever.api.security.FafAuthenticationToken;
 import com.faforever.api.security.FafPasswordEncoder;
 import com.faforever.api.security.FafTokenService;
 import com.faforever.api.security.FafTokenType;
-import com.faforever.api.security.FafUserDetails;
 import com.google.common.hash.Hashing;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -253,7 +253,7 @@ public class UserService {
     log.info("Changing username for user ''{}'' to ''{}'', forced:''{}''", user.getLogin(), newLogin, force);
     NameRecord nameRecord = new NameRecord()
       .setName(user.getLogin())
-      .setPlayer(playerRepository.getOne(user.getId()));
+      .setPlayer(playerRepository.getById(user.getId()));
     nameRecordRepository.save(nameRecord);
 
     user.setLogin(newLogin);
@@ -355,10 +355,8 @@ public class UserService {
   }
 
   public User getUser(Authentication authentication) {
-    if (authentication != null
-      && authentication.getPrincipal() != null
-      && authentication.getPrincipal() instanceof FafUserDetails) {
-      return getUser(((FafUserDetails) authentication.getPrincipal()).getId());
+    if (authentication instanceof FafAuthenticationToken fafAuthenticationToken) {
+      return getUser(fafAuthenticationToken.getUserId());
     }
     throw ApiException.of(TOKEN_INVALID);
   }

@@ -43,7 +43,7 @@ class LeaderboardElideTest extends LeagueAbstractIntegrationTest {
   void noOneCanCreateLeaderboard() throws Exception {
     mockMvc.perform(
       post("/data/leagueLeaderboard")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content("""
           {
@@ -64,7 +64,7 @@ class LeaderboardElideTest extends LeagueAbstractIntegrationTest {
   void noOneCanUpdateLeaderboard() throws Exception {
     mockMvc.perform(
       patch("/data/leagueLeaderboard/1")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content("""
           {
@@ -85,7 +85,7 @@ class LeaderboardElideTest extends LeagueAbstractIntegrationTest {
   void noOneCanDeleteLeaderboard() throws Exception {
     mockMvc.perform(
       delete("/data/leagueLeaderboard/1")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isForbidden());
   }
 }

@@ -1,6 +1,7 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
 DELETE FROM `avatars_list`;
+DELETE FROM `avatars`;
 DELETE FROM `ban`;
 DELETE FROM `clan`;
 DELETE FROM `clan_membership`;

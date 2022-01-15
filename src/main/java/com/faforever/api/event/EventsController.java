@@ -27,7 +27,7 @@ public class EventsController {
   private final EventsService eventsService;
 
   @ApiOperation(value = "Updates the state and progress of one or multiple events.")
-  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_EVENTS + "')")
+  @PreAuthorize("hasScope('" + OAuthScope._WRITE_EVENTS + "')")
   @RequestMapping(value = "/update", method = RequestMethod.PATCH, produces = JsonApiMediaType.JSON_API_MEDIA_TYPE)
   public JsonApiDocument update(@RequestBody List<@Valid EventUpdateRequest> updateRequests) {
     return new JsonApiDocument(new Data<>(updateRequests.stream()

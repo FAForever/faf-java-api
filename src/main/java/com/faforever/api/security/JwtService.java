@@ -3,7 +3,7 @@ package com.faforever.api.security;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ErrorCode;
-import com.faforever.api.security.crypto.RsaKeyHelper;
+import com.faforever.api.security.crypto.CertificateUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;
@@ -34,7 +34,7 @@ public class JwtService {
     String publicKey = Files.readString(fafApiProperties.getJwt().getPublicKeyPath());
 
     RSAKey parsedSecretKey = (RSAKey) RSAKey.parseFromPEMEncodedObjects(secretKey);
-    RSAPublicKey parsedPublicKey = RsaKeyHelper.parsePublicKey(publicKey.trim());
+    RSAPublicKey parsedPublicKey = CertificateUtils.parseSSHPublicKey(publicKey);
 
     this.rsaSigner = new RSASSASigner(parsedSecretKey);
     this.rsaVerifier = new RSASSAVerifier(parsedPublicKey);

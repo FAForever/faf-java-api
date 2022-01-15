@@ -20,7 +20,7 @@ public class TeamkillTest extends AbstractIntegrationTest {
   @Test
   public void emptyResultTeamkillsWithoutScope() throws Exception {
     mockMvc.perform(get("/data/teamkill")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_READ_TEAMKILL_REPORT)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_READ_TEAMKILL_REPORT)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(0)));
   }
@@ -28,7 +28,7 @@ public class TeamkillTest extends AbstractIntegrationTest {
   @Test
   public void emptyResultTeamkillsWithoutRole() throws Exception {
     mockMvc.perform(get("/data/teamkill")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(0)));
   }
@@ -36,7 +36,7 @@ public class TeamkillTest extends AbstractIntegrationTest {
   @Test
   public void canReadTeamkillsWithScopeAndRole() throws Exception {
     mockMvc.perform(get("/data/teamkill")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_READ_TEAMKILL_REPORT)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_READ_TEAMKILL_REPORT)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(1)));
   }
@@ -44,21 +44,21 @@ public class TeamkillTest extends AbstractIntegrationTest {
   @Test
   public void cannotReadSpecificTeamkillWithoutScope() throws Exception {
     mockMvc.perform(get("/data/teamkill/1")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_READ_TEAMKILL_REPORT)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_READ_TEAMKILL_REPORT)))
       .andExpect(status().isForbidden());
   }
 
   @Test
   public void cannotReadSpecificTeamkillWithoutRole() throws Exception {
     mockMvc.perform(get("/data/teamkill/1")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES)))
       .andExpect(status().isForbidden());
   }
 
   @Test
   public void canReadSpecificTeamkillWithScopeAndRole() throws Exception {
     mockMvc.perform(get("/data/teamkill/1")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_READ_TEAMKILL_REPORT)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_READ_TEAMKILL_REPORT)))
       .andExpect(status().isOk());
   }
 }

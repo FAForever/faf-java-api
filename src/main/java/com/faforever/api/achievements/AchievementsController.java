@@ -27,7 +27,7 @@ public class AchievementsController {
   private final AtomicInteger nextUpdateId = new AtomicInteger();
 
   @ApiOperation(value = "Updates the state and progress of one or multiple achievements.")
-  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACHIEVEMENTS + "')")
+  @PreAuthorize("hasScope('" + OAuthScope._WRITE_ACHIEVEMENTS + "')")
   @RequestMapping(value = "/update", method = RequestMethod.PATCH, produces = JsonApiMediaType.JSON_API_MEDIA_TYPE)
   public JsonApiDocument update(@RequestBody AchievementUpdateRequest[] updateRequests) {
     return new JsonApiDocument(new Data<>(Arrays.stream(updateRequests)

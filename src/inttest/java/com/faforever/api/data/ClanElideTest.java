@@ -11,7 +11,6 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
@@ -37,7 +36,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepClanData.sql")
 public class ClanElideTest extends AbstractIntegrationTest {
   private static final String AUTH_CLAN_LEADER = "CLAN_LEADER";
+  private static final int USERID_CLAN_LEADER = 11;
+  private static final int USERID_CLAN_MEMBER = 12;
   private static final String AUTH_CLAN_MEMBER = "CLAN_MEMBER";
+
 
   @Autowired
   PlayerRepository playerRepository;
@@ -45,51 +47,51 @@ public class ClanElideTest extends AbstractIntegrationTest {
   ClanRepository clanRepository;
 
   @Test
-  @WithUserDetails(AUTH_CLAN_LEADER)
   public void canDeleteMemberOfOwnClan() throws Exception {
-    assertNotNull(playerRepository.getOne(12).getClan());
+    assertNotNull(playerRepository.getById(USERID_CLAN_MEMBER).getClan());
 
     mockMvc.perform(
-      delete("/data/clanMembership/2")) // magic value from prepClanData.sql
+        delete("/data/clanMembership/2") // magic value from prepClanData.sql
+          .with(getOAuthTokenForUserId(USERID_CLAN_LEADER)))
       .andExpect(status().isNoContent());
-    assertNull(playerRepository.getOne(12).getClan());
+    assertNull(playerRepository.getById(USERID_CLAN_MEMBER).getClan());
   }
 
   @Test
-  @WithUserDetails(AUTH_CLAN_LEADER)
   public void cannotDeleteMemberOfOtherClan() throws Exception {
     mockMvc.perform(
-      delete("/data/clanMembership/4")) // magic value from prepClanData.sql
+        delete("/data/clanMembership/4") // magic value from prepClanData.sql
+          .with(getOAuthTokenForUserId(USERID_CLAN_LEADER)))
       .andExpect(status().isForbidden())
       .andExpect(jsonPath("$.errors[0].detail", is("DeletePermission Denied")));
   }
 
   @Test
-  @WithUserDetails(AUTH_CLAN_LEADER)
   public void cannotDeleteLeaderFromClan() throws Exception {
     mockMvc.perform(
-      delete("/data/clanMembership/1")) // magic value from prepClanData.sql
+        delete("/data/clanMembership/1") // magic value from prepClanData.sql
+          .with(getOAuthTokenForUserId(USERID_CLAN_LEADER)))
       .andExpect(status().isForbidden())
       .andExpect(jsonPath("$.errors[0].detail", is("DeletePermission Denied")));
   }
 
   @Test
-  @WithUserDetails(AUTH_CLAN_MEMBER)
   public void canLeaveClan() throws Exception {
-    assertNotNull(playerRepository.getOne(12).getClan());
+    assertNotNull(playerRepository.getById(USERID_CLAN_MEMBER).getClan());
 
     mockMvc.perform(
-      delete("/data/clanMembership/2")) // magic value from prepClanData.sql
+        delete("/data/clanMembership/2") // magic value from prepClanData.sql
+          .with(getOAuthTokenForUserId(USERID_CLAN_MEMBER)))
       .andExpect(status().isNoContent());
 
-    assertNull(playerRepository.getOne(12).getClan());
+    assertNull(playerRepository.getById(USERID_CLAN_MEMBER).getClan());
   }
 
   @Test
-  @WithUserDetails(AUTH_CLAN_MEMBER)
   public void cannotDeleteAsMember() throws Exception {
     mockMvc.perform(
-      delete("/data/clanMembership/3")) // magic value from prepClanData.sql
+        delete("/data/clanMembership/3") // magic value from prepClanData.sql
+          .with(getOAuthTokenForUserId(USERID_CLAN_MEMBER)))
       .andExpect(status().isForbidden())
       .andExpect(jsonPath("$.errors[0].detail", is("DeletePermission Denied")));
   }
@@ -104,41 +106,41 @@ public class ClanElideTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_CLAN_LEADER)
   public void canTransferLeadershipAsLeader() throws Exception {
-    assertThat(clanRepository.getOne(1).getLeader().getLogin(), is(AUTH_CLAN_LEADER));
+    assertThat(clanRepository.getById(1).getLeader().getLogin(), is(AUTH_CLAN_LEADER));
 
     mockMvc.perform(
-      patch("/data/clan/1")
-        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
-        .content(generateTransferLeadershipContent(1, 12))) // magic value from prepClanData.sql
+        patch("/data/clan/1")
+          .with(getOAuthTokenForUserId(USERID_CLAN_LEADER))
+          .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
+          .content(generateTransferLeadershipContent(1, USERID_CLAN_MEMBER))) // magic value from prepClanData.sql
       .andExpect(status().isNoContent());
 
-    assertThat(clanRepository.getOne(1).getLeader().getLogin(), is(AUTH_CLAN_MEMBER));
+    assertThat(clanRepository.getById(1).getLeader().getLogin(), is(AUTH_CLAN_MEMBER));
   }
 
   @Test
-  @WithUserDetails(AUTH_CLAN_MEMBER)
   public void cannotTransferLeadershipAsMember() throws Exception {
-    assertThat(clanRepository.getOne(1).getLeader().getLogin(), is(AUTH_CLAN_LEADER));
+    assertThat(clanRepository.getById(1).getLeader().getLogin(), is(AUTH_CLAN_LEADER));
 
     mockMvc.perform(
-      patch("/data/clan/1")
-        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
-        .content(generateTransferLeadershipContent(1, 12))) // magic value from prepClanData.sql
+        patch("/data/clan/1")
+          .with(getOAuthTokenForUserId(USERID_CLAN_MEMBER))
+          .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
+          .content(generateTransferLeadershipContent(1, USERID_CLAN_MEMBER))) // magic value from prepClanData.sql
       .andExpect(status().isForbidden())
       .andExpect(jsonPath("$.errors[0].detail", is("UpdatePermission Denied")));
 
-    assertThat(clanRepository.getOne(1).getLeader().getLogin(), is(AUTH_CLAN_LEADER));
+    assertThat(clanRepository.getById(1).getLeader().getLogin(), is(AUTH_CLAN_LEADER));
   }
 
   @Test
-  @WithUserDetails(AUTH_CLAN_LEADER)
   public void cannotTransferLeadershipToNonClanMember() throws Exception {
     mockMvc.perform(
-      patch("/data/clan/1")
-        .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
-        .content(generateTransferLeadershipContent(1, 1))) // magic value from prepClanData.sql
+        patch("/data/clan/1")
+          .with(getOAuthTokenForUserId(USERID_CLAN_LEADER))
+          .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
+          .content(generateTransferLeadershipContent(1, 1))) // magic value from prepClanData.sql
       .andExpect(status().is4xxClientError()); // TODO: Catch javax.validation.ConstraintViolationException and wrap it into a regular ApiException
   }
 
@@ -163,7 +165,6 @@ public class ClanElideTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_CLAN_LEADER)
   public void canDeleteClanAsLeader() throws Exception {
     Clan clan = clanRepository.findOneByName("Alpha Clan")
       .orElseThrow(() -> new IllegalStateException("Alpha Clan could not be found"));
@@ -174,14 +175,14 @@ public class ClanElideTest extends AbstractIntegrationTest {
       .forEach(clanMember::add);
 
     mockMvc.perform(
-      delete("/data/clan/1"))
+        delete("/data/clan/1")
+          .with(getOAuthTokenForUserId(USERID_CLAN_LEADER)))
       .andExpect(status().isNoContent()); // TODO: Catch javax.validation.ConstraintViolationException and wrap it into a regular ApiException
 
     assertFalse(clanRepository.findOneByName("Alpha Clan").isPresent());
   }
 
   @Test
-  @WithUserDetails(AUTH_CLAN_MEMBER)
   public void cannotDeleteClanAsMember() throws Exception {
     Optional<Clan> clanOptional = clanRepository.findOneByName("Alpha Clan");
     assertTrue(clanOptional.isPresent());
@@ -192,7 +193,8 @@ public class ClanElideTest extends AbstractIntegrationTest {
       .forEach(clanMember::add);
 
     mockMvc.perform(
-      delete("/data/clan/1"))
+        delete("/data/clan/1")
+          .with(getOAuthTokenForUserId(USERID_CLAN_MEMBER)))
       .andExpect(status().isForbidden())
       .andExpect(jsonPath("$.errors[0].detail", is("DeletePermission Denied")));
 

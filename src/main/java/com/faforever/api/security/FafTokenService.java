@@ -3,7 +3,7 @@ package com.faforever.api.security;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ErrorCode;
-import com.faforever.api.security.crypto.RsaKeyHelper;
+import com.faforever.api.security.crypto.CertificateUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,10 +12,11 @@ import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSObject;
-import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -46,7 +47,7 @@ public class FafTokenService {
     String publicKey = Files.readString(properties.getJwt().getPublicKeyPath());
 
     RSAKey parsedSecretKey = (RSAKey) RSAKey.parseFromPEMEncodedObjects(secretKey);
-    RSAPublicKey parsedPublicKey = RsaKeyHelper.parsePublicKey(publicKey.trim());
+    RSAPublicKey parsedPublicKey = CertificateUtils.parseSSHPublicKey(publicKey);
 
     this.rsaSigner = new RSASSASigner(parsedSecretKey);
     this.rsaVerifier = new RSASSAVerifier(parsedPublicKey);
@@ -64,27 +65,28 @@ public class FafTokenService {
     Assert.isTrue(!attributes.containsKey(KEY_ACTION), MessageFormat.format("'{0}' is a protected attributed and must not be used", KEY_ACTION));
     Assert.isTrue(!attributes.containsKey(KEY_LIFETIME), MessageFormat.format("'{0}' is a protected attributed and must not be used", KEY_LIFETIME));
 
-    Map<String, String> claims = new HashMap<>(attributes);
-    claims.put(KEY_ACTION, type.toString());
     Instant expiresAt = Instant.now().plus(lifetime);
-    claims.put(KEY_LIFETIME, expiresAt.toString());
+    JWTClaimsSet.Builder claimBuilder = new JWTClaimsSet.Builder()
+      .claim(KEY_ACTION, type.toString())
+      .claim(KEY_LIFETIME, expiresAt.toString());
+
+    attributes.forEach(claimBuilder::claim);
 
     log.debug("Creating token of type '{}' expiring at '{}' with attributes: {}", type, expiresAt, attributes);
 
-    return signJwt(claims);
+    return signJwt(claimBuilder.build());
   }
 
-  private String signJwt(Object data) throws Exception {
-    JWSObject jwsObject = new JWSObject(
-      new JWSHeader.Builder(JWSAlgorithm.RS256)
-        .type(JOSEObjectType.JWT)
-        .build(),
-      new Payload(objectMapper.writeValueAsString(data))
+  private String signJwt(JWTClaimsSet data) throws Exception {
+    SignedJWT signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256)
+      .type(JOSEObjectType.JWT)
+      .build(),
+      data
     );
 
-    jwsObject.sign(rsaSigner);
+    signedJWT.sign(rsaSigner);
 
-    return jwsObject.serialize();
+    return signedJWT.serialize();
   }
 
   /**

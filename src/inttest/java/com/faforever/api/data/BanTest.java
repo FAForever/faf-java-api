@@ -62,28 +62,28 @@ public class BanTest extends AbstractIntegrationTest {
   @Test
   public void cannotReadSpecificBanWithoutScope() throws Exception {
     mockMvc.perform(get("/data/banInfo/1")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, ROLE_ADMIN_ACCOUNT_BAN)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, ROLE_ADMIN_ACCOUNT_BAN)))
       .andExpect(status().isForbidden());
   }
 
   @Test
   public void cannotReadSpecificBanWithoutRole() throws Exception {
     mockMvc.perform(get("/data/banInfo/1")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES)))
       .andExpect(status().isForbidden());
   }
 
   @Test
   public void canReadSpecificBanWithScopeAndRole() throws Exception {
     mockMvc.perform(get("/data/banInfo/1")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN)))
       .andExpect(status().isOk());
   }
 
   @Test
   public void canReadBansWithoutScope() throws Exception {
     mockMvc.perform(get("/data/banInfo")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, ROLE_ADMIN_ACCOUNT_BAN)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, ROLE_ADMIN_ACCOUNT_BAN)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(0)));
   }
@@ -91,7 +91,7 @@ public class BanTest extends AbstractIntegrationTest {
   @Test
   public void canReadBansWithoutRole() throws Exception {
     mockMvc.perform(get("/data/banInfo")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(0)));
   }
@@ -99,7 +99,7 @@ public class BanTest extends AbstractIntegrationTest {
   @Test
   public void canReadBansWithScopeAndRole() throws Exception {
     mockMvc.perform(get("/data/banInfo")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(3)));
   }
@@ -107,7 +107,7 @@ public class BanTest extends AbstractIntegrationTest {
   @Test
   public void cannotCreateBanWithoutScope() throws Exception {
     mockMvc.perform(post("/data/banInfo")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, ROLE_ADMIN_ACCOUNT_BAN))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, ROLE_ADMIN_ACCOUNT_BAN))
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isForbidden());
@@ -116,7 +116,7 @@ public class BanTest extends AbstractIntegrationTest {
   @Test
   public void cannotCreateBanWithoutRole() throws Exception {
     mockMvc.perform(post("/data/banInfo")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isForbidden());
@@ -125,7 +125,7 @@ public class BanTest extends AbstractIntegrationTest {
   @Test
   public void canCreateBanWithScopeAndRole() throws Exception {
     mockMvc.perform(post("/data/banInfo")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN))
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isCreated());
@@ -138,13 +138,13 @@ public class BanTest extends AbstractIntegrationTest {
       .setRevokeTime(OffsetDateTime.now())
       .setId("3");
     mockMvc.perform(patch("/data/banInfo/3")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN))
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(createJsonApiContent(banToRevoke)))
       .andExpect(status().isNoContent());
     mockMvc.perform(
       get("/data/banInfo/3")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN)))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN)))
       .andExpect(jsonPath("$.data.attributes.revokeReason", Matchers.is("Revoke reason")))
       .andExpect(jsonPath("$.data.relationships.revokeAuthor.data.id", Matchers.is("5")));
   }
@@ -160,7 +160,7 @@ public class BanTest extends AbstractIntegrationTest {
 
     mockMvc.perform(post("/data/banInfo")
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN))
       .content(createJsonApiContent(ban)))
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.data.relationships.player.data.id", is("3")));

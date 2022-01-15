@@ -53,7 +53,7 @@ public class ModElideTest extends AbstractIntegrationTest {
   @Test
   public void canReadModWithoutScopeAndRole() throws Exception {
     mockMvc.perform(get("/data/mod")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(2)));
   }
@@ -62,59 +62,59 @@ public class ModElideTest extends AbstractIntegrationTest {
   public void canUpdateModRecommendationToTrueWithScopeAndRole() throws Exception {
     mockMvc.perform(
       patch("/data/mod/1")
-        .with(getOAuthTokenWithTestUser(OAuthScope._MANAGE_VAULT, GroupPermission.ROLE_ADMIN_MOD))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._MANAGE_VAULT, GroupPermission.ROLE_ADMIN_MOD))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         // update recommended to true requires the vault permission, thus we test it here for the success case
         .content(MOD_RECOMMENDED_TRUE_ID_1))
       .andExpect(status().isNoContent());
 
-    assertThat(modRepository.getOne(1).getRecommended(), is(true));
+    assertThat(modRepository.getById(1).getRecommended(), is(true));
   }
 
   @Test
   public void cannotUpdateModRecommendationToTrueWithoutScope() throws Exception {
     mockMvc.perform(
       patch("/data/mod/1")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_MOD))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_MOD))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         // update recommended to true requires the vault permission, thus we test it here for the failing case
         .content(MOD_RECOMMENDED_TRUE_ID_1))
       .andExpect(status().isForbidden());
 
-    assertThat(modRepository.getOne(1).getRecommended(), is(false));
+    assertThat(modRepository.getById(1).getRecommended(), is(false));
   }
 
   @Test
   public void cannotUpdateModRecommendationToTrueWithoutRole() throws Exception {
     mockMvc.perform(
       patch("/data/mod/1")
-        .with(getOAuthTokenWithTestUser(OAuthScope._MANAGE_VAULT, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._MANAGE_VAULT, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         // update recommended to true requires the vault permission, thus we test it here for the failing case
         .content(MOD_RECOMMENDED_TRUE_ID_1))
       .andExpect(status().isForbidden());
 
-    assertThat(modRepository.getOne(1).getRecommended(), is(false));
+    assertThat(modRepository.getById(1).getRecommended(), is(false));
   }
 
   @Test
   public void canUpdateModRecommendationToFalseWithScopeAndRole() throws Exception {
     mockMvc.perform(
       patch("/data/mod/1")
-        .with(getOAuthTokenWithTestUser(OAuthScope._MANAGE_VAULT, GroupPermission.ROLE_ADMIN_MOD))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._MANAGE_VAULT, GroupPermission.ROLE_ADMIN_MOD))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         // update recommended to false requires the vault permission, thus we test it here for the success case
         .content(MOD_RECOMMENDED_FALSE_ID_1))
       .andExpect(status().isNoContent());
 
-    assertThat(modRepository.getOne(1).getRecommended(), is(false));
+    assertThat(modRepository.getById(1).getRecommended(), is(false));
   }
 
   @Test
   public void cannotUpdateModRecommendationToFalseWithoutScope() throws Exception {
     mockMvc.perform(
       patch("/data/mod/1")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_MOD))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_MOD))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         // update recommended to false requires the vault permission, thus we test it here for the failing case
         .content(MOD_RECOMMENDED_FALSE_ID_1))
@@ -125,7 +125,7 @@ public class ModElideTest extends AbstractIntegrationTest {
   public void cannotUpdateModRecommendationToFalseWithoutRole() throws Exception {
     mockMvc.perform(
       patch("/data/mod/1")
-        .with(getOAuthTokenWithTestUser(OAuthScope._MANAGE_VAULT, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._MANAGE_VAULT, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         // update recommended to false requires the vault permission, thus we test it here for the failing case
         .content(MOD_RECOMMENDED_FALSE_ID_1))

@@ -54,10 +54,6 @@ public class FafApiProperties {
      */
     private Path secretKeyPath;
     private Path publicKeyPath;
-    private int accessTokenValiditySeconds = 3600;
-    private int refreshTokenValiditySeconds = 3600;
-    private String fafHydraJwksUrl;
-    private String fafHydraIssuer;
   }
 
   @Data

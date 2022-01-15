@@ -47,7 +47,7 @@ class LeagueElideTest extends LeagueAbstractIntegrationTest {
   void noOneCanCreateLeague() throws Exception {
     mockMvc.perform(
       post("/data/league")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content("""
           {
@@ -70,7 +70,7 @@ class LeagueElideTest extends LeagueAbstractIntegrationTest {
   void noOneCanUpdateLeague() throws Exception {
     mockMvc.perform(
       patch("/data/league/1")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content("""
           {
@@ -91,7 +91,7 @@ class LeagueElideTest extends LeagueAbstractIntegrationTest {
   void noOneCanDeleteLeague() throws Exception {
     mockMvc.perform(
       delete("/data/league/1")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isForbidden());
   }
 }

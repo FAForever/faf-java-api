@@ -28,7 +28,7 @@ public class PlayerElideTest extends AbstractIntegrationTest {
   @Test
   public void restrictedResultWithoutScope() throws Exception {
     mockMvc.perform(get("/data/player")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(5)))
       .andExpect(jsonPath("$.data[0].attributes.login", is("USER")))
@@ -72,12 +72,12 @@ public class PlayerElideTest extends AbstractIntegrationTest {
 
 
     mockMvc.perform(get("/data/player?filter=email==active-user@faforever.com")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(1)));
 
     mockMvc.perform(get("/data/player?filter=email==user@faforever.com")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(0)));
   }
@@ -85,7 +85,7 @@ public class PlayerElideTest extends AbstractIntegrationTest {
   @Test
   public void restrictedResultWithoutRole() throws Exception {
     mockMvc.perform(get("/data/player")
-      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._READ_SENSIBLE_USERDATA, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(5)))
       .andExpect(jsonPath("$.data[0].attributes.login", is("USER")))
@@ -131,12 +131,12 @@ public class PlayerElideTest extends AbstractIntegrationTest {
 
 
     mockMvc.perform(get("/data/player?filter=email==active-user@faforever.com")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(1)));
 
     mockMvc.perform(get("/data/player?filter=email==user@faforever.com")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(0)));
   }
@@ -144,7 +144,7 @@ public class PlayerElideTest extends AbstractIntegrationTest {
   @Test
   public void canSeePrivateDetailsWithScopeAndRole() throws Exception {
     mockMvc.perform(get("/data/player")
-      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(5)))
       .andExpect(jsonPath("$.data[0].attributes.login", is("USER")))
@@ -195,12 +195,12 @@ public class PlayerElideTest extends AbstractIntegrationTest {
       .andExpect(jsonPath("$.data[4].attributes", not(hasKey("password"))));
 
     mockMvc.perform(get("/data/player?filter=email==active-user@faforever.com")
-      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(1)));
 
     mockMvc.perform(get("/data/player?filter=email==user@faforever.com")
-      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(1)));
   }

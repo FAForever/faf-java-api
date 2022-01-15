@@ -62,7 +62,7 @@ public class UsersController {
     userService.activate(registrationToken, password, RemoteAddressUtil.getRemoteAddress(request));
   }
 
-  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
+  @PreAuthorize("hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
   @ApiOperation("Changes the password of a previously registered account.")
   @PostMapping(path = "/changePassword", produces = APPLICATION_JSON_VALUE)
   public void changePassword(@RequestParam("currentPassword") String currentPassword,
@@ -71,7 +71,7 @@ public class UsersController {
     userService.changePassword(currentPassword, newPassword, userService.getUser(authentication));
   }
 
-  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
+  @PreAuthorize("hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
   @ApiOperation("Changes the login of a previously registered account.")
   @PostMapping(path = "/changeUsername", produces = APPLICATION_JSON_VALUE)
   public void changeLogin(HttpServletRequest request,
@@ -83,7 +83,7 @@ public class UsersController {
       RemoteAddressUtil.getRemoteAddress(request));
   }
 
-  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._ADMINISTRATIVE_ACTION + "') and hasAnyRole('ROLE_ADMIN_ACCOUNT_NAME_CHANGE')")
+  @PreAuthorize("hasScope('" + OAuthScope._ADMINISTRATIVE_ACTION + "') and hasAnyRole('ROLE_ADMIN_ACCOUNT_NAME_CHANGE')")
   @ApiOperation("Force the change of the login of a user with the given userId.")
   @PostMapping(path = "/{userId}/forceChangeUsername", produces = APPLICATION_JSON_VALUE)
   public void forceChangeLogin(HttpServletRequest request,
@@ -93,7 +93,7 @@ public class UsersController {
     userService.changeLoginForced(newUsername, user, RemoteAddressUtil.getRemoteAddress(request));
   }
 
-  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
+  @PreAuthorize("hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
   @ApiOperation("Changes the email of a previously registered account.")
   @PostMapping(path = "/changeEmail", produces = APPLICATION_JSON_VALUE)
   public void changeEmail(HttpServletRequest request,
@@ -124,7 +124,7 @@ public class UsersController {
     userService.performPasswordReset(token, newPassword);
   }
 
-  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
+  @PreAuthorize("hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
   @ApiOperation("Creates an URL to the steam platform to initiate the Link To Steam process.")
   @PostMapping(path = "/buildSteamLinkUrl", produces = APPLICATION_JSON_VALUE)
   public Map<String, Serializable> buildSteamLinkUrl(Authentication authentication,
@@ -160,14 +160,14 @@ public class UsersController {
     redirectCallbackResult(response, result);
   }
 
-  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
+  @PreAuthorize("hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
   @ApiOperation("Trigger resynchronisation of the users account with all related systems.")
   @PostMapping(path = "/resyncAccount", produces = APPLICATION_JSON_VALUE)
   public void resynchronizeAccount(Authentication authentication) {
     userService.resynchronizeAccount(userService.getUser(authentication));
   }
 
-  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
+  @PreAuthorize("hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
   @ApiOperation("Build the authorization token used for linking to a GOG account.")
   @GetMapping(path = "/buildGogProfileToken", produces = APPLICATION_JSON_VALUE)
   public Map<String, Serializable> buildGogProfileToken(Authentication authentication) {
@@ -175,7 +175,7 @@ public class UsersController {
     return Map.of("gogToken", gogToken);
   }
 
-  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
+  @PreAuthorize("hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
   @ApiOperation("Attempt to link a GOG account to this account.")
   @PostMapping(path = "/linkToGog", produces = APPLICATION_JSON_VALUE)
   public void linkToGog(@RequestParam("gogUsername") String gogUsername,

@@ -16,9 +16,9 @@ public class ModerationReportHook implements LifeCycleHook<ModerationReport> {
   @Override
   public void execute(Operation operation, TransactionPhase phase, ModerationReport moderationReport, RequestScope requestScope, Optional<ChangeSpec> changes) {
     final ElideUser caller = (ElideUser) requestScope.getUser();
-    final Player callerPlayer = caller.getFafUserDetails().map(fafUserDetails -> {
+    final Player callerPlayer = caller.getFafId().map(fafId -> {
       final Player player = new Player();
-      player.setId(fafUserDetails.getId());
+      player.setId(fafId);
       return player;
     }).orElse(null);
     if (operation == Operation.CREATE) {

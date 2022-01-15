@@ -78,7 +78,7 @@ public class MapsController {
     @ApiResponse(code = 401, message = "Unauthorized"),
     @ApiResponse(code = 500, message = "Failure")})
   @RequestMapping(path = "/upload", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
-  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._UPLOAD_MAP + "')")
+  @PreAuthorize("hasScope('" + OAuthScope._UPLOAD_MAP + "')")
   public void uploadMap(@RequestParam("file") MultipartFile file,
                         @RequestParam("metadata") String jsonString,
                         Authentication authentication) throws IOException {

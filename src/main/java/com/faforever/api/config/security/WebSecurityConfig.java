@@ -1,49 +1,28 @@
 package com.faforever.api.config.security;
 
+import com.faforever.api.security.FafAuthenticationConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.LockedException;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 @Configuration
-@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-
-  @Inject
-  public void prodUserDetails(AuthenticationManagerBuilder auth, UserDetailsService userDetailsService) throws Exception {
-    // TODO: Use a proper, backward-compatible password encryption
-
-    auth
-      .userDetailsService(userDetailsService)
-      .passwordEncoder(new MessageDigestPasswordEncoder("SHA-256"));
-  }
-
-  @Bean
-  @Override
-  public AuthenticationManager authenticationManagerBean() throws Exception {
-    return super.authenticationManagerBean();
-  }
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
@@ -63,9 +42,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         })
         .and().headers()
         .cacheControl().disable()
-        .and().formLogin()
-          .loginPage("/login").permitAll()
-          .failureHandler(authenticationFailureHandler())
+        .and().formLogin().disable()
+        .oauth2ResourceServer()
+          .jwt()
+          .jwtAuthenticationConverter(new FafAuthenticationConverter())
+          .and()
         .and().authorizeRequests()
           .antMatchers(HttpMethod.OPTIONS).permitAll()
           // Swagger UI

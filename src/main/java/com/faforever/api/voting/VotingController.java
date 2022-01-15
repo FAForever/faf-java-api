@@ -29,7 +29,7 @@ public class VotingController {
   private final PlayerService playerService;
 
   @ApiOperation(value = "Post a vote")
-  @PreAuthorize("#oauth2.hasScope('" + OAuthScope._VOTE + "')")
+  @PreAuthorize("hasScope('" + OAuthScope._VOTE + "')")
   @RequestMapping(path = "/vote", method = RequestMethod.POST, produces = JsonApiMediaType.JSON_API_MEDIA_TYPE)
   public void postVote(@RequestBody Vote vote, Authentication authentication) {
     votingService.saveVote(vote, playerService.getPlayer(authentication));

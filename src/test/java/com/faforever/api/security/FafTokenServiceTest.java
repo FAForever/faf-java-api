@@ -3,7 +3,7 @@ package com.faforever.api.security;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ErrorCode;
-import com.faforever.api.security.crypto.RsaKeyHelper;
+import com.faforever.api.security.crypto.CertificateUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -68,7 +68,7 @@ public class FafTokenServiceTest {
     String publicKey = Files.readString(Paths.get("test-pki-public.key"));
 
     RSAKey parsedSecretKey = (RSAKey) RSAKey.parseFromPEMEncodedObjects(secretKey);
-    RSAPublicKey parsedPublicKey = RsaKeyHelper.parsePublicKey(publicKey.trim());
+    RSAPublicKey parsedPublicKey = CertificateUtils.parseSSHPublicKey(publicKey);
 
     this.rsaSigner = new RSASSASigner(parsedSecretKey);
     this.rsaVerifier = new RSASSAVerifier(parsedPublicKey);

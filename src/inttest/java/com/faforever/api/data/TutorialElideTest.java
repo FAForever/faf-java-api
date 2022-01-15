@@ -44,7 +44,7 @@ public class TutorialElideTest extends AbstractIntegrationTest {
   @Test
   public void nonEmptyResultTutorialsWithoutScopeAndRole() throws Exception {
     mockMvc.perform(get("/data/tutorial")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(1)));
   }
@@ -52,7 +52,7 @@ public class TutorialElideTest extends AbstractIntegrationTest {
   @Test
   public void canReadSpecificTutorialWithoutScopeAndRole() throws Exception {
     mockMvc.perform(get("/data/tutorial/1")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isOk());
   }
 
@@ -60,21 +60,21 @@ public class TutorialElideTest extends AbstractIntegrationTest {
   @Test
   public void canDeleteTutorialWithScopeAndRole() throws Exception {
     mockMvc.perform(delete("/data/tutorial/1")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_TUTORIAL)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_TUTORIAL)))
       .andExpect(status().isNoContent());
   }
 
   @Test
   public void cannotDeleteTutorialWithoutScope() throws Exception {
     mockMvc.perform(delete("/data/tutorial/1")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_TUTORIAL)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_WRITE_TUTORIAL)))
       .andExpect(status().isForbidden());
   }
 
   @Test
   public void cannotDeleteTutorialWithoutRole() throws Exception {
     mockMvc.perform(delete("/data/tutorial/1")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES)))
       .andExpect(status().isForbidden());
   }
 
@@ -82,7 +82,7 @@ public class TutorialElideTest extends AbstractIntegrationTest {
   public void canPostTutorialWithScopeAndRole() throws Exception {
     MvcResult mvcResult = mockMvc.perform(
       post("/data/tutorial")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_TUTORIAL))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_TUTORIAL))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(tutorial())))
       .andExpect(status().isCreated())
@@ -90,7 +90,7 @@ public class TutorialElideTest extends AbstractIntegrationTest {
 
     String id = JsonPath.parse(mvcResult.getResponse().getContentAsString()).read("$.data.id");
     mockMvc.perform(get("/data/tutorial/{0}", id)
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data.id", equalTo(id)));
   }
@@ -99,7 +99,7 @@ public class TutorialElideTest extends AbstractIntegrationTest {
   public void cannotPostTutorialWithoutScope() throws Exception {
     mockMvc.perform(
       post("/data/tutorial")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_TUTORIAL))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_WRITE_TUTORIAL))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(tutorial())))
       .andExpect(status().isForbidden());
@@ -109,7 +109,7 @@ public class TutorialElideTest extends AbstractIntegrationTest {
   public void cannotPostTutorialWithoutRole() throws Exception {
     mockMvc.perform(
       post("/data/tutorial")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(tutorial())))
       .andExpect(status().isForbidden());
@@ -119,13 +119,13 @@ public class TutorialElideTest extends AbstractIntegrationTest {
   public void canUpdateTutorialWithScopeAndRole() throws Exception {
     mockMvc.perform(
       patch("/data/tutorial/1")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_TUTORIAL))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_TUTORIAL))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(tutorial().setDescription("changed").setId("1"))))
       .andExpect(status().isNoContent());
 
     mockMvc.perform(get("/data/tutorial/1")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data.attributes.description", is("changed")));
   }
@@ -134,7 +134,7 @@ public class TutorialElideTest extends AbstractIntegrationTest {
   public void cannotUpdateTutorialWithoutScope() throws Exception {
     mockMvc.perform(
       patch("/data/tutorial/1")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_TUTORIAL))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_WRITE_TUTORIAL))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(tutorial().setDescription("changed").setId("1"))))
       .andExpect(status().isForbidden());
@@ -144,7 +144,7 @@ public class TutorialElideTest extends AbstractIntegrationTest {
   public void cannotUpdateTutorialWithoutRole() throws Exception {
     mockMvc.perform(
       patch("/data/tutorial/1")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(tutorial().setDescription("changed").setId("1"))))
       .andExpect(status().isForbidden());

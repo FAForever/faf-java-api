@@ -217,6 +217,7 @@ dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
   testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
+  implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-web")
   implementation("org.springframework.boot:spring-boot-starter-jetty")
@@ -243,8 +244,6 @@ dependencies {
   implementation("com.yahoo.elide:elide-swagger:${elideVersion}")
   implementation("com.yahoo.elide:elide-datastore-hibernate5:${elideVersion}")
   implementation("com.yahoo.elide:elide-datastore-multiplex:${elideVersion}")
-  implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.6.2")
-  implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.1.RELEASE")
   implementation("org.springdoc:springdoc-openapi-ui:1.6.4")
   implementation("org.springdoc:springdoc-openapi-security:1.6.4")
   implementation("com.github.FAForever:faf-java-commons:0e5d22ffff6e4dea81bac494d532627fcca8ebc4")
@@ -259,7 +258,10 @@ dependencies {
   implementation("org.json:json:20211205")
   implementation("org.jsoup:jsoup:1.14.3")
   implementation("com.github.jasminb:jsonapi-converter:0.11")
-  implementation("com.nimbusds:nimbus-jose-jwt:9.15.2")
+  implementation("commons-codec:commons-codec:1.15")
+
+  // Required library for FafTokenService approach (called by nimbus-jwt)
+  runtimeOnly("org.bouncycastle:bcpkix-jdk15on:1.70")
 
   testImplementation("junit-addons:junit-addons:1.4")
   testImplementation("org.testcontainers:junit-jupiter:1.16.2")
