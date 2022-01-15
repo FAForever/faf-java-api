@@ -49,7 +49,7 @@ public class LeagueScoreJournalElideTest extends LeagueAbstractIntegrationTest {
   void noOneCanCreateLeagueScoreJournal() throws Exception {
     mockMvc.perform(
         post("/data/leagueScoreJournal")
-          .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
+          .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
           .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
           .content("""
           {
@@ -92,7 +92,7 @@ public class LeagueScoreJournalElideTest extends LeagueAbstractIntegrationTest {
   void noOneCanUpdateLeagueScoreJournal() throws Exception {
     mockMvc.perform(
         patch("/data/leagueScoreJournal/1")
-          .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
+          .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
           .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
           .content("""
           {
@@ -113,7 +113,7 @@ public class LeagueScoreJournalElideTest extends LeagueAbstractIntegrationTest {
   void noOneCanDeleteLeagueScoreJournal() throws Exception {
     mockMvc.perform(
         delete("/data/leagueScoreJournal/1")
-          .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
+          .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isForbidden());
   }
 }

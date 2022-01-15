@@ -5,7 +5,6 @@ import com.faforever.api.data.domain.GroupPermission;
 import com.faforever.api.security.OAuthScope;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
@@ -28,7 +27,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
   @Test
   public void canReadDomainBlacklistWithScopeAndRole() throws Exception {
     mockMvc.perform(get("/data/domainBlacklist")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(1)));
   }
@@ -36,7 +35,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
   @Test
   public void canReaDomainBlacklistWithoutScope() throws Exception {
     mockMvc.perform(get("/data/domainBlacklist")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(0)));
   }
@@ -44,7 +43,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
   @Test
   public void canReadDomainBlacklistWithoutRole() throws Exception {
     mockMvc.perform(get("/data/domainBlacklist")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(0)));
   }
@@ -53,21 +52,21 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
   @Test
   public void canReadSpecificDomainBanWithScopeAndRole() throws Exception {
     mockMvc.perform(get("/data/domainBlacklist/spam.org")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN)))
       .andExpect(status().isOk());
   }
 
   @Test
   public void cannotReadSpecificDomainBanWithoutScope() throws Exception {
     mockMvc.perform(get("/data/domainBlacklist/spam.org")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN)))
       .andExpect(status().isForbidden());
   }
 
   @Test
   public void cannotReadSpecificDomainBanWithoutRole() throws Exception {
     mockMvc.perform(get("/data/domainBlacklist/spam.org")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES)))
       .andExpect(status().isForbidden());
   }
 
@@ -75,7 +74,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
   public void canCreateDomainBanWithScopeAndRole() throws Exception {
     mockMvc.perform(
       post("/data/domainBlacklist")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(NEW_DOMAIN))
       .andExpect(status().isCreated());
@@ -85,7 +84,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
   public void cannotCreateDomainBanWithoutScope() throws Exception {
     mockMvc.perform(
       post("/data/domainBlacklist")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(NEW_DOMAIN))
       .andExpect(status().isForbidden());
@@ -95,7 +94,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
   public void cannotCreateDomainBanWithoutRole() throws Exception {
     mockMvc.perform(
       post("/data/domainBlacklist")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(NEW_DOMAIN))
       .andExpect(status().isForbidden());
@@ -106,7 +105,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
   public void canUpdateDomainBanWithScopeAndRole() throws Exception {
     mockMvc.perform(
       patch("/data/domainBlacklist/spam.org")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content("{\"data\":{\"type\":\"domainBlacklist\",\"id\":\"spam.org\"}}"))
       .andExpect(status().isNoContent());
@@ -116,7 +115,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
   public void cannotUpdateDomainBanWithoutScope() throws Exception {
     mockMvc.perform(
       patch("/data/domainBlacklist/spam.org")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(NEW_DOMAIN))
       .andExpect(status().isForbidden());
@@ -126,7 +125,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
   public void cannotUpdateDomainBanWithoutRole() throws Exception {
     mockMvc.perform(
       patch("/data/domainBlacklist/spam.org")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(NEW_DOMAIN))
       .andExpect(status().isForbidden());
@@ -137,7 +136,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
   public void canDeleteDomainBanWithScopeAndRole() throws Exception {
     mockMvc.perform(
       delete("/data/domainBlacklist/spam.org")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN)))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN)))
       .andExpect(status().isNoContent());
   }
 
@@ -145,7 +144,7 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
   public void cannotDeleteDomainBanWithoutScope() throws Exception {
     mockMvc.perform(
       delete("/data/domainBlacklist/spam.org")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN)))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN)))
       .andExpect(status().isForbidden());
   }
 
@@ -153,15 +152,16 @@ public class DomainBlacklistTest extends AbstractIntegrationTest {
   public void cannotDeleteDomainBanWithoutRole() throws Exception {
     mockMvc.perform(
       delete("/data/domainBlacklist/spam.org")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES)))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES)))
       .andExpect(status().isForbidden());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void cannotDeleteDomainBlacklistAsUser() throws Exception {
     mockMvc.perform(
-      delete("/data/domainBlacklist/spam.org"))
+      delete("/data/domainBlacklist/spam.org")
+        .with(getOAuthTokenForUserId(USERID_USER))
+      )
       .andExpect(status().isForbidden());
   }
 }

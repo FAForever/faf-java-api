@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.MultiValueMap;
 
@@ -76,7 +75,6 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void registerWithAuthentication() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("username", NEW_USER);
@@ -84,7 +82,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
     params.add("password", NEW_PASSWORD);
 
     MvcResult result = mockMvc.perform(post("/users/register")
-      .with(getOAuthTokenWithoutUser())
+      .with(getOAuthTokenForUserId(USERID_USER))
       .params(params)
     ).andExpect(status().is4xxClientError())
       .andReturn();
@@ -110,7 +108,6 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void changePasswordWithSuccess() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("currentPassword", AUTH_USER);
@@ -118,17 +115,16 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       post("/users/changePassword")
-        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenForUserId(USERID_USER, OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().isOk());
 
-    User user = userRepository.findOneByLogin(AUTH_USER).get();
+    User user = userRepository.getById(USERID_USER);
     assertEquals(user.getPassword(), "5c29a959abce4eda5f0e7a4e7ea53dce4fa0f0abbe8eaa63717e2fed5f193d31");
     verify(anopeUserRepository, times(1)).updatePassword(eq(AUTH_USER), anyString());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void changePasswordWithoutScope() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("currentPassword", AUTH_USER);
@@ -136,13 +132,12 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       post("/users/changePassword")
-        .with(getOAuthTokenWithoutUser(NO_SCOPE))
+        .with(getOAuthTokenForUserId(USERID_USER, NO_SCOPE))
         .params(params))
       .andExpect(status().isForbidden());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void changePasswordWithWrongPassword() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("currentPassword", "wrongPassword");
@@ -150,7 +145,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     MvcResult mvcResult = mockMvc.perform(
       post("/users/changePassword")
-        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenForUserId(USERID_USER, OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().is4xxClientError())
       .andReturn();
@@ -159,7 +154,6 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void changeEmailWithSuccess() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("currentPassword", AUTH_USER);
@@ -167,7 +161,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       post("/users/changeEmail")
-        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenForUserId(USERID_USER, OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().isOk());
 
@@ -176,7 +170,6 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void changeEmailWithoutScope() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("currentPassword", AUTH_USER);
@@ -184,13 +177,12 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       post("/users/changeEmail")
-        .with(getOAuthTokenWithoutUser(NO_SCOPE))
+        .with(getOAuthTokenForUserId(USERID_USER, NO_SCOPE))
         .params(params))
       .andExpect(status().isForbidden());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void changeEmailWithWrongPassword() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("currentPassword", "wrongPassword");
@@ -198,7 +190,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     MvcResult mvcResult = mockMvc.perform(
       post("/users/changeEmail")
-        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenForUserId(USERID_USER, OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().is4xxClientError())
       .andReturn();
@@ -207,7 +199,6 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void changeEmailWithInvalidEmail() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("currentPassword", AUTH_USER);
@@ -215,7 +206,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     MvcResult mvcResult = mockMvc.perform(
       post("/users/changeEmail")
-        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenForUserId(USERID_USER, OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().is4xxClientError())
       .andReturn();
@@ -224,7 +215,6 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithAnonymousUser
   public void resetPasswordWithUsername() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("identifier", AUTH_USER);
@@ -238,7 +228,6 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithAnonymousUser
   public void resetPasswordWithEmail() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("identifier", "user@faforever.com");
@@ -252,7 +241,6 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithAnonymousUser
   public void performPasswordReset() throws Exception {
     String token = fafTokenService.createToken(FafTokenType.PASSWORD_RESET,
       Duration.ofSeconds(100),
@@ -266,7 +254,6 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithAnonymousUser
   public void buildSteamLinkUrlUnauthorized() throws Exception {
     mockMvc.perform(
       post("/users/buildSteamLinkUrl?callbackUrl=foo"))
@@ -274,7 +261,6 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void buildSteamLinkUrlWithWrongScope() throws Exception {
     mockMvc.perform(
       post("/users/buildSteamLinkUrl?callbackUrl=foo"))
@@ -282,11 +268,10 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_MODERATOR)
   public void buildSteamLinkUrlAlreadyLinked() throws Exception {
     MvcResult result = mockMvc.perform(
       post("/users/buildSteamLinkUrl?callbackUrl=foo")
-        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA)))
+        .with(getOAuthTokenForUserId(USERID_MODERATOR, OAuthScope._WRITE_ACCOUNT_DATA)))
       .andExpect(status().is4xxClientError())
       .andReturn();
 
@@ -294,22 +279,20 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void buildSteamLinkUrl() throws Exception {
     when(steamService.buildLoginUrl(any())).thenReturn("steamUrl");
 
     mockMvc.perform(
       post("/users/buildSteamLinkUrl?callbackUrl=foo")
-        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA)))
+        .with(getOAuthTokenForUserId(USERID_USER, OAuthScope._WRITE_ACCOUNT_DATA)))
       .andExpect(status().isOk());
 
     verify(steamService, times(1)).buildLoginUrl(anyString());
   }
 
   @Test
-  @WithAnonymousUser
   public void linkToSteam() throws Exception {
-    assertThat(userRepository.getOne(1).getSteamId(), nullValue());
+    assertThat(userRepository.getById(1).getSteamId(), nullValue());
 
     String steamId = "12345";
     String callbackUrl = "http://faforever.com";
@@ -329,15 +312,14 @@ public class UsersControllerTest extends AbstractIntegrationTest {
       .andExpect(status().isFound())
       .andExpect(redirectedUrl(callbackUrl));
 
-    assertThat(userRepository.getOne(1).getSteamId(), is(steamId));
+    assertThat(userRepository.getById(1).getSteamId(), is(steamId));
   }
 
   @Test
-  @WithAnonymousUser
   public void linkToSteamAlreadyLinkedAccount() throws Exception {
     String steamId = "1234";
-    assertThat(userRepository.getOne(1).getSteamId(), nullValue());
-    User userThatOwnsSteamId = userRepository.getOne(2);
+    assertThat(userRepository.getById(1).getSteamId(), nullValue());
+    User userThatOwnsSteamId = userRepository.getById(2);
     assertThat(userThatOwnsSteamId.getSteamId(), is(steamId));
 
     String callbackUrl = "http://faforever.com";
@@ -358,11 +340,10 @@ public class UsersControllerTest extends AbstractIntegrationTest {
       .andExpect(redirectedUrlPattern(callbackUrl + "?errors=*" + ErrorCode.STEAM_ID_ALREADY_LINKED.getCode() + "*" + userThatOwnsSteamId.getLogin() + "*"));
     //We expect and error with code STEAM_ID_ALREADY_LINKED and that the error message contains the user that this steam account was linked to already which is MODERATOR with id 2
 
-    assertThat(userRepository.getOne(1).getSteamId(), nullValue());
+    assertThat(userRepository.getById(1).getSteamId(), nullValue());
   }
 
   @Test
-  @WithAnonymousUser
   public void changeUsernameUnauthorized() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("newUsername", NEW_USER);
@@ -374,50 +355,48 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void changeUsernameWithWrongScope() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("newUsername", NEW_USER);
 
     mockMvc.perform(
       post("/users/changeUsername")
+        .with(getOAuthTokenForUserId(USERID_USER, NO_SCOPE))
         .params(params))
       .andExpect(status().isForbidden());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void changeUsernameSuccess() throws Exception {
-    assertThat(userRepository.getOne(1).getLogin(), is(AUTH_USER));
+    assertThat(userRepository.getById(1).getLogin(), is(AUTH_USER));
 
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("newUsername", NEW_USER);
 
     mockMvc.perform(
       post("/users/changeUsername")
-        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenForUserId(USERID_USER, OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().isOk());
 
-    assertThat(userRepository.getOne(1).getLogin(), is(NEW_USER));
+    assertThat(userRepository.getById(1).getLogin(), is(NEW_USER));
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void changeUsernameForcedByUser() throws Exception {
-    assertThat(userRepository.getOne(1).getLogin(), is(AUTH_USER));
+    assertThat(userRepository.getById(1).getLogin(), is(AUTH_USER));
 
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("newUsername", NEW_USER);
 
     mockMvc.perform(
       post("/users/1/forceChangeUsername")
-        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenForUserId(USERID_USER, OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().is4xxClientError())
       .andReturn();
 
-    assertThat(userRepository.getOne(1).getLogin(), is(not(NEW_USER)));
+    assertThat(userRepository.getById(1).getLogin(), is(not(NEW_USER)));
   }
 
   @Test
@@ -427,11 +406,11 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       post("/users/2/forceChangeUsername")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_NAME_CHANGE))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_NAME_CHANGE))
         .params(params))
       .andExpect(status().isOk());
 
-    assertThat(userRepository.getOne(2).getLogin(), is(NEW_USER));
+    assertThat(userRepository.getById(2).getLogin(), is(NEW_USER));
   }
 
   @Test
@@ -441,7 +420,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       post("/users/2/forceChangeUsername")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_ACCOUNT_NAME_CHANGE))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_ACCOUNT_NAME_CHANGE))
         .params(params))
       .andExpect(status().is4xxClientError());
   }
@@ -453,29 +432,28 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       post("/users/2/forceChangeUsername")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
         .params(params))
       .andExpect(status().is4xxClientError());
   }
 
   @Test
-  @WithUserDetails(AUTH_MODERATOR)
   public void changeUsernameTooEarly() throws Exception {
-    assertThat(userRepository.getOne(2).getLogin(), is(AUTH_MODERATOR));
+    assertThat(userRepository.getById(2).getLogin(), is(AUTH_MODERATOR));
 
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("newUsername", NEW_USER);
 
     MvcResult result = mockMvc.perform(
       post("/users/changeUsername")
-        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenForUserId(USERID_MODERATOR, OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().is4xxClientError())
       .andReturn();
 
     assertApiError(result, ErrorCode.USERNAME_CHANGE_TOO_EARLY);
 
-    assertThat(userRepository.getOne(2).getLogin(), is(AUTH_MODERATOR));
+    assertThat(userRepository.getById(2).getLogin(), is(AUTH_MODERATOR));
   }
 
   @Test
@@ -485,25 +463,23 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       post("/users/2/forceChangeUsername")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_NAME_CHANGE))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_ADMIN_ACCOUNT_NAME_CHANGE))
         .params(params))
       .andExpect(status().isOk())
       .andReturn();
 
-    assertThat(userRepository.getOne(2).getLogin(), is(NEW_USER));
+    assertThat(userRepository.getById(2).getLogin(), is(NEW_USER));
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void resyncAccountSuccess() throws Exception {
     mockMvc.perform(
       post("/users/resyncAccount")
-        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA)))
+        .with(getOAuthTokenForUserId(USERID_USER, OAuthScope._WRITE_ACCOUNT_DATA)))
       .andExpect(status().isOk());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void buildGogProfileToken() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("gogUsername", "someUsername");
@@ -511,7 +487,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       get("/users/buildGogProfileToken")
-        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenForUserId(USERID_USER, OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.gogToken", is("theToken")));
@@ -520,19 +496,18 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void linkToGogWithoutOAuthScopeFails() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("gogUsername", "someUsername");
 
     mockMvc.perform(
       post("/users/linkToGog")
+        .with(getOAuthTokenForUserId(USERID_USER, NO_SCOPE))
         .params(params))
       .andExpect(status().isForbidden());
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void linkToGogWithoutSuccess() throws Exception {
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("gogUsername", "someUsername");
@@ -541,7 +516,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     mockMvc.perform(
       post("/users/linkToGog")
-        .with(getOAuthTokenWithoutUser(OAuthScope._WRITE_ACCOUNT_DATA))
+        .with(getOAuthTokenForUserId(USERID_USER, OAuthScope._WRITE_ACCOUNT_DATA))
         .params(params))
       .andExpect(status().isOk());
   }

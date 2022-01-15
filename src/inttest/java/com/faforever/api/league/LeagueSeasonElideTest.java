@@ -41,7 +41,7 @@ class LeagueSeasonElideTest extends LeagueAbstractIntegrationTest {
   void noOneCanCreateLeagueSeason() throws Exception {
     mockMvc.perform(
       post("/data/leagueSeason")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content("""
           {
@@ -76,7 +76,7 @@ class LeagueSeasonElideTest extends LeagueAbstractIntegrationTest {
   void noOneCanUpdateLeagueSeason() throws Exception {
     mockMvc.perform(
       patch("/data/leagueSeason/1")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content("""
           {
@@ -97,7 +97,7 @@ class LeagueSeasonElideTest extends LeagueAbstractIntegrationTest {
   void noOneCanDeleteLeagueSeason() throws Exception {
     mockMvc.perform(
       delete("/data/leagueSeason/1")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isForbidden());
   }
 }

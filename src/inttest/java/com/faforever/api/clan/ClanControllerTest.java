@@ -5,12 +5,9 @@ import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerRepository;
-import com.faforever.api.security.FafUserDetails;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.web.servlet.MvcResult;
@@ -33,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepClanData.sql")
 public class ClanControllerTest extends AbstractIntegrationTest {
   public static final String AUTH_CLAN_MEMBER = "CLAN_MEMBER";
+  public static final int USERID_CLAN_MEMBER = 12;
   public static final String NEW_CLAN_NAME = "New Clan Name";
   public static final String NEW_CLAN_TAG = "new";
   public static final String NEW_CLAN_DESCRIPTION = "spaces Must Be Encoded";
@@ -45,17 +43,12 @@ public class ClanControllerTest extends AbstractIntegrationTest {
   @Autowired
   ClanMembershipRepository clanMembershipRepository;
 
-  Player getPlayer() {
-    FafUserDetails authentication = (FafUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    return playerRepository.getOne(authentication.getId());
-  }
-
   @Test
-  @WithUserDetails(AUTH_USER)
   public void meDataWithoutClan() throws Exception {
-    Player player = getPlayer();
+    Player player = playerRepository.getById(USERID_USER);
 
-    mockMvc.perform(get("/clans/me/"))
+    mockMvc.perform(get("/clans/me/")
+        .with(getOAuthTokenForUserId(USERID_USER)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.player.id", is(player.getId())))
       .andExpect(jsonPath("$.player.login", is(player.getLogin())))
@@ -63,13 +56,13 @@ public class ClanControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_CLAN_MEMBER)
   public void meDataWithClan() throws Exception {
-    Player player = getPlayer();
-    Clan clan = clanRepository.getOne(1);
+    Player player = playerRepository.getById(USERID_CLAN_MEMBER);
+    Clan clan = clanRepository.getById(1);
 
     mockMvc.perform(
-      get("/clans/me/"))
+      get("/clans/me/")
+        .with(getOAuthTokenForUserId(USERID_CLAN_MEMBER)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.player.id", is(player.getId())))
       .andExpect(jsonPath("$.player.login", is(player.getLogin())))
@@ -79,9 +72,8 @@ public class ClanControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void createClanWithSuccess() throws Exception {
-    Player player = getPlayer();
+    Player player = playerRepository.getById(USERID_USER);
 
     assertNull(player.getClan());
     assertFalse(clanRepository.findOneByName(NEW_CLAN_NAME).isPresent());
@@ -93,6 +85,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
 
     ResultActions action = mockMvc.perform(
       post("/clans/create")
+        .with(getOAuthTokenForUserId(USERID_USER))
         .params(params));
 
     Clan clan = clanRepository.findOneByName(NEW_CLAN_NAME)
@@ -117,9 +110,8 @@ public class ClanControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void createClanWithExistingName() throws Exception {
-    Player player = getPlayer();
+    Player player = playerRepository.getById(USERID_USER);
 
     assertNull(player.getClan());
     assertTrue(clanRepository.findOneByName(EXISTING_CLAN).isPresent());
@@ -131,6 +123,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
 
     MvcResult result = mockMvc.perform(
       post("/clans/create")
+        .with(getOAuthTokenForUserId(USERID_USER))
         .params(params))
       .andExpect(status().isUnprocessableEntity())
       .andReturn();
@@ -139,9 +132,8 @@ public class ClanControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void createClanWithExistingTag() throws Exception {
-    Player player = getPlayer();
+    Player player = playerRepository.getById(USERID_USER);
 
     assertNull(player.getClan());
     assertFalse(clanRepository.findOneByName(NEW_CLAN_NAME).isPresent());
@@ -153,6 +145,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
 
     MvcResult result = mockMvc.perform(
       post("/clans/create")
+        .with(getOAuthTokenForUserId(USERID_USER))
         .params(params))
       .andExpect(status().isUnprocessableEntity())
       .andReturn();
@@ -161,9 +154,8 @@ public class ClanControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @WithUserDetails(AUTH_CLAN_MEMBER)
   public void createSecondClan() throws Exception {
-    Player player = getPlayer();
+    Player player = playerRepository.getById(USERID_CLAN_MEMBER);
 
     assertNotNull(player.getClan());
     assertFalse(clanRepository.findOneByName(NEW_CLAN_NAME).isPresent());
@@ -175,6 +167,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
 
     MvcResult result = mockMvc.perform(
       post("/clans/create")
+        .with(getOAuthTokenForUserId(USERID_CLAN_MEMBER))
         .params(params))
       .andExpect(status().isUnprocessableEntity())
       .andReturn();

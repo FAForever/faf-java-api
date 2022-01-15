@@ -33,7 +33,7 @@ public class GroupPermissionTest extends AbstractIntegrationTest {
   @Test
   public void emptyResultWithoutScope() throws Exception {
     mockMvc.perform(get("/data/groupPermission")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_READ_USER_GROUP)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_READ_USER_GROUP)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(0)));
   }
@@ -41,7 +41,7 @@ public class GroupPermissionTest extends AbstractIntegrationTest {
   @Test
   public void emptyResultWithoutRole() throws Exception {
     mockMvc.perform(get("/data/groupPermission")
-      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._READ_SENSIBLE_USERDATA, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(0)));
   }
@@ -49,7 +49,7 @@ public class GroupPermissionTest extends AbstractIntegrationTest {
   @Test
   public void canReadPermissionsWithScopeAndRole() throws Exception {
     mockMvc.perform(get("/data/groupPermission")
-      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_READ_USER_GROUP)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_READ_USER_GROUP)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(25)));
   }
@@ -57,7 +57,7 @@ public class GroupPermissionTest extends AbstractIntegrationTest {
   @Test
   public void cannotCreatePermissionWithoutScope() throws Exception {
     mockMvc.perform(post("/data/groupPermission")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_USER_GROUP))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_WRITE_USER_GROUP))
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isForbidden());
@@ -66,7 +66,7 @@ public class GroupPermissionTest extends AbstractIntegrationTest {
   @Test
   public void cannotCreatePermissionWithoutRole() throws Exception {
     mockMvc.perform(post("/data/groupPermission")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isForbidden());
@@ -75,7 +75,7 @@ public class GroupPermissionTest extends AbstractIntegrationTest {
   @Test
   public void cannotCreatePermissionWithScopeAndRole() throws Exception {
     mockMvc.perform(post("/data/groupPermission")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_USER_GROUP))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_USER_GROUP))
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isForbidden());

@@ -8,7 +8,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.test.context.support.WithUserDetails;
 
 import java.io.InputStream;
 
@@ -20,7 +19,6 @@ class ModsControllerTest extends AbstractIntegrationTest {
   @Autowired
   private FafApiProperties apiProperties;
 
-  @WithUserDetails(AUTH_USER)
   @Test
   void missingScope() throws Exception {
     String zipFile = "Terrain_Deform_for_FA.v0001.zip";
@@ -32,14 +30,13 @@ class ModsControllerTest extends AbstractIntegrationTest {
 
       mockMvc.perform(multipart("/mods/upload")
         .file(file)
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
         .andExpect(status().isForbidden());
     } finally {
       FileUtils.deleteDirectory(apiProperties.getMod().getTargetDirectory().toFile());
     }
   }
 
-  @WithUserDetails(AUTH_USER)
   @Test
   void successUpload() throws Exception {
     String zipFile = "Terrain_Deform_for_FA.v0001.zip";
@@ -51,7 +48,7 @@ class ModsControllerTest extends AbstractIntegrationTest {
 
       mockMvc.perform(multipart("/mods/upload")
         .file(file)
-        .with(getOAuthTokenWithTestUser(OAuthScope._UPLOAD_MOD, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._UPLOAD_MOD, NO_AUTHORITIES))
       ).andExpect(status().isOk());
     } finally {
       FileUtils.deleteDirectory(apiProperties.getMod().getTargetDirectory().toFile());

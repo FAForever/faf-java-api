@@ -36,8 +36,6 @@ faf-api:
   jwt:
     secretKeyPath: ${JWT_PRIVATE_KEY_PATH:/pki/secret.key}
     publicKeyPath: ${JWT_PUBLIC_KEY_PATH:/pki/public.key}
-    fafHydraJwksUrl: ${JWT_FAF_HYDRA_JWKS_URL:https://hydra.${FAF_DOMAIN}/.well-known/jwks.json}
-    fafHydraIssuer: ${JWT_FAF_HYDRA_ISSUER:https://hydra.${FAF_DOMAIN}/}
   mail:
     from-email-name: ${EMAIL_FROM_NAME}
     from-email-address: ${EMAIL_FROM_ADDRESS}
@@ -134,6 +132,11 @@ spring:
     jpa:
       repositories:
         bootstrap-mode: DEFAULT
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_FAF_HYDRA_ISSUER:https://hydra.${FAF_DOMAIN}/}
 
 server:
   # Mind that this is configured in the docker compose file as well (that is, in the gradle script that generates it)

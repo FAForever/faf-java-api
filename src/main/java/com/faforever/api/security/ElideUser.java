@@ -1,32 +1,33 @@
 package com.faforever.api.security;
 
 import com.yahoo.elide.core.security.User;
-import org.springframework.security.core.Authentication;
+import lombok.Getter;
 
 import java.security.Principal;
 import java.util.Optional;
 
 public class ElideUser extends User {
-  protected FafUserDetails fafUserDetails;
+  @Getter
+  protected FafAuthenticationToken fafAuthentication;
 
   public ElideUser(Principal principal) {
     super(principal);
-    if (principal instanceof Authentication) {
-      this.fafUserDetails = (FafUserDetails) ((Authentication) principal).getPrincipal();
+    if (principal instanceof FafAuthenticationToken authentication) {
+      this.fafAuthentication = authentication;
     }
   }
 
   @Override
   public String getName() {
-    return getFafUserDetails().map(details -> details.getUsername()).orElse("");
+    return fafAuthentication.getName();
   }
 
   @Override
   public boolean isInRole(String role) {
-    return getFafUserDetails().map(details -> details.hasPermission(role)).orElse(false);
+    return fafAuthentication.hasRole(role);
   }
 
-  public Optional<FafUserDetails> getFafUserDetails() {
-    return Optional.ofNullable(fafUserDetails);
+  public Optional<Integer> getFafId() {
+    return Optional.ofNullable(fafAuthentication).map(FafAuthenticationToken::getUserId);
   }
 }

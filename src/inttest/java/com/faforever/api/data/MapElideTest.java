@@ -53,7 +53,7 @@ public class MapElideTest extends AbstractIntegrationTest {
   @Test
   public void canReadMapWithoutScopeAndRole() throws Exception {
     mockMvc.perform(get("/data/map")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(1)));
   }
@@ -62,59 +62,59 @@ public class MapElideTest extends AbstractIntegrationTest {
   public void canUpdateMapRecommendationToTrueWithScopeAndRole() throws Exception {
     mockMvc.perform(
       patch("/data/map/1")
-        .with(getOAuthTokenWithTestUser(OAuthScope._MANAGE_VAULT, GroupPermission.ROLE_ADMIN_MAP))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._MANAGE_VAULT, GroupPermission.ROLE_ADMIN_MAP))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         // update recommended to true requires the vault permission, thus we test it here for the success case
         .content(MAP_RECOMMENDED_TRUE_ID_1))
       .andExpect(status().isNoContent());
 
-    assertThat(mapRepository.getOne(1).getRecommended(), is(true));
+    assertThat(mapRepository.getById(1).getRecommended(), is(true));
   }
 
   @Test
   public void cannotUpdateMapRecommendationToTrueWithoutScope() throws Exception {
     mockMvc.perform(
       patch("/data/map/1")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_MAP))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_MAP))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         // update recommended to true requires the vault permission, thus we test it here for the failing case
         .content(MAP_RECOMMENDED_TRUE_ID_1))
       .andExpect(status().isForbidden());
 
-    assertThat(mapRepository.getOne(1).getRecommended(), is(false));
+    assertThat(mapRepository.getById(1).getRecommended(), is(false));
   }
 
   @Test
   public void cannotUpdateMapRecommendationToTrueWithoutRole() throws Exception {
     mockMvc.perform(
       patch("/data/map/1")
-        .with(getOAuthTokenWithTestUser(OAuthScope._MANAGE_VAULT, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._MANAGE_VAULT, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         // update recommended to true requires the vault permission, thus we test it here for the failing case
         .content(MAP_RECOMMENDED_TRUE_ID_1))
       .andExpect(status().isForbidden());
 
-    assertThat(mapRepository.getOne(1).getRecommended(), is(false));
+    assertThat(mapRepository.getById(1).getRecommended(), is(false));
   }
 
   @Test
   public void canUpdateMapRecommendationToFalseWithScopeAndRole() throws Exception {
     mockMvc.perform(
       patch("/data/map/1")
-        .with(getOAuthTokenWithTestUser(OAuthScope._MANAGE_VAULT, GroupPermission.ROLE_ADMIN_MAP))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._MANAGE_VAULT, GroupPermission.ROLE_ADMIN_MAP))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         // update recommended to false requires the vault permission, thus we test it here for the success case
         .content(MAP_RECOMMENDED_FALSE_ID_1))
       .andExpect(status().isNoContent());
 
-    assertThat(mapRepository.getOne(1).getRecommended(), is(false));
+    assertThat(mapRepository.getById(1).getRecommended(), is(false));
   }
 
   @Test
   public void cannotUpdateMapRecommendationToFalseWithoutScope() throws Exception {
     mockMvc.perform(
       patch("/data/map/1")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_MAP))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_MAP))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         // update recommended to false requires the vault permission, thus we test it here for the failing case
         .content(MAP_RECOMMENDED_FALSE_ID_1))
@@ -125,7 +125,7 @@ public class MapElideTest extends AbstractIntegrationTest {
   public void cannotUpdateMapRecommendationToFalseWithoutRole() throws Exception {
     mockMvc.perform(
       patch("/data/map/1")
-        .with(getOAuthTokenWithTestUser(OAuthScope._MANAGE_VAULT, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._MANAGE_VAULT, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         // update recommended to false requires the vault permission, thus we test it here for the failing case
         .content(MAP_RECOMMENDED_FALSE_ID_1))

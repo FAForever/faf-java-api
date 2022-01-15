@@ -16,6 +16,12 @@ spring:
   h2:
     console:
       enabled: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Using this config, we avoid lookup of the uri - it's just a temporary fix until all calls are mocked
+          jwk-set-uri: "http://localhost"
 
 security:
   oauth2:

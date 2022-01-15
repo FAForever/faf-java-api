@@ -8,7 +8,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -78,7 +77,7 @@ public class MapPoolElideTest extends AbstractIntegrationTest {
   public void cannotCreateMapPoolItemWithoutScope() throws Exception {
     mockMvc.perform(
       post("/data/mapPoolAssignment")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
       .andExpect(status().isForbidden());
@@ -88,7 +87,7 @@ public class MapPoolElideTest extends AbstractIntegrationTest {
   public void cannotCreateMapPoolItemWithoutRole() throws Exception {
     mockMvc.perform(
       post("/data/mapPoolAssignment")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
       .andExpect(status().isForbidden());
@@ -98,7 +97,7 @@ public class MapPoolElideTest extends AbstractIntegrationTest {
   public void canCreateMapPoolItemWithScopeAndRole() throws Exception {
     mockMvc.perform(
       post("/data/mapPoolAssignment")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
         .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
         .content(NEW_LADDER_MAP_BODY)) // magic value from prepMapData.sql
       .andExpect(status().isCreated())
@@ -116,7 +115,7 @@ public class MapPoolElideTest extends AbstractIntegrationTest {
   public void canDeleteMapPoolItemWithScopeAndRole() throws Exception {
     mockMvc.perform(
       delete("/data/mapPoolAssignment/1")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP)))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP)))
       .andExpect(status().isNoContent());
   }
 
@@ -124,7 +123,7 @@ public class MapPoolElideTest extends AbstractIntegrationTest {
   public void cannotDeleteMapPoolItemWithoutScope() throws Exception {
     mockMvc.perform(
       delete("/data/mapPoolAssignment/1")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP)))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP)))
       .andExpect(status().isForbidden());
   }
 
@@ -132,7 +131,7 @@ public class MapPoolElideTest extends AbstractIntegrationTest {
   public void cannotDeleteMapPoolItemWithoutRole() throws Exception {
     mockMvc.perform(
       delete("/data/mapPoolAssignment/1")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES)))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES)))
       .andExpect(status().isForbidden());
   }
 }

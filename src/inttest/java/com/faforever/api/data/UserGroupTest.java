@@ -82,35 +82,35 @@ public class UserGroupTest extends AbstractIntegrationTest {
   @Test
   public void canSeePublicGroupWithoutScope() throws Exception {
     mockMvc.perform(get("/data/userGroup/4")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isOk());
   }
 
   @Test
   public void cannotSeePrivateGroupWithoutScope() throws Exception {
     mockMvc.perform(get("/data/userGroup/5")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isForbidden());
   }
 
   @Test
   public void cannotSeePrivateGroupWithoutRole() throws Exception {
     mockMvc.perform(get("/data/userGroup/5")
-      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._READ_SENSIBLE_USERDATA, NO_AUTHORITIES)))
       .andExpect(status().isForbidden());
   }
 
   @Test
   public void canSeePrivateGroupWithScopeAndRole() throws Exception {
     mockMvc.perform(get("/data/userGroup/5")
-      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_READ_USER_GROUP)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_READ_USER_GROUP)))
       .andExpect(status().isOk());
   }
 
   @Test
   public void cannotCreateUserGroupWithoutScope() throws Exception {
     mockMvc.perform(post("/data/userGroup")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_READ_USER_GROUP))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_READ_USER_GROUP))
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isForbidden());
@@ -119,7 +119,7 @@ public class UserGroupTest extends AbstractIntegrationTest {
   @Test
   public void cannotCreateUserGroupWithoutRole() throws Exception {
     mockMvc.perform(post("/data/userGroup")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isForbidden());
@@ -128,7 +128,7 @@ public class UserGroupTest extends AbstractIntegrationTest {
   @Test
   public void canCreateUserGroupWithScopeAndRole() throws Exception {
     mockMvc.perform(post("/data/userGroup")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_USER_GROUP))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_USER_GROUP))
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isCreated());
@@ -137,7 +137,7 @@ public class UserGroupTest extends AbstractIntegrationTest {
   @Test
   public void cannotUpdateUserGroupWithoutScope() throws Exception {
     mockMvc.perform(patch("/data/userGroup/3")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_USER_GROUP))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_WRITE_USER_GROUP))
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPatch))
       .andExpect(status().isForbidden());
@@ -146,7 +146,7 @@ public class UserGroupTest extends AbstractIntegrationTest {
   @Test
   public void cannotUpdateUserGroupWithoutRole() throws Exception {
     mockMvc.perform(patch("/data/userGroup/3")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPatch))
       .andExpect(status().isForbidden());
@@ -155,7 +155,7 @@ public class UserGroupTest extends AbstractIntegrationTest {
   @Test
   public void canUpdateUserGroupWithScopeAndRole() throws Exception {
     mockMvc.perform(patch("/data/userGroup/3")
-      .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_USER_GROUP))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_USER_GROUP))
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPatch))
       .andExpect(status().isNoContent());

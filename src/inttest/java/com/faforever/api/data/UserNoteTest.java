@@ -55,7 +55,7 @@ public class UserNoteTest extends AbstractIntegrationTest {
   @Test
   public void emptyResultWithoutScope() throws Exception {
     mockMvc.perform(get("/data/userNote")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(0)));
   }
@@ -63,7 +63,7 @@ public class UserNoteTest extends AbstractIntegrationTest {
   @Test
   public void emptyResultWithoutRole() throws Exception {
     mockMvc.perform(get("/data/userNote")
-      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._READ_SENSIBLE_USERDATA, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(0)));
   }
@@ -71,7 +71,7 @@ public class UserNoteTest extends AbstractIntegrationTest {
   @Test
   public void canReadUserNotesWithScopeAndRole() throws Exception {
     mockMvc.perform(get("/data/userNote")
-      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(1)));
   }
@@ -79,28 +79,28 @@ public class UserNoteTest extends AbstractIntegrationTest {
   @Test
   public void cannotReadSpecificUserNoteWithoutScope() throws Exception {
     mockMvc.perform(get("/data/userNote/1")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE)))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE)))
       .andExpect(status().isForbidden());
   }
 
   @Test
   public void cannotReadSpecificUserNoteWithoutRole() throws Exception {
     mockMvc.perform(get("/data/userNote/1")
-      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._READ_SENSIBLE_USERDATA, NO_AUTHORITIES)))
       .andExpect(status().isForbidden());
   }
 
   @Test
   public void canReadSpecificUserNoteWithScopeAndRole() throws Exception {
     mockMvc.perform(get("/data/userNote/1")
-      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE)))
       .andExpect(status().isOk());
   }
 
   @Test
   public void cannotCreateUserNoteWithoutScope() throws Exception {
     mockMvc.perform(post("/data/userNote")
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE))
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isForbidden());
@@ -109,7 +109,7 @@ public class UserNoteTest extends AbstractIntegrationTest {
   @Test
   public void cannotCreateUserNoteWithoutRole() throws Exception {
     mockMvc.perform(post("/data/userNote")
-      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, NO_AUTHORITIES))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._READ_SENSIBLE_USERDATA, NO_AUTHORITIES))
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isForbidden());
@@ -117,14 +117,14 @@ public class UserNoteTest extends AbstractIntegrationTest {
 
   @Test
   public void canCreateUserNoteWithScopeAndRole() throws Exception {
-    assertThat(playerRepository.getOne(3).getUserNotes().size(), is(0));
+    assertThat(playerRepository.getById(3).getUserNotes().size(), is(0));
 
     mockMvc.perform(post("/data/userNote")
-      .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE))
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isCreated());
 
-    assertThat(playerRepository.getOne(3).getUserNotes().size(), is(1));
+    assertThat(playerRepository.getById(3).getUserNotes().size(), is(1));
   }
 }

@@ -3,7 +3,8 @@ package com.faforever.api.user;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.data.domain.UserGroup;
 import com.faforever.api.player.PlayerService;
-import com.faforever.api.security.FafUserDetails;
+import com.faforever.api.security.FafAuthenticationToken;
+import com.faforever.api.security.UserSupplier;
 import com.yahoo.elide.jsonapi.models.Data;
 import com.yahoo.elide.jsonapi.models.JsonApiDocument;
 import com.yahoo.elide.jsonapi.models.Resource;
@@ -14,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,14 +31,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MeController {
   private final PlayerService playerService;
+  private final UserSupplier userSupplier;
 
   @RequestMapping(method = RequestMethod.GET, value = "/me")
   @ApiOperation("Returns the authentication object of the current user")
   @ApiResponse(code = 200, message = "Success with JsonApi compliant MeResult")
   @Secured("ROLE_USER")
-  public JsonApiDocument me(@AuthenticationPrincipal FafUserDetails authentication) {
+  public JsonApiDocument me() {
+    FafAuthenticationToken authentication = userSupplier.get();
 
-    Player player = playerService.getById(authentication.getId());
+    Player player = playerService.getById(authentication.getUserId());
     Set<String> grantedAuthorities = authentication.getAuthorities().stream()
       .map(GrantedAuthority::getAuthority)
       .collect(Collectors.toSet());

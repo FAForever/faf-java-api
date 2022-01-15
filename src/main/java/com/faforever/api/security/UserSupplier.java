@@ -7,15 +7,15 @@ import java.util.List;
 import java.util.function.Supplier;
 
 @Component
-public class UserSupplier implements Supplier<FafUserDetails> {
+public class UserSupplier implements Supplier<FafAuthenticationToken> {
 
   @Override
-  public FafUserDetails get() {
-    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    if (principal instanceof FafUserDetails) {
-      return (FafUserDetails) principal;
+  public FafAuthenticationToken get() {
+    Object principal = SecurityContextHolder.getContext().getAuthentication();
+    if (principal instanceof FafAuthenticationToken fafAuthenticationToken) {
+      return fafAuthenticationToken;
     } else {
-      return new FafUserDetails(-1, principal.toString(), null, false, List.of());
+      return new FafAuthenticationToken(-1, List.of(), List.of());
     }
   }
 }

@@ -35,10 +35,8 @@ import java.util.List;
 
 import static com.faforever.api.challonge.ChallongeController.CHALLONGE_READ_CACHE_NAME;
 import static com.faforever.api.featuredmods.FeaturedModService.FEATURED_MOD_FILES_CACHE_NAME;
-import static com.faforever.api.security.OAuthClientDetailsService.CLIENTS_CACHE_NAME;
 import static com.github.benmanes.caffeine.cache.Caffeine.newBuilder;
 import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 @EnableCaching(proxyTargetClass = true)
 @Configuration
@@ -67,7 +65,6 @@ public class CacheConfig {
       // Other caches
       new CaffeineCache(CHALLONGE_READ_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
       new CaffeineCache(FEATURED_MOD_FILES_CACHE_NAME, newBuilder().expireAfterWrite(5, MINUTES).build()),
-      new CaffeineCache(CLIENTS_CACHE_NAME, newBuilder().expireAfterWrite(5, SECONDS).build()),
       new CaffeineCache(Leaderboard.TYPE_NAME, newBuilder().expireAfterWrite(1, MINUTES).build()),
       new CaffeineCache(LeaderboardRating.TYPE_NAME, newBuilder().expireAfterWrite(1, MINUTES).build())
     ));

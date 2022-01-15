@@ -45,7 +45,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
   public void canUploadWithScopeAndRole() throws Exception {
     mockMvc.perform(
       createAvatarUploadRequest()
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_AVATAR))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_AVATAR))
     ).andExpect(status().isCreated())
       .andExpect(content().string(""));
     final Avatar avatar = avatarRepository.findOneByFilename("avatar3.png").get();
@@ -61,7 +61,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
     Files.copy(FileHandlingHelper.loadResourceAsStream("/avatars/donator.png"), Paths.get("build/cache/avatars/avatar1.png"));
     mockMvc.perform(
       createAvatarReuploadRequest(1)
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_AVATAR))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_AVATAR))
     ).andExpect(status().isOk())
       .andExpect(content().string(""));
     final Avatar avatar = avatarRepository.findOneByFilename("avatar1.png").get();
@@ -76,7 +76,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
     Files.copy(FileHandlingHelper.loadResourceAsStream("/avatars/donator.png"), Paths.get("build/cache/avatars/avatar1.png"));
     mockMvc.perform(
       delete("/avatars/3")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_AVATAR))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_AVATAR))
     ).andExpect(status().isNoContent());
     assertThat(avatarRepository.findById(3), is(Optional.empty()));
     verify(auditServiceSpy, times(1)).logMessage(any());
@@ -86,7 +86,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
   public void cannotUploadWithoutRole() throws Exception {
     mockMvc.perform(
       createAvatarUploadRequest()
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
     ).andExpect(status().isForbidden());
     verify(auditServiceSpy, times(0)).logMessage(any());
   }
@@ -95,7 +95,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
   public void cannotReuploadWithoutRole() throws Exception {
     mockMvc.perform(
       createAvatarReuploadRequest(1)
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
     ).andExpect(status().isForbidden());
     verify(auditServiceSpy, times(0)).logMessage(any());
   }
@@ -104,7 +104,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
   public void cannotDeleteWithoutRole() throws Exception {
     mockMvc.perform(
       delete("/avatars/1")
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
     ).andExpect(status().isForbidden());
     verify(auditServiceSpy, times(0)).logMessage(any());
   }
@@ -113,7 +113,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
   public void cannotUploadWithoutScope() throws Exception {
     mockMvc.perform(
       createAvatarUploadRequest()
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_AVATAR))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_WRITE_AVATAR))
     ).andExpect(status().isForbidden());
     verify(auditServiceSpy, times(0)).logMessage(any());
   }
@@ -122,7 +122,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
   public void cannotReuploadWithoutScope() throws Exception {
     mockMvc.perform(
       createAvatarReuploadRequest(1)
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_AVATAR))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_WRITE_AVATAR))
     ).andExpect(status().isForbidden());
     verify(auditServiceSpy, times(0)).logMessage(any());
   }
@@ -131,7 +131,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
   public void cannotDeleteWithoutScope() throws Exception {
     mockMvc.perform(
       delete("/avatars/1")
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_AVATAR))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_WRITE_AVATAR))
     ).andExpect(status().isForbidden());
     verify(auditServiceSpy, times(0)).logMessage(any());
   }

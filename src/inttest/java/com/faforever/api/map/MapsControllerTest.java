@@ -8,7 +8,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.io.InputStream;
@@ -30,7 +29,6 @@ public class MapsControllerTest extends AbstractIntegrationTest{
   @Autowired
   private FafApiProperties fafApiProperties;
 
-  @WithUserDetails(AUTH_USER)
   @Test
   void missingScope() throws Exception {
     String jsonString = "{}";
@@ -38,37 +36,34 @@ public class MapsControllerTest extends AbstractIntegrationTest{
 
     mockMvc.perform(multipart("/maps/upload")
       .file(file)
-      .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
+      .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
       .param("metadata", jsonString))
       .andExpect(status().isForbidden());
   }
 
-  @WithUserDetails(AUTH_USER)
   @Test
   void fileMissing() throws Exception {
     mockMvc.perform(multipart("/maps/upload")
-      .with(getOAuthTokenWithTestUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES)))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors", hasSize(1)))
       .andExpect(jsonPath("$.errors[0].title", is("org.springframework.web.multipart.support.MissingServletRequestPartException")))
       .andExpect(jsonPath("$.errors[0].detail", is("Required request part 'file' is not present")));
   }
 
-  @WithUserDetails(AUTH_USER)
   @Test
   void jsonMetaDataMissing() throws Exception {
     MockMultipartFile file = new MockMultipartFile("file", "filename.txt", "text/plain", "some xml".getBytes());
 
     mockMvc.perform(multipart("/maps/upload")
       .file(file)
-      .with(getOAuthTokenWithTestUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES)))
+      .with(getOAuthTokenWithActiveUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES)))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors", hasSize(1)))
       .andExpect(jsonPath("$.errors[0].title", is("org.springframework.web.bind.MissingServletRequestParameterException")))
       .andExpect(jsonPath("$.errors[0].detail", is("Required request parameter 'metadata' for method parameter type String is not present")));
   }
 
-  @WithUserDetails(AUTH_USER)
   @Test
   void successUpload() throws Exception {
     String jsonString = "{}";
@@ -82,7 +77,7 @@ public class MapsControllerTest extends AbstractIntegrationTest{
 
       mockMvc.perform(multipart("/maps/upload")
         .file(file)
-        .with(getOAuthTokenWithTestUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES))
         .param("metadata", jsonString)
       ).andExpect(status().isOk());
     } finally {

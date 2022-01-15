@@ -10,7 +10,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -28,8 +27,6 @@ public class ExeUploaderControllerTest {
 
   public static final String API_KEY = "banana";
   private MockMvc mvc;
-  @MockBean
-  private UserDetailsService userDetailsService;
   @MockBean
   private ExeUploaderService exeUploaderService;
   @MockBean

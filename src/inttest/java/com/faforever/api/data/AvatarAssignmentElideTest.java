@@ -8,7 +8,6 @@ import com.faforever.commons.api.dto.AvatarAssignment;
 import com.faforever.commons.api.dto.Player;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
@@ -70,7 +69,7 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
       .setSelected(false);
     mockMvc.perform(
       post("/data/player/{playerId}/avatarAssignments", player.getId())
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_AVATAR))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_AVATAR))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isCreated())
@@ -87,7 +86,7 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
       .setSelected(false);
     mockMvc.perform(
       post("/data/player/{playerId}/avatarAssignments", player.getId())
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_AVATAR))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_WRITE_AVATAR))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isForbidden());
@@ -102,7 +101,7 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
       .setSelected(false);
     mockMvc.perform(
       post("/data/player/{playerId}/avatarAssignments", player.getId())
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isForbidden());
@@ -112,11 +111,11 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
   public void canDeleteAvatarAssignmentWithScopeAndRole() throws Exception {
     mockMvc.perform(
       delete("/data/avatarAssignment/{assignmentId}", 1)
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_AVATAR))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_AVATAR))
     ).andExpect(status().isNoContent());
     mockMvc.perform(
       get("/data/avatarAssignment/{assignmentId}", 1)
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_AVATAR))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_AVATAR))
     ).andExpect(status().isNotFound());
   }
 
@@ -124,7 +123,7 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
   public void cannotDeleteAvatarAssignmentWithoutScope() throws Exception {
     mockMvc.perform(
       delete("/data/avatarAssignment/{assignmentId}", 1)
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_AVATAR))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_WRITE_AVATAR))
     ).andExpect(status().isForbidden());
   }
 
@@ -132,7 +131,7 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
   public void cannotDeleteAvatarAssignmentWithoutRole() throws Exception {
     mockMvc.perform(
       delete("/data/avatarAssignment/{assignmentId}", 1)
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
     ).andExpect(status().isForbidden());
   }
 
@@ -144,7 +143,7 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
       .setId("1");
     mockMvc.perform(
       patch("/data/avatarAssignment/{assignmentId}", 1)
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_AVATAR))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_AVATAR))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isNoContent());
@@ -162,7 +161,7 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
       .setId("1");
     mockMvc.perform(
       patch("/data/avatarAssignment/{assignmentId}", 1)
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, GroupPermission.ROLE_WRITE_AVATAR))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, GroupPermission.ROLE_WRITE_AVATAR))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isForbidden());
@@ -176,7 +175,7 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
       .setId("1");
     mockMvc.perform(
       patch("/data/avatarAssignment/{assignmentId}", 1)
-        .with(getOAuthTokenWithTestUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isForbidden());
@@ -189,26 +188,25 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
       .setId("1");
     mockMvc.perform(
       patch("/data/avatarAssignment/{assignmentId}", 1)
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isNoContent());
     mockMvc.perform(
       get("/data/avatarAssignment/{assignmentId}", 1)
-        .with(getOAuthTokenWithTestUser(NO_SCOPE, NO_AUTHORITIES)))
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data.attributes.selected", is(true)));
   }
 
   @Test
-  @WithUserDetails(AUTH_USER)
   public void nonOwnerCannotUpdateAvatarAssignmentSelection() throws Exception {
     final AvatarAssignment avatarAssignment = (AvatarAssignment) new AvatarAssignment()
       .setSelected(false)
       .setId("2");
     mockMvc.perform(
       patch("/data/avatarAssignment/{assignmentId}", 2)
-        .with(getOAuthTokenWithoutUser(OAuthScope._PUBLIC_PROFILE))
+        .with(getOAuthTokenForUserId(USERID_USER, OAuthScope._PUBLIC_PROFILE))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isForbidden());
