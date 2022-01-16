@@ -1,8 +1,10 @@
 package com.faforever.api.map;
 
 import com.faforever.api.AbstractIntegrationTest;
+import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.security.OAuthScope;
 import com.google.common.io.ByteStreams;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
@@ -23,7 +25,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class MapsControllerTest extends AbstractIntegrationTest{
 
   @Autowired
-  MapRepository mapRepository;
+  private MapRepository mapRepository;
+
+  @Autowired
+  private FafApiProperties fafApiProperties;
 
   @WithUserDetails(AUTH_USER)
   @Test
@@ -80,6 +85,8 @@ public class MapsControllerTest extends AbstractIntegrationTest{
         .with(getOAuthTokenWithTestUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES))
         .param("metadata", jsonString)
       ).andExpect(status().isOk());
+    } finally {
+      FileUtils.deleteDirectory(fafApiProperties.getMap().getTargetDirectory().toFile());
     }
   }
 
