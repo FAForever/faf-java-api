@@ -1,16 +1,6 @@
 spring:
   profiles:
     include: int
-  datasource:
-    url: jdbc:mariadb://${DATABASE_ADDRESS:localhost}/${DATABASE_NAME:faf}?useSSL=false
-    name: ${DATABASE_NAME:faf}
-    username: ${DATABASE_USERNAME:root}
-    password: ${DATABASE_PASSWORD:banana}
-  league-datasource:
-    url: jdbc:mariadb://${LEAGUE_DATABASE_ADDRESS:127.0.0.1}/${LEAGUE_DATABASE_NAME:faf-league}?useSSL=false
-    name: faf-league
-    username: ${LEAGUE_DATABASE_USERNAME:faf-league-service}
-    password: ${LEAGUE_DATABASE_PASSWORD:banana}
   jpa:
     show-sql: true
     hibernate:

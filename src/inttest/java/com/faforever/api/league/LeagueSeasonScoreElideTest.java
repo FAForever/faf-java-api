@@ -1,5 +1,6 @@
 package com.faforever.api.league;
 
+import com.faforever.api.AbstractIntegrationTest;
 import com.faforever.api.config.LeagueDatasourceConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
@@ -18,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/league/truncateTables.sql", config = @SqlConfig(dataSource = LeagueDatasourceConfig.LEAGUE_DATA_SOURCE, transactionManager = LeagueDatasourceConfig.LEAGUE_TRANSACTION_MANAGER))
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/league/prepLeagueData.sql", config = @SqlConfig(dataSource = LeagueDatasourceConfig.LEAGUE_DATA_SOURCE, transactionManager = LeagueDatasourceConfig.LEAGUE_TRANSACTION_MANAGER))
-class LeagueSeasonScoreElideTest extends LeagueAbstractIntegrationTest {
+class LeagueSeasonScoreElideTest extends AbstractIntegrationTest {
 
   @Test
   void anyOneCanReadAllLeagueSeasonScore() throws Exception {
