@@ -7,6 +7,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MariaDBContainer;
+import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -14,9 +15,13 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 public abstract class LeagueAbstractIntegrationTest extends AbstractIntegrationTest {
   private static final MariaDBContainer<?> leagueServiceDBContainer = new MariaDBContainer<>("mariadb:10.6");
   protected static GenericContainer<?> leagueServiceContainer = new GenericContainer<>("faforever/faf-league-service:0.1.7");
+  private static final Network sharedNetwork = Network.newNetwork();
 
   static {
+
     leagueServiceDBContainer
+      .withNetwork(sharedNetwork)
+      .withNetworkAliases("faf-league-db")
       .withUsername("faf-league-service")
       .withPassword("banana")
       .withDatabaseName("faf-league")
@@ -27,7 +32,8 @@ public abstract class LeagueAbstractIntegrationTest extends AbstractIntegrationT
     Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(logger);
 
     leagueServiceContainer
-      .withEnv("DB_SERVER", leagueServiceDBContainer.getContainerIpAddress() + ":" + leagueServiceDBContainer.getFirstMappedPort().toString())
+      .withNetwork(sharedNetwork)
+      .withEnv("DB_SERVER", "faf-league-db")
       .withEnv("DB_LOGIN", "faf-league-service")
       .withEnv("DB_PASSWORD", "banana")
       .withEnv("DB_NAME", "faf-league")
