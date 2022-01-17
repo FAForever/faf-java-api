@@ -29,6 +29,6 @@ public class MeControllerTest extends AbstractIntegrationTest {
       .andExpect(jsonPath("$.data.attributes.userName", is(AUTH_ACTIVE_USER)))
       .andExpect(jsonPath("$.data.attributes.email", is("active-user@faforever.com")))
       .andExpect(jsonPath("$.data.attributes.permissions",
-        containsInAnyOrder("ROLE_USER", "ROLE_" + ROLE_READ_ACCOUNT_PRIVATE_DETAILS)));
+        containsInAnyOrder(ROLE_READ_ACCOUNT_PRIVATE_DETAILS, "ROLE_" + ROLE_READ_ACCOUNT_PRIVATE_DETAILS)));
   }
 }
