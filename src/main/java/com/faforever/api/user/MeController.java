@@ -14,7 +14,6 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides the route {@code /me} which returns the currently logged in user's information.
@@ -41,8 +41,10 @@ public class MeController {
     FafAuthenticationToken authentication = userSupplier.get();
 
     Player player = playerService.getById(authentication.getUserId());
-    Set<String> grantedAuthorities = authentication.getAuthorities().stream()
-      .map(GrantedAuthority::getAuthority)
+    Set<String> grantedAuthorities = authentication.getRoles().stream()
+      //.map(FafRole::role)
+      // TEMPORARY WORKAROUND: we stripped away the ROLE_ prefix, but clients need to adapt. Until then, we add both
+      .flatMap( role -> Stream.of(role.role(), role.getAuthority()) )
       .collect(Collectors.toSet());
 
     Set<String> groups = player.getUserGroups().stream()
