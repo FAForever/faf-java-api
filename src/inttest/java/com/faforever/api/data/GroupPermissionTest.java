@@ -51,7 +51,7 @@ public class GroupPermissionTest extends AbstractIntegrationTest {
     mockMvc.perform(get("/data/groupPermission")
       .with(getOAuthTokenWithTestUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_READ_USER_GROUP)))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.data", hasSize(23)));
+      .andExpect(jsonPath("$.data", hasSize(25)));
   }
 
   @Test

@@ -1,6 +1,4 @@
-INSERT INTO leaderboard (id, technical_name)
-VALUES (1, 'leaderboard1'),
-       (2, 'leaderboard2');
+-- leaderboard is populated by R__060_leaderboard.sql from Flyway
 
 INSERT INTO league (id, technical_name, name_key, description_key, image_url, medium_image_url, small_image_url)
 VALUES (1, 'league1', 'league_name_1', 'league_description_1',
