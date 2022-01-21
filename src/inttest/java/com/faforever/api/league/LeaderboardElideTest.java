@@ -27,7 +27,7 @@ class LeaderboardElideTest extends LeagueAbstractIntegrationTest {
       get("/data/leagueLeaderboard")
     )
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.data[*]", hasSize(2)));
+      .andExpect(jsonPath("$.data[*]", hasSize(3)));
   }
 
   @Test
@@ -36,7 +36,7 @@ class LeaderboardElideTest extends LeagueAbstractIntegrationTest {
       get("/data/leagueLeaderboard/1")
     )
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.data.attributes.technicalName", is("leaderboard1")));
+      .andExpect(jsonPath("$.data.attributes.technicalName", is("global")));
   }
 
   @Test

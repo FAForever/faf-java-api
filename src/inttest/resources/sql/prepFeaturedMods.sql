@@ -1,7 +1,4 @@
-INSERT INTO `game_featuredMods` (`id`, `gamemod`, `description`, `name`, `publish`, `order`, `git_url`, `git_branch`, `file_extension`, `allow_override`, `deployment_webhook`) VALUES
-(1,	'faf',	'Forged Alliance Forever',	'FAF',	1,	0,	'https://github.com/FAForever/fa.git',	'deploy/faf',	'nx2',	0,	NULL),
-(27,	'fafbeta',	'Beta version of the next FAF patch',	'FAF Beta',	1,	2,	'https://github.com/FAForever/fa.git',	'deploy/fafbeta',	'nx4',	1,	NULL),
-(28,	'fafdevelop',	'Updated frequently for testing the upcoming game Patch',	'FAF Develop',	1,	11,	'https://github.com/FAForever/fa.git',	'deploy/fafdevelop',	'nx5',	1,	NULL);
+-- game_featuredMods is populated by R__010_game_featuredMods.sql from Flyway
 
 INSERT INTO `updates_fafbeta` (`id`, `filename`, `path`) VALUES
 (1,	'ForgedAlliance.exe',	'bin');
