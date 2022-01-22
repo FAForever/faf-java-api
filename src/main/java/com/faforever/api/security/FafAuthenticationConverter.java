@@ -18,14 +18,24 @@ public class FafAuthenticationConverter implements Converter<Jwt, AbstractAuthen
   @Override
   public AbstractAuthenticationToken convert(Jwt source) {
     int userId = extractUserId(source);
+    String username = extractUsername(source);
     List<FafScope> scopes = extractScopes(source);
     List<FafRole> roles = extractRoles(source);
 
-    return new FafAuthenticationToken(userId, scopes, roles);
+    return new FafAuthenticationToken(userId, username, scopes, roles);
   }
 
   private int extractUserId(Jwt source) {
     return Integer.parseInt(source.getSubject());
+  }
+
+  private String extractUsername(Jwt source) {
+    JSONObject ext = source.getClaim("ext");
+    String username = Optional.ofNullable(ext)
+      .flatMap(jsonObject -> Optional.ofNullable((String)jsonObject.get("username")))
+      .orElse("[undefined]");
+
+    return username;
   }
 
   private List<FafScope> extractScopes(Jwt source) {
@@ -41,7 +51,7 @@ public class FafAuthenticationConverter implements Converter<Jwt, AbstractAuthen
   public List<FafRole> extractRoles(Jwt source) {
     JSONObject ext = source.getClaim("ext");
     List<FafRole> roles = Optional.ofNullable(ext)
-      .map(jsonObject -> (JSONArray)jsonObject.get("roles"))
+      .flatMap(jsonObject -> Optional.ofNullable((JSONArray)jsonObject.get("roles")))
       .map(jsonArray -> jsonArray.stream().map(role -> new FafRole(role.toString())))
       .orElse(Stream.empty())
       .toList();

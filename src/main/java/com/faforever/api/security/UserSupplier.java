@@ -15,7 +15,7 @@ public class UserSupplier implements Supplier<FafAuthenticationToken> {
     if (principal instanceof FafAuthenticationToken fafAuthenticationToken) {
       return fafAuthenticationToken;
     } else {
-      return new FafAuthenticationToken(-1, List.of(), List.of());
+      return new FafAuthenticationToken(-1, "[No User]", List.of(), List.of());
     }
   }
 }

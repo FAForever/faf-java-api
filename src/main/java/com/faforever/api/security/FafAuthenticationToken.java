@@ -12,11 +12,13 @@ import java.util.Collection;
 public class FafAuthenticationToken extends AbstractAuthenticationToken {
 
   private final int userId;
+  private final String username;
   private final Collection<FafScope> scopes;
   private final Collection<FafRole> roles;
 
   public FafAuthenticationToken(
     int userId,
+    String username,
     @NotNull Collection<FafScope> scopes,
     @NotNull Collection<FafRole> roles
   ) {
@@ -29,6 +31,7 @@ public class FafAuthenticationToken extends AbstractAuthenticationToken {
         .build()
     );
     this.userId = userId;
+    this.username = username;
     this.scopes = scopes;
     this.roles = roles;
     // since the access token was already verified, each FafAuthenticationToken is implicitly authenticated
