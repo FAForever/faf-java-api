@@ -1,6 +1,5 @@
 buildscript {
   repositories {
-    jcenter()
     mavenCentral()
   }
   dependencies {
@@ -175,7 +174,7 @@ apply plugin: 'com.github.kt3k.coveralls'
 jacocoTestReport {
   executionData.from = files(["$buildDir/jacoco/test.exec", "$buildDir/jacoco/inttest.exec"])
   reports {
-    xml.enabled = true
+    xml.required = true
   }
 }
 
@@ -186,7 +185,7 @@ configurations {
 }
 
 task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
-  main = "com.codacy.CodacyCoverageReporter"
+  mainClass = "com.codacy.CodacyCoverageReporter"
   classpath = configurations.codacy
   args = ["report", "-l", "Java", "-r", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"]
 }
