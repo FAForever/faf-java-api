@@ -32,7 +32,7 @@ public class OAuthHelper {
 
     var fafScopes = scopes.stream().map(FafScope::new).toList();
 
-    return authentication(new FafAuthenticationToken(userId, fafScopes, roles));
+    return authentication(new FafAuthenticationToken(userId, user.getLogin(), fafScopes, roles));
   }
 
   public RequestPostProcessor addBearerToken(
@@ -43,6 +43,6 @@ public class OAuthHelper {
     var fafScopes = scopes.stream().map(FafScope::new).toList();
     var fafRoles = roles.stream().map(FafRole::new).toList();
 
-    return authentication(new FafAuthenticationToken(userId, fafScopes, fafRoles));
+    return authentication(new FafAuthenticationToken(userId, "[undefined]", fafScopes, fafRoles));
   }
 }

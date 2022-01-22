@@ -17,7 +17,8 @@ public class AuditService {
 
   public void logMessage(String message) {
     final FafAuthenticationToken fafAuthenticationToken = userSupplier.get();
-    String extendedMessage = MessageFormat.format("{0} [invoked by User  with id ''{1}'']", message, fafAuthenticationToken.getUserId());
+    String extendedMessage = MessageFormat.format("{0} [invoked by User ''{1}'' with id ''{2}'']",
+      message, fafAuthenticationToken.getUsername(), fafAuthenticationToken.getUserId());
     log.info(extendedMessage);
   }
 }
