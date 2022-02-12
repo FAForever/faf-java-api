@@ -21,6 +21,12 @@ import static org.mockito.Mockito.when;
 public class EmailServiceTest {
 
   public static final String ACTION_URL = "https://example.com";
+  public static final String USERNAME = "junit";
+  public static final String EMAIL = "junit@example.com";
+  public static final String FROM_EMAIL = "foo@bar.com";
+  public static final String FROM_NAME = "foobar";
+  public static final String SUBJECT = "Hello";
+  public static final String HTML_BODY = "someHtmlBody";
   private EmailService instance;
   private FafApiProperties properties;
 
@@ -28,14 +34,16 @@ public class EmailServiceTest {
   private DomainBlacklistRepository domainBlacklistRepository;
   @Mock
   private EmailSender emailSender;
+  @Mock
+  private MailBodyBuilder mailBodyBuilder;
 
   @BeforeEach
   public void setUp() {
     properties = new FafApiProperties();
-    properties.getMail().setFromEmailAddress("foo@bar.com");
-    properties.getMail().setFromEmailName("foobar");
+    properties.getMail().setFromEmailAddress(FROM_EMAIL);
+    properties.getMail().setFromEmailName(FROM_NAME);
 
-    instance = new EmailService(domainBlacklistRepository, properties, emailSender);
+    instance = new EmailService(domainBlacklistRepository, properties, emailSender, mailBodyBuilder);
   }
 
   @Test
@@ -63,24 +71,26 @@ public class EmailServiceTest {
   }
 
   @Test
-  public void sendActivationMail() {
+  public void sendActivationMail() throws Exception{
     Registration registration = properties.getRegistration();
-    registration.setSubject("Hello");
-    registration.setHtmlFormat("Hello {0}, bla: {1}");
+    registration.setSubject(SUBJECT);
 
-    instance.sendActivationMail("junit", "junit@example.com", ACTION_URL);
+    when(mailBodyBuilder.buildAccountActivationBody(USERNAME, ACTION_URL)).thenReturn(HTML_BODY);
 
-    verify(emailSender).sendMail("foo@bar.com", "foobar", "junit@example.com", "Hello", "Hello junit, bla: " + ACTION_URL);
+    instance.sendActivationMail(USERNAME, EMAIL, ACTION_URL);
+
+    verify(emailSender).sendMail(FROM_EMAIL, FROM_NAME, EMAIL, SUBJECT, HTML_BODY);
   }
 
   @Test
-  public void sendPasswordResetMail() {
+  public void sendPasswordResetMail() throws Exception {
     PasswordReset passwordReset = properties.getPasswordReset();
-    passwordReset.setSubject("Hello");
-    passwordReset.setHtmlFormat("Hello {0}, bla: {1}");
+    passwordReset.setSubject(SUBJECT);
 
-    instance.sendPasswordResetMail("junit", "junit@example.com", ACTION_URL);
+    when(mailBodyBuilder.buildPasswordResetBody(USERNAME, ACTION_URL)).thenReturn(HTML_BODY);
 
-    verify(emailSender).sendMail("foo@bar.com", "foobar", "junit@example.com", "Hello", "Hello junit, bla: " + ACTION_URL);
+    instance.sendPasswordResetMail(USERNAME, EMAIL, ACTION_URL);
+
+    verify(emailSender).sendMail(FROM_EMAIL, FROM_NAME, EMAIL, SUBJECT, HTML_BODY);
   }
 }

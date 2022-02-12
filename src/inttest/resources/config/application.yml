@@ -68,11 +68,12 @@ faf-api:
   password-reset:
     password-reset-url-format: "http://localhost:8010/users/claimPasswordResetToken/%s"
     subject: "Integration test password reset"
-    html-format: "Integration test password reset html body"
+    mail-template-path: "src/inttest/resources/mail/password-reset.html"
   registration:
     activation-url-format: "http://localhost/users/activate?token=%s"
     subject: "Integration test registration"
-    html-format: "Integration test registration html body"
+    activation-mail-template-path: "src/inttest/resources/mail/account-activation.html"
+    welcome-mail-template-path: "src/inttest/resources/mail/welcome-to-faf.html"
   steam:
     realm: "http://localhost"
     api-key: "banana"

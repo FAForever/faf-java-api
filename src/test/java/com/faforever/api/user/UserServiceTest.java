@@ -132,7 +132,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void register() {
+  public void register() throws Exception{
     properties.getRegistration().setActivationUrlFormat(ACTIVATION_URL_FORMAT);
 
     when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
@@ -335,7 +335,7 @@ public class UserServiceTest {
 
   @Test
   @SuppressWarnings("unchecked")
-  public void resetPasswordByLogin() {
+  public void resetPasswordByLogin() throws Exception {
     properties.getPasswordReset().setPasswordResetUrlFormat(PASSWORD_RESET_URL_FORMAT);
 
     when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);
@@ -358,7 +358,7 @@ public class UserServiceTest {
 
   @Test
   @SuppressWarnings("unchecked")
-  public void resetPasswordByEmail() {
+  public void resetPasswordByEmail() throws Exception {
     properties.getPasswordReset().setPasswordResetUrlFormat(PASSWORD_RESET_URL_FORMAT);
 
     when(fafTokenService.createToken(any(), any(), any())).thenReturn(TOKEN_VALUE);

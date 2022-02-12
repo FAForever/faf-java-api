@@ -177,7 +177,8 @@ public class FafApiProperties {
     private long linkExpirationSeconds = Duration.ofDays(7).getSeconds();
     private String activationUrlFormat;
     private String subject;
-    private String htmlFormat;
+    private String activationMailTemplatePath;
+    private String welcomeMailTemplatePath;
   }
 
   @Data
@@ -185,7 +186,7 @@ public class FafApiProperties {
     private long linkExpirationSeconds = Duration.ofDays(7).getSeconds();
     private String passwordResetUrlFormat;
     private String subject;
-    private String htmlFormat;
+    private String mailTemplatePath;
   }
 
   @Data
