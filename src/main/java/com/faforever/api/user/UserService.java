@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 
 import static com.faforever.api.error.ErrorCode.TOKEN_INVALID;
 import static com.faforever.api.error.ErrorCode.UNKNOWN_STEAM_ID;
+import static com.github.nocatch.NoCatch.noCatch;
 
 @Service
 @Slf4j
@@ -146,8 +147,8 @@ public class UserService {
 
     String activationUrl = String.format(properties.getRegistration().getActivationUrlFormat(), username, token);
 
-    emailService.sendActivationMail(username, email, activationUrl);
-
+    // There is no recovery if the email can't be sent. The user can't continue without the mail, we need to inform the caller.
+    noCatch(() -> emailService.sendActivationMail(username, email, activationUrl));
 
     userRegistrationCounter.increment();
   }
@@ -309,7 +310,9 @@ public class UserService {
 
     String passwordResetUrl = String.format(properties.getPasswordReset().getPasswordResetUrlFormat(), user.getLogin(), token);
 
-    emailService.sendPasswordResetMail(user.getLogin(), user.getEmail(), passwordResetUrl);
+    // There is no recovery if the email can't be sent. The user can't continue without the mail, we need to inform the caller.
+    noCatch(() -> emailService.sendPasswordResetMail(user.getLogin(), user.getEmail(), passwordResetUrl));
+
     userPasswordResetRequestCounter.increment();
   }
 
