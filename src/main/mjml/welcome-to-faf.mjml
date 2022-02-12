@@ -1,0 +1,104 @@
+<mjml>
+  <mj-head>
+    <mj-include path="_style.mjml"/>
+    <mj-preview>
+      Password reset
+    </mj-preview>
+  </mj-head>
+  <mj-body background-color="#fafafa">
+    <mj-include path="_header.mjml"/>
+
+    <mj-section background-color="#ffffff">
+      <mj-column>
+        <mj-text>
+          <h1>Welcome, {{username}}</h1>
+          <p>you just joined FAF, how great is that! We're a rather small community so every new member is precious to
+            us.
+          </p>
+          <p>This email contains the next steps to get you started.</p>
+        </mj-text>
+
+        <mj-divider border-width="2px" border-color="lightgrey" padding-bottom="0px"/>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#ffffff" padding-top="0px">
+      <mj-column>
+        <mj-text>
+          <h2>Link your account to Steam</h2>
+          <p>Before you can play games, we need to verify that you own the game. Please login to our website and link
+            your account to Steam. Make sure your Steam profile and game list are public (you can follow <a
+              href="https://imgur.com/a/enuUlAb">this guide</a>).
+          </p>
+        </mj-text>
+        <mj-button href="https://www.faforever.com/account/link">
+          Link to Steam
+        </mj-button>
+        <mj-divider border-width="2px" border-color="lightgrey" padding-bottom="0px"/>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#ffffff" padding-top="0px">
+      <mj-column>
+        <mj-text>
+          <h2>Download our Client</h2>
+          <p>You will need to install our client to chat with other player launch games, download maps & mods..
+          </p>
+        </mj-text>
+        <mj-button href="https://www.faforever.com/client">
+          Download FAF client
+        </mj-button>
+        <mj-divider border-width="2px" border-color="lightgrey" padding-bottom="0px"/>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#ffffff" padding-top="0px">
+      <mj-column>
+        <mj-text>
+          <h2>Get help</h2>
+          <p>Don't be afraid to ask for help. FAF isn't always straightforward. But we have plenty of resources to help you out.</p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#ffffff" padding-top="0px">
+      <mj-column>
+        <mj-button href="https://forum.faforever.com/category/18/frequently-asked-questions">
+          Open FAQ
+        </mj-button>
+      </mj-column>
+      <mj-column>
+        <mj-button href="https://wiki.faforever.com">
+          Open Wiki
+        </mj-button>
+      </mj-column>
+      <mj-column>
+        <mj-button href="https://forum.faforever.com">
+          Open Forum
+        </mj-button>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#ffffff" padding-top="0px">
+      <mj-column>
+        <mj-divider border-width="2px" border-color="lightgrey" padding-top="0px"/>
+        <mj-text>
+          <p>We hope this gives you a head start. See you on the battlefield!</p>
+          <p>-- The FAForever team</p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="gray" padding="0">
+      <mj-column>
+        <mj-text color="#d3d3d3">
+          <p>Should you ever want to delete your account, please send an email with your request to
+            admin@faforever.com.
+          </p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-include path="_footer.mjml"/>
+  </mj-body>
+</mjml>
