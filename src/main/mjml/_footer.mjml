@@ -1,0 +1,36 @@
+<mj-section background-color="#000000" padding="2px" css-class="footer">
+  <mj-column>
+    <mj-text color="white" align="center" padding="2px">
+      <ul>
+        <li>
+          <a target="_blank" href="https://discord.com/invite/hgvj6Af">
+            <i class="fab fa-discord" aria-label="FAF Discord"/>
+          </a>
+        </li>
+        <li>
+          <a target="_blank" href="https://www.youtube.com/c/ForgedAllianceForever">
+            <i class="fab fa-youtube" aria-label="FAF Youtube"/>
+          </a>
+        </li>
+        <li>
+          <a target="_blank" href="https://www.facebook.com/ForgedAllianceForever">
+            <i class="fab fa-facebook" aria-label="FAF Facebook"/>
+          </a>
+        </li>
+        <li>
+          <a target="_blank" href="https://github.com/FAForever/">
+            <i class="fab fa-github" aria-label="FAF Github"/>
+          </a>
+        </li>
+        <li>
+          <a target="_blank" href="https://www.patreon.com/faf">
+            <i class="fab fa-patreon" aria-label="FAF Patreon"/>
+          </a>
+        </li>
+      </ul>
+      <p>
+        <a href="https://wwww.faforever.com">www.faforever.com</a>
+      </p>
+    </mj-text>
+  </mj-column>
+</mj-section>

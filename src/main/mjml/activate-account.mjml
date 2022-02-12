@@ -1,0 +1,46 @@
+<mjml>
+  <mj-head>
+    <mj-include path="_style.mjml" />
+    <mj-preview>
+      FAForever account activation
+    </mj-preview>
+  </mj-head>
+  <mj-body background-color="#fafafa">
+    <mj-include path="_header.mjml" />
+
+    <mj-section background-color="#ffffff">
+      <mj-column>
+        <mj-text>
+          <h1>Activate your account</h1>
+          <p>Dear {{username}},</p>
+          <p>welcome to the FAForever community. To finish your registration please activate your account and select a
+            password.
+          </p>
+        </mj-text>
+        <mj-button href="{{activationUrl}">
+          Activate account
+        </mj-button>
+        <mj-text>
+          <p>Further information will be provided to you after activation.</p>
+        </mj-text>
+        <mj-text>
+          <p>Thanks,</p>
+          <p>-- The FAForever team</p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="gray" padding="0">
+      <mj-column>
+        <mj-text color="#d3d3d3">
+          <p>You don't know where this email is coming from?</p>
+          <p>Someone used your email address in the registration form on faforever.com. If you do not wish to be part of
+            our community, just ignore or delete this email. No account was created yet.
+          </p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-include path="_footer.mjml" />
+  </mj-body>
+</mjml>
