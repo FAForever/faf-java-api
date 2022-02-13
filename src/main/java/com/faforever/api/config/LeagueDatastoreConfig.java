@@ -3,8 +3,6 @@ package com.faforever.api.config;
 import com.faforever.api.config.elide.SpringHibernateDataStore;
 import com.yahoo.elide.core.datastore.DataStore;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,13 +19,6 @@ public class LeagueDatastoreConfig {
   public static final String LEAGUE_DATA_SOURCE = "leagueDataSource";
   public static final String LEAGUE_TRANSACTION_MANAGER = "leagueTransactionManager";
 
-  @Bean
-  @ConfigurationProperties("spring.league-datasource.configuration")
-  public DataSource leagueDataSource(
-    @Qualifier("leagueDataSourceProperties") DataSourceProperties leagueDataSourceProperties
-  ) {
-    return leagueDataSourceProperties.initializeDataSourceBuilder().build();
-  }
 
   @Bean
   public LocalContainerEntityManagerFactoryBean leagueEntityManagerFactory(

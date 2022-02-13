@@ -5,8 +5,6 @@ import com.yahoo.elide.core.datastore.DataStore;
 import org.hibernate.cfg.AvailableSettings;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,14 +24,6 @@ import javax.sql.DataSource;
   transactionManagerRef = "fafTransactionManager"
 )
 public class FafDatastoreConfig {
-  @Bean
-  @Primary
-  @ConfigurationProperties("spring.datasource.configuration")
-  public DataSource fafDataSource(
-    @Qualifier("fafDataSourceProperties") DataSourceProperties fafDataSourceProperties
-  ) {
-    return fafDataSourceProperties.initializeDataSourceBuilder().build();
-  }
 
   @Primary
   @Bean

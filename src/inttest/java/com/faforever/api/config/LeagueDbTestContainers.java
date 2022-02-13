@@ -4,6 +4,7 @@ import com.faforever.api.AbstractIntegrationTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +14,9 @@ import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 
-@ConditionalOnMissingProperty("spring.league-datasource.url")
+import javax.sql.DataSource;
+
+@ConditionalOnProperty(value = "spring.league-datasource.url", havingValue = "jdbc:mariadb://testcontainers/faf-league?useSSL=false")
 @Configuration
 public class LeagueDbTestContainers {
   private static final MariaDBContainer<?> leagueServiceDBContainer = new MariaDBContainer<>("mariadb:10.6");
@@ -24,11 +27,17 @@ public class LeagueDbTestContainers {
   @ConfigurationProperties("spring.league-datasource")
   @Qualifier("leagueDataSourceProperties")
   public DataSourceProperties leagueDataSourceProperties() {
-    final DataSourceProperties dataSourceProperties = new DataSourceProperties();
-    dataSourceProperties.setUrl(leagueServiceDBContainer.getJdbcUrl());
-    dataSourceProperties.setUsername(leagueServiceDBContainer.getUsername());
-    dataSourceProperties.setPassword(leagueServiceDBContainer.getPassword());
-    return dataSourceProperties;
+    return new DataSourceProperties();
+  }
+
+  @Bean
+  public DataSource leagueDataSource(
+    @Qualifier("leagueDataSourceProperties") DataSourceProperties leagueDataSourceProperties
+  ) {
+    leagueDataSourceProperties.setUrl(leagueServiceDBContainer.getJdbcUrl());
+    leagueDataSourceProperties.setUsername(leagueServiceDBContainer.getUsername());
+    leagueDataSourceProperties.setPassword(leagueServiceDBContainer.getPassword());
+    return leagueDataSourceProperties.initializeDataSourceBuilder().build();
   }
 
   static {
