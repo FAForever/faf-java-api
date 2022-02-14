@@ -13,6 +13,7 @@ import java.nio.file.Path;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
@@ -72,7 +73,7 @@ public class MailBodyBuilderTest {
 
     var result = assertThrows(IllegalStateException.class, () ->instance.buildAccountActivationBody("junit", "someActionUrl"));
 
-    assertThat(result.getMessage(), is("Template file for ACCOUNT_ACTIVATION is missing variables: {{activationUrl}}, {{username}}"));
+    assertThat(result.getMessage(), startsWith("Template file for ACCOUNT_ACTIVATION is missing variables:"));
   }
 
   @Test
