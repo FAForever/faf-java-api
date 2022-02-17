@@ -47,7 +47,7 @@ abstract class FafUserCheck extends UserCheck {
 
       return missedScopes.isEmpty();
     } else {
-      log.warn("Authentication is no FafAuthenticationToken: {}", authentication);
+      log.debug("Authentication is no FafAuthenticationToken: {}", authentication);
       return false;
     }
   }
