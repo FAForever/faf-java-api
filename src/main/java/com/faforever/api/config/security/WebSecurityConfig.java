@@ -10,6 +10,7 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -26,6 +27,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
+    final var bearerTokenResolver = new DefaultBearerTokenResolver();
+    bearerTokenResolver.setAllowUriQueryParameter(true);
+
     // @formatter:off
       http
         .csrf()
@@ -44,6 +48,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .cacheControl().disable()
         .and().formLogin().disable()
         .oauth2ResourceServer()
+          .bearerTokenResolver(bearerTokenResolver)
           .jwt()
           .jwtAuthenticationConverter(new FafAuthenticationConverter())
           .and()
