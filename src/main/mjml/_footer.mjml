@@ -4,27 +4,27 @@
       <ul>
         <li>
           <a target="_blank" href="https://discord.com/invite/hgvj6Af">
-            <i class="fab fa-discord" aria-label="FAF Discord"/>
+            <img src="https://content.faforever.com/images/icons/discord-white-20px.png" alt="Discord"/>
           </a>
         </li>
         <li>
           <a target="_blank" href="https://www.youtube.com/c/ForgedAllianceForever">
-            <i class="fab fa-youtube" aria-label="FAF Youtube"/>
+            <img src="https://content.faforever.com/images/icons/youtube-white-20px.png" alt="Youtube"/>
           </a>
         </li>
         <li>
           <a target="_blank" href="https://www.facebook.com/ForgedAllianceForever">
-            <i class="fab fa-facebook" aria-label="FAF Facebook"/>
+            <img src="https://content.faforever.com/images/icons/facebook-white-20px.png" alt="Facebook"/>
           </a>
         </li>
         <li>
           <a target="_blank" href="https://github.com/FAForever/">
-            <i class="fab fa-github" aria-label="FAF Github"/>
+            <img src="https://content.faforever.com/images/icons/github-white-20px.png" alt="Github"/>
           </a>
         </li>
         <li>
           <a target="_blank" href="https://www.patreon.com/faf">
-            <i class="fab fa-patreon" aria-label="FAF Patreon"/>
+            <img src="https://content.faforever.com/images/icons/patreon-white-20px.png" alt="Patreon"/>
           </a>
         </li>
       </ul>

@@ -1,8 +1,8 @@
-<mj-section background-url="https://faforever.com/images/index-background.jpg" background-size="cover">
+<mj-section background-url="https://content.faforever.com/images/background/email-header.jpg" background-size="cover">
   <mj-column>
     <mj-spacer height="50px"/>
     <mj-image src="https://faforever.com/images/vector_faf_logo.png" alt="FAF Logo" width="100px" height="100px"/>
-    <mj-text font-family="Yanone Kaffeesatz" font-size="40px" color="white" align="center">Forged Alliance Forever
+    <mj-text font-family="Yanone Kaffeesatz, Open Sans, Helvetica, Arial, sans-serif" font-size="40px" color="white" align="center">Forged Alliance Forever
     </mj-text>
     <mj-spacer height="50px"/>
   </mj-column>

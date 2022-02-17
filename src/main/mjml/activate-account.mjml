@@ -17,7 +17,7 @@
             password.
           </p>
         </mj-text>
-        <mj-button href="{{activationUrl}">
+        <mj-button href="{{activationUrl}}">
           Activate account
         </mj-button>
         <mj-text>
