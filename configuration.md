@@ -54,10 +54,6 @@
 | MAP_PREVIEW_PATH_SMALL | `/content/maps/previews/small` |  | `build/cache/map_previews/small` |
 | MAP_SMALL_PREVIEWS_URL_FORMAT | `https://content.${FAF_DOMAIN}/maps/previews/small/%s` | `FAF_DOMAIN` | `https://content.test.faforever.com/faf/maps/previews/small/%s` |
 | MAP_UPLOAD_PATH | `/content/maps` |  | `build/cache/map/maps` |
-| MAUTIC_ACCESS_TOKEN_URL | `false` |  |  |
-| MAUTIC_BASE_URL | `false` |  |  |
-| MAUTIC_CLIENT_ID | `false` |  |  |
-| MAUTIC_CLIENT_SECRET | `false` |  |  |
 | MOD_DOWNLOAD_URL_FORMAT | `https://content.${FAF_DOMAIN}/mods/%s` | `FAF_DOMAIN` | `https://content.test.faforever.com/faf/vault/mods/%s` |
 | MOD_PREVIEW_URL_FORMAT | `https://content.${FAF_DOMAIN}/mods/%s` | `FAF_DOMAIN` | `https://content.test.faforever.com/faf/vault/mods/%s` |
 | NODEBB_ADMIN_USERID | `1` |  |  |

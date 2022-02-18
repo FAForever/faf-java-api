@@ -34,7 +34,6 @@ public class FafApiProperties {
   private Challonge challonge = new Challonge();
   private User user = new User();
   private Database database = new Database();
-  private Mautic mautic = new Mautic();
   private Anope anope = new Anope();
   private Rating rating = new Rating();
   private Tutorial tutorial = new Tutorial();
@@ -225,14 +224,6 @@ public class FafApiProperties {
      * The database schema version required to run this application.
      */
     private String schemaVersion;
-  }
-
-  @Data
-  public static class Mautic {
-    private String baseUrl;
-    private String clientId;
-    private String clientSecret;
-    private String accessTokenUrl;
   }
 
   @Data
