@@ -83,6 +83,18 @@ public class EmailServiceTest {
   }
 
   @Test
+  public void sendWelcomeToFafMail() throws Exception{
+    Registration registration = properties.getRegistration();
+    registration.setWelcomeSubject(SUBJECT);
+
+    when(mailBodyBuilder.buildWelcomeToFafBody(USERNAME)).thenReturn(HTML_BODY);
+
+    instance.sendWelcomeToFafMail(USERNAME, EMAIL);
+
+    verify(emailSender).sendMail(FROM_EMAIL, FROM_NAME, EMAIL, SUBJECT, HTML_BODY);
+  }
+
+  @Test
   public void sendPasswordResetMail() throws Exception {
     PasswordReset passwordReset = properties.getPasswordReset();
     passwordReset.setSubject(SUBJECT);

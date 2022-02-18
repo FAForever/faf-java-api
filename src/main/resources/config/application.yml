@@ -69,6 +69,7 @@ faf-api:
     activation-url-format: ${ACTIVATION_URL_FORMAT:https://www.${FAF_DOMAIN}/account/activate?username=%s&token=%s}
     subject: ${REGISTRATION_EMAIL_SUBJECT:FAF user registration}
     activation-mail-template-path: ${ACCOUNT_ACTIVATION_MAIL_TEMPLATE_PATH:/config/mail/account-activation.html}
+    welcome-subject: ${WELCOME_MAIL_SUBJECT:Welcome to FAF}
     welcome-mail-template-path: ${WELCOME_MAIL_TEMPLATE_PATH:/config/mail/welcome-to-faf.html}
   replay:
     download-url-format: ${REPLAY_DOWNLOAD_URL_FORMAT:https://replays.${FAF_DOMAIN}/%s}
