@@ -46,11 +46,6 @@ faf-api:
     small-previews-url-format: ${MAP_SMALL_PREVIEWS_URL_FORMAT:https://content.${FAF_DOMAIN}/maps/previews/small/%s}
     large-previews-url-format: ${MAP_LARGE_PREVIEWS_URL_FORMAT:https://content.${FAF_DOMAIN}/maps/previews/large/%s}
     download-url-format: ${MAP_DOWNLOAD_URL_FORMAT:https://content.${FAF_DOMAIN}/maps/%s}
-  mautic:
-    base-url: ${MAUTIC_BASE_URL:false}
-    client-id: ${MAUTIC_CLIENT_ID:false}
-    client-secret: ${MAUTIC_CLIENT_SECRET:false}
-    access-token-url: ${MAUTIC_ACCESS_TOKEN_URL:false}
   mod:
     target-directory: ${MOD_UPLOAD_PATH:/content/mods}
     download-url-format: ${MOD_DOWNLOAD_URL_FORMAT:https://content.${FAF_DOMAIN}/mods/%s}
