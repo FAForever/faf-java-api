@@ -26,6 +26,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -212,6 +213,13 @@ public class UserService {
 
     broadcastUserChange(user);
     userActivationCounter.increment();
+
+    try {
+      emailService.sendWelcomeToFafMail(username, email);
+    } catch (IOException e) {
+      log.error("Sending welcome email to {} failed, activation finished anyway.", username, e);
+      // The welcome email is not critical, thus we swallow the exception if it fails
+    }
   }
 
   void changePassword(String currentPassword, String newPassword, User user) {

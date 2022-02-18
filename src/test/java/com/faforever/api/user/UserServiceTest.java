@@ -180,7 +180,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void activate() {
+  public void activate() throws Exception{
     final String TEST_IP_ADDRESS = IP_ADDRESS;
 
     when(fafTokenService.resolveToken(FafTokenType.REGISTRATION, TOKEN_VALUE)).thenReturn(Map.of(
@@ -203,6 +203,7 @@ public class UserServiceTest {
     assertThat(user.getRecentIpAddress(), is(TEST_IP_ADDRESS));
 
     verify(eventPublisher).publishEvent(any(UserUpdatedEvent.class));
+    verify(emailService).sendWelcomeToFafMail(TEST_USERNAME, TEST_CURRENT_EMAIL);
   }
 
   @Test

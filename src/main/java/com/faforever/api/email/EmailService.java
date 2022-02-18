@@ -46,6 +46,18 @@ public class EmailService {
     );
   }
 
+  public void sendWelcomeToFafMail(String username, String email) throws IOException {
+    final var mailBody = mailBodyBuilder.buildWelcomeToFafBody(username);
+
+    emailSender.sendMail(
+      properties.getMail().getFromEmailAddress(),
+      properties.getMail().getFromEmailName(),
+      email,
+      properties.getRegistration().getWelcomeSubject(),
+      mailBody
+    );
+  }
+
   public void sendPasswordResetMail(String username, String email, String passwordResetUrl) throws IOException {
     final var mailBody = mailBodyBuilder.buildPasswordResetBody(username, passwordResetUrl);
 

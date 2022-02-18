@@ -135,6 +135,12 @@ public class MailBodyBuilder implements InitializingBean {
     ));
   }
 
+  public String buildWelcomeToFafBody(String username) throws IOException {
+    return populate(Template.WELCOME_TO_FAF, Map.of(
+      "username", username
+    ));
+  }
+
   public String buildPasswordResetBody(String username, String passwordResetUrl) throws IOException {
     return populate(Template.PASSWORD_RESET, Map.of(
       "username", username,

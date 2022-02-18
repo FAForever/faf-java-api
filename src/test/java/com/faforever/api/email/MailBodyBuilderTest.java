@@ -68,12 +68,21 @@ public class MailBodyBuilderTest {
   }
 
   @Test
-  public void populateFailsOnMissingVariables() throws Exception {
+  public void buildAccountActivationBodyFailsOnMissingVariables() throws Exception {
     writeTemplateFile("I forgot the variables {{and put in wrong ones}}");
 
     var result = assertThrows(IllegalStateException.class, () ->instance.buildAccountActivationBody("junit", "someActionUrl"));
 
     assertThat(result.getMessage(), startsWith("Template file for ACCOUNT_ACTIVATION is missing variables:"));
+  }
+
+  @Test
+  public void buildWelcomeToFafBodyFailsOnMissingVariables() throws Exception {
+    writeTemplateFile("I forgot the variables {{and put in wrong ones}}");
+
+    var result = assertThrows(IllegalStateException.class, () ->instance.buildWelcomeToFafBody("junit"));
+
+    assertThat(result.getMessage(), startsWith("Template file for WELCOME_TO_FAF is missing variables:"));
   }
 
   @Test
@@ -83,6 +92,15 @@ public class MailBodyBuilderTest {
     var result = instance.buildAccountActivationBody("junit", "someActionUrl");
 
     assertThat(result, is("junit someActionUrl"));
+  }
+
+  @Test
+  public void buildWelcomToFafBodySucceeds() throws Exception {
+    writeTemplateFile("{{username}}");
+
+    var result = instance.buildWelcomeToFafBody("junit");
+
+    assertThat(result, is("junit"));
   }
 
   @Test

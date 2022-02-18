@@ -177,6 +177,7 @@ public class FafApiProperties {
     private String activationUrlFormat;
     private String subject;
     private String activationMailTemplatePath;
+    private String welcomeSubject;
     private String welcomeMailTemplatePath;
   }
 
