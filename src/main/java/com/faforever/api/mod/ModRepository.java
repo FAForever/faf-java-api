@@ -16,11 +16,7 @@ import java.util.Optional;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface ModRepository extends JpaRepository<Mod, Integer> {
 
-//  @Query("select case when(count(m) > 0) then true else false end " +
-//      "from Mod m where lower(m.displayName) = lower(:displayName) and m.uploader <> :uploader")
-//  boolean modExistsByDifferentUser(@Param("displayName") String displayName, @Param("uploader") User user);
-
-  boolean existsByDisplayNameAndUploaderIsNot(String displayName, Player uploader);
+  boolean existsByDisplayNameAndUploader(String displayName, Player uploader);
 
   /**
    * @deprecated get rid of this as soon as proper review mechanisms are in place.

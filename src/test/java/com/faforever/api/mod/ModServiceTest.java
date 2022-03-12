@@ -131,7 +131,7 @@ public class ModServiceTest {
     Path uploadFile = prepareMod(TEST_MOD);
 
     Player uploader = new Player();
-    when(modRepository.existsByDisplayNameAndUploaderIsNot("No Friendly Fire", uploader)).thenReturn(true);
+    when(modRepository.existsByDisplayNameAndUploader("No Friendly Fire", uploader)).thenReturn(true);
     when(modRepository.findOneByDisplayName("No Friendly Fire")).thenReturn(Optional.of(new Mod()));
 
     ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, uploader));

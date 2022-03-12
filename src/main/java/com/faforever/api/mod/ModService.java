@@ -181,7 +181,7 @@ public class ModService {
   }
 
   private boolean canUploadMod(String displayName, Player uploader) {
-    return !modRepository.existsByDisplayNameAndUploaderIsNot(displayName, uploader);
+    return modRepository.existsByDisplayNameAndUploader(displayName, uploader);
   }
 
   private boolean nullOrNil(String value) {
