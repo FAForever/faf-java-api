@@ -254,7 +254,7 @@ dependencies {
   implementation("org.luaj:luaj-jse:3.0.1")
   implementation("io.github.micheljung:nocatch:2.0")
   implementation("org.apache.commons:commons-compress:1.21")
-  implementation("org.json:json:20211205")
+  implementation("org.json:json:20220320")
   implementation("org.jsoup:jsoup:1.14.3")
   implementation("com.github.jasminb:jsonapi-converter:0.11")
   implementation("commons-codec:commons-codec:1.15")
