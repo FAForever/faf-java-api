@@ -28,7 +28,7 @@ class LeaderboardElideTest extends AbstractIntegrationTest {
       get("/data/leagueLeaderboard")
     )
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.data[*]", hasSize(3)));
+      .andExpect(jsonPath("$.data[*]", hasSize(5)));
   }
 
   @Test
