@@ -1,12 +1,12 @@
 <mjml>
   <mj-head>
-    <mj-include path="_style.mjml" />
+    <mj-include path="_style.mjml"/>
     <mj-preview>
       FAForever account activation
     </mj-preview>
   </mj-head>
   <mj-body background-color="#fafafa">
-    <mj-include path="_header.mjml" />
+    <mj-include path="_header.mjml"/>
 
     <mj-section background-color="#ffffff">
       <mj-column>
@@ -41,6 +41,16 @@
       </mj-column>
     </mj-section>
 
-    <mj-include path="_footer.mjml" />
+    <mj-include path="_footer.mjml"/>
+
+    <mj-section padding="0">
+      <mj-column>
+        <mj-text color="gray">
+          <p>If the button above does not work, you need to open this url manually in your browser:
+            {{activationUrl}}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
   </mj-body>
 </mjml>
