@@ -238,7 +238,7 @@ dependencies {
   runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
 
   // Manually managed dependencies
-  def elideVersion = "6.1.2"
+  def elideVersion = "6.1.3"
   implementation("com.yahoo.elide:elide-core:${elideVersion}")
   implementation("com.yahoo.elide:elide-swagger:${elideVersion}")
   implementation("com.yahoo.elide:elide-datastore-jpa:${elideVersion}")
