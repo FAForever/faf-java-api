@@ -61,7 +61,7 @@ Due to potential issues with Hibernate, the application checks on startup if the
 
 This project uses:
 
-* Java 11 as the programming language
+* Java 17 as the programming language
 * [Spring Boot](https://projects.spring.io/spring-boot/) as a framework
 * [Hibernate ORM](http://hibernate.org/orm/) as ORM mapper
 * [Elide](http://elide.io/) with [RSQL filters](http://elide.io/pages/guide/08-filters.html#rsql) to serve [JSON-API](http://jsonapi.org/) conform data
