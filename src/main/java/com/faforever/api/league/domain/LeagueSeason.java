@@ -24,6 +24,7 @@ public class LeagueSeason {
   private League league;
   private Leaderboard leaderboard;
   private Integer placementGames;
+  private Integer placementGamesReturningPlayer;
   private Integer seasonNumber;
   private String nameKey;
   private OffsetDateTime startDate;
@@ -52,6 +53,9 @@ public class LeagueSeason {
   public Integer getPlacementGames() {
     return placementGames;
   }
+
+  @Column(name = "placement_games_returning_player")
+  public Integer getPlacementGamesReturningPlayer() {return placementGamesReturningPlayer;}
 
   @Column(name = "season_number")
   public Integer getSeasonNumber() {

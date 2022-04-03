@@ -10,6 +10,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 
 import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -35,7 +36,11 @@ class LeagueSeasonElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       get("/data/leagueSeason/1")
     )
-      .andExpect(status().isOk());
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data.attributes.placementGames", is(10)))
+      .andExpect(jsonPath("$.data.attributes.placementGamesReturningPlayer", is(3)))
+      .andExpect(jsonPath("$.data.attributes.seasonNumber", is(1)))
+      .andExpect(jsonPath("$.data.attributes.nameKey", is("season1")));
   }
 
   @Test
