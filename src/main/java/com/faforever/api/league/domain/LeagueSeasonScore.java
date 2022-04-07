@@ -25,7 +25,7 @@ public class LeagueSeasonScore {
   private LeagueSeasonDivisionSubdivision leagueSeasonDivisionSubdivision;
   private Integer score;
   private Integer gameCount;
-  private Boolean returningPlayer;
+  private boolean returningPlayer;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,7 +62,7 @@ public class LeagueSeasonScore {
   }
 
   @Column(name = "returning_player")
-  public Boolean getReturningPlayer() {
+  public boolean isReturningPlayer() {
     return returningPlayer;
   }
 }
