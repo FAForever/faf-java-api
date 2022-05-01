@@ -15,7 +15,7 @@ faf-api:
     invite-link-expire-duration-minutes: ${CLAN_INVITE_LINK_EXPIRE_DURATION_MINUTES:604800}
     website-url-format: ${CLAN_WEBSITE_URL_FORMAT:https://clans.${FAF_DOMAIN}/clan/%s}
   database:
-    schema-version: ${DATABASE_SCHEMA_VERSION:122}
+    schema-version: ${DATABASE_SCHEMA_VERSION:123}
   deployment:
     forged-alliance-exe-path: ${FORGED_ALLIANCE_EXE_PATH:/content/legacy-featured-mod-files/updates_faf_files/ForgedAlliance.exe}
     repositories-directory: ${REPOSITORIES_DIRECTORY:/repositories}
