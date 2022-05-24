@@ -267,6 +267,6 @@ dependencies {
   testImplementation("org.testcontainers:junit-jupiter:1.17.1")
   testImplementation("org.testcontainers:mariadb:1.17.1")
 
-  codacy("com.github.codacy:codacy-coverage-reporter:13.9.5")
+  codacy("com.github.codacy:codacy-coverage-reporter:13.9.11")
 }
 
