@@ -24,6 +24,7 @@ public class SwaggerConfig {
       .info(new Info().title("Forged Alliance Forever API")
         .description("The official API for Forged Alliance Forever")
         .version(fafApiProperties.getVersion())
+        .termsOfService("https://content.faforever.com/tos/api-tos.html")
         .license(new License()
           .name("MIT")
           .url("https://github.com/FAForever/faf-java-api/blob/develop/LICENSE")
