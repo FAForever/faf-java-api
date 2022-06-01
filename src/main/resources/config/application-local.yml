@@ -39,11 +39,13 @@ faf-api:
   registration:
     activation-url-format: ${ACTIVATION_URL_FORMAT:http://localhost:8020/account/activate?username=%s&token=%s}
     subject: ${REGISTRATION_EMAIL_SUBJECT:FAF user registration}
-    html-format: ${REGISTRATION_EMAIL_BODY:"Registration email body for user {0} with activation link {1}"}
+    activation-mail-template-path: ${ACCOUNT_ACTIVATION_MAIL_TEMPLATE_PATH:test-account-activation.html}
+    welcome-subject: ${WELCOME_MAIL_SUBJECT:Welcome to FAF}
+    welcome-mail-template-path: ${WELCOME_MAIL_TEMPLATE_PATH:test-welcome-to-faf.html}
   password-reset:
     password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT:http://localhost:8020/account/password/confirmReset?username=%s&token=%s}
     subject: ${PASSWORD_RESET_EMAIL_SUBJECT:FAF password reset}
-    html-format: ${PASSWORD_RESET_EMAIL_BODY:Reset email body for user {0} with reset link {1}}
+    mail-template-path: ${PASSWORD_RESET_MAIL_TEMPLATE_PATH:test-password-reset.html}
   steam:
     realm: ${STEAM_REALM:http://localhost}
     api-key: ${STEAM_API_KEY:banana}

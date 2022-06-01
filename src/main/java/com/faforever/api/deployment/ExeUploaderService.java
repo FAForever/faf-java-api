@@ -83,17 +83,11 @@ public class ExeUploaderService {
   }
 
   private Path getCopyToPath(String modName, String fileName) {
-    String copyTo = null;
-    switch (modName) {
-      case "fafbeta":
-        copyTo = apiProperties.getDeployment().getForgedAllianceBetaExePath();
-        break;
-      case "fafdevelop":
-        copyTo = apiProperties.getDeployment().getForgedAllianceDevelopExePath();
-        break;
-      default:
-        throw new ApiException(new Error(ErrorCode.INVALID_FEATURED_MOD, modName));
-    }
+    String copyTo = switch (modName) {
+      case "fafbeta" -> apiProperties.getDeployment().getForgedAllianceBetaExePath();
+      case "fafdevelop" -> apiProperties.getDeployment().getForgedAllianceDevelopExePath();
+      default -> throw new ApiException(new Error(ErrorCode.INVALID_FEATURED_MOD, modName));
+    };
 
     return Paths.get(copyTo, fileName);
   }
