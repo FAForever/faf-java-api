@@ -72,7 +72,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${JWT_FAF_HYDRA_ISSUER:https://hydra.test.faforever.com/}
+          issuer-uri: ${JWT_FAF_HYDRA_ISSUER:http://localhost:4444/}
 logging:
   level:
     com.faforever.api: debug
