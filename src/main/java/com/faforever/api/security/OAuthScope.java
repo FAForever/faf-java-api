@@ -16,7 +16,8 @@ public enum OAuthScope {
   VOTE(OAuthScope._VOTE, "Vote"),
   READ_SENSIBLE_USERDATA(OAuthScope._READ_SENSIBLE_USERDATA, "View sensible user data (email addresses, ip addresses, etc.)"),
   ADMINISTRATIVE_ACTION(OAuthScope._ADMINISTRATIVE_ACTION, "Administrative actions"),
-  MANAGE_VAULT(OAuthScope._MANAGE_VAULT, "Manage vault");
+  MANAGE_VAULT(OAuthScope._MANAGE_VAULT, "Manage vault"),
+  LOBBY(OAuthScope._LOBBY, "Connect to Lobby");
 
   public static final String _PUBLIC_PROFILE = "public_profile";
   public static final String _WRITE_ACHIEVEMENTS = "write_achievements";
@@ -29,6 +30,7 @@ public enum OAuthScope {
   public static final String _READ_SENSIBLE_USERDATA = "read_sensible_userdata";
   public static final String _ADMINISTRATIVE_ACTION = "administrative_actions";
   public static final String _MANAGE_VAULT = "manage_vault";
+  public static final String _LOBBY = "lobby";
 
   private static final Map<String, OAuthScope> fromString;
 

@@ -17,7 +17,7 @@
 | DATABASE_ADDRESS |  |  | `127.0.0.1` |
 | DATABASE_NAME |  |  | `faf` |
 | DATABASE_PASSWORD |  |  | `banana` |
-| DATABASE_SCHEMA_VERSION | `123` |  |  |
+| DATABASE_SCHEMA_VERSION | `124` |  |  |
 | DATABASE_USERNAME |  |  | `faf-java-api` |
 | EMAIL_FROM_ADDRESS |  |  | `faf@example.com` |
 | EMAIL_FROM_NAME |  |  | `FAForever` |
