@@ -18,12 +18,15 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import static com.faforever.api.data.domain.CoopMap.TYPE_NAME;
+
 @Entity
 @Table(name = "coop_map")
 @EntityListeners(CoopMapEnricher.class)
-@Include(name = "coopMission")
+@Include(name = TYPE_NAME)
 @Setter
 public class CoopMap {
+  public static final String TYPE_NAME = "coopMission";
 
   private int id;
   private int order;
