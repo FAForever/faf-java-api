@@ -15,11 +15,14 @@ import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.faforever.api.data.domain.CoopScenario.TYPE_NAME;
+
 @Entity
 @Table(name = "coop_scenario")
-@Include(name = "coopScenario")
+@Include(name = TYPE_NAME)
 @Setter
 public class CoopScenario {
+  public static final String TYPE_NAME = "coopScenario";
 
   private int id;
   private int order;
