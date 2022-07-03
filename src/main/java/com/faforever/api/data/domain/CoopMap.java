@@ -29,7 +29,7 @@ public class CoopMap {
   public static final String TYPE_NAME = "coopMission";
 
   private int id;
-  private int order;
+  private Integer order;
   private MissionType category;
   private String name;
   private String description;
@@ -56,7 +56,7 @@ public class CoopMap {
   }
 
   @Column(name = "order")
-  public int getOrder() {
+  public Integer getOrder() {
     return order;
   }
 
