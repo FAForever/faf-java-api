@@ -275,14 +275,14 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
    * content of the directory. If no file ID is available, an empty optional is returned.
    */
   @SneakyThrows
-  private Optional<StagedFile> packFile(Path file, Short version, Path targetFolder, Map<String, Short> fileIds) {
+  private Optional<StagedFile> packFile(Path file, Short version, Path targetFolder, Map<String, Integer> fileIds) {
     String fullFileName = file.getFileName().toString();
     String baseName = FilenameUtils.getBaseName(fullFileName);
     String extension = FilenameUtils.getExtension(fullFileName);
     Path targetFile = targetFolder.resolve(String.format("%s_%d.%s", baseName, version, extension));
     Path tmpFile = toTmpFile(targetFile);
 
-    Short fileId = fileIds.get(fullFileName);
+    Integer fileId = fileIds.get(fullFileName);
     if (fileId == null) {
       log.debug("Skipping file '{}' because there's no file ID available", fullFileName);
       return Optional.empty();
