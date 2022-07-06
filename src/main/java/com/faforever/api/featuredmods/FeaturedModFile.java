@@ -27,7 +27,7 @@ public class FeaturedModFile {
   // Enriched in FeaturedModFileEnricher
   private String url;
   private String folderName;
-  private short fileId;
+  private int fileId;
 
   @Id
   @Column(name = "id")
@@ -69,7 +69,7 @@ public class FeaturedModFile {
   }
 
   @Column(name = "fileId")
-  public short getFileId() {
+  public int getFileId() {
     return fileId;
   }
 

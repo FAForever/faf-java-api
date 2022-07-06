@@ -35,6 +35,7 @@ import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyShort;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -138,8 +139,8 @@ public class LegacyFeaturedModDeploymentTaskTest {
       new FeaturedMod().setTechnicalName("faf")
     ));
     when(featuredModService.getFileIds("faf")).thenReturn(Map.of(
-      "ForgedAlliance.exe", (short) 1,
-      "someDir.nx3", (short) 2
+      "ForgedAlliance.exe", 1,
+      "someDir.nx3", 2
     ));
 
     Path dummyExe = repositoriesFolder.resolve("TemplateForgedAlliance.exe");
