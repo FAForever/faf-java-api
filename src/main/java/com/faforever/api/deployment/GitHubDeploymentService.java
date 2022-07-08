@@ -98,8 +98,11 @@ public class GitHubDeploymentService {
   @SneakyThrows
   private void updateDeploymentStatus(long deploymentId, GHRepository repository, GHDeploymentState state, String description) {
     log.debug("Updating deployment status to '{}' with description: {}", state, description);
-    repository.getDeployment(deploymentId)
-      .createStatus(state)
+    if (description.length() > 140) {
+      log.info("Deployment Status description too long truncating");
+      description = description.substring(0, 140);
+    }
+    repository.getDeployment(deploymentId).createStatus(state)
       .description(description)
       .create();
   }

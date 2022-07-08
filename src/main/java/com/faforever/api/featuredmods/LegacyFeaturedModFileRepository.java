@@ -103,7 +103,7 @@ public class LegacyFeaturedModFileRepository implements Repository<FeaturedModFi
   }
 
   @SuppressWarnings("unchecked")
-  public Map<String, Short> getFileIds(String modName) {
+  public Map<String, Integer> getFileIds(String modName) {
     // Please shoot me.
     String innerModName = "ladder1v1".equals(modName) ? "faf" : modName;
     verifyModName(innerModName);
@@ -111,7 +111,7 @@ public class LegacyFeaturedModFileRepository implements Repository<FeaturedModFi
     Query query = entityManager.createNativeQuery(String.format("SELECT id, filename FROM updates_%s", innerModName));
 
     return ((List<Object[]>) query.getResultList()).stream()
-      .collect(Collectors.toMap(row -> (String) row[1], row -> (short) row[0]));
+      .collect(Collectors.toMap(row -> (String) row[1], row -> (int) row[0]));
   }
 
   private void verifyModName(String modName) {

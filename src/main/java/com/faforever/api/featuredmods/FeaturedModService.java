@@ -40,7 +40,7 @@ public class FeaturedModService {
     legacyFeaturedModFileRepository.save(modName, version, featuredModFiles);
   }
 
-  public Map<String, Short> getFileIds(String modName) {
+  public Map<String, Integer> getFileIds(String modName) {
     return legacyFeaturedModFileRepository.getFileIds(modName);
   }
 

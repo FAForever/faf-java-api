@@ -138,8 +138,8 @@ public class LegacyFeaturedModDeploymentTaskTest {
       new FeaturedMod().setTechnicalName("faf")
     ));
     when(featuredModService.getFileIds("faf")).thenReturn(Map.of(
-      "ForgedAlliance.exe", (short) 1,
-      "someDir.nx3", (short) 2
+      "ForgedAlliance.exe", 1,
+      "someDir.nx3", 2
     ));
 
     Path dummyExe = repositoriesFolder.resolve("TemplateForgedAlliance.exe");
@@ -156,13 +156,13 @@ public class LegacyFeaturedModDeploymentTaskTest {
 
     assertThat(files, containsInAnyOrder(
       allOf(
-        hasProperty("fileId", is((short) 1)),
+        hasProperty("fileId", is(1)),
         hasProperty("md5", is("47df959058cb52fe966ea5936dbd8f4c")),
         hasProperty("name", is("ForgedAlliance.1337.exe")),
         hasProperty("version", is(1337))
       ),
       allOf(
-        hasProperty("fileId", is((short) 2)),
+        hasProperty("fileId", is(2)),
         hasProperty("md5", is(notNullValue())),
         hasProperty("name", is("someDir.1337.nx3")),
         hasProperty("version", is(1337))
@@ -203,8 +203,8 @@ public class LegacyFeaturedModDeploymentTaskTest {
       new FeaturedMod().setTechnicalName("faf")
     ));
     when(featuredModService.getFileIds("faf")).thenReturn(Map.of(
-      "ForgedAlliance.exe", (short) 1,
-      "someDir.nx3", (short) 2
+      "ForgedAlliance.exe", 1,
+      "someDir.nx3", 2
     ));
 
     Path dummyExe = repositoriesFolder.resolve("TemplateForgedAlliance.exe");
@@ -245,8 +245,8 @@ public class LegacyFeaturedModDeploymentTaskTest {
       new FeaturedMod().setTechnicalName("faf")
     ));
     when(featuredModService.getFileIds("faf")).thenReturn(Map.of(
-      "ForgedAlliance.exe", (short) 1,
-      "someDir.nx3", (short) 2
+      "ForgedAlliance.exe", 1,
+      "someDir.nx3", 2
     ));
 
     dummyExe = repositoriesFolder.resolve("TemplateForgedAlliance.exe");
