@@ -23,7 +23,7 @@ public class OAuthHelper {
   }
 
   public RequestPostProcessor addBearerTokenForUser(int userId, @NotNull Set<String> scopes) {
-    Player user = playerRepository.getById(userId);
+    Player user = playerRepository.getReferenceById(userId);
 
     Set<FafRole> roles = user.getUserGroups().stream()
       .flatMap(userGroup -> userGroup.getPermissions().stream())

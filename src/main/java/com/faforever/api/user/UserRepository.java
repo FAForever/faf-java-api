@@ -12,11 +12,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
   Optional<User> findOneByEmail(String email);
 
-  Optional<User> findOneBySteamId(String steamId);
-
   Optional<User> findOneByLoginOrEmail(String login, String email);
-
-  Optional<User> findOneByGogId(String gogId);
 
   boolean existsByEmail(String email);
 

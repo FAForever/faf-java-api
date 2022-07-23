@@ -3,15 +3,17 @@ VALUES ('test', 'test', '{noop}test', 'public', 'http://localhost https://www.ge
         'http://localhost',
         'read_events read_achievements upload_map upload_mod upload_avatar write_account_data vote read_sensible_userdata');
 
-INSERT INTO login (id, login, email, password, steamid, ip)
-VALUES (1, 'USER', 'user@faforever.com', '92b7b421992ef490f3b75898ec0e511f1a5c02422819d89719b20362b023ee4f', NULL,
+INSERT INTO login (id, login, email, password, ip)
+VALUES (1, 'USER', 'user@faforever.com', '92b7b421992ef490f3b75898ec0e511f1a5c02422819d89719b20362b023ee4f',
         '127.0.0.1'),
-       (2, 'MODERATOR', 'moderator@faforever.com', '778ac5b81fa251b450f827846378739caee510c31b01cfa9d31822b88bed8441',
-        1234, '127.0.0.1'),
-       (3, 'ADMIN', 'admin@faforever.com', '835d6dc88b708bc646d6db82c853ef4182fabbd4a8de59c213f2b5ab3ae7d9be', NULL,
-        '127.0.0.1'),
-       (4, 'BANNED', 'banned@faforever.com', '', NULL, '127.0.0.1'),
-       (5, 'ACTIVE_USER', 'active-user@faforever.com', '', null, '127.0.0.1');
+       (2, 'MODERATOR', 'moderator@faforever.com', '778ac5b81fa251b450f827846378739caee510c31b01cfa9d31822b88bed8441', '127.0.0.1'),
+       (3, 'ADMIN', 'admin@faforever.com', '835d6dc88b708bc646d6db82c853ef4182fabbd4a8de59c213f2b5ab3ae7d9be', '127.0.0.1'),
+       (4, 'BANNED', 'banned@faforever.com', '', '127.0.0.1'),
+       (5, 'ACTIVE_USER', 'active-user@faforever.com', '', '127.0.0.1');
+
+INSERT INTO service_links (id, user_id, service_id, type, public, ownership)
+VALUES (UUID(), 2, '1234', 'STEAM', false, true),
+       (UUID(), 2, 'username', 'GOG', false, true);
 
 INSERT INTO user_group (id, technical_name, name_key, parent_group_id, public)
 VALUES (1, 'ADMINISTRATOR', 'administrator', null, true),

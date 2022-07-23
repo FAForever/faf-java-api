@@ -32,10 +32,9 @@ public abstract class Login extends AbstractEntity<Login> implements OwnableEnti
 
   private String login;
   private String email;
-  private String steamId;
-  private String gogId;
   private String userAgent;
   private Set<BanInfo> bans;
+  private Set<AccountLink> accountLinks;
   private Set<UserNote> userNotes;
   private Set<UserGroup> userGroups;
   private String recentIpAddress;
@@ -57,18 +56,6 @@ public abstract class Login extends AbstractEntity<Login> implements OwnableEnti
   @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
   public String getEmail() {
     return email;
-  }
-
-  @Column(name = "steamid")
-  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
-  public String getSteamId() {
-    return steamId;
-  }
-
-  @Column(name = "gog_id")
-  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
-  public String getGogId() {
-    return gogId;
   }
 
   @Column(name = "ip")
@@ -101,6 +88,12 @@ public abstract class Login extends AbstractEntity<Login> implements OwnableEnti
   @BatchSize(size = 1000)
   public Set<UserNote> getUserNotes() {
     return this.userNotes;
+  }
+
+  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+  @BatchSize(size = 1000)
+  public Set<AccountLink> getAccountLinks() {
+    return this.accountLinks;
   }
 
   @Transient
