@@ -22,11 +22,11 @@ public class AchievementService {
   private final AchievementRepository achievementRepository;
   private final PlayerAchievementRepository playerAchievementRepository;
 
-  UpdatedAchievementResponse increment(int playerId, String achievementId, int steps) {
-    return updateSteps(playerId, achievementId, steps, Integer::sum);
+  void increment(int playerId, String achievementId, int steps) {
+    updateSteps(playerId, achievementId, steps, Integer::sum);
   }
 
-  private UpdatedAchievementResponse updateSteps(int playerId, String achievementId, int steps, BiFunction<Integer, Integer, Integer> stepsFunction) {
+  private void updateSteps(int playerId, String achievementId, int steps, BiFunction<Integer, Integer, Integer> stepsFunction) {
     Achievement achievement = achievementRepository.findById(achievementId)
       .orElseThrow(() -> ApiException.of(ENTITY_NOT_FOUND, achievementId));
 
@@ -39,19 +39,14 @@ public class AchievementService {
     int currentSteps = MoreObjects.firstNonNull(playerAchievement.getCurrentSteps(), 0);
     int newCurrentSteps = stepsFunction.apply(currentSteps, steps);
 
-    boolean newlyUnlocked = false;
-
     if (newCurrentSteps >= achievement.getTotalSteps()) {
       playerAchievement.setState(AchievementState.UNLOCKED);
       playerAchievement.setCurrentSteps(achievement.getTotalSteps());
-      newlyUnlocked = playerAchievement.getState() != AchievementState.UNLOCKED;
     } else {
       playerAchievement.setCurrentSteps(newCurrentSteps);
     }
 
     playerAchievementRepository.save(playerAchievement);
-
-    return new UpdatedAchievementResponse(achievementId, newlyUnlocked, playerAchievement.getState(), playerAchievement.getCurrentSteps());
   }
 
   private PlayerAchievement getOrCreatePlayerAchievement(int playerId, Achievement achievement, AchievementState initialState) {
@@ -62,11 +57,11 @@ public class AchievementService {
             .setState(initialState));
   }
 
-  UpdatedAchievementResponse setStepsAtLeast(int playerId, String achievementId, int steps) {
-    return updateSteps(playerId, achievementId, steps, Math::max);
+  void setStepsAtLeast(int playerId, String achievementId, int steps) {
+    updateSteps(playerId, achievementId, steps, Math::max);
   }
 
-  UpdatedAchievementResponse unlock(int playerId, String achievementId) {
+  void unlock(int playerId, String achievementId) {
     Achievement achievement = achievementRepository.findById(achievementId)
       .orElseThrow(() -> ApiException.of(ENTITY_NOT_FOUND, achievementId));
 
@@ -82,7 +77,5 @@ public class AchievementService {
       playerAchievement.setState(AchievementState.UNLOCKED);
       playerAchievementRepository.save(playerAchievement);
     }
-
-    return new UpdatedAchievementResponse(achievementId, newlyUnlocked, playerAchievement.getState());
   }
 }
