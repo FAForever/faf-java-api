@@ -20,7 +20,7 @@ public class EventsService {
   private final PlayerService playerService;
   private final PlayerEventRepository playerEventRepository;
 
-  UpdatedEventResponse increment(int playerId, String eventId, int steps) {
+  void increment(int playerId, String eventId, int steps) {
     BiFunction<Integer, Integer, Integer> stepsFunction = (currentSteps, newSteps) -> currentSteps + newSteps;
     playerService.getById(playerId);
     Event event = eventRepository.findById(eventId)
@@ -33,8 +33,6 @@ public class EventsService {
 
     playerEvent.setCurrentCount(newCurrentCount);
     playerEventRepository.save(playerEvent);
-
-    return new UpdatedEventResponse(playerEvent.getId(), eventId, newCurrentCount);
   }
 
   private PlayerEvent getOrCreatePlayerEvent(int playerId, Event event) {

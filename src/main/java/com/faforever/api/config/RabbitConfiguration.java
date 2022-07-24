@@ -31,7 +31,9 @@ public class RabbitConfiguration {
   public static final String EXCHANGE_DEAD_LETTER = "dlx";
   public static final String EXCHANGE_FAF_LOBBY = "faf-lobby";
   public static final String QUEUE_ACHIEVEMENT = "achievement";
+  public static final String QUEUE_EVENT = "event";
   public static final String QUEUE_ACHIEVEMENT_ROUTING_KEY = "achievement";
+  public static final String QUEUE_EVENT_ROUTING_KEY = "achievement";
 
   /**
    * Define an interceptor that tries to process a message 3 times
@@ -74,6 +76,7 @@ public class RabbitConfiguration {
     var fafLobbyExchange = new TopicExchange(EXCHANGE_FAF_LOBBY, true, false);
 
     var achievementQueue = new Queue(QUEUE_ACHIEVEMENT, true, false, false);
+    var eventQueue = new Queue(QUEUE_EVENT, true, false, false);
 
     List<Declarable> exchanges = List.of(deadLetterExchange, fafLobbyExchange);
     List<Declarable> queues = List.of(achievementQueue);
@@ -81,7 +84,8 @@ public class RabbitConfiguration {
     return merge(
       exchanges,
       queues,
-      bindWithDlq(fafLobbyExchange, deadLetterExchange, achievementQueue, QUEUE_ACHIEVEMENT_ROUTING_KEY)
+      bindWithDlq(fafLobbyExchange, deadLetterExchange, achievementQueue, QUEUE_ACHIEVEMENT_ROUTING_KEY),
+      bindWithDlq(fafLobbyExchange, deadLetterExchange, eventQueue, QUEUE_EVENT_ROUTING_KEY)
     );
   }
 
