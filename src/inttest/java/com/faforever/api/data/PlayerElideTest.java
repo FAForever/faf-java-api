@@ -52,10 +52,17 @@ public class PlayerElideTest extends AbstractIntegrationTest {
       .andExpect(jsonPath("$.data[1].relationships", not(hasKey("uniqueIds"))))
       .andExpect(jsonPath("$.data[2].relationships", not(hasKey("uniqueIds"))))
       .andExpect(jsonPath("$.data[3].relationships", not(hasKey("uniqueIds"))))
+      .andExpect(jsonPath("$.data[0].relationships", not(hasKey("accountLinks"))))
+      .andExpect(jsonPath("$.data[1].relationships", not(hasKey("accountLinks"))))
+      .andExpect(jsonPath("$.data[2].relationships", not(hasKey("accountLinks"))))
+      .andExpect(jsonPath("$.data[3].relationships", not(hasKey("accountLinks"))))
       // you are allowed to see your own stuff
       .andExpect(jsonPath("$.data[4].attributes.email", is("active-user@faforever.com")))
       .andExpect(jsonPath("$.data[4].attributes.recentIpAddress", is("127.0.0.1")))
       .andExpect(jsonPath("$.data[4].attributes", hasKey("lastLogin")))
+      .andExpect(jsonPath("$.data[4].relationships", hasKey("reporterOnModerationReports")))
+      .andExpect(jsonPath("$.data[4].relationships", hasKey("userGroups")))
+      .andExpect(jsonPath("$.data[4].relationships", hasKey("accountLinks")))
       // you cannot see your uuid
       .andExpect(jsonPath("$.data[4].relationships", not(hasKey("uniqueIds"))))
       // nobody can see passwords!
@@ -104,12 +111,17 @@ public class PlayerElideTest extends AbstractIntegrationTest {
       .andExpect(jsonPath("$.data[1].relationships", not(hasKey("uniqueIds"))))
       .andExpect(jsonPath("$.data[2].relationships", not(hasKey("uniqueIds"))))
       .andExpect(jsonPath("$.data[3].relationships", not(hasKey("uniqueIds"))))
+      .andExpect(jsonPath("$.data[0].relationships", not(hasKey("accountLinks"))))
+      .andExpect(jsonPath("$.data[1].relationships", not(hasKey("accountLinks"))))
+      .andExpect(jsonPath("$.data[2].relationships", not(hasKey("accountLinks"))))
+      .andExpect(jsonPath("$.data[3].relationships", not(hasKey("accountLinks"))))
       // you are allowed to see your own stuff
       .andExpect(jsonPath("$.data[4].attributes.email", is("active-user@faforever.com")))
       .andExpect(jsonPath("$.data[4].attributes.recentIpAddress", is("127.0.0.1")))
       .andExpect(jsonPath("$.data[4].attributes", hasKey("lastLogin")))
       .andExpect(jsonPath("$.data[4].relationships", hasKey("reporterOnModerationReports")))
       .andExpect(jsonPath("$.data[4].relationships", hasKey("userGroups")))
+      .andExpect(jsonPath("$.data[4].relationships", hasKey("accountLinks")))
       // you cannot see your uuid
       .andExpect(jsonPath("$.data[4].relationships", not(hasKey("uniqueIds"))))
       // nobody can see passwords!
@@ -162,6 +174,11 @@ public class PlayerElideTest extends AbstractIntegrationTest {
       .andExpect(jsonPath("$.data[2].relationships", hasKey("uniqueIds")))
       .andExpect(jsonPath("$.data[3].relationships", hasKey("uniqueIds")))
       .andExpect(jsonPath("$.data[4].relationships", hasKey("uniqueIds")))
+      .andExpect(jsonPath("$.data[0].relationships", hasKey("accountLinks")))
+      .andExpect(jsonPath("$.data[1].relationships", hasKey("accountLinks")))
+      .andExpect(jsonPath("$.data[2].relationships", hasKey("accountLinks")))
+      .andExpect(jsonPath("$.data[3].relationships", hasKey("accountLinks")))
+      .andExpect(jsonPath("$.data[4].relationships", hasKey("accountLinks")))
       // cannot see others reporterOnModerationReports
       .andExpect(jsonPath("$.data[0].relationships", not(hasKey("reporterOnModerationReports"))))
       .andExpect(jsonPath("$.data[1].relationships", not(hasKey("reporterOnModerationReports"))))

@@ -4,6 +4,7 @@ import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.security.elide.permission.ReadAccountPrivateDetailsCheck;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.yahoo.elide.annotation.Exclude;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
@@ -22,11 +23,12 @@ import javax.persistence.Transient;
 
 @Entity
 @Table(name = "service_links")
-@Include(name = "accountLink")
+@Include(name = AccountLink.TYPE_NAME, rootLevel = false)
 @Setter
 @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
 public class AccountLink implements OwnableEntity {
 
+  public static final String TYPE_NAME = "accountLink";
   private String id;
   private User user;
   private LinkedServiceType serviceType;
@@ -48,6 +50,7 @@ public class AccountLink implements OwnableEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
+  @Exclude
   public User getUser() {
     return user;
   }

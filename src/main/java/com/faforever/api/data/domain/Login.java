@@ -92,6 +92,7 @@ public abstract class Login extends AbstractEntity<Login> implements OwnableEnti
 
   @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
   @BatchSize(size = 1000)
+  @ReadPermission(expression = IsEntityOwner.EXPRESSION + " OR " + ReadAccountPrivateDetailsCheck.EXPRESSION)
   public Set<AccountLink> getAccountLinks() {
     return this.accountLinks;
   }
