@@ -5,7 +5,6 @@
 [![Coverage Status](https://coveralls.io/repos/github/FAForever/faf-java-api/badge.svg?branch=develop)](https://coveralls.io/github/FAForever/faf-java-api?branch=develop)
  
 This is the official FAForever API. Amongst others, the API offers the following functionality:
-- OAuth 2.0 compliant authentication server
 - User management (registration, password reset, etc.)
 - JSON-API compliant REST API for lots of community data (i.e. map, mod & replay vault, game statistics, etc.)
 - Leaderboards
