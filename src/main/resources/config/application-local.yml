@@ -21,7 +21,8 @@ faf-api:
     target-directory: ${AVATAR_TARGET_DIRECTORY:build/cache/avatars}
     allowed-extensions: ${AVATAR_ALLOWED_FILE_EXTENSIONS:png}
   featured-mod:
-    file-url-format: ${FEATURED_MOD_URL_FORMAT:https://content.test.faforever.com/faf/updaterNew/%s/%s}
+    file-url-format: ${FEATURED_MOD_URL_FORMAT:https://localhost/legacy-featured-mod-files/%s/%s}
+    cloudflare-hmac-secret: ${CLOUDFLARE_HMAC_SECRET:banana}
   git-hub:
     deployment-environment: ${GITHUB_DEPLOYMENT_ENVIRONMENT:development}
   deployment:
