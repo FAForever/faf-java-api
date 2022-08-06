@@ -2,12 +2,12 @@ package com.faforever.api.featuredmods;
 
 import com.faforever.api.config.FafApiProperties;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
 import javax.persistence.PostLoad;
-import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -45,6 +45,6 @@ public class FeaturedModFileEnricher {
     String hmacEncoded = URLEncoder.encode(new String(Base64.getEncoder().encode(mac.doFinal(macMessage)), StandardCharsets.UTF_8), StandardCharsets.UTF_8);
     String parameter = "%d-%s".formatted(timeStamp, hmacEncoded);
 
-    featuredModFile.setUrl(UriBuilder.fromUri(featuredModUri).queryParam("verify", parameter).build().toString());
+    featuredModFile.setUrl(UriComponentsBuilder.fromUri(featuredModUri).queryParam("verify", parameter).build().toString());
   }
 }
