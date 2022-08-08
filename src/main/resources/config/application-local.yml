@@ -22,9 +22,10 @@ faf-api:
     allowed-extensions: ${AVATAR_ALLOWED_FILE_EXTENSIONS:png}
   featured-mod:
     file-url-format: ${FEATURED_MOD_URL_FORMAT:https://localhost/legacy-featured-mod-files/%s/%s}
-    cloudflare-hmac-secret: ${CLOUDFLARE_HMAC_SECRET:banana}
   git-hub:
     deployment-environment: ${GITHUB_DEPLOYMENT_ENVIRONMENT:development}
+  cloudflare:
+    hmac-secret: ${CLOUDFLARE_HMAC_SECRET:banana}
   deployment:
     forged-alliance-exe-path: ${FORGED_ALLIANCE_EXE_PATH}
     repositories-directory: ${REPOSITORIES_DIRECTORY:build/cache/repos}
@@ -73,7 +74,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${JWT_FAF_HYDRA_ISSUER:https://hydra.test.faforever.com/}
+          jwk-set-uri: http://localhost:4444/.well-known/jwks.json
+          issuer-uri: http://faf-ory-hydra:4444/
 logging:
   level:
     com.faforever.api: debug

@@ -53,6 +53,9 @@ faf-api:
     max-size-bytes: 4096
     image-width: 40
     image-height: 20
+  cloudflare:
+    hmac-secret: "banana"
+    hmac-param: "verify"
   clan:
     website-url-format: "http://example.com/%s"
   tutorial:

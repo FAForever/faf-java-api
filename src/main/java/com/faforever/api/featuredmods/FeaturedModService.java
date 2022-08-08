@@ -44,6 +44,10 @@ public class FeaturedModService {
     return legacyFeaturedModFileRepository.getFileIds(modName);
   }
 
+  public Optional<FeaturedMod> findModById(int id) {
+    return featuredModRepository.findById(id);
+  }
+
   public Optional<FeaturedMod> findModByTechnicalName(String name) {
     return featuredModRepository.findOneByTechnicalName(name);
   }
