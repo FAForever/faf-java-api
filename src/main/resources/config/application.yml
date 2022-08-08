@@ -14,6 +14,9 @@ faf-api:
   clan:
     invite-link-expire-duration-minutes: ${CLAN_INVITE_LINK_EXPIRE_DURATION_MINUTES:604800}
     website-url-format: ${CLAN_WEBSITE_URL_FORMAT:https://clans.${FAF_DOMAIN}/clan/%s}
+  cloudflare:
+    hmac-secret: ${CLOUDFLARE_HMAC_SECRET}
+    hmac-param: ${CLOUDFLARE_HMAC_PARAM:verify}
   database:
     schema-version: ${DATABASE_SCHEMA_VERSION:126}
   deployment:
@@ -25,7 +28,6 @@ faf-api:
     forged-alliance-develop-exe-path: ${EXE_UPLOAD_DEVELOP_PATH:/content/legacy-featured-mod-files/updates_fafdevelop_files}
   featured-mod:
     file-url-format: ${FEATURED_MOD_URL_FORMAT:https://content.${FAF_DOMAIN}/legacy-featured-mod-files/%s/%s}
-    cloudflare-hmac-secret: ${CLOUDFLARE_HMAC_SECRET}
   git-hub:
     access-token: ${GITHUB_ACCESS_TOKEN:false}
     webhook-secret: ${GITHUB_WEBHOOK_SECRET:false}

@@ -23,6 +23,7 @@ public class FafApiProperties {
   private Replay replay = new Replay();
   private Avatar avatar = new Avatar();
   private Clan clan = new Clan();
+  private Cloudflare cloudflare = new Cloudflare();
   private FeaturedMod featuredMod = new FeaturedMod();
   private GitHub gitHub = new GitHub();
   private Deployment deployment = new Deployment();
@@ -137,13 +138,18 @@ public class FafApiProperties {
   @Data
   public static class FeaturedMod {
     private String fileUrlFormat;
-    private String cloudflareHmacSecret;
   }
 
   @Data
   public static class Clan {
     private long inviteLinkExpireDurationMinutes = Duration.ofDays(7).toMinutes();
     private String websiteUrlFormat;
+  }
+
+  @Data
+  public static class Cloudflare {
+    private String hmacParam;
+    private String hmacSecret;
   }
 
   @Data
