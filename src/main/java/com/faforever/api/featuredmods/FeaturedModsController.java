@@ -8,6 +8,7 @@ import com.yahoo.elide.jsonapi.models.Data;
 import com.yahoo.elide.jsonapi.models.JsonApiDocument;
 import com.yahoo.elide.jsonapi.models.Resource;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,13 +24,10 @@ import static com.faforever.api.error.ErrorCode.FEATURED_MOD_UNKNOWN;
 
 @RestController
 @RequestMapping(path = "/featuredMods")
+@RequiredArgsConstructor
 public class FeaturedModsController {
 
   private final FeaturedModService featuredModService;
-
-  public FeaturedModsController(FeaturedModService featuredModService) {
-    this.featuredModService = featuredModService;
-  }
 
   @RequestMapping(path = "/{modId}/files/{version}")
   @ApiOperation("Lists the required files for a specific featured mod version")
@@ -61,6 +59,9 @@ public class FeaturedModsController {
         "md5", file.getMd5(),
         "name", file.getName(),
         "url", file.getUrl(),
+        "cacheableUrl", file.getCacheableUrl(),
+        "hmacToken", file.getHmacToken(),
+        "hmacParameter", file.getHmacParameter(),
         "version", file.getVersion()
       ), null, null, null);
   }

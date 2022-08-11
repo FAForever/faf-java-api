@@ -5,9 +5,11 @@ import com.faforever.api.security.OAuthScope;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.jdbc.Sql;
 
+import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.matchesRegex;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -24,7 +26,10 @@ public class FeaturedModsControllerTest extends AbstractIntegrationTest {
            .andExpect(status().isOk())
            .andExpect(jsonPath("$.data", hasSize(1)))
            .andExpect(jsonPath("$.data[0].type", is("featuredModFile")))
-           .andExpect(jsonPath("$.data[0].attributes.url", matchesRegex(".*\\?verify=[0-9]+-.*")));
+           .andExpect(jsonPath("$.data[0].attributes", hasKey("hmacParameter")))
+           .andExpect(jsonPath("$.data[0].attributes.url", matchesRegex(".*\\?verify=[0-9]+-.*")))
+           .andExpect(jsonPath("$.data[0].attributes.cacheableUrl", not(matchesRegex(".*\\?.*"))))
+           .andExpect(jsonPath("$.data[0].attributes.hmacToken", matchesRegex("[0-9]+-.*")));
   }
 
   @Test
