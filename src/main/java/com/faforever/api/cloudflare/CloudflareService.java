@@ -22,19 +22,29 @@ public class CloudflareService {
 
   private final FafApiProperties fafApiProperties;
 
-  public String generateCloudFlareHmacToken(String featuredModUriString) throws NoSuchAlgorithmException, InvalidKeyException {
-    return generateCloudFlareHmacToken(URI.create(featuredModUriString));
+  /**
+   * Builds hmac token for cloudflare firewall verification as specified
+   * <a href="https://support.cloudflare.com/hc/en-us/articles/115001376488-Configuring-Token-Authentication">here</a>
+   * @param uri uri to generate the hmac token for
+   * @return string representing the hmac token formatted as {timestamp}-{hashedContent}
+   */
+  public String generateCloudFlareHmacToken(String uri) throws NoSuchAlgorithmException, InvalidKeyException {
+    return generateCloudFlareHmacToken(URI.create(uri));
   }
 
-  public String generateCloudFlareHmacToken(URI featuredModUri) throws NoSuchAlgorithmException, InvalidKeyException {
+  /**
+   * Builds hmac token for cloudflare firewall verification as specified
+   * <a href="https://support.cloudflare.com/hc/en-us/articles/115001376488-Configuring-Token-Authentication">here</a>
+   * @param uri uri to generate the hmac token for
+   * @return string representing the hmac token formatted as {timestamp}-{hashedContent}
+   */
+  public String generateCloudFlareHmacToken(URI uri) throws NoSuchAlgorithmException, InvalidKeyException {
     String secret = fafApiProperties.getCloudflare().getHmacSecret();
     long timeStamp = Instant.now().getEpochSecond();
 
-    // Builds hmac token for cloudflare firewall verification as specified at
-    // https://support.cloudflare.com/hc/en-us/articles/115001376488-Configuring-Token-Authentication
     Mac mac = Mac.getInstance(HMAC_SHA256);
     mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), HMAC_SHA256));
-    byte[] macMessage = (featuredModUri.getPath() + timeStamp).getBytes(StandardCharsets.UTF_8);
+    byte[] macMessage = (uri.getPath() + timeStamp).getBytes(StandardCharsets.UTF_8);
 
     String hmacEncoded = URLEncoder.encode(new String(Base64.getEncoder().encode(mac.doFinal(macMessage)), StandardCharsets.UTF_8), StandardCharsets.UTF_8);
     return "%d-%s".formatted(timeStamp, hmacEncoded);
