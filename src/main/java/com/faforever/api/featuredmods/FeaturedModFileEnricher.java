@@ -7,8 +7,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.inject.Inject;
 import javax.persistence.PostLoad;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
 @Component
 public class FeaturedModFileEnricher {
@@ -25,7 +23,7 @@ public class FeaturedModFileEnricher {
   }
 
   @PostLoad
-  public void enhance(FeaturedModFile featuredModFile) throws NoSuchAlgorithmException, InvalidKeyException {
+  public void enhance(FeaturedModFile featuredModFile) {
     String folder = featuredModFile.getFolderName();
     String urlFormat = fafApiProperties.getFeaturedMod().getFileUrlFormat();
     String urlString = urlFormat.formatted(folder, featuredModFile.getOriginalFileName());

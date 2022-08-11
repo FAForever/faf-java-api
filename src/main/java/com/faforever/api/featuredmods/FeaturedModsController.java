@@ -3,13 +3,11 @@ package com.faforever.api.featuredmods;
 import com.faforever.api.data.domain.FeaturedMod;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
-import com.faforever.api.security.OAuthScope;
 import com.yahoo.elide.jsonapi.models.Data;
 import com.yahoo.elide.jsonapi.models.JsonApiDocument;
 import com.yahoo.elide.jsonapi.models.Resource;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,7 +29,7 @@ public class FeaturedModsController {
 
   @RequestMapping(path = "/{modId}/files/{version}")
   @ApiOperation("Lists the required files for a specific featured mod version")
-  @PreAuthorize("hasScope('" + OAuthScope._LOBBY + "')")
+//  @PreAuthorize("hasScope('" + OAuthScope._LOBBY + "')")
   public JsonApiDocument getFiles(@PathVariable("modId") int modId,
                                   @PathVariable("version") String version,
                                   @RequestParam(value = "page[number]", required = false) Integer page) {

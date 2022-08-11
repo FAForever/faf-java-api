@@ -1,7 +1,6 @@
 package com.faforever.api.cloudflare;
 
 import com.faforever.api.config.FafApiProperties;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
@@ -15,12 +14,16 @@ import java.time.Instant;
 import java.util.Base64;
 
 @Service
-@RequiredArgsConstructor
 public class CloudflareService {
 
   private static final String HMAC_SHA256 = "HmacSHA256";
 
-  private final FafApiProperties fafApiProperties;
+  private final Mac mac = Mac.getInstance(HMAC_SHA256);
+
+  public CloudflareService(FafApiProperties fafApiProperties) throws NoSuchAlgorithmException, InvalidKeyException {
+    String secret = fafApiProperties.getCloudflare().getHmacSecret();
+    mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), HMAC_SHA256));
+  }
 
   /**
    * Builds hmac token for cloudflare firewall verification as specified
@@ -28,7 +31,7 @@ public class CloudflareService {
    * @param uri uri to generate the hmac token for
    * @return string representing the hmac token formatted as {timestamp}-{hashedContent}
    */
-  public String generateCloudFlareHmacToken(String uri) throws NoSuchAlgorithmException, InvalidKeyException {
+  public String generateCloudFlareHmacToken(String uri) {
     return generateCloudFlareHmacToken(URI.create(uri));
   }
 
@@ -38,16 +41,12 @@ public class CloudflareService {
    * @param uri uri to generate the hmac token for
    * @return string representing the hmac token formatted as {timestamp}-{hashedContent}
    */
-  public String generateCloudFlareHmacToken(URI uri) throws NoSuchAlgorithmException, InvalidKeyException {
-    String secret = fafApiProperties.getCloudflare().getHmacSecret();
+  public String generateCloudFlareHmacToken(URI uri) {
     long timeStamp = Instant.now().getEpochSecond();
 
-    Mac mac = Mac.getInstance(HMAC_SHA256);
-    mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), HMAC_SHA256));
     byte[] macMessage = (uri.getPath() + timeStamp).getBytes(StandardCharsets.UTF_8);
 
     String hmacEncoded = URLEncoder.encode(new String(Base64.getEncoder().encode(mac.doFinal(macMessage)), StandardCharsets.UTF_8), StandardCharsets.UTF_8);
     return "%d-%s".formatted(timeStamp, hmacEncoded);
   }
-
 }
