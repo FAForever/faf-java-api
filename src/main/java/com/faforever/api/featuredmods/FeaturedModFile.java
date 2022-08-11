@@ -87,21 +87,33 @@ public class FeaturedModFile {
 
   // Enriched by FeaturedModFileEnricher
 
+  /**
+   * URL with hmac token as query parameter for backwards compatibility with clients, cannot be cached by cloudflare
+   */
   @Transient
   public String getUrl() {
     return url;
   }
 
+  /**
+   * URL without any query parameters so it can be cached by cloudflare
+   */
   @Transient
   public String getCacheableUrl() {
     return cacheableUrl;
   }
 
+  /**
+   * Token to be set as header parameter for cloudflare validation
+   */
   @Transient
   public String getHmacToken() {
     return hmacToken;
   }
 
+  /**
+   * Parameter to set the token as
+   */
   @Transient
   public String getHmacParameter() {
     return hmacParameter;
