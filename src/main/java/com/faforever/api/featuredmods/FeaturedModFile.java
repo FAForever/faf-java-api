@@ -26,6 +26,9 @@ public class FeaturedModFile {
   private int version;
   // Enriched in FeaturedModFileEnricher
   private String url;
+  private String cacheableUrl;
+  private String hmacToken;
+  private String hmacParameter;
   private String folderName;
   private int fileId;
 
@@ -73,12 +76,6 @@ public class FeaturedModFile {
     return fileId;
   }
 
-  @Transient
-  // Enriched by FeaturedModFileEnricher
-  public String getUrl() {
-    return url;
-  }
-
   /**
    * Returns the name of the folder on the server in which the file resides (e.g. {@code updates_faf_files}). Used by
    * the {@link FeaturedModFileEnricher}.
@@ -86,5 +83,39 @@ public class FeaturedModFile {
   @Column(name = "folderName")
   public String getFolderName() {
     return folderName;
+  }
+
+  // Enriched by FeaturedModFileEnricher
+
+  /**
+   * URL with hmac token as query parameter for backwards compatibility with clients, cannot be cached by cloudflare
+   */
+  @Transient
+  public String getUrl() {
+    return url;
+  }
+
+  /**
+   * URL without any query parameters so it can be cached by cloudflare
+   */
+  @Transient
+  public String getCacheableUrl() {
+    return cacheableUrl;
+  }
+
+  /**
+   * Token to be set as header parameter for cloudflare validation
+   */
+  @Transient
+  public String getHmacToken() {
+    return hmacToken;
+  }
+
+  /**
+   * Parameter to set the token as
+   */
+  @Transient
+  public String getHmacParameter() {
+    return hmacParameter;
   }
 }
