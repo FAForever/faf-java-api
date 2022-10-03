@@ -342,6 +342,14 @@ public class UserServiceTest {
   }
 
   @Test
+  public void changeLoginCasing() {
+    when(userRepository.save(any(User.class))).then(invocation -> ((User) invocation.getArgument(0)).setId(TEST_USERID));
+
+    instance.changeLogin(TEST_USERNAME.toUpperCase(), validUser, IP_ADDRESS);
+    verify(eventPublisher).publishEvent(any(UserUpdatedEvent.class));
+  }
+
+  @Test
   @SuppressWarnings("unchecked")
   public void resetPasswordByLogin() throws Exception {
     properties.getPasswordReset().setPasswordResetUrlFormat(PASSWORD_RESET_URL_FORMAT);
