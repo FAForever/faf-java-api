@@ -246,7 +246,10 @@ public class UserService {
   }
 
   private void internalChangeLogin(String newLogin, User user, String ipAddress, boolean force) {
-    validateUsername(newLogin);
+    String oldLogin = user.getLogin();
+    if (!newLogin.equalsIgnoreCase(oldLogin)) {
+      validateUsername(newLogin);
+    }
 
     if (!force) {
       int minDaysBetweenChange = properties.getUser().getMinimumDaysBetweenUsernameChange();
@@ -264,9 +267,9 @@ public class UserService {
         });
 
     }
-    log.info("Changing username for user ''{}'' to ''{}'', forced:''{}''", user.getLogin(), newLogin, force);
+    log.info("Changing username for user ''{}'' to ''{}'', forced:''{}''", oldLogin, newLogin, force);
     NameRecord nameRecord = new NameRecord()
-      .setName(user.getLogin())
+      .setName(oldLogin)
       .setPlayer(playerRepository.getReferenceById(user.getId()));
     nameRecordRepository.save(nameRecord);
 
