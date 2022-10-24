@@ -38,10 +38,11 @@ class LeagueElideTest extends AbstractIntegrationTest {
     )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data.attributes.technicalName", is("league1")))
+      .andExpect(jsonPath("$.data.attributes.enabled", is(true)))
       .andExpect(jsonPath("$.data.attributes.nameKey", is("league_name_1")))
       .andExpect(jsonPath("$.data.attributes.descriptionKey", is("league_description_1")))
       // We also see createTime and updateTime, but not the three imageUrls
-      .andExpect(jsonPath("$.data.attributes[*]", hasSize(5)));
+      .andExpect(jsonPath("$.data.attributes[*]", hasSize(6)));
   }
 
   @Test
