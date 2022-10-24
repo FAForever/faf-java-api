@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 @Configuration
 public class LeagueDbTestContainers {
   private static final MariaDBContainer<?> leagueServiceDBContainer = new MariaDBContainer<>("mariadb:10.6");
-  private static final GenericContainer<?> leagueServiceContainer = new GenericContainer<>("faforever/faf-league-service:1.1.0");
+  private static final GenericContainer<?> leagueServiceContainer = new GenericContainer<>("faforever/faf-league-service:1.3.0");
   private static final Network sharedNetwork = Network.newNetwork();
 
   @Bean

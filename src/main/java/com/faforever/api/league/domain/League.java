@@ -17,6 +17,7 @@ public class League extends AbstractEntity<League> {
   public static final String TYPE_NAME = "league";
 
   private String technicalName;
+  private boolean enabled;
   private String nameKey;
   private String descriptionKey;
   private String imageUrl;
@@ -26,6 +27,11 @@ public class League extends AbstractEntity<League> {
   @Column(name = "technical_name")
   public String getTechnicalName() {
     return technicalName;
+  }
+
+  @Column(name = "enabled")
+  public boolean isEnabled() {
+    return enabled;
   }
 
   @Column(name = "name_key")

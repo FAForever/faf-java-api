@@ -1,9 +1,9 @@
 -- leaderboard is populated by R__060_leaderboard.sql from Flyway
 
-INSERT INTO league (id, technical_name, name_key, description_key, image_url, medium_image_url, small_image_url)
-VALUES (1, 'league1', 'league_name_1', 'league_description_1',
+INSERT INTO league (id, technical_name, enabled, name_key, description_key, image_url, medium_image_url, small_image_url)
+VALUES (1, 'league1', TRUE, 'league_name_1', 'league_description_1',
        'https://example1.com/', 'https://example1.com/medium/', 'https://example1.com/small/'),
-       (2, 'league2', 'league_name_2', 'league_description_2',
+       (2, 'league2', TRUE, 'league_name_2', 'league_description_2',
        'https://example2.com/', 'https://example2.com/medium/', 'https://example2.com/small/');
 
 INSERT INTO league_season (id, league_id, leaderboard_id, placement_games, placement_games_returning_player,
