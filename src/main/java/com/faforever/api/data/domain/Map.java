@@ -50,6 +50,7 @@ public class Map extends AbstractEntity<Map> implements OwnableEntity {
   private MapVersion latestVersion;
   private Integer gamesPlayed;
   private MapReviewsSummary reviewsSummary;
+  private License license;
 
   @Column(name = "recommended")
   @Audit(action = Audit.Action.UPDATE, logStatement = "Updated map `{0}` attribute recommended to: {1}", logExpressions = {"${map.id}", "${map.recommended}"})
@@ -122,6 +123,20 @@ public class Map extends AbstractEntity<Map> implements OwnableEntity {
   @UpdatePermission(expression = Prefab.ALL)
   public MapReviewsSummary getReviewsSummary() {
     return reviewsSummary;
+  }
+
+  /**
+   * A license is defined on map level (not map version). It is possible to change the license to a license
+   * that gives more freedom, but never to a license that reduce given freedoms. This ensures that it doesn't matter
+   * when you downloaded the asset, you never lose any usage rights you were already given.
+   * If an author wants to "downgrade" a license he needs to create a new map with new versions.
+   */
+  @ManyToOne
+  @JoinColumn(name = "license")
+  @Nullable
+  @BatchSize(size = 1000)
+  public License getLicense() {
+    return license;
   }
 
   @Transient

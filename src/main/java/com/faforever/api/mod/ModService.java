@@ -1,8 +1,10 @@
 package com.faforever.api.mod;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.content.LicenseRepository;
 import com.faforever.api.data.domain.BanDurationType;
 import com.faforever.api.data.domain.BanLevel;
+import com.faforever.api.data.domain.License;
 import com.faforever.api.data.domain.Mod;
 import com.faforever.api.data.domain.ModType;
 import com.faforever.api.data.domain.ModVersion;
@@ -56,6 +58,7 @@ public class ModService {
   private final FafApiProperties properties;
   private final ModRepository modRepository;
   private final ModVersionRepository modVersionRepository;
+  private final LicenseRepository licenseRepository;
 
   @SneakyThrows
   @Transactional
@@ -277,6 +280,7 @@ public class ModService {
         .setDisplayName(modInfo.getName())
         .setVersions(new ArrayList<>())
         .setUploader(uploader)
+        .setLicense(getDefaultLicense()) // TODO: Derive license during upload
         .setRecommended(false));
     mod.getVersions().add(modVersion);
 
@@ -284,5 +288,9 @@ public class ModService {
 
     mod = modRepository.save(mod);
     modRepository.insertModStats(mod.getDisplayName());
+  }
+
+  private License getDefaultLicense() {
+    return licenseRepository.findById(properties.getMod().getDefaultLicenseId()).get();
   }
 }

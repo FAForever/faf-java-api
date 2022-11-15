@@ -3,8 +3,10 @@ package com.faforever.api.map;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.Map;
 import com.faforever.api.content.ContentService;
+import com.faforever.api.content.LicenseRepository;
 import com.faforever.api.data.domain.BanInfo;
 import com.faforever.api.data.domain.BanLevel;
+import com.faforever.api.data.domain.License;
 import com.faforever.api.data.domain.MapVersion;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
@@ -54,6 +56,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -67,6 +70,8 @@ public class MapServiceTest {
   @Mock
   private MapRepository mapRepository;
   @Mock
+  private LicenseRepository licenseRepository;
+  @Mock
   private FafApiProperties fafApiProperties;
   @Mock
   private ContentService contentService;
@@ -78,7 +83,7 @@ public class MapServiceTest {
 
   @BeforeEach
   void beforeEach() {
-    instance = new MapService(fafApiProperties, mapRepository, contentService);
+    instance = new MapService(fafApiProperties, mapRepository, licenseRepository, contentService);
   }
 
   private String loadMapAsString(String filename) throws IOException {
@@ -348,10 +353,11 @@ public class MapServiceTest {
     }
 
     @Test
-    void positiveUploadTest() throws Exception {
+    void positiveUploadTest(@Mock License licenseMock) throws Exception {
       String zipFilename = "command_conquer_rush.v0007.zip";
       when(fafApiProperties.getMap()).thenReturn(mapProperties);
       when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
+      when(licenseRepository.findById(anyInt())).thenReturn(Optional.of(licenseMock));
       InputStream mapData = loadMapAsInputSteam(zipFilename);
 
       Path tmpDir = temporaryDirectory;

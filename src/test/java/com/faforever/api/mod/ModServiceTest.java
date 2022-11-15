@@ -1,8 +1,10 @@
 package com.faforever.api.mod;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.content.LicenseRepository;
 import com.faforever.api.data.domain.BanInfo;
 import com.faforever.api.data.domain.BanLevel;
+import com.faforever.api.data.domain.License;
 import com.faforever.api.data.domain.Mod;
 import com.faforever.api.data.domain.ModVersion;
 import com.faforever.api.data.domain.Player;
@@ -35,6 +37,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,6 +57,8 @@ public class ModServiceTest {
   private ModRepository modRepository;
   @Mock
   private ModVersionRepository modVersionRepository;
+  @Mock
+  private LicenseRepository licenseRepository;
 
   @BeforeEach
   public void setUp() {
@@ -61,17 +66,18 @@ public class ModServiceTest {
     properties.getMod().setTargetDirectory(temporaryFolder.resolve("mods"));
     properties.getMod().setThumbnailTargetDirectory(temporaryFolder.resolve("thumbnails"));
 
-    instance = new ModService(properties, modRepository, modVersionRepository);
+    instance = new ModService(properties, modRepository, modVersionRepository, licenseRepository);
   }
 
   @Test
   @SuppressWarnings("unchecked")
-  public void processUploadedMod() throws Exception {
+  public void processUploadedMod(@Mock License licenseMock) throws Exception {
     Path uploadFile = prepareMod(TEST_MOD);
 
     Player uploader = new Player();
 
     when(modRepository.save(any(Mod.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    when(licenseRepository.findById(anyInt())).thenReturn(Optional.of(licenseMock));
 
     instance.processUploadedMod(uploadFile, uploader);
 

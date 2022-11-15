@@ -2,8 +2,10 @@ package com.faforever.api.map;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.content.ContentService;
+import com.faforever.api.content.LicenseRepository;
 import com.faforever.api.data.domain.BanDurationType;
 import com.faforever.api.data.domain.BanLevel;
+import com.faforever.api.data.domain.License;
 import com.faforever.api.data.domain.Map;
 import com.faforever.api.data.domain.MapVersion;
 import com.faforever.api.data.domain.Player;
@@ -83,6 +85,7 @@ public class MapService {
   private static final String LEGACY_FOLDER_PREFIX = "maps/";
   private final FafApiProperties fafApiProperties;
   private final MapRepository mapRepository;
+  private final LicenseRepository licenseRepository;
   private final ContentService contentService;
 
   public MapNameValidationResponse requestMapNameValidation(String mapName) {
@@ -371,6 +374,7 @@ public class MapService {
           .setAuthor(author)
           .setGamesPlayed(0)
           .setRecommended(false)
+          .setLicense(getDefaultLicense()) // TODO: Derive license during upload
       );
 
     LuaValue standardTeamsConfig = mapLua.getFirstTeam$();
@@ -499,5 +503,9 @@ public class MapService {
     Path buildFinalZipPath(int version) {
       return fafApiProperties.getMap().getTargetDirectory().resolve(buildFinalZipName(version));
     }
+  }
+
+  private License getDefaultLicense() {
+    return licenseRepository.findById(fafApiProperties.getMap().getDefaultLicenseId()).get();
   }
 }
