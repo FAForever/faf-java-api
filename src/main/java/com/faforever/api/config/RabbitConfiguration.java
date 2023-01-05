@@ -32,8 +32,8 @@ public class RabbitConfiguration {
   public static final String EXCHANGE_FAF_LOBBY = "faf-lobby";
   public static final String QUEUE_ACHIEVEMENT = "achievement";
   public static final String QUEUE_EVENT = "event";
-  public static final String QUEUE_ACHIEVEMENT_ROUTING_KEY = "achievement";
-  public static final String QUEUE_EVENT_ROUTING_KEY = "achievement";
+  public static final String QUEUE_ACHIEVEMENT_ROUTING_KEY = "request.achievement.update";
+  public static final String QUEUE_EVENT_ROUTING_KEY = "request.event.update";
 
   /**
    * Define an interceptor that tries to process a message 3 times
