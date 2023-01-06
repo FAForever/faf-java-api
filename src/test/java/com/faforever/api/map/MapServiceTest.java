@@ -244,6 +244,7 @@ public class MapServiceTest {
       "MAP_FILE_INSIDE_ZIP_MISSING,without_scenariolua.zip",
       "MAP_FILE_INSIDE_ZIP_MISSING,without_scmap.zip",
       "MAP_FILE_INSIDE_ZIP_MISSING,without_scriptlua.zip",
+      "ZIP_BOMB_DETECTED,map_zip_bomb.zip",
     })
     void uploadFails(String errorCodeEnumValue, String fileName) {
       uploadFails(ErrorCode.valueOf(errorCodeEnumValue), fileName);
