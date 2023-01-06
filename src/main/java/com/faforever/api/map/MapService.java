@@ -14,6 +14,7 @@ import com.faforever.api.map.MapNameValidationResponse.FileNames;
 import com.faforever.api.utils.FilePermissionUtil;
 import com.faforever.api.utils.NameUtil;
 import com.faforever.commons.io.Unzipper;
+import com.faforever.commons.io.ZipBombException;
 import com.faforever.commons.io.Zipper;
 import com.faforever.commons.map.PreviewGenerator;
 import com.google.common.annotations.VisibleForTesting;
@@ -215,11 +216,16 @@ public class MapService {
     Path unzippedDirectory = Files.createDirectories(rootTempFolder.resolve("unzipped-content"));
     log.debug("Unzipping uploaded file ''{}'' to: {}", mapDataInputStream, unzippedDirectory);
 
-    Unzipper.from(mapDataInputStream)
-      .zipBombByteCountThreshold(5_000_000)
-      .zipBombProtectionFactor(200)
-      .to(unzippedDirectory)
-      .unzip();
+
+    try {
+      Unzipper.from(mapDataInputStream)
+        .zipBombByteCountThreshold(5_000_000)
+        .zipBombProtectionFactor(200)
+        .to(unzippedDirectory)
+        .unzip();
+    } catch (ZipBombException e) {
+      throw ApiException.of(ErrorCode.ZIP_BOMB_DETECTED);
+    }
 
     return unzippedDirectory;
   }
