@@ -105,6 +105,12 @@ spring:
       connection-test-query: SELECT 1 FROM DUAL
       minimum-idle: 2
       maximum-pool-size: 12
+  rabbitmq:
+    host: ${RABBIT_HOST}
+    port: ${RABBIT_PORT:5672}
+    username: ${RABBIT_USERNAME:faf-java-api}
+    password: ${RABBIT_PASSWORD}
+    virtual-host: ${RABBIT_VHOST:/faf-core}
   jpa:
     hibernate:
       naming:

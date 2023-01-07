@@ -8,19 +8,23 @@ import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerService;
 import com.google.common.base.MoreObjects;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.function.BiFunction;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EventsService {
 
   private final EventRepository eventRepository;
   private final PlayerService playerService;
   private final PlayerEventRepository playerEventRepository;
 
-  UpdatedEventResponse increment(int playerId, String eventId, int steps) {
+  void increment(int playerId, String eventId, int steps) {
+    log.debug("Increment event id {} for player id {} by {} steps", eventId, playerId, steps);
+
     BiFunction<Integer, Integer, Integer> stepsFunction = (currentSteps, newSteps) -> currentSteps + newSteps;
     playerService.getById(playerId);
     Event event = eventRepository.findById(eventId)
@@ -33,8 +37,6 @@ public class EventsService {
 
     playerEvent.setCurrentCount(newCurrentCount);
     playerEventRepository.save(playerEvent);
-
-    return new UpdatedEventResponse(playerEvent.getId(), eventId, newCurrentCount);
   }
 
   private PlayerEvent getOrCreatePlayerEvent(int playerId, Event event) {

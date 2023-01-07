@@ -68,6 +68,12 @@ spring:
     name: faf-league
     username: ${LEAGUE_DATABASE_USERNAME:faf-league-service}
     password: ${LEAGUE_DATABASE_PASSWORD:banana}
+  rabbitmq:
+    host: ${RABBIT_HOST:127.0.0.1}
+    port: ${RABBIT_PORT:5672}
+    username: ${RABBIT_USERNAME:faf-java-api}
+    password: ${RABBIT_PASSWORD:banana}
+    virtual-host: ${RABBIT_VHOST:/faf-core}
   jpa:
     show-sql: true
   security:
