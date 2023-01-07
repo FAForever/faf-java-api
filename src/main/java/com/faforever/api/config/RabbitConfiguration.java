@@ -30,8 +30,8 @@ import java.util.Map;
 public class RabbitConfiguration {
   public static final String EXCHANGE_DEAD_LETTER = "dlx";
   public static final String EXCHANGE_FAF_LOBBY = "faf-lobby";
-  public static final String QUEUE_ACHIEVEMENT = "achievement";
-  public static final String QUEUE_EVENT = "event";
+  public static final String QUEUE_ACHIEVEMENT = "faf-lobby.api.achievement.update";
+  public static final String QUEUE_EVENT = "faf-lobby.api.event.update";
   public static final String QUEUE_ACHIEVEMENT_ROUTING_KEY = "request.achievement.update";
   public static final String QUEUE_EVENT_ROUTING_KEY = "request.event.update";
 
