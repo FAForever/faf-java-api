@@ -248,7 +248,7 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-security:${springdocVersion}")
   implementation("com.github.FAForever:faf-java-commons:0e5d22ffff6e4dea81bac494d532627fcca8ebc4")
   implementation("org.kohsuke:github-api:1.313")
-  implementation("org.eclipse.jgit:org.eclipse.jgit:6.3.0.202209071007-r")
+  implementation("org.eclipse.jgit:org.eclipse.jgit:6.4.0.202211300538-r")
   implementation("org.jetbrains:annotations:23.1.0")
   implementation("com.google.guava:guava:31.1-jre")
   implementation("javax.inject:javax.inject:1")
