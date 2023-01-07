@@ -79,7 +79,7 @@ public class RabbitConfiguration {
     var eventQueue = new Queue(QUEUE_EVENT, true, false, false);
 
     List<Declarable> exchanges = List.of(deadLetterExchange, fafLobbyExchange);
-    List<Declarable> queues = List.of(achievementQueue);
+    List<Declarable> queues = List.of(achievementQueue, eventQueue);
 
     return merge(
       exchanges,
