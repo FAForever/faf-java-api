@@ -1,5 +1,6 @@
 package com.faforever.api.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Declarable;
 import org.springframework.amqp.core.Declarables;
@@ -27,6 +28,7 @@ import java.util.Map;
  * rabbitmqctl set_policy --vhost "/faf-core" DLX ".*" '{"dead-letter-exchange":"dlx"}' --apply-to queues
  */
 @Configuration
+@Slf4j
 public class RabbitConfiguration {
   public static final String EXCHANGE_DEAD_LETTER = "dlx";
   public static final String EXCHANGE_FAF_LOBBY = "faf-lobby";
@@ -72,6 +74,8 @@ public class RabbitConfiguration {
    */
   @Bean
   public Declarables declarables() {
+    log.info("Declaring RabbitMQ resources (creating if missing)");
+
     var deadLetterExchange = new DirectExchange(EXCHANGE_DEAD_LETTER, true, false);
     var fafLobbyExchange = new TopicExchange(EXCHANGE_FAF_LOBBY, true, false);
 

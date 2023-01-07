@@ -7,6 +7,7 @@ import com.faforever.api.data.domain.PlayerAchievement;
 import com.faforever.api.error.ApiException;
 import com.google.common.base.MoreObjects;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.function.BiFunction;
@@ -17,12 +18,14 @@ import static com.faforever.api.error.ErrorCode.ENTITY_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AchievementService {
 
   private final AchievementRepository achievementRepository;
   private final PlayerAchievementRepository playerAchievementRepository;
 
   void increment(int playerId, String achievementId, int steps) {
+    log.debug("Increment achievement id {} for player id {} by {} steps", achievementId, playerId, steps);
     updateSteps(playerId, achievementId, steps, Integer::sum);
   }
 
@@ -58,6 +61,7 @@ public class AchievementService {
   }
 
   void setStepsAtLeast(int playerId, String achievementId, int steps) {
+    log.debug("Updating achievement id {} for player id {} to minimum {} steps", achievementId, playerId, steps);
     updateSteps(playerId, achievementId, steps, Math::max);
   }
 
@@ -74,6 +78,7 @@ public class AchievementService {
     boolean newlyUnlocked = playerAchievement.getState() != AchievementState.UNLOCKED;
 
     if (newlyUnlocked) {
+      log.info("Player id {} unlocked achievement {}", playerId, playerAchievement.getAchievement().getName());
       playerAchievement.setState(AchievementState.UNLOCKED);
       playerAchievementRepository.save(playerAchievement);
     }
