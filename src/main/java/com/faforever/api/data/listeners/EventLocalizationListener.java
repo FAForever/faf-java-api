@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import javax.persistence.PostLoad;
+import jakarta.inject.Inject;
+import jakarta.persistence.PostLoad;
 
 @Slf4j
 @Component

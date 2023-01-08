@@ -44,11 +44,11 @@ public class MapsControllerTest extends AbstractIntegrationTest{
   @Test
   void fileMissing() throws Exception {
     mockMvc.perform(multipart("/maps/upload")
-      .with(getOAuthTokenWithActiveUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES)))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES)))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors", hasSize(1)))
       .andExpect(jsonPath("$.errors[0].title", is("org.springframework.web.multipart.support.MissingServletRequestPartException")))
-      .andExpect(jsonPath("$.errors[0].detail", is("Required request part 'file' is not present")));
+      .andExpect(jsonPath("$.errors[0].detail", is("Required part 'file' is not present.")));
   }
 
   @Test

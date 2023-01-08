@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.repository.Repository;
 import org.springframework.util.Assert;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;

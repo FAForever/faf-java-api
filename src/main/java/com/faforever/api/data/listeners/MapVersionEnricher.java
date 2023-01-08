@@ -7,10 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import javax.persistence.PostLoad;
-import javax.persistence.PostRemove;
-import javax.persistence.PostUpdate;
+import jakarta.inject.Inject;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostRemove;
+import jakarta.persistence.PostUpdate;
 
 @Component
 @Slf4j

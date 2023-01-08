@@ -47,7 +47,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
   public void meDataWithoutClan() throws Exception {
     Player player = playerRepository.getById(USERID_USER);
 
-    mockMvc.perform(get("/clans/me/")
+    mockMvc.perform(get("/clans/me")
         .with(getOAuthTokenForUserId(USERID_USER)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.player.id", is(player.getId())))
@@ -61,7 +61,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
     Clan clan = clanRepository.getById(1);
 
     mockMvc.perform(
-      get("/clans/me/")
+        get("/clans/me")
         .with(getOAuthTokenForUserId(USERID_CLAN_MEMBER)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.player.id", is(player.getId())))

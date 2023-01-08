@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.HttpClientErrorException.Forbidden;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
-import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.ValidationException;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.concurrent.CompletionException;

@@ -23,9 +23,9 @@ import org.springframework.util.Assert;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.transaction.Transactional;
-import javax.transaction.Transactional.TxType;
-import javax.validation.ValidationException;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
+import jakarta.validation.ValidationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

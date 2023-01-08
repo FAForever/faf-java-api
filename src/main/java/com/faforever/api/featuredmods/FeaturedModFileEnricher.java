@@ -5,8 +5,8 @@ import com.faforever.api.config.FafApiProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.inject.Inject;
-import javax.persistence.PostLoad;
+import jakarta.inject.Inject;
+import jakarta.persistence.PostLoad;
 
 @Component
 public class FeaturedModFileEnricher {

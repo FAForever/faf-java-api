@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.MessageSourceAccessor;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @Configuration
 public class LocalizationConfig {

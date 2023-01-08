@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.MultivaluedHashMap;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.MultivaluedHashMap;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.UUID;

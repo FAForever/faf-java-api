@@ -9,9 +9,9 @@ import com.google.common.base.Strings;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import javax.persistence.PostLoad;
-import javax.persistence.PreUpdate;
+import jakarta.inject.Inject;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PreUpdate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;

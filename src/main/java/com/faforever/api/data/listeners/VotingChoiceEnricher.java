@@ -6,8 +6,8 @@ import com.google.common.base.Strings;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import javax.persistence.PostLoad;
+import jakarta.inject.Inject;
+import jakarta.persistence.PostLoad;
 import java.util.Set;
 
 @Component

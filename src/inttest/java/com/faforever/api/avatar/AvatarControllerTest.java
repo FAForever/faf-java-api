@@ -143,13 +143,13 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
   }
 
   private MockMultipartHttpServletRequestBuilder createAvatarUploadRequest() throws IOException {
-    return MockMvcRequestBuilders.fileUpload("/avatars/upload")
+    return MockMvcRequestBuilders.multipart("/avatars/upload")
       .file(new MockMultipartFile("file", "avatar3.png", MediaType.IMAGE_PNG_VALUE, FileHandlingHelper.loadResourceAsStream("/avatars/donator.png")))
       .file(new MockMultipartFile("metadata", "metadata.json", MediaType.APPLICATION_JSON_VALUE, FileHandlingHelper.loadResourceAsStream("/avatars/metadata.json")));
   }
 
   private MockMultipartHttpServletRequestBuilder createAvatarReuploadRequest(Integer id) throws IOException {
-    return MockMvcRequestBuilders.fileUpload("/avatars/{id}/upload", id)
+    return MockMvcRequestBuilders.multipart("/avatars/{id}/upload", id)
       .file(new MockMultipartFile("file", "avatar1.png", MediaType.IMAGE_PNG_VALUE, FileHandlingHelper.loadResourceAsStream("/avatars/donator.png")))
       .file(new MockMultipartFile("metadata", "metadata.json", MediaType.APPLICATION_JSON_VALUE, FileHandlingHelper.loadResourceAsStream("/avatars/metadata.json")));
   }

@@ -4,8 +4,8 @@ import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Clan;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import javax.persistence.PostLoad;
+import jakarta.inject.Inject;
+import jakarta.persistence.PostLoad;
 
 @Component
 public class ClanEnricherListener {

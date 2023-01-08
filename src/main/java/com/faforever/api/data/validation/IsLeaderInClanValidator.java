@@ -2,8 +2,8 @@ package com.faforever.api.data.validation;
 
 import com.faforever.api.data.domain.Clan;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 public class IsLeaderInClanValidator implements ConstraintValidator<IsLeaderInClan, Clan> {
 

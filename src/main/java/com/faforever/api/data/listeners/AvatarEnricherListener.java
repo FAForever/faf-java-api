@@ -5,8 +5,8 @@ import com.faforever.api.data.domain.Avatar;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriUtils;
 
-import javax.inject.Inject;
-import javax.persistence.PostLoad;
+import jakarta.inject.Inject;
+import jakarta.persistence.PostLoad;
 import java.nio.charset.StandardCharsets;
 
 @Component

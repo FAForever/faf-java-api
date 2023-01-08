@@ -2,8 +2,8 @@ package com.faforever.api.data.validation;
 
 import com.faforever.api.data.domain.VotingSubject;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.time.OffsetDateTime;
 
 /**
