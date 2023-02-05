@@ -2,8 +2,8 @@ package com.faforever.api.data.converter;
 
 import com.faforever.api.data.domain.VictoryCondition;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 import java.util.Arrays;
 
 @Converter

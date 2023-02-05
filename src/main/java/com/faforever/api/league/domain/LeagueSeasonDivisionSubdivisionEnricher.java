@@ -3,7 +3,7 @@ package com.faforever.api.league.domain;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.PostLoad;
+import jakarta.persistence.PostLoad;
 
 @Component
 @Slf4j

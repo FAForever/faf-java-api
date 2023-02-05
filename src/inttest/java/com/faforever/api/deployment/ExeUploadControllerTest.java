@@ -11,7 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static org.junit.Assert.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/truncateTables.sql")
@@ -28,7 +28,7 @@ public class ExeUploadControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void testSuccessUploadBeta() throws Exception {
-    this.mockMvc.perform(fileUpload("/exe/upload")
+    this.mockMvc.perform(multipart("/exe/upload")
       .file(file)
       .param("modName", "fafbeta")
       .param("apiKey", SUPER_SECRET)
@@ -38,7 +38,7 @@ public class ExeUploadControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void testSuccessUploadDevelop() throws Exception {
-    this.mockMvc.perform(fileUpload("/exe/upload")
+    this.mockMvc.perform(multipart("/exe/upload")
       .file(file)
       .param("modName", "fafdevelop")
       .param("apiKey", SUPER_SECRET)
@@ -48,7 +48,7 @@ public class ExeUploadControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void testBadRequestUploadNoModName() throws Exception  {
-    this.mockMvc.perform(fileUpload("/exe/upload")
+    this.mockMvc.perform(multipart("/exe/upload")
       .file(file)
       .param("apiKey", SUPER_SECRET)
     ).andExpect(status().is4xxClientError());
@@ -56,7 +56,7 @@ public class ExeUploadControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void testBadRequestUploadNoFile() throws Exception {
-    this.mockMvc.perform(fileUpload("/exe/upload")
+    this.mockMvc.perform(multipart("/exe/upload")
       .param("modName", "fafdevelop")
       .param("apiKey", SUPER_SECRET)
     ).andExpect(status().is4xxClientError());
@@ -65,7 +65,7 @@ public class ExeUploadControllerTest extends AbstractIntegrationTest {
   @Test
   public void testBadRequestUploadFileWithWrongExeExtension() throws Exception  {
     MockMultipartFile file = new MockMultipartFile("file", "ForgedAlliance.zip", "application/octet-stream", new byte[]{ 1, 2 ,3, 4 });
-    this.mockMvc.perform(fileUpload("/exe/upload")
+    this.mockMvc.perform(multipart("/exe/upload")
       .file(file)
       .param("modName", "fafbeta")
       .param("apiKey", SUPER_SECRET)
@@ -74,7 +74,7 @@ public class ExeUploadControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void testBadRequestUploadWithoutApiKey() throws Exception  {
-    this.mockMvc.perform(fileUpload("/exe/upload")
+    this.mockMvc.perform(multipart("/exe/upload")
       .file(file)
       .param("modName", "fafbeta")
     ).andExpect(status().is4xxClientError());
@@ -82,7 +82,7 @@ public class ExeUploadControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void testBadRequestUploadWithWrongApiKey() throws Exception  {
-    this.mockMvc.perform(fileUpload("/exe/upload")
+    this.mockMvc.perform(multipart("/exe/upload")
       .file(file)
       .param("modName", "fafbeta")
       .param("apiKey", "not a banana")

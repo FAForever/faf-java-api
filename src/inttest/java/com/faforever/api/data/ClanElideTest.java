@@ -141,7 +141,7 @@ public class ClanElideTest extends AbstractIntegrationTest {
           .with(getOAuthTokenForUserId(USERID_CLAN_LEADER))
           .header(HttpHeaders.CONTENT_TYPE, JsonApiMediaType.JSON_API_MEDIA_TYPE)
           .content(generateTransferLeadershipContent(1, 1))) // magic value from prepClanData.sql
-      .andExpect(status().is4xxClientError()); // TODO: Catch javax.validation.ConstraintViolationException and wrap it into a regular ApiException
+      .andExpect(status().is4xxClientError()); // TODO: Catch jakarta.validation.ConstraintViolationException and wrap it into a regular ApiException
   }
 
   @SneakyThrows
@@ -177,7 +177,7 @@ public class ClanElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
         delete("/data/clan/1")
           .with(getOAuthTokenForUserId(USERID_CLAN_LEADER)))
-      .andExpect(status().isNoContent()); // TODO: Catch javax.validation.ConstraintViolationException and wrap it into a regular ApiException
+      .andExpect(status().isNoContent()); // TODO: Catch jakarta.validation.ConstraintViolationException and wrap it into a regular ApiException
 
     assertFalse(clanRepository.findOneByName("Alpha Clan").isPresent());
   }

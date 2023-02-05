@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
 buildscript {
   repositories {
     mavenCentral()
@@ -9,8 +11,7 @@ buildscript {
 
 plugins {
   id "java"
-  id "org.springframework.boot" version "2.7.5"
-  id "io.spring.dependency-management" version "1.0.14.RELEASE"
+  id "org.springframework.boot" version "3.0.1"
   id "idea"
 }
 
@@ -210,10 +211,13 @@ ext {
 
 dependencies {
   // Spring Boot managed dependencies
+  implementation(platform(SpringBootPlugin.BOM_COORDINATES))
   implementation("org.projectlombok:lombok")
+  annotationProcessor(platform(SpringBootPlugin.BOM_COORDINATES))
   annotationProcessor("org.projectlombok:lombok")
-  testAnnotationProcessor("org.projectlombok:lombok")
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+  testAnnotationProcessor(platform(SpringBootPlugin.BOM_COORDINATES))
+  testAnnotationProcessor("org.projectlombok:lombok")
   testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
@@ -239,20 +243,18 @@ dependencies {
   runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
 
   // Manually managed dependencies
-  def elideVersion = "6.1.10"
-  def springdocVersion = "1.6.14"
+  def elideVersion = "7.0.0-pr2"
+  def springdocVersion = "2.0.2"
   implementation("com.yahoo.elide:elide-core:${elideVersion}")
   implementation("com.yahoo.elide:elide-swagger:${elideVersion}")
   implementation("com.yahoo.elide:elide-datastore-jpa:${elideVersion}")
   implementation("com.yahoo.elide:elide-datastore-multiplex:${elideVersion}")
-  implementation("org.springdoc:springdoc-openapi-ui:${springdocVersion}")
-  implementation("org.springdoc:springdoc-openapi-security:${springdocVersion}")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}")
   implementation("com.github.FAForever:faf-java-commons:0e5d22ffff6e4dea81bac494d532627fcca8ebc4")
   implementation("org.kohsuke:github-api:1.313")
   implementation("org.eclipse.jgit:org.eclipse.jgit:6.4.0.202211300538-r")
   implementation("org.jetbrains:annotations:23.1.0")
   implementation("com.google.guava:guava:31.1-jre")
-  implementation("javax.inject:javax.inject:1")
   implementation("org.luaj:luaj-jse:3.0.1")
   implementation("io.github.micheljung:nocatch:2.0")
   implementation("org.apache.commons:commons-compress:1.22")

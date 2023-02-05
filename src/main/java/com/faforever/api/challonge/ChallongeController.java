@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.HandlerMapping;
-import org.springframework.web.util.DefaultUriTemplateHandler;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriBuilder;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -75,12 +75,12 @@ public class ChallongeController {
   }
 
   @RequiredArgsConstructor
-  private static class ChallongeUriTemplateHandler extends DefaultUriTemplateHandler {
+  private static class ChallongeUriTemplateHandler extends DefaultUriBuilderFactory {
     private final String apiKey;
 
     @Override
-    protected UriComponentsBuilder initUriComponentsBuilder(String uriTemplate) {
-      return super.initUriComponentsBuilder(uriTemplate).queryParam("api_key", apiKey);
+    public UriBuilder uriString(String uriTemplate) {
+      return super.uriString(uriTemplate).queryParam("api_key", apiKey);
     }
   }
 }

@@ -108,11 +108,14 @@ public class GogService {
     try {
       return restTemplate.getForObject(gamesListUrl, GogGamesListPage.class);
     } catch (HttpClientErrorException e) {
-      throw switch (e.getStatusCode()) {
-        case FORBIDDEN -> ApiException.of(ErrorCode.GOG_LINK_GAMES_NOT_PUBLIC);
-        case NOT_FOUND -> ApiException.of(ErrorCode.GOG_LINK_USER_NOT_FOUND);
-        default -> e;
-      };
+      switch ((HttpStatus) e.getStatusCode()) {
+        case FORBIDDEN:
+          throw ApiException.of(ErrorCode.GOG_LINK_GAMES_NOT_PUBLIC);
+        case NOT_FOUND:
+          throw ApiException.of(ErrorCode.GOG_LINK_USER_NOT_FOUND);
+        default:
+          throw e;
+      }
     }
   }
 

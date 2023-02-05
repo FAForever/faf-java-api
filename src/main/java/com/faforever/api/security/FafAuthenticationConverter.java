@@ -1,7 +1,7 @@
 package com.faforever.api.security;
 
-import com.nimbusds.jose.shaded.json.JSONArray;
-import com.nimbusds.jose.shaded.json.JSONObject;
+import com.nimbusds.jose.shaded.gson.JsonArray;
+import com.nimbusds.jose.shaded.gson.JsonObject;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Jwt converter that reads scopes + custom FAF roles from the token extension.
@@ -30,18 +31,18 @@ public class FafAuthenticationConverter implements Converter<Jwt, AbstractAuthen
   }
 
   private String extractUsername(Jwt source) {
-    JSONObject ext = source.getClaim("ext");
+    JsonObject ext = source.getClaim("ext");
     String username = Optional.ofNullable(ext)
-      .flatMap(jsonObject -> Optional.ofNullable((String)jsonObject.get("username")))
+      .flatMap(jsonObject -> Optional.ofNullable(jsonObject.get("username").getAsString()))
       .orElse("[undefined]");
 
     return username;
   }
 
   private List<FafScope> extractScopes(Jwt source) {
-    JSONArray jwtScopes = source.getClaim("scp");
+    JsonArray jwtScopes = source.getClaim("scp");
     List<FafScope> scopes = Optional.ofNullable(jwtScopes)
-      .map(jsonArray -> jsonArray.stream().map(scope -> new FafScope(scope.toString())))
+      .map(jsonArray -> StreamSupport.stream(jsonArray.spliterator(), false).map(scope -> new FafScope(scope.getAsString())))
       .orElse(Stream.empty())
       .toList();
 
@@ -49,10 +50,10 @@ public class FafAuthenticationConverter implements Converter<Jwt, AbstractAuthen
   }
 
   public List<FafRole> extractRoles(Jwt source) {
-    JSONObject ext = source.getClaim("ext");
+    JsonObject ext = source.getClaim("ext");
     List<FafRole> roles = Optional.ofNullable(ext)
-      .flatMap(jsonObject -> Optional.ofNullable((JSONArray)jsonObject.get("roles")))
-      .map(jsonArray -> jsonArray.stream().map(role -> new FafRole(role.toString())))
+      .flatMap(jsonObject -> Optional.ofNullable((JsonArray) jsonObject.get("roles")))
+      .map(jsonArray -> StreamSupport.stream(jsonArray.spliterator(), false).map(role -> new FafRole(role.getAsString())))
       .orElse(Stream.empty())
       .toList();
 

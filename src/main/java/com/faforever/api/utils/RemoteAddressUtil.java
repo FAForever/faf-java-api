@@ -3,7 +3,7 @@ package com.faforever.api.utils;
 import lombok.experimental.UtilityClass;
 import org.springframework.util.Assert;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 @UtilityClass
 public class RemoteAddressUtil {

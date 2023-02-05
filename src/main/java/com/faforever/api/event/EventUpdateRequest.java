@@ -2,7 +2,7 @@ package com.faforever.api.event;
 
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Min;
 
 @Validated
 record EventUpdateRequest(

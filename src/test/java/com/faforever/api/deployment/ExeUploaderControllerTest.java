@@ -13,11 +13,11 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -59,7 +59,7 @@ public class ExeUploaderControllerTest {
 
   @Test
   public void testSuccessUpload() throws Exception {
-    this.mvc.perform(fileUpload("/exe/upload")
+    this.mvc.perform(multipart("/exe/upload")
       .file(file)
       .param("modName", "fafbeta")
       .param("apiKey", API_KEY)
@@ -68,7 +68,7 @@ public class ExeUploaderControllerTest {
 
   @Test
   public void testBadRequestUploadNoModName() throws Exception {
-    this.mvc.perform(fileUpload("/exe/upload")
+    this.mvc.perform(multipart("/exe/upload")
       .file(file)
       .param("apiKey", API_KEY)
     ).andExpect(status().isBadRequest());
@@ -76,7 +76,7 @@ public class ExeUploaderControllerTest {
 
   @Test
   public void testBadRequestUploadNoFile() throws Exception {
-    this.mvc.perform(fileUpload("/exe/upload")
+    this.mvc.perform(multipart("/exe/upload")
       .param("modName", "fafbeta2222")
       .param("apiKey", API_KEY)
     ).andExpect(status().isBadRequest());
@@ -88,7 +88,7 @@ public class ExeUploaderControllerTest {
       "ForgedAlliance.zip",
       "application/octet-stream",
       new byte[]{1, 2, 3, 4});
-    this.mvc.perform(fileUpload("/exe/upload")
+    this.mvc.perform(multipart("/exe/upload")
       .file(file)
       .param("modName", "fafbeta")
       .param("apiKey", API_KEY)
@@ -97,7 +97,7 @@ public class ExeUploaderControllerTest {
 
   @Test
   public void testBadRequestUploadWithoutApiKey() throws Exception {
-    this.mvc.perform(fileUpload("/exe/upload")
+    this.mvc.perform(multipart("/exe/upload")
       .file(file)
       .param("modName", "fafbeta")
     ).andExpect(status().isBadRequest());
