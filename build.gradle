@@ -270,6 +270,6 @@ dependencies {
   testImplementation("org.testcontainers:junit-jupiter:1.17.6")
   testImplementation("org.testcontainers:mariadb:1.17.6")
 
-  codacy("com.github.codacy:codacy-coverage-reporter:13.11.17")
+  codacy("com.github.codacy:codacy-coverage-reporter:13.12.1")
 }
 
