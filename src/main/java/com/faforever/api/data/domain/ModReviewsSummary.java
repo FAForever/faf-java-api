@@ -27,6 +27,8 @@ public class ModReviewsSummary {
   private int reviews;
   @Nullable
   private Float lowerBound;
+  @Nullable
+  private Float averageScore;
   private Mod mod;
 
   @Id
@@ -59,6 +61,11 @@ public class ModReviewsSummary {
   @Nullable
   public Float getLowerBound() {
     return lowerBound;
+  }
+
+  @Column(name = "average_score")
+  public float getAverageScore() {
+    return averageScore;
   }
 
   @OneToOne(fetch = FetchType.LAZY)

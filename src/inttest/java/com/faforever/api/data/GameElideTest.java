@@ -41,5 +41,27 @@ public class GameElideTest extends AbstractIntegrationTest {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data[*]", hasSize(0)));
   }
+
+  @Test
+  @WithAnonymousUser
+  public void filterExistingGameReviewsSummaryAverageScore() throws Exception {
+    mockMvc.perform(
+      get("/data/game")
+        .queryParam("filter", "reviewsSummary.averageScore=gt=3.333")
+    )
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data[*]", hasSize(1)));
+  }
+
+  @Test
+  @WithAnonymousUser
+  public void filterNonExistingGameReviewsSummaryAverageScore() throws Exception {
+    mockMvc.perform(
+      get("/data/game")
+        .queryParam("filter", "reviewsSummary.averageScore=gt=3.334")
+    )
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data[*]", hasSize(0)));
+  }
 }
 
