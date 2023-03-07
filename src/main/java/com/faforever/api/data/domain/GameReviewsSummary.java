@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -23,6 +24,8 @@ public class GameReviewsSummary {
   private float score;
   private int reviews;
   private float lowerBound;
+  @Nullable
+  private Float averageScore;
   private Game game;
 
   @Id
@@ -54,6 +57,11 @@ public class GameReviewsSummary {
   @Column(name = "lower_bound")
   public float getLowerBound() {
     return lowerBound;
+  }
+
+  @Column(name = "average_score")
+  public float getAverageScore() {
+    return averageScore;
   }
 
   @OneToOne(mappedBy = "reviewsSummary")

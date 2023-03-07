@@ -27,6 +27,8 @@ public class MapVersionReviewsSummary {
   private int reviews;
   @Nullable
   private Float lowerBound;
+  @Nullable
+  private Float averageScore;
   private MapVersion mapVersion;
 
   @Id
@@ -59,6 +61,11 @@ public class MapVersionReviewsSummary {
   @Nullable
   public Float getLowerBound() {
     return lowerBound;
+  }
+
+  @Column(name = "average_score")
+  public float getAverageScore() {
+    return averageScore;
   }
 
   @OneToOne(fetch = FetchType.LAZY)
