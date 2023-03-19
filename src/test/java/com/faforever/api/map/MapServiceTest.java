@@ -353,11 +353,12 @@ public class MapServiceTest {
     }
 
     @Test
-    void positiveUploadTest(@Mock License licenseMock) throws Exception {
+    void positiveUploadTest() throws Exception {
       String zipFilename = "command_conquer_rush.v0007.zip";
+      License defaultLicense = new License().setId(1);
       when(fafApiProperties.getMap()).thenReturn(mapProperties);
       when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
-      when(licenseRepository.findById(anyInt())).thenReturn(Optional.of(licenseMock));
+      when(licenseRepository.findById(anyInt())).thenReturn(Optional.of(defaultLicense));
       InputStream mapData = loadMapAsInputSteam(zipFilename);
 
       Path tmpDir = temporaryDirectory;
