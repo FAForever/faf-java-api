@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,7 +41,10 @@ public class ModsController {
     @ApiResponse(code = 500, message = "Failure")})
   @RequestMapping(path = "/upload", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
   @PreAuthorize("hasScope('" + OAuthScope._UPLOAD_MOD + "')")
-  public void uploadMod(@RequestParam("file") MultipartFile file, Authentication authentication) throws IOException {
+  public void uploadMod(
+    @RequestParam("file") MultipartFile file,
+    @RequestPart(value = "metadata", required = false) ModUploadMetadata metadata, //TODO make required when implemented by client
+    Authentication authentication) throws IOException {
     if (file == null) {
       throw new ApiException(new Error(ErrorCode.UPLOAD_FILE_MISSING));
     }
@@ -53,6 +57,6 @@ public class ModsController {
     Path tempFile = java.nio.file.Files.createTempFile("mod", ".tmp");
     file.transferTo(tempFile.toFile());
 
-    modService.processUploadedMod(tempFile, playerService.getPlayer(authentication));
+    modService.processUploadedMod(tempFile, playerService.getPlayer(authentication), metadata != null ? metadata.licenseId() : null);
   }
 }

@@ -20,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -101,6 +102,29 @@ public class MapsController {
     }
 
     Player player = playerService.getPlayer(authentication);
-    mapService.uploadMap(file.getInputStream(), file.getOriginalFilename(), player, ranked);
+    mapService.uploadMap(file.getInputStream(), file.getOriginalFilename(), player, ranked, null);
+  }
+
+  @ApiOperation("Upload a map")
+  @ApiResponses(value = {
+    @ApiResponse(code = 200, message = "Success"),
+    @ApiResponse(code = 401, message = "Unauthorized"),
+    @ApiResponse(code = 500, message = "Failure")})
+  @RequestMapping(path = "/uploadV2", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
+  @PreAuthorize("hasScope('" + OAuthScope._UPLOAD_MAP + "')")
+  public void uploadMap(@RequestPart("file") MultipartFile file,
+                        @RequestPart("metadata") MapUploadMetadata metadata,
+                        Authentication authentication) throws IOException {
+    if (file == null) {
+      throw new ApiException(new Error(ErrorCode.UPLOAD_FILE_MISSING));
+    }
+
+    String extension = Files.getFileExtension(file.getOriginalFilename());
+    if (!fafApiProperties.getMap().getAllowedExtensions().contains(extension)) {
+      throw new ApiException(new Error(ErrorCode.UPLOAD_INVALID_FILE_EXTENSIONS, fafApiProperties.getMap().getAllowedExtensions()));
+    }
+
+    Player player = playerService.getPlayer(authentication);
+    mapService.uploadMap(file.getInputStream(), file.getOriginalFilename(), player, metadata.isRanked(), metadata.licenseId());
   }
 }

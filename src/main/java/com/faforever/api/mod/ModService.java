@@ -63,7 +63,7 @@ public class ModService {
   @SneakyThrows
   @Transactional
   @CacheEvict(value = {Mod.TYPE_NAME, ModVersion.TYPE_NAME}, allEntries = true)
-  public void processUploadedMod(Path uploadedFile, Player uploader) {
+  public void processUploadedMod(Path uploadedFile, Player uploader, Integer licenseId) {
     checkUploaderVaultBan(uploader);
 
     log.debug("Player '{}' uploaded a mod", uploader);
@@ -109,7 +109,7 @@ public class ModService {
     FilePermissionUtil.setDefaultFilePermission(targetPath);
 
     try {
-      store(modInfo, thumbnailPath, uploader, zipFileName);
+      store(modInfo, thumbnailPath, uploader, zipFileName, licenseId);
     } catch (Exception exception) {
       try {
         Files.delete(targetPath);
@@ -265,7 +265,7 @@ public class ModService {
     return String.format("%s.v%04d", NameUtil.normalizeFileName(displayName), version);
   }
 
-  private void store(com.faforever.commons.mod.Mod modInfo, Optional<Path> thumbnailPath, Player uploader, String zipFileName) {
+  private void store(com.faforever.commons.mod.Mod modInfo, Optional<Path> thumbnailPath, Player uploader, String zipFileName, Integer licenseId) {
     ModVersion modVersion = new ModVersion()
       .setUid(modInfo.getUid())
       .setType(modInfo.isUiOnly() ? ModType.UI : ModType.SIM)
@@ -280,7 +280,7 @@ public class ModService {
         .setDisplayName(modInfo.getName())
         .setVersions(new ArrayList<>())
         .setUploader(uploader)
-        .setLicense(getDefaultLicense()) // TODO: Derive license during upload
+        .setLicense(getLicenseOrDefault(licenseId))
         .setRecommended(false));
     mod.getVersions().add(modVersion);
 
@@ -290,7 +290,9 @@ public class ModService {
     modRepository.insertModStats(mod.getDisplayName());
   }
 
-  private License getDefaultLicense() {
-    return licenseRepository.findById(properties.getMod().getDefaultLicenseId()).get();
+  public License getLicenseOrDefault(Integer licenseId) {
+    return Optional.ofNullable(licenseId)
+      .flatMap(licenseRepository::findById)
+      .orElseGet(() -> licenseRepository.getReferenceById(properties.getMod().getDefaultLicenseId()));
   }
 }

@@ -217,7 +217,7 @@ public class MapServiceTest {
       ));
 
       InputStream mapData = loadMapAsInputSteam("command_conquer_rush.v0007.zip");
-      assertThrows(Forbidden.class, () -> instance.uploadMap(mapData, "command_conquer_rush.v0007.zip", author, true));
+      assertThrows(Forbidden.class, () -> instance.uploadMap(mapData, "command_conquer_rush.v0007.zip", author, true, null));
       verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
@@ -257,7 +257,7 @@ public class MapServiceTest {
 
     void uploadFails(ErrorCode expectedErrorCode, String fileName) {
       InputStream mapData = loadMapAsInputSteam(fileName);
-      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, fileName, author, true));
+      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, fileName, author, true, null));
       assertThat(result, hasErrorCode(expectedErrorCode));
       verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
@@ -317,7 +317,7 @@ public class MapServiceTest {
     void noMapName() {
       String zipFilename = "no_map_name.zip";
       InputStream mapData = loadMapAsInputSteam(zipFilename);
-      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true));
+      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true, null));
       assertThat(result, hasErrorCodes(ErrorCode.MAP_NAME_MISSING));
       verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
@@ -326,7 +326,7 @@ public class MapServiceTest {
     void adaptiveFilesMissing() {
       String zipFilename = "adaptive_map_files_missing.zip";
       InputStream mapData = loadMapAsInputSteam(zipFilename);
-      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true));
+      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true, null));
       assertThat(result, hasErrorCodes(
         ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING,
         ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING
@@ -338,7 +338,7 @@ public class MapServiceTest {
     void invalidScenario() {
       String zipFilename = "invalid_scenario.zip";
       InputStream mapData = loadMapAsInputSteam(zipFilename);
-      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true));
+      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true, null));
       assertThat(result, hasErrorCodes(
         ErrorCode.MAP_SCRIPT_LINE_MISSING,
         ErrorCode.MAP_SCRIPT_LINE_MISSING,
@@ -362,7 +362,7 @@ public class MapServiceTest {
       InputStream mapData = loadMapAsInputSteam(zipFilename);
 
       Path tmpDir = temporaryDirectory;
-      instance.uploadMap(mapData, zipFilename, author, true);
+      instance.uploadMap(mapData, zipFilename, author, true, 1);
 
       ArgumentCaptor<com.faforever.api.data.domain.Map> mapCaptor = ArgumentCaptor.forClass(com.faforever.api.data.domain.Map.class);
       verify(mapRepository).save(mapCaptor.capture());

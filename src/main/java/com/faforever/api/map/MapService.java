@@ -161,7 +161,7 @@ public class MapService {
   @Transactional
   @SneakyThrows
   @CacheEvict(value = {Map.TYPE_NAME, MapVersion.TYPE_NAME}, allEntries = true)
-  public void uploadMap(InputStream mapDataInputStream, String mapFilename, Player author, boolean isRanked) {
+  public void uploadMap(InputStream mapDataInputStream, String mapFilename, Player author, boolean isRanked, Integer licenseId) {
     Assert.notNull(author, "'author' must not be null");
     Assert.isTrue(mapDataInputStream.available() > 0, "'mapData' must not be empty");
 
@@ -188,7 +188,7 @@ public class MapService {
 
       Optional<Map> existingMapOptional = validateMapMetadata(mapLua, mapNameBuilder, author);
 
-      updateHibernateMapEntities(mapLua, existingMapOptional, author, isRanked, mapNameBuilder);
+      updateHibernateMapEntities(mapLua, existingMapOptional, author, isRanked, licenseId, mapNameBuilder);
 
       Path mapFolderAfterRenaming = unzippedFileFolder.resolveSibling(
         mapNameBuilder.buildFolderName(mapLua.getMapVersion$()));
@@ -363,7 +363,7 @@ public class MapService {
     return existingMapOptional;
   }
 
-  private Map updateHibernateMapEntities(MapLuaAccessor mapLua, Optional<Map> existingMapOptional, Player author, boolean isRanked, MapNameBuilder mapNameBuilder) {
+  private Map updateHibernateMapEntities(MapLuaAccessor mapLua, Optional<Map> existingMapOptional, Player author, boolean isRanked, Integer licenseId, MapNameBuilder mapNameBuilder) {
     // the scenario lua is supposed to be validate already, thus we call the unwrapping $-methods
     String mapName = mapNameBuilder.getDisplayName();
 
@@ -374,7 +374,7 @@ public class MapService {
           .setAuthor(author)
           .setGamesPlayed(0)
           .setRecommended(false)
-          .setLicense(getDefaultLicense()) // TODO: Derive license during upload
+          .setLicense(getLicenseOrDefault(licenseId))
       );
 
     LuaValue standardTeamsConfig = mapLua.getFirstTeam$();
@@ -505,7 +505,9 @@ public class MapService {
     }
   }
 
-  private License getDefaultLicense() {
-    return licenseRepository.findById(fafApiProperties.getMap().getDefaultLicenseId()).get();
+  public License getLicenseOrDefault(Integer licenseId) {
+    return Optional.ofNullable(licenseId)
+      .flatMap(licenseRepository::findById)
+      .orElseGet(() -> licenseRepository.getReferenceById(fafApiProperties.getMap().getDefaultLicenseId()));
   }
 }
