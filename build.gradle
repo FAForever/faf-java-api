@@ -259,7 +259,7 @@ dependencies {
   implementation("io.github.micheljung:nocatch:2.0")
   implementation("org.apache.commons:commons-compress:1.22")
   implementation("org.json:json:20220924")
-  implementation("org.jsoup:jsoup:1.15.3")
+  implementation("org.jsoup:jsoup:1.15.4")
   implementation("com.github.jasminb:jsonapi-converter:0.11")
   implementation("commons-codec:commons-codec:1.15")
   implementation("org.hibernate.orm:hibernate-core:6.2.0.CR3") //tmp override due to https://hibernate.atlassian.net/browse/HHH-16199
