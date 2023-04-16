@@ -42,16 +42,22 @@ public class CoturnServer {
     return region;
   }
 
+  // TODO: Remove this once clients migrate to use the coturn controller
+  // @ReadPermission(expression = Prefab.NONE)
   @Column(name = "host")
   public String getHost() {
     return host;
   }
 
+  // TODO: Remove this once clients migrate to use the coturn controller
+  // @ReadPermission(expression = Prefab.NONE)
   @Column(name = "port")
   public Integer getPort() {
     return port;
   }
 
+  // TODO: Remove this once clients migrate to use the coturn controller
+  // @ReadPermission(expression = Prefab.NONE)
   @Column(name = "preshared_key")
   public String getKey() {
     return key;

@@ -11,15 +11,13 @@ import jakarta.persistence.PostLoad;
 @Component
 public class FeaturedModFileEnricher {
 
-  private static final String HMAC_SHA256 = "HmacSHA256";
-
-  private static FafApiProperties fafApiProperties;
-  private static CloudflareService cloudflareService;
+  private FafApiProperties fafApiProperties;
+  private CloudflareService cloudflareService;
 
   @Inject
   public void init(FafApiProperties fafApiProperties, CloudflareService cloudflareService) {
-    FeaturedModFileEnricher.fafApiProperties = fafApiProperties;
-    FeaturedModFileEnricher.cloudflareService = cloudflareService;
+    this.fafApiProperties = fafApiProperties;
+    this.cloudflareService = cloudflareService;
   }
 
   @PostLoad
