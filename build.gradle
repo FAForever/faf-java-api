@@ -262,7 +262,7 @@ dependencies {
   implementation("org.jsoup:jsoup:1.15.3")
   implementation("com.github.jasminb:jsonapi-converter:0.11")
   implementation("commons-codec:commons-codec:1.15")
-  implementation("org.hibernate.orm:hibernate-core:6.2.0.CR3") //tmp override due to https://hibernate.atlassian.net/browse/HHH-16199
+  implementation("org.hibernate.orm:hibernate-core:6.2.1.Final") //tmp override due to https://hibernate.atlassian.net/browse/HHH-16199
 
   // Required library for FafTokenService approach (called by nimbus-jwt)
   runtimeOnly("org.bouncycastle:bcpkix-jdk15on:1.70")
