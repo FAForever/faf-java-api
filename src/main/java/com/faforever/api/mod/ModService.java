@@ -34,6 +34,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -41,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -55,6 +58,7 @@ public class ModService {
    * Legacy path prefix put in front of every mod file. This should be eliminated ASAP.
    */
   public static final String MOD_PATH_PREFIX = "mods/";
+  private static final Set<String> ALLOWED_REPOSITORY_HOSTS = Set.of("github.com", "gitlab.com");
   private final FafApiProperties properties;
   private final ModRepository modRepository;
   private final ModVersionRepository modVersionRepository;
@@ -63,13 +67,13 @@ public class ModService {
   @SneakyThrows
   @Transactional
   @CacheEvict(value = {Mod.TYPE_NAME, ModVersion.TYPE_NAME}, allEntries = true)
-  public void processUploadedMod(Path uploadedFile, String originalFilename, Player uploader, Integer licenseId) {
+  public void processUploadedMod(Path uploadedFile, String originalFilename, Player uploader, Integer licenseId, String repositoryUrl) {
     String extension = com.google.common.io.Files.getFileExtension(originalFilename);
     if (!properties.getMod().getAllowedExtensions().contains(extension)) {
       throw ApiException.of(ErrorCode.UPLOAD_INVALID_FILE_EXTENSIONS, properties.getMod().getAllowedExtensions());
     }
-
     checkUploaderVaultBan(uploader);
+    validateRepositoryUrl(repositoryUrl);
 
     log.debug("Player '{}' uploaded a mod", uploader);
 
@@ -114,7 +118,7 @@ public class ModService {
     FilePermissionUtil.setDefaultFilePermission(targetPath);
 
     try {
-      store(modInfo, thumbnailPath, uploader, zipFileName, licenseId);
+      store(modInfo, thumbnailPath, uploader, zipFileName, licenseId, repositoryUrl);
     } catch (Exception exception) {
       try {
         Files.delete(targetPath);
@@ -122,6 +126,22 @@ public class ModService {
         log.warn("Could not delete file " + targetPath, ioException);
       }
       throw exception;
+    }
+  }
+
+  private void validateRepositoryUrl(String repositoryUrl) {
+    if (repositoryUrl == null) {
+      return;
+    }
+
+    try {
+      URL url = new URL(repositoryUrl);
+      String host = url.getHost();
+      if (!ALLOWED_REPOSITORY_HOSTS.contains(host)) {
+        throw ApiException.of(ErrorCode.NOT_ALLOWED_URL_HOST, repositoryUrl, String.join(", ", ALLOWED_REPOSITORY_HOSTS));
+      }
+    } catch (MalformedURLException e) {
+      throw ApiException.of(ErrorCode.MALFORMED_URL, repositoryUrl);
     }
   }
 
@@ -157,7 +177,7 @@ public class ModService {
         ZipEntry zipEntry = entries.nextElement();
 
         if (!zipEntry.isDirectory() && !zipEntry.getName().contains("/")) {
-          throw new ApiException(new Error(ErrorCode.MOD_STRUCTURE_INVALID));
+          throw ApiException.of(ErrorCode.MOD_STRUCTURE_INVALID);
         }
       }
     }
@@ -229,7 +249,7 @@ public class ModService {
     }
 
     if (!errors.isEmpty()) {
-      throw new ApiException(errors.toArray(new Error[0]));
+      throw ApiException.of(errors);
     }
   }
 
@@ -270,7 +290,7 @@ public class ModService {
     return String.format("%s.v%04d", NameUtil.normalizeFileName(displayName), version);
   }
 
-  private void store(com.faforever.commons.mod.Mod modInfo, Optional<Path> thumbnailPath, Player uploader, String zipFileName, Integer licenseId) {
+  private void store(com.faforever.commons.mod.Mod modInfo, Optional<Path> thumbnailPath, Player uploader, String zipFileName, Integer licenseId, String repositoryUrl) {
     ModVersion modVersion = new ModVersion()
       .setUid(modInfo.getUid())
       .setType(modInfo.isUiOnly() ? ModType.UI : ModType.SIM)
@@ -284,7 +304,6 @@ public class ModService {
       .orElse(new Mod()
         .setAuthor(modInfo.getAuthor())
         .setDisplayName(modInfo.getName())
-        .setVersions(new ArrayList<>())
         .setUploader(uploader)
         .setLicense(newLicense)
         .setRecommended(false));
@@ -292,9 +311,9 @@ public class ModService {
     if (newLicense.isLessPermissiveThan(mod.getLicense())) {
       throw ApiException.of(ErrorCode.LESS_PERMISSIVE_LICENSE);
     }
-    mod.getVersions().add(modVersion);
+    mod.setRepositoryUrl(repositoryUrl);
 
-    modVersion.setMod(mod);
+    mod.addVersion(modVersion);
 
     mod = modRepository.save(mod);
     modRepository.insertModStats(mod.getDisplayName());

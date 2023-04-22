@@ -82,7 +82,9 @@ public class ModServiceTest {
     License fallBackLicense = new License().setId(1);
     when(licenseRepository.findById(anyInt())).thenReturn(Optional.of(fallBackLicense));
 
-    instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, uploader, 1);
+    String repositoryUrl = "https://gitlab.com/user/repo";
+
+    instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, uploader, 1, repositoryUrl);
 
     assertThat(Files.exists(temporaryFolder.resolve("mods/no_friendly_fire.v0003.zip")), is(true));
     assertThat(Files.exists(temporaryFolder.resolve("thumbnails/no_friendly_fire.v0003.png")), is(true));
@@ -95,6 +97,7 @@ public class ModServiceTest {
     assertThat(savedMod.getAuthor(), is("IceDreamer"));
     assertThat(savedMod.getDisplayName(), is("No Friendly Fire"));
     assertThat(savedMod.getUploader(), is(uploader));
+    assertThat(savedMod.getRepositoryUrl(), is(repositoryUrl));
 
     ModVersion savedModVersion = savedMod.getVersions().get(0);
 
@@ -118,7 +121,7 @@ public class ModServiceTest {
 
     when(modVersionRepository.existsByUid("26778D4E-BA75-5CC2-CBA8-63795BDE74AA")).thenReturn(true);
 
-    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null, null));
     assertThat(result, hasErrorCode(ErrorCode.MOD_UID_EXISTS));
   }
 
@@ -132,7 +135,7 @@ public class ModServiceTest {
         .setLevel(BanLevel.VAULT)
     ));
 
-    assertThrows(Forbidden.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, uploader, null));
+    assertThrows(Forbidden.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, uploader, null, null));
   }
 
   @Test
@@ -143,77 +146,93 @@ public class ModServiceTest {
     when(modRepository.existsByDisplayNameAndUploaderIsNot("No Friendly Fire", uploader)).thenReturn(true);
     when(modRepository.findOneByDisplayName("No Friendly Fire")).thenReturn(Optional.of(new Mod()));
 
-    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, uploader, null));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, uploader, null, null));
     assertThat(result, hasErrorCode(ErrorCode.MOD_NOT_ORIGINAL_AUTHOR));
+  }
+
+  @Test
+  public void testNotAllowedRepositoryUrl() throws Exception {
+    Path uploadFile = prepareMod(TEST_MOD);
+
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null, "https://badbadhost.bad/mod"));
+    assertThat(result, hasErrorCode(ErrorCode.NOT_ALLOWED_URL_HOST));
+  }
+
+  @Test
+  public void testMalformedRepositoryUrl() throws Exception {
+    Path uploadFile = prepareMod(TEST_MOD);
+
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null, "host/mod"));
+    assertThat(result, hasErrorCode(ErrorCode.MALFORMED_URL));
   }
 
   @Test
   public void testInvalidFileStructure() throws Exception {
     Path uploadFile = prepareMod(TEST_MOD_INVALID_STRUCTURE);
-    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_INVALID_FILE_NAME, new Player(), null));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_INVALID_FILE_NAME, new Player(), null, null));
     assertThat(result, hasErrorCode(ErrorCode.MOD_STRUCTURE_INVALID));
   }
 
   @Test
   public void testDisplayNameMissing() throws Exception {
     Path uploadFile = prepareModDynamic(luaContent().setName(null));
-    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_INVALID_FILE_NAME, new Player(), null));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_INVALID_FILE_NAME, new Player(), null, null));
     assertThat(result, hasErrorCode(ErrorCode.MOD_NAME_MISSING));
   }
 
   @Test
   public void testDisplayNameTooLong() throws Exception {
     Path uploadFile = prepareModDynamic(luaContent().setName(randomAlphanumeric(111)));
-    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null, null));
     assertThat(result, hasErrorCode(ErrorCode.MOD_NAME_TOO_LONG));
   }
 
   @Test
   public void testDisplayNameTooShort() throws Exception {
     Path uploadFile = prepareModDynamic(luaContent().setName(randomAlphanumeric(2)));
-    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null, null));
     assertThat(result, hasErrorCode(ErrorCode.MOD_NAME_TOO_SHORT));
   }
 
   @Test
   public void testDisplayNameInvalidContent() throws Exception {
     Path uploadFile = prepareModDynamic(luaContent().setName("A função, Ãugent"));
-    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null, null));
     assertThat(result, hasErrorCode(ErrorCode.MOD_NAME_INVALID));
   }
 
   @Test
   public void testUidMissing() throws Exception {
     Path uploadFile = prepareModDynamic(luaContent().setUid(null));
-    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null, null));
     assertThat(result, hasErrorCode(ErrorCode.MOD_UID_MISSING));
   }
 
   @Test
   public void testVersionMissing() throws Exception {
     Path uploadFile = prepareModDynamic(luaContent().setVersion(null));
-    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null, null));
     assertThat(result, hasErrorCode(ErrorCode.MOD_VERSION_MISSING));
   }
 
   @Test
   public void testVersionNotANumber() throws Exception {
     Path uploadFile = prepareModDynamic(luaContent().setVersion("NotANumber"));
-    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null, null));
     assertThat(result, hasErrorCode(ErrorCode.MOD_VERSION_NOT_A_NUMBER));
   }
 
   @Test
   public void testDescriptionMissing() throws Exception {
     Path uploadFile = prepareModDynamic(luaContent().setDesc(null));
-    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null, null));
     assertThat(result, hasErrorCode(ErrorCode.MOD_DESCRIPTION_MISSING));
   }
 
   @Test
   public void testAuthorMissing() throws Exception {
     Path uploadFile = prepareModDynamic(luaContent().setAuthor(null));
-    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null, null));
     assertThat(result, hasErrorCode(ErrorCode.MOD_AUTHOR_MISSING));
   }
 

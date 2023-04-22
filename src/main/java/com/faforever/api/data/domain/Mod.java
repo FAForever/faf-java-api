@@ -26,6 +26,7 @@ import jakarta.persistence.Transient;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -40,11 +41,12 @@ public class Mod extends AbstractEntity<Mod> implements OwnableEntity {
   private boolean recommended;
   private String displayName;
   private String author;
-  private List<ModVersion> versions;
+  private List<ModVersion> versions = new ArrayList<>();
   private ModVersion latestVersion;
   private Player uploader;
   private ModReviewsSummary reviewsSummary;
   private License license;
+  private String repositoryUrl;
 
   @Column(name = "recommended")
   @NotNull
@@ -80,6 +82,11 @@ public class Mod extends AbstractEntity<Mod> implements OwnableEntity {
     return versions;
   }
 
+  public void addVersion(ModVersion version) {
+    version.setMod(this);
+    getVersions().add(version);
+  }
+
   @ManyToOne
   @JoinColumnsOrFormulas({
     @JoinColumnOrFormula(
@@ -110,6 +117,12 @@ public class Mod extends AbstractEntity<Mod> implements OwnableEntity {
   @BatchSize(size = 1000)
   public License getLicense() {
     return license;
+  }
+
+  @Column(name = "repository_url")
+  @Nullable
+  public String getRepositoryUrl() {
+    return repositoryUrl;
   }
 
   @Transient
