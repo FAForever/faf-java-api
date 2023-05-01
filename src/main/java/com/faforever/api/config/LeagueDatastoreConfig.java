@@ -1,17 +1,24 @@
 package com.faforever.api.config;
 
-import com.faforever.api.config.elide.SpringHibernateDataStore;
 import com.yahoo.elide.core.datastore.DataStore;
+import com.yahoo.elide.datastores.jpa.JpaDataStore;
+import com.yahoo.elide.spring.orm.jpa.EntityManagerProxySupplier;
+import com.yahoo.elide.spring.orm.jpa.PlatformJpaTransactionSupplier;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+
+import static org.springframework.beans.factory.config.BeanDefinition.SCOPE_PROTOTYPE;
 
 @Configuration
 public class LeagueDatastoreConfig {
@@ -41,10 +48,31 @@ public class LeagueDatastoreConfig {
   }
 
   @Bean
-  DataStore leagueDataStore(
+  @Scope(SCOPE_PROTOTYPE)
+  public JpaDataStore.JpaTransactionSupplier leagueJpaTransactionSupplier(
     @Qualifier(LEAGUE_TRANSACTION_MANAGER) PlatformTransactionManager leagueTransactionManager,
-    @Qualifier("leagueEntityManagerFactory") EntityManager entityManager
+    @Qualifier("leagueEntityManagerFactory") EntityManagerFactory entityManagerFactory
   ) {
-    return new SpringHibernateDataStore(leagueTransactionManager, entityManager);
+    return new PlatformJpaTransactionSupplier(
+      new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRED),
+      leagueTransactionManager,
+      entityManagerFactory,
+     false
+    );
+  }
+
+  @Bean
+  @Scope(SCOPE_PROTOTYPE)
+  public JpaDataStore.EntityManagerSupplier leagueEntityManagerSupplier() {
+    return new EntityManagerProxySupplier();
+  }
+
+  @Bean
+  DataStore leagueDataStore(
+    @Qualifier("leagueJpaTransactionSupplier") JpaDataStore.JpaTransactionSupplier leagueJpaTransactionSupplier,
+    @Qualifier("leagueEntityManagerSupplier") JpaDataStore.EntityManagerSupplier leagueEntityManagerSupplier,
+    @Qualifier("leagueEntityManagerFactory") EntityManagerFactory entityManagerFactory
+  ) {
+    return new JpaDataStore(leagueEntityManagerSupplier, leagueJpaTransactionSupplier, entityManagerFactory::getMetamodel);
   }
 }
