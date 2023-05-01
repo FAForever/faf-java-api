@@ -1,7 +1,9 @@
 package com.faforever.api.config;
 
-import com.faforever.api.config.elide.SpringHibernateDataStore;
 import com.yahoo.elide.core.datastore.DataStore;
+import com.yahoo.elide.datastores.jpa.JpaDataStore;
+import com.yahoo.elide.spring.orm.jpa.EntityManagerProxySupplier;
+import com.yahoo.elide.spring.orm.jpa.PlatformJpaTransactionSupplier;
 import org.hibernate.cfg.AvailableSettings;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -9,14 +11,19 @@ import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Scope;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.hibernate5.SpringBeanContainer;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+
+import static org.springframework.beans.factory.config.BeanDefinition.SCOPE_PROTOTYPE;
 
 @Configuration
 @EnableJpaRepositories(basePackages = "com.faforever.api",
@@ -56,10 +63,31 @@ public class FafDatastoreConfig {
   }
 
   @Bean
-  DataStore fafDataStore(
-    @Qualifier("fafTransactionManager") PlatformTransactionManager fafTransactionManager,
-    @Qualifier("fafEntityManagerFactory") EntityManager entityManager
+  @Scope(SCOPE_PROTOTYPE)
+  public JpaDataStore.JpaTransactionSupplier fafJpaTransactionSupplier(
+    @Qualifier("fafTransactionManager") PlatformTransactionManager leagueTransactionManager,
+    @Qualifier("fafEntityManagerFactory") EntityManagerFactory entityManagerFactory
   ) {
-    return new SpringHibernateDataStore(fafTransactionManager, entityManager);
+    return new PlatformJpaTransactionSupplier(
+      new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRED),
+      leagueTransactionManager,
+      entityManagerFactory,
+      false
+    );
+  }
+
+  @Bean
+  @Scope(SCOPE_PROTOTYPE)
+  public JpaDataStore.EntityManagerSupplier fafEntityManagerSupplier() {
+    return new EntityManagerProxySupplier();
+  }
+
+  @Bean
+  DataStore fafDataStore(
+    @Qualifier("fafJpaTransactionSupplier") JpaDataStore.JpaTransactionSupplier fafJpaTransactionSupplier,
+    @Qualifier("fafEntityManagerSupplier") JpaDataStore.EntityManagerSupplier fafEntityManagerSupplier,
+    @Qualifier("fafEntityManagerFactory") EntityManagerFactory entityManagerFactory
+  ) {
+    return new JpaDataStore(fafEntityManagerSupplier, fafJpaTransactionSupplier, entityManagerFactory::getMetamodel);
   }
 }

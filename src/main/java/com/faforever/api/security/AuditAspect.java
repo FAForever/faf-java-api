@@ -1,8 +1,6 @@
 package com.faforever.api.security;
 
 import com.yahoo.elide.core.audit.InvalidSyntaxException;
-import de.odysseus.el.ExpressionFactoryImpl;
-import de.odysseus.el.util.SimpleContext;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -10,15 +8,17 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
-import javax.el.ELException;
-import javax.el.ExpressionFactory;
+import jakarta.el.ELContext;
+import jakarta.el.ELException;
+import jakarta.el.ExpressionFactory;
+import jakarta.el.StandardELContext;
 import java.text.MessageFormat;
 
 @Aspect
 @Slf4j
 @Component
 public class AuditAspect {
-  private static final ExpressionFactory EXPRESSION_FACTORY = new ExpressionFactoryImpl();
+  private static final ExpressionFactory EXPRESSION_FACTORY = ExpressionFactory.newInstance();
   private AuditService auditService;
 
   public AuditAspect(AuditService auditService) {
@@ -28,10 +28,10 @@ public class AuditAspect {
   @Around("execution(* *.*(..)) && @annotation(auditAnnotation)")
   public Object auditLog(ProceedingJoinPoint pjp, Audit auditAnnotation) throws Throwable {
     MethodSignature signature = (MethodSignature) pjp.getSignature();
-    final SimpleContext context = new SimpleContext();
+    final ELContext context = new StandardELContext(EXPRESSION_FACTORY);
 
     for (int i = 0; i < signature.getParameterNames().length; i++) {
-      context.setVariable(signature.getParameterNames()[i], EXPRESSION_FACTORY.createValueExpression(pjp.getArgs()[i], Object.class));
+      context.getVariableMapper().setVariable(signature.getParameterNames()[i], EXPRESSION_FACTORY.createValueExpression(pjp.getArgs()[i], Object.class));
     }
 
     final String[] eventDataExpressions = auditAnnotation.expressions();
