@@ -8,6 +8,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
+import java.util.Set;
+
 import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -128,7 +130,10 @@ public class UserGroupTest extends AbstractIntegrationTest {
   @Test
   public void canCreateUserGroupWithScopeAndRole() throws Exception {
     mockMvc.perform(post("/data/userGroup")
-      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_USER_GROUP))
+        .with(getOAuthTokenWithActiveUser(
+          Set.of(OAuthScope._ADMINISTRATIVE_ACTION, OAuthScope._READ_SENSIBLE_USERDATA),
+          Set.of(GroupPermission.ROLE_WRITE_USER_GROUP, GroupPermission.ROLE_READ_USER_GROUP)
+        ))
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPost))
       .andExpect(status().isCreated());
@@ -155,7 +160,10 @@ public class UserGroupTest extends AbstractIntegrationTest {
   @Test
   public void canUpdateUserGroupWithScopeAndRole() throws Exception {
     mockMvc.perform(patch("/data/userGroup/3")
-      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_USER_GROUP))
+      .with(getOAuthTokenWithActiveUser(
+        Set.of(OAuthScope._ADMINISTRATIVE_ACTION, OAuthScope._READ_SENSIBLE_USERDATA),
+        Set.of(GroupPermission.ROLE_WRITE_USER_GROUP, GroupPermission.ROLE_READ_USER_GROUP)
+      ))
       .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
       .content(testPatch))
       .andExpect(status().isNoContent());
