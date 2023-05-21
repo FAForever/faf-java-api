@@ -40,9 +40,9 @@ public class CoturnService {
     }
 
     Set<String> urls = new HashSet<>();
-    urls.add("turn:%s?transport=tcp".formatted(host));
-    urls.add("turn:%s?transport=udp".formatted(host));
-    urls.add("turn:%s".formatted(host));
+    urls.add("turn://%s?transport=tcp".formatted(host));
+    urls.add("turn://%s?transport=udp".formatted(host));
+    urls.add("turn://%s".formatted(host));
 
     return new CoturnServerDetails(coturnServer.getId(), urls, tokenName, token, "token");
   }
