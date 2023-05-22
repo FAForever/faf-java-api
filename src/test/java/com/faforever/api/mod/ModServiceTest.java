@@ -98,7 +98,7 @@ public class ModServiceTest {
     assertThat(savedModVersion.isRanked(), is(false));
     assertThat(savedModVersion.isHidden(), is(false));
 
-    ArgumentCaptor<Example<ModVersion>> exampleCaptor = ArgumentCaptor.forClass((Class) ModVersion.class);
+    ArgumentCaptor<Example<ModVersion>> exampleCaptor = ArgumentCaptor.forClass((Class) Example.class);
     verify(modVersionRepository).exists(exampleCaptor.capture());
     verify(modVersionRepository).existsByUid("26778D4E-BA75-5CC2-CBA8-63795BDE74AA");
   }
