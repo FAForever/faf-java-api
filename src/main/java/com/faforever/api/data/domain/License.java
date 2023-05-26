@@ -74,7 +74,7 @@ public class License {
   }
 
   public boolean isLessPermissiveThan(License other) {
-    return (!redistributable || other.redistributable)
-      && (modifiable || modifiable == other.modifiable);
+    return (!redistributable && other.redistributable)
+      || (!modifiable && other.modifiable);
   }
 }
