@@ -63,6 +63,21 @@ class ModsControllerTest extends AbstractIntegrationTest {
     }
   }
 
+  @Test
+  void missingFilePartUnsuccessfulUpload() throws Exception {
+      String metadataString = """
+      {
+        "licenseId": 1
+      }
+      """;
+      MockMultipartFile metadata = new MockMultipartFile("metadata", null, "application/json", metadataString.getBytes());
+
+      mockMvc.perform(multipart("/mods/upload")
+        .file(metadata)
+        .with(getOAuthTokenWithActiveUser(OAuthScope._UPLOAD_MOD, NO_AUTHORITIES))
+      ).andExpect(status().isBadRequest());
+  }
+
   private InputStream loadModResourceAsStream(String filename) {
     return ModsControllerTest.class.getResourceAsStream("/mods/" + filename);
   }

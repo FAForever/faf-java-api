@@ -63,7 +63,12 @@ public class ModService {
   @SneakyThrows
   @Transactional
   @CacheEvict(value = {Mod.TYPE_NAME, ModVersion.TYPE_NAME}, allEntries = true)
-  public void processUploadedMod(Path uploadedFile, Player uploader, Integer licenseId) {
+  public void processUploadedMod(Path uploadedFile, String originalFilename, Player uploader, Integer licenseId) {
+    String extension = com.google.common.io.Files.getFileExtension(originalFilename);
+    if (!properties.getMod().getAllowedExtensions().contains(extension)) {
+      throw ApiException.of(ErrorCode.UPLOAD_INVALID_FILE_EXTENSIONS, properties.getMod().getAllowedExtensions());
+    }
+
     checkUploaderVaultBan(uploader);
 
     log.debug("Player '{}' uploaded a mod", uploader);
@@ -274,14 +279,19 @@ public class ModService {
       .setFilename(MOD_PATH_PREFIX + zipFileName)
       .setIcon(thumbnailPath.map(path -> path.getFileName().toString()).orElse(null));
 
+    License newLicense = getLicenseOrDefault(licenseId);
     Mod mod = modRepository.findOneByDisplayName(modInfo.getName())
       .orElse(new Mod()
         .setAuthor(modInfo.getAuthor())
         .setDisplayName(modInfo.getName())
         .setVersions(new ArrayList<>())
         .setUploader(uploader)
-        .setLicense(getLicenseOrDefault(licenseId))
+        .setLicense(newLicense)
         .setRecommended(false));
+
+    if (newLicense.isLessPermissiveThan(mod.getLicense())) {
+      throw ApiException.of(ErrorCode.LESS_PERMISSIVE_LICENSE);
+    }
     mod.getVersions().add(modVersion);
 
     modVersion.setMod(mod);

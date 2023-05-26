@@ -162,6 +162,11 @@ public class MapService {
   @SneakyThrows
   @CacheEvict(value = {Map.TYPE_NAME, MapVersion.TYPE_NAME}, allEntries = true)
   public void uploadMap(InputStream mapDataInputStream, String mapFilename, Player author, boolean isRanked, Integer licenseId) {
+    String extension = com.google.common.io.Files.getFileExtension(mapFilename);
+    if (!fafApiProperties.getMap().getAllowedExtensions().contains(extension)) {
+      throw ApiException.of(ErrorCode.UPLOAD_INVALID_FILE_EXTENSIONS, fafApiProperties.getMap().getAllowedExtensions());
+    }
+
     Assert.notNull(author, "'author' must not be null");
     Assert.isTrue(mapDataInputStream.available() > 0, "'mapData' must not be empty");
 
@@ -367,6 +372,7 @@ public class MapService {
     // the scenario lua is supposed to be validate already, thus we call the unwrapping $-methods
     String mapName = mapNameBuilder.getDisplayName();
 
+    License newLicense = getLicenseOrDefault(licenseId);
     Map map = existingMapOptional
       .orElseGet(() ->
         new Map()
@@ -374,9 +380,12 @@ public class MapService {
           .setAuthor(author)
           .setGamesPlayed(0)
           .setRecommended(false)
-          .setLicense(getLicenseOrDefault(licenseId))
+          .setLicense(newLicense)
       );
 
+    if (newLicense.isLessPermissiveThan(map.getLicense())) {
+      throw ApiException.of(ErrorCode.LESS_PERMISSIVE_LICENSE);
+    }
     LuaValue standardTeamsConfig = mapLua.getFirstTeam$();
 
     map
