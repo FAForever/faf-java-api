@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class CoturnControllerTest extends AbstractIntegrationTest {
 
   @Test
-  public void featuredModFileUrlCorrectWithLobbyScope() throws Exception {
+  public void coturnUrlCorrectWithLobbyScope() throws Exception {
     mockMvc.perform(get("/coturnServers/details").with(getOAuthTokenWithActiveUser(OAuthScope._LOBBY, NO_AUTHORITIES)))
            .andExpect(status().isOk())
            .andExpect(jsonPath("$.data", hasSize(1)))
@@ -30,13 +30,13 @@ public class CoturnControllerTest extends AbstractIntegrationTest {
            .andExpect(jsonPath("$.data[0].attributes", hasKey("username")))
            .andExpect(jsonPath("$.data[0].attributes", hasKey("credential")))
            .andExpect(jsonPath("$.data[0].attributes", hasKey("credentialType")))
-           .andExpect(jsonPath("$.data[0].attributes.urls", containsInAnyOrder(equalTo("turn:test.com:3478?transport=tcp"), equalTo("turn:test.com:3478?transport=udp"), equalTo("turn:test.com:3478"))))
+           .andExpect(jsonPath("$.data[0].attributes.urls", containsInAnyOrder(equalTo("turn://test.com:3478?transport=tcp"), equalTo("turn://test.com:3478?transport=udp"), equalTo("turn://test.com:3478"))))
            .andExpect(jsonPath("$.data[0].attributes.username", matchesRegex("[0-9]+:5")))
            .andExpect(jsonPath("$.data[0].attributes.credentialType", equalTo("token")));
   }
 
   @Test
-  public void featuredModFileNotVisibleWithoutLobbyScope() throws Exception {
+  public void coturnNotVisibleWithoutLobbyScope() throws Exception {
     mockMvc.perform(get("/coturnServers/details").with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
            .andExpect(status().isForbidden());
   }
