@@ -6,8 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.matchesRegex;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -25,7 +28,7 @@ public class CoturnElideTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void canReadBansWithScopeAndRole() throws Exception {
+  public void canReadCoturnsWithScopeAndRole() throws Exception {
     mockMvc.perform(get("/data/coturnServer").with(getOAuthTokenWithActiveUser(OAuthScope._LOBBY, NO_AUTHORITIES)))
            .andExpect(status().isOk())
            .andExpect(jsonPath("$.data", hasSize(1)))
@@ -33,6 +36,13 @@ public class CoturnElideTest extends AbstractIntegrationTest {
            .andExpect(jsonPath("$.data[0].attributes", hasKey("host")))
            .andExpect(jsonPath("$.data[0].attributes", hasKey("region")))
            .andExpect(jsonPath("$.data[0].attributes", hasKey("port")))
-           .andExpect(jsonPath("$.data[0].attributes", hasKey("active")));
+           .andExpect(jsonPath("$.data[0].attributes", hasKey("active")))
+           .andExpect(jsonPath("$.data[0].attributes", hasKey("urls")))
+           .andExpect(jsonPath("$.data[0].attributes", hasKey("username")))
+           .andExpect(jsonPath("$.data[0].attributes", hasKey("credential")))
+           .andExpect(jsonPath("$.data[0].attributes", hasKey("credentialType")))
+           .andExpect(jsonPath("$.data[0].attributes.urls", containsInAnyOrder(equalTo("turn://test.com:3478?transport=tcp"), equalTo("turn://test.com:3478?transport=udp"), equalTo("turn://test.com:3478"))))
+           .andExpect(jsonPath("$.data[0].attributes.username", matchesRegex("[0-9]+:5")))
+           .andExpect(jsonPath("$.data[0].attributes.credentialType", equalTo("token")));
   }
 }

@@ -3,30 +3,34 @@ package com.faforever.api.coturn;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.CoturnServer;
 import com.faforever.api.security.FafAuthenticationToken;
-import lombok.RequiredArgsConstructor;
+import com.faforever.api.security.UserSupplier;
+import jakarta.inject.Inject;
+import jakarta.persistence.PostLoad;
 import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.apache.commons.codec.digest.HmacUtils;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
+import java.net.URI;
 import java.util.Base64;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-@Service
-@RequiredArgsConstructor
-public class CoturnService {
+@Component
+public class CoturnServerEnricher {
 
-  private final CoturnServerRepository coturnServerRepository;
-  private final FafApiProperties fafApiProperties;
+  private FafApiProperties fafApiProperties;
+  private UserSupplier userSupplier;
 
-  public List<CoturnServers> getCoturnServers(FafAuthenticationToken fafAuthenticationToken) {
-    return coturnServerRepository.findAll().stream()
-             .map(coturnServer -> getCoturnServers(coturnServer, fafAuthenticationToken))
-             .toList();
+  @Inject
+  public void init(FafApiProperties fafApiProperties, UserSupplier userSupplier) {
+    this.fafApiProperties = fafApiProperties;
+    this.userSupplier = userSupplier;
   }
 
-  private CoturnServers getCoturnServers(CoturnServer coturnServer, FafAuthenticationToken fafAuthenticationToken) {
+  @PostLoad
+  public void enhance(CoturnServer coturnServer) {
+    FafAuthenticationToken fafAuthenticationToken = userSupplier.get();
+
     // Build hmac verification as described here:
     // https://github.com/coturn/coturn/blob/f67326fe3585eafd664720b43c77e142d9bed73c/README.turnserver#L710
     long timestamp = System.currentTimeMillis() / 1000 + fafApiProperties.getCoturn().getTokenLifetimeSeconds();
@@ -39,11 +43,14 @@ public class CoturnService {
       host += ":" + coturnServer.getPort();
     }
 
-    Set<String> urls = new HashSet<>();
-    urls.add("turn://%s?transport=tcp".formatted(host));
-    urls.add("turn://%s?transport=udp".formatted(host));
-    urls.add("turn://%s".formatted(host));
+    Set<URI> urls = new HashSet<>();
+    urls.add(URI.create("turn://%s?transport=tcp".formatted(host)));
+    urls.add(URI.create("turn://%s?transport=udp".formatted(host)));
+    urls.add(URI.create("turn://%s".formatted(host)));
 
-    return new CoturnServers(coturnServer.getId(), urls, tokenName, token, "token");
+    coturnServer.setUrls(urls);
+    coturnServer.setCredentialType("token");
+    coturnServer.setCredential(token);
+    coturnServer.setUsername(tokenName);
   }
 }
