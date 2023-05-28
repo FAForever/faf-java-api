@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.matchesRegex;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -43,6 +44,7 @@ public class CoturnElideTest extends AbstractIntegrationTest {
            .andExpect(jsonPath("$.data[0].attributes", hasKey("credentialType")))
            .andExpect(jsonPath("$.data[0].attributes.urls", containsInAnyOrder(equalTo("turn://test.com:3478?transport=tcp"), equalTo("turn://test.com:3478?transport=udp"), equalTo("turn://test.com:3478"))))
            .andExpect(jsonPath("$.data[0].attributes.username", matchesRegex("[0-9]+:5")))
-           .andExpect(jsonPath("$.data[0].attributes.credentialType", equalTo("token")));
+           .andExpect(jsonPath("$.data[0].attributes.credentialType", equalTo("token")))
+           .andExpect(jsonPath("$.data[0].attributes.credential", notNullValue()));
   }
 }
