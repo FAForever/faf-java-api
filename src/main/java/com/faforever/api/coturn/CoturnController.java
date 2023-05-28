@@ -33,7 +33,7 @@ public class CoturnController {
       throw ApiException.of(ErrorCode.NOT_FAF_TOKEN);
     }
 
-    List<Resource> values = coturnService.getCoturnServerDetails(fafAuthenticationToken)
+    List<Resource> values = coturnService.getCoturnServers(fafAuthenticationToken)
       .stream()
       .map(CoturnController::convertToResource)
       .toList();
@@ -42,13 +42,13 @@ public class CoturnController {
   }
 
   @NotNull
-  private static Resource convertToResource(CoturnServerDetails coturnServerDetails) {
-    return new Resource("coturnServerDetails", String.valueOf(coturnServerDetails.coturnServerId()),
+  private static Resource convertToResource(CoturnServers coturnServers) {
+    return new Resource("coturnServerDetails", String.valueOf(coturnServers.coturnServerId()),
                         Map.of(
-                          "urls", coturnServerDetails.urls(),
-                          "username", coturnServerDetails.username(),
-                          "credential", coturnServerDetails.credential(),
-                          "credentialType", coturnServerDetails.credentialType()
+                                "urls", coturnServers.urls(),
+                                "username", coturnServers.username(),
+                                "credential", coturnServers.credential(),
+                                "credentialType", coturnServers.credentialType()
                               ), null, null, null);
   }
 

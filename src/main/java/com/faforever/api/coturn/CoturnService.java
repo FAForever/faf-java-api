@@ -20,13 +20,13 @@ public class CoturnService {
   private final CoturnServerRepository coturnServerRepository;
   private final FafApiProperties fafApiProperties;
 
-  public List<CoturnServerDetails> getCoturnServerDetails(FafAuthenticationToken fafAuthenticationToken) {
+  public List<CoturnServers> getCoturnServers(FafAuthenticationToken fafAuthenticationToken) {
     return coturnServerRepository.findAll().stream()
-             .map(coturnServer -> getCoturnServerDetails(coturnServer, fafAuthenticationToken))
+             .map(coturnServer -> getCoturnServers(coturnServer, fafAuthenticationToken))
              .toList();
   }
 
-  private CoturnServerDetails getCoturnServerDetails(CoturnServer coturnServer, FafAuthenticationToken fafAuthenticationToken) {
+  private CoturnServers getCoturnServers(CoturnServer coturnServer, FafAuthenticationToken fafAuthenticationToken) {
     // Build hmac verification as described here:
     // https://github.com/coturn/coturn/blob/f67326fe3585eafd664720b43c77e142d9bed73c/README.turnserver#L710
     long timestamp = System.currentTimeMillis() / 1000 + fafApiProperties.getCoturn().getTokenLifetimeSeconds();
@@ -44,6 +44,6 @@ public class CoturnService {
     urls.add("turn://%s?transport=udp".formatted(host));
     urls.add("turn://%s".formatted(host));
 
-    return new CoturnServerDetails(coturnServer.getId(), urls, tokenName, token, "token");
+    return new CoturnServers(coturnServer.getId(), urls, tokenName, token, "token");
   }
 }
