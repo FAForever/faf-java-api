@@ -429,7 +429,9 @@ public class MapService {
   }
 
   private void zipMapData(Path newMapFolder, Path finalZipPath) throws IOException, ArchiveException {
-    Files.createDirectories(finalZipPath.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
+    if (!Files.isDirectory(finalZipPath.getParent())) {
+      Files.createDirectories(finalZipPath.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
+    }
     Zipper
       .of(newMapFolder)
       .to(finalZipPath)
@@ -441,7 +443,9 @@ public class MapService {
   private void generateImage(Path target, Path baseDir, int size) throws IOException {
     BufferedImage image = PreviewGenerator.generatePreview(baseDir, size, size);
     if (target.getNameCount() > 0) {
-      Files.createDirectories(target.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
+      if (!Files.isDirectory(target.getParent())) {
+        Files.createDirectories(target.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
+      }
     }
     ImageIO.write(image, "png", target.toFile());
   }

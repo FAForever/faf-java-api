@@ -101,7 +101,9 @@ public class ModService {
     Optional<Path> thumbnailPath = extractThumbnail(uploadedFile, version, displayName, modInfo.getIcon());
 
     log.debug("Moving uploaded mod '{}' to: {}", modInfo.getName(), targetPath);
-    Files.createDirectories(targetPath.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
+    if (!Files.isDirectory(targetPath.getParent())) {
+      Files.createDirectories(targetPath.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
+    }
     Files.move(uploadedFile, targetPath);
     FilePermissionUtil.setDefaultFilePermission(targetPath);
 
@@ -241,7 +243,9 @@ public class ModService {
       Path targetPath = properties.getMod().getThumbnailTargetDirectory().resolve(thumbnailFileName);
 
       log.debug("Extracting thumbnail of mod '{}' to: {}", displayName, targetPath);
-      Files.createDirectories(targetPath.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
+      if (!Files.isDirectory(targetPath.getParent())) {
+        Files.createDirectories(targetPath.getParent(), FilePermissionUtil.directoryPermissionFileAttributes());
+      }
       try (InputStream inputStream = new BufferedInputStream(zipFile.getInputStream(entry))) {
         Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
       }
