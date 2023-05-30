@@ -41,6 +41,7 @@ public class FafApiProperties {
   private Nodebb nodebb = new Nodebb();
   private Recaptcha recaptcha = new Recaptcha();
   private Monitoring monitoring = new Monitoring();
+  private Coturn coturn = new Coturn();
 
   @Data
   public static class OAuth2 {
@@ -277,5 +278,10 @@ public class FafApiProperties {
   @Data
   public static class Monitoring {
     private double slowRequestThresholdSeconds = 1.0;
+  }
+
+  @Data
+  public static class Coturn {
+    private int tokenLifetimeSeconds = 86400;
   }
 }

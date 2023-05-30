@@ -83,6 +83,8 @@ faf-api:
     steam-password-reset-redirect-url-format: ${STEAM_PASSWORD_RESET_REDIRECT_URL_FORMAT:https://api.${FAF_DOMAIN}/users/requestPasswordResetViaSteam}
   tutorial:
     thumbnail-url-format: ${TUTORIAL_THUMBNAIL_URL_FORMAT:https://content.${FAF_DOMAIN}/faf/tutorials/thumbs/%s}
+  coturn:
+    token-lifetime-seconds: ${COTURN_TOKEN_LIFETIME_SECONDS:86400}
 
 spring:
   application:
