@@ -58,15 +58,19 @@ public class MapsControllerTest extends AbstractIntegrationTest{
     mockMvc.perform(multipart("/maps/upload")
       .file(file)
       .with(getOAuthTokenWithActiveUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES)))
-      .andExpect(status().isBadRequest())
+      .andExpect(status().isUnprocessableEntity())
       .andExpect(jsonPath("$.errors", hasSize(1)))
-      .andExpect(jsonPath("$.errors[0].title", is("org.springframework.web.bind.MissingServletRequestParameterException")))
-      .andExpect(jsonPath("$.errors[0].detail", is("Required request parameter 'metadata' for method parameter type String is not present")));
+      .andExpect(jsonPath("$.errors[0].title", is("Missing parameter")))
+      .andExpect(jsonPath("$.errors[0].detail", is("A parameter 'metadata' has to be provided.")));
   }
 
   @Test
-  void successUpload() throws Exception {
-    String jsonString = "{}";
+  void successUploadViaJsonRequestParam() throws Exception {
+    String jsonString = """
+      {
+        "isRanked": true
+      }
+      """;
 
     String zipFile = "command_conquer_rush.v0007.zip";
     try (InputStream inputStream = loadMapResourceAsStream(zipFile)) {
@@ -85,51 +89,8 @@ public class MapsControllerTest extends AbstractIntegrationTest{
     }
   }
 
-
   @Test
-  void missingScopeV2() throws Exception {
-    String metadataString = """
-      {
-        "isRanked": true,
-        "licenseId": 1
-      }
-      """;
-    MockMultipartFile file = new MockMultipartFile("file", "filename.txt", "text/plain", "some xml".getBytes());
-    MockMultipartFile metadata = new MockMultipartFile("metadata", null, "application/json", metadataString.getBytes());
-
-    mockMvc.perform(multipart("/maps/uploadV2")
-        .file(file)
-        .file(metadata)
-        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
-      )
-      .andExpect(status().isForbidden());
-  }
-
-  @Test
-  void fileMissingV2() throws Exception {
-    mockMvc.perform(multipart("/maps/uploadV2")
-        .with(getOAuthTokenWithActiveUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES)))
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.errors", hasSize(1)))
-      .andExpect(jsonPath("$.errors[0].title", is("org.springframework.web.multipart.support.MissingServletRequestPartException")))
-      .andExpect(jsonPath("$.errors[0].detail", is("Required part 'file' is not present.")));
-  }
-
-  @Test
-  void jsonMetaDataMissingV2() throws Exception {
-    MockMultipartFile file = new MockMultipartFile("file", "filename.txt", "text/plain", "some xml".getBytes());
-
-    mockMvc.perform(multipart("/maps/uploadV2")
-        .file(file)
-        .with(getOAuthTokenWithActiveUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES)))
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.errors", hasSize(1)))
-      .andExpect(jsonPath("$.errors[0].title", is("org.springframework.web.multipart.support.MissingServletRequestPartException")))
-      .andExpect(jsonPath("$.errors[0].detail", is("Required part 'metadata' is not present.")));
-  }
-
-  @Test
-  void successUploadV2() throws Exception {
+  void successUploadViaMultipartJsonMetadata() throws Exception {
     String metadataString = """
       {
         "isRanked": true,
@@ -145,16 +106,15 @@ public class MapsControllerTest extends AbstractIntegrationTest{
         "application/zip",
         ByteStreams.toByteArray(inputStream));
 
-      mockMvc.perform(multipart("/maps/uploadV2")
-          .file(file)
-          .file(metadata)
-          .with(getOAuthTokenWithActiveUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES))
+      mockMvc.perform(multipart("/maps/upload")
+        .file(file)
+        .file(metadata)
+        .with(getOAuthTokenWithActiveUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES))
       ).andExpect(status().isOk());
     } finally {
       FileUtils.deleteDirectory(fafApiProperties.getMap().getTargetDirectory().toFile());
     }
   }
-
 
   private InputStream loadMapResourceAsStream(String filename) {
     return MapsControllerTest.class.getResourceAsStream("/maps/" + filename);

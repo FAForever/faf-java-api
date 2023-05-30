@@ -71,8 +71,7 @@ public class MapsController {
     mapService.validateScenarioLua(scenarioLua);
   }
 
-  @Deprecated
-  @ApiOperation(value = "Upload a map", hidden = true)
+  @ApiOperation(value = "Upload a map")
   @ApiResponses(value = {
     @ApiResponse(code = 200, message = "Success"),
     @ApiResponse(code = 401, message = "Unauthorized"),
@@ -80,32 +79,30 @@ public class MapsController {
   @RequestMapping(path = "/upload", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
   @PreAuthorize("hasScope('" + OAuthScope._UPLOAD_MAP + "')")
   public void uploadMap(@RequestParam("file") MultipartFile file,
-                        @RequestParam("metadata") String jsonString,
+                        @Deprecated @RequestParam(value = "metadata", required = false) String metadataJsonString,
+                        @RequestPart(value = "metadata", required = false) MapUploadMetadata metadata,
                         Authentication authentication) throws IOException {
-    boolean ranked;
-    try {
-      JsonNode node = objectMapper.readTree(jsonString);
-      ranked = node.path("isRanked").asBoolean(false);
-    } catch (IOException e) {
-      log.debug("Could not parse metadata", e);
-      throw ApiException.of(ErrorCode.INVALID_METADATA, e.getMessage());
+    if (metadataJsonString == null && metadata == null) {
+      throw ApiException.of(ErrorCode.PARAMETER_MISSING, "metadata");
+    }
+
+    boolean ranked = false;
+    Integer licenseId = null;
+    if (metadataJsonString != null) {
+      try {
+        JsonNode node = objectMapper.readTree(metadataJsonString);
+        ranked = node.path("isRanked").asBoolean(false);
+      } catch (IOException e) {
+        log.debug("Could not parse metadata", e);
+        throw ApiException.of(ErrorCode.INVALID_METADATA, e.getMessage());
+      }
+    }
+    if (metadata != null) {
+      ranked = metadata.isRanked();
+      licenseId = metadata.licenseId();
     }
 
     Player player = playerService.getPlayer(authentication);
-    mapService.uploadMap(file.getInputStream(), file.getOriginalFilename(), player, ranked, null);
-  }
-
-  @ApiOperation("Upload a map")
-  @ApiResponses(value = {
-    @ApiResponse(code = 200, message = "Success"),
-    @ApiResponse(code = 401, message = "Unauthorized"),
-    @ApiResponse(code = 500, message = "Failure")})
-  @RequestMapping(path = "/uploadV2", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
-  @PreAuthorize("hasScope('" + OAuthScope._UPLOAD_MAP + "')")
-  public void uploadMap(@RequestPart("file") MultipartFile file,
-                        @RequestPart("metadata") MapUploadMetadata metadata,
-                        Authentication authentication) throws IOException {
-    Player player = playerService.getPlayer(authentication);
-    mapService.uploadMap(file.getInputStream(), file.getOriginalFilename(), player, metadata.isRanked(), metadata.licenseId());
+    mapService.uploadMap(file.getInputStream(), file.getOriginalFilename(), player, ranked, licenseId);
   }
 }
