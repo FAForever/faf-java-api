@@ -6,10 +6,12 @@ import com.faforever.api.security.elide.permission.AdminModCheck;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.jetbrains.annotations.Nullable;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -42,6 +44,7 @@ public class Mod extends AbstractEntity<Mod> implements OwnableEntity {
   private ModVersion latestVersion;
   private Player uploader;
   private ModReviewsSummary reviewsSummary;
+  private License license;
 
   @Column(name = "recommended")
   @NotNull
@@ -93,6 +96,20 @@ public class Mod extends AbstractEntity<Mod> implements OwnableEntity {
   @UpdatePermission(expression = Prefab.ALL)
   public ModReviewsSummary getReviewsSummary() {
     return reviewsSummary;
+  }
+
+  /**
+   * A license is defined on mod level (not mod version). It is possible to change the license to a license
+   * that gives more freedom, but never to a license that reduce given freedoms. This ensures that it doesn't matter
+   * when you downloaded the asset, you never lose any usage rights you were already given.
+   * If an author wants to "downgrade" a license he needs to create a new mod with new versions.
+   */
+  @ManyToOne
+  @JoinColumn(name = "license")
+  @Nullable
+  @BatchSize(size = 1000)
+  public License getLicense() {
+    return license;
   }
 
   @Transient

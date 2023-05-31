@@ -3,13 +3,11 @@ package com.faforever.api.map;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
-import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerService;
 import com.faforever.api.security.OAuthScope;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.Files;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -20,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -72,7 +71,7 @@ public class MapsController {
     mapService.validateScenarioLua(scenarioLua);
   }
 
-  @ApiOperation("Upload a map")
+  @ApiOperation(value = "Upload a map")
   @ApiResponses(value = {
     @ApiResponse(code = 200, message = "Success"),
     @ApiResponse(code = 401, message = "Unauthorized"),
@@ -80,27 +79,30 @@ public class MapsController {
   @RequestMapping(path = "/upload", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
   @PreAuthorize("hasScope('" + OAuthScope._UPLOAD_MAP + "')")
   public void uploadMap(@RequestParam("file") MultipartFile file,
-                        @RequestParam("metadata") String jsonString,
+                        @Deprecated @RequestParam(value = "metadata", required = false) String metadataJsonString,
+                        @RequestPart(value = "metadata", required = false) MapUploadMetadata metadata,
                         Authentication authentication) throws IOException {
-    if (file == null) {
-      throw new ApiException(new Error(ErrorCode.UPLOAD_FILE_MISSING));
+    if (metadataJsonString == null && metadata == null) {
+      throw ApiException.of(ErrorCode.PARAMETER_MISSING, "metadata");
     }
 
-    String extension = Files.getFileExtension(file.getOriginalFilename());
-    if (!fafApiProperties.getMap().getAllowedExtensions().contains(extension)) {
-      throw new ApiException(new Error(ErrorCode.UPLOAD_INVALID_FILE_EXTENSIONS, fafApiProperties.getMap().getAllowedExtensions()));
+    boolean ranked = false;
+    Integer licenseId = null;
+    if (metadataJsonString != null) {
+      try {
+        JsonNode node = objectMapper.readTree(metadataJsonString);
+        ranked = node.path("isRanked").asBoolean(false);
+      } catch (IOException e) {
+        log.debug("Could not parse metadata", e);
+        throw ApiException.of(ErrorCode.INVALID_METADATA, e.getMessage());
+      }
     }
-
-    boolean ranked;
-    try {
-      JsonNode node = objectMapper.readTree(jsonString);
-      ranked = node.path("isRanked").asBoolean(false);
-    } catch (IOException e) {
-      log.debug("Could not parse metadata", e);
-      throw new ApiException(new Error(ErrorCode.INVALID_METADATA, e.getMessage()));
+    if (metadata != null) {
+      ranked = metadata.isRanked();
+      licenseId = metadata.licenseId();
     }
 
     Player player = playerService.getPlayer(authentication);
-    mapService.uploadMap(file.getInputStream(), file.getOriginalFilename(), player, ranked);
+    mapService.uploadMap(file.getInputStream(), file.getOriginalFilename(), player, ranked, licenseId);
   }
 }

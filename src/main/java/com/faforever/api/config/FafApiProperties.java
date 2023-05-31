@@ -1,6 +1,7 @@
 package com.faforever.api.config;
 
 import lombok.Data;
+import org.checkerframework.checker.index.qual.Positive;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.nio.file.Path;
@@ -93,15 +94,22 @@ public class FafApiProperties {
     /**
      * The size (in pixels) of small map previews.
      */
+    @Positive
     private int previewSizeSmall = 128;
     /**
      * The size (in pixels) of large map previews.
      */
+    @Positive
     private int previewSizeLarge = 512;
     /**
      * Allowed file extensions of uploaded maps.
      */
     private Set<String> allowedExtensions = Set.of("zip");
+    /**
+     * The default license if no license is provided on upload
+     */
+    @Positive
+    private int defaultLicenseId;
   }
 
   @Data
@@ -115,9 +123,16 @@ public class FafApiProperties {
     /** The directory in which thumbnails of uploaded mod files are stored. */
     private Path thumbnailTargetDirectory = Paths.get("static/mod_thumbnails");
     /** The maximum allowed length of a mod's name. */
+    @Positive
     private int maxNameLength = 100;
     /** The minimum allowed length of a mod's name. */
+    @Positive
     private int minNameLength = 3;
+    /**
+     * The default license if no license is provided on upload
+     */
+    @Positive
+    private int defaultLicenseId;
   }
 
   @Data

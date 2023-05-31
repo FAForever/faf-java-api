@@ -3,8 +3,10 @@ package com.faforever.api.map;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.Map;
 import com.faforever.api.content.ContentService;
+import com.faforever.api.content.LicenseRepository;
 import com.faforever.api.data.domain.BanInfo;
 import com.faforever.api.data.domain.BanLevel;
+import com.faforever.api.data.domain.License;
 import com.faforever.api.data.domain.MapVersion;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
@@ -35,6 +37,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
@@ -54,6 +57,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -67,6 +71,8 @@ public class MapServiceTest {
   @Mock
   private MapRepository mapRepository;
   @Mock
+  private LicenseRepository licenseRepository;
+  @Mock
   private FafApiProperties fafApiProperties;
   @Mock
   private ContentService contentService;
@@ -78,7 +84,7 @@ public class MapServiceTest {
 
   @BeforeEach
   void beforeEach() {
-    instance = new MapService(fafApiProperties, mapRepository, contentService);
+    instance = new MapService(fafApiProperties, mapRepository, licenseRepository, contentService);
   }
 
   private String loadMapAsString(String filename) throws IOException {
@@ -206,13 +212,23 @@ public class MapServiceTest {
 
     @Test
     void authorBannedFromVault() {
+      when(fafApiProperties.getMap()).thenReturn(new Map().setAllowedExtensions(Set.of("zip")));
       when(author.getActiveBanOf(BanLevel.VAULT)).thenReturn(Optional.of(
         new BanInfo()
           .setLevel(BanLevel.VAULT)
       ));
 
       InputStream mapData = loadMapAsInputSteam("command_conquer_rush.v0007.zip");
-      assertThrows(Forbidden.class, () -> instance.uploadMap(mapData, "command_conquer_rush.v0007.zip", author, true));
+      assertThrows(Forbidden.class, () -> instance.uploadMap(mapData, "command_conquer_rush.v0007.zip", author, true, null));
+      verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
+    }
+
+    @Test
+    void notAllowedFileExtension() {
+      when(fafApiProperties.getMap()).thenReturn(new Map().setAllowedExtensions(Set.of("7z")));
+
+      InputStream mapData = loadMapAsInputSteam("command_conquer_rush.v0007.zip");
+      assertThrows(ApiException.class, () -> instance.uploadMap(mapData, "command_conquer_rush.v0007.zip", author, true, null));
       verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
   }
@@ -230,7 +246,8 @@ public class MapServiceTest {
       mapProperties = new Map()
         .setTargetDirectory(finalDirectory)
         .setDirectoryPreviewPathLarge(finalDirectory.resolve("large"))
-        .setDirectoryPreviewPathSmall(finalDirectory.resolve("small"));
+        .setDirectoryPreviewPathSmall(finalDirectory.resolve("small"))
+        .setAllowedExtensions(Set.of("zip"));
       when(contentService.createTempDir()).thenReturn(temporaryDirectory);
     }
 
@@ -251,8 +268,9 @@ public class MapServiceTest {
     }
 
     void uploadFails(ErrorCode expectedErrorCode, String fileName) {
+      when(fafApiProperties.getMap()).thenReturn(mapProperties);
       InputStream mapData = loadMapAsInputSteam(fileName);
-      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, fileName, author, true));
+      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, fileName, author, true, null));
       assertThat(result, hasErrorCode(expectedErrorCode));
       verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
@@ -310,18 +328,20 @@ public class MapServiceTest {
 
     @Test
     void noMapName() {
+      when(fafApiProperties.getMap()).thenReturn(mapProperties);
       String zipFilename = "no_map_name.zip";
       InputStream mapData = loadMapAsInputSteam(zipFilename);
-      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true));
+      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true, null));
       assertThat(result, hasErrorCodes(ErrorCode.MAP_NAME_MISSING));
       verify(mapRepository, never()).save(any(com.faforever.api.data.domain.Map.class));
     }
 
     @Test
     void adaptiveFilesMissing() {
+      when(fafApiProperties.getMap()).thenReturn(mapProperties);
       String zipFilename = "adaptive_map_files_missing.zip";
       InputStream mapData = loadMapAsInputSteam(zipFilename);
-      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true));
+      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true, null));
       assertThat(result, hasErrorCodes(
         ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING,
         ErrorCode.MAP_FILE_INSIDE_ZIP_MISSING
@@ -331,9 +351,10 @@ public class MapServiceTest {
 
     @Test
     void invalidScenario() {
+      when(fafApiProperties.getMap()).thenReturn(mapProperties);
       String zipFilename = "invalid_scenario.zip";
       InputStream mapData = loadMapAsInputSteam(zipFilename);
-      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true));
+      ApiException result = assertThrows(ApiException.class, () -> instance.uploadMap(mapData, zipFilename, author, true, null));
       assertThat(result, hasErrorCodes(
         ErrorCode.MAP_SCRIPT_LINE_MISSING,
         ErrorCode.MAP_SCRIPT_LINE_MISSING,
@@ -350,12 +371,14 @@ public class MapServiceTest {
     @Test
     void positiveUploadTest() throws Exception {
       String zipFilename = "command_conquer_rush.v0007.zip";
+      License defaultLicense = new License().setId(1);
       when(fafApiProperties.getMap()).thenReturn(mapProperties);
       when(mapRepository.findOneByDisplayName(any())).thenReturn(Optional.empty());
+      when(licenseRepository.findById(anyInt())).thenReturn(Optional.of(defaultLicense));
       InputStream mapData = loadMapAsInputSteam(zipFilename);
 
       Path tmpDir = temporaryDirectory;
-      instance.uploadMap(mapData, zipFilename, author, true);
+      instance.uploadMap(mapData, zipFilename, author, true, 1);
 
       ArgumentCaptor<com.faforever.api.data.domain.Map> mapCaptor = ArgumentCaptor.forClass(com.faforever.api.data.domain.Map.class);
       verify(mapRepository).save(mapCaptor.capture());

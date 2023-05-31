@@ -46,6 +46,7 @@ faf-api:
     small-previews-url-format: "http://localhost/faf/vault/map_previews/small/%s"
     large-previews-url-format: "http://localhost/faf/vault/map_previews/large/%s"
     download-url-format: "http://localhost/faf/vault/maps/%s"
+    default-license-id: 1
   avatar:
     download-url-format: "http://localhost/faf/avatars/%s"
     target-directory: "build/cache/avatars"
@@ -68,6 +69,7 @@ faf-api:
   mod:
     download-url-format: "http://localhost/mod/download-url/%s"
     preview-url-format: "http://localhost/mod/preview-url/%s"
+    default-license-id: 1
   password-reset:
     password-reset-url-format: "http://localhost:8010/users/claimPasswordResetToken/%s"
     subject: "Integration test password reset"

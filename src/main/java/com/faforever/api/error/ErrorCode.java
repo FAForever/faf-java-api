@@ -113,7 +113,9 @@ public enum ErrorCode {
   GOG_ID_ALREADY_LINKED(203, "GOG account already linked to a FAF account", "You linked this account already to user with name ''{0}''."),
   MOD_NAME_TOO_SHORT(204, "Invalid mod name", "The mod name must have a minimum length of {0, number} characters, was: {1, number}"),
   ZIP_BOMB_DETECTED(205, "Zip bomb detected", "The zip file is potential zip bomb."),
-  NOT_FAF_TOKEN(206, "Not a FAF token", "The token is not a FAF generated.");
+  NOT_FAF_TOKEN(206, "Not a FAF token", "The token is not a FAF generated."),
+  LESS_PERMISSIVE_LICENSE(207, "Less permissive license", "New license is less permissive than current license."),
+  ;
 
 
   private final int code;

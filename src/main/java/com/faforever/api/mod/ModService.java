@@ -1,8 +1,10 @@
 package com.faforever.api.mod;
 
 import com.faforever.api.config.FafApiProperties;
+import com.faforever.api.content.LicenseRepository;
 import com.faforever.api.data.domain.BanDurationType;
 import com.faforever.api.data.domain.BanLevel;
+import com.faforever.api.data.domain.License;
 import com.faforever.api.data.domain.Mod;
 import com.faforever.api.data.domain.ModType;
 import com.faforever.api.data.domain.ModVersion;
@@ -56,11 +58,17 @@ public class ModService {
   private final FafApiProperties properties;
   private final ModRepository modRepository;
   private final ModVersionRepository modVersionRepository;
+  private final LicenseRepository licenseRepository;
 
   @SneakyThrows
   @Transactional
   @CacheEvict(value = {Mod.TYPE_NAME, ModVersion.TYPE_NAME}, allEntries = true)
-  public void processUploadedMod(Path uploadedFile, Player uploader) {
+  public void processUploadedMod(Path uploadedFile, String originalFilename, Player uploader, Integer licenseId) {
+    String extension = com.google.common.io.Files.getFileExtension(originalFilename);
+    if (!properties.getMod().getAllowedExtensions().contains(extension)) {
+      throw ApiException.of(ErrorCode.UPLOAD_INVALID_FILE_EXTENSIONS, properties.getMod().getAllowedExtensions());
+    }
+
     checkUploaderVaultBan(uploader);
 
     log.debug("Player '{}' uploaded a mod", uploader);
@@ -106,7 +114,7 @@ public class ModService {
     FilePermissionUtil.setDefaultFilePermission(targetPath);
 
     try {
-      store(modInfo, thumbnailPath, uploader, zipFileName);
+      store(modInfo, thumbnailPath, uploader, zipFileName, licenseId);
     } catch (Exception exception) {
       try {
         Files.delete(targetPath);
@@ -262,7 +270,7 @@ public class ModService {
     return String.format("%s.v%04d", NameUtil.normalizeFileName(displayName), version);
   }
 
-  private void store(com.faforever.commons.mod.Mod modInfo, Optional<Path> thumbnailPath, Player uploader, String zipFileName) {
+  private void store(com.faforever.commons.mod.Mod modInfo, Optional<Path> thumbnailPath, Player uploader, String zipFileName, Integer licenseId) {
     ModVersion modVersion = new ModVersion()
       .setUid(modInfo.getUid())
       .setType(modInfo.isUiOnly() ? ModType.UI : ModType.SIM)
@@ -271,18 +279,30 @@ public class ModService {
       .setFilename(MOD_PATH_PREFIX + zipFileName)
       .setIcon(thumbnailPath.map(path -> path.getFileName().toString()).orElse(null));
 
+    License newLicense = getLicenseOrDefault(licenseId);
     Mod mod = modRepository.findOneByDisplayName(modInfo.getName())
       .orElse(new Mod()
         .setAuthor(modInfo.getAuthor())
         .setDisplayName(modInfo.getName())
         .setVersions(new ArrayList<>())
         .setUploader(uploader)
+        .setLicense(newLicense)
         .setRecommended(false));
+
+    if (newLicense.isLessPermissiveThan(mod.getLicense())) {
+      throw ApiException.of(ErrorCode.LESS_PERMISSIVE_LICENSE);
+    }
     mod.getVersions().add(modVersion);
 
     modVersion.setMod(mod);
 
     mod = modRepository.save(mod);
     modRepository.insertModStats(mod.getDisplayName());
+  }
+
+  public License getLicenseOrDefault(Integer licenseId) {
+    return Optional.ofNullable(licenseId)
+      .flatMap(licenseRepository::findById)
+      .orElseGet(() -> licenseRepository.getReferenceById(properties.getMod().getDefaultLicenseId()));
   }
 }

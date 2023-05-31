@@ -58,15 +58,19 @@ public class MapsControllerTest extends AbstractIntegrationTest{
     mockMvc.perform(multipart("/maps/upload")
       .file(file)
       .with(getOAuthTokenWithActiveUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES)))
-      .andExpect(status().isBadRequest())
+      .andExpect(status().isUnprocessableEntity())
       .andExpect(jsonPath("$.errors", hasSize(1)))
-      .andExpect(jsonPath("$.errors[0].title", is("org.springframework.web.bind.MissingServletRequestParameterException")))
-      .andExpect(jsonPath("$.errors[0].detail", is("Required request parameter 'metadata' for method parameter type String is not present")));
+      .andExpect(jsonPath("$.errors[0].title", is("Missing parameter")))
+      .andExpect(jsonPath("$.errors[0].detail", is("A parameter 'metadata' has to be provided.")));
   }
 
   @Test
-  void successUpload() throws Exception {
-    String jsonString = "{}";
+  void successUploadViaJsonRequestParam() throws Exception {
+    String jsonString = """
+      {
+        "isRanked": true
+      }
+      """;
 
     String zipFile = "command_conquer_rush.v0007.zip";
     try (InputStream inputStream = loadMapResourceAsStream(zipFile)) {
@@ -79,6 +83,33 @@ public class MapsControllerTest extends AbstractIntegrationTest{
         .file(file)
         .with(getOAuthTokenWithActiveUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES))
         .param("metadata", jsonString)
+      ).andExpect(status().isOk());
+    } finally {
+      FileUtils.deleteDirectory(fafApiProperties.getMap().getTargetDirectory().toFile());
+    }
+  }
+
+  @Test
+  void successUploadViaMultipartJsonMetadata() throws Exception {
+    String metadataString = """
+      {
+        "isRanked": true,
+        "licenseId": 1
+      }
+      """;
+    MockMultipartFile metadata = new MockMultipartFile("metadata", null, "application/json", metadataString.getBytes());
+
+    String zipFile = "command_conquer_rush.v0007.zip";
+    try (InputStream inputStream = loadMapResourceAsStream(zipFile)) {
+      MockMultipartFile file = new MockMultipartFile("file",
+        zipFile,
+        "application/zip",
+        ByteStreams.toByteArray(inputStream));
+
+      mockMvc.perform(multipart("/maps/upload")
+        .file(file)
+        .file(metadata)
+        .with(getOAuthTokenWithActiveUser(OAuthScope._UPLOAD_MAP, NO_AUTHORITIES))
       ).andExpect(status().isOk());
     } finally {
       FileUtils.deleteDirectory(fafApiProperties.getMap().getTargetDirectory().toFile());

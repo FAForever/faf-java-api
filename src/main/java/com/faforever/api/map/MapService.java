@@ -2,8 +2,10 @@ package com.faforever.api.map;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.content.ContentService;
+import com.faforever.api.content.LicenseRepository;
 import com.faforever.api.data.domain.BanDurationType;
 import com.faforever.api.data.domain.BanLevel;
+import com.faforever.api.data.domain.License;
 import com.faforever.api.data.domain.Map;
 import com.faforever.api.data.domain.MapVersion;
 import com.faforever.api.data.domain.Player;
@@ -83,6 +85,7 @@ public class MapService {
   private static final String LEGACY_FOLDER_PREFIX = "maps/";
   private final FafApiProperties fafApiProperties;
   private final MapRepository mapRepository;
+  private final LicenseRepository licenseRepository;
   private final ContentService contentService;
 
   public MapNameValidationResponse requestMapNameValidation(String mapName) {
@@ -158,7 +161,12 @@ public class MapService {
   @Transactional
   @SneakyThrows
   @CacheEvict(value = {Map.TYPE_NAME, MapVersion.TYPE_NAME}, allEntries = true)
-  public void uploadMap(InputStream mapDataInputStream, String mapFilename, Player author, boolean isRanked) {
+  public void uploadMap(InputStream mapDataInputStream, String mapFilename, Player author, boolean isRanked, Integer licenseId) {
+    String extension = com.google.common.io.Files.getFileExtension(mapFilename);
+    if (!fafApiProperties.getMap().getAllowedExtensions().contains(extension)) {
+      throw ApiException.of(ErrorCode.UPLOAD_INVALID_FILE_EXTENSIONS, fafApiProperties.getMap().getAllowedExtensions());
+    }
+
     Assert.notNull(author, "'author' must not be null");
     Assert.isTrue(mapDataInputStream.available() > 0, "'mapData' must not be empty");
 
@@ -185,7 +193,7 @@ public class MapService {
 
       Optional<Map> existingMapOptional = validateMapMetadata(mapLua, mapNameBuilder, author);
 
-      updateHibernateMapEntities(mapLua, existingMapOptional, author, isRanked, mapNameBuilder);
+      updateHibernateMapEntities(mapLua, existingMapOptional, author, isRanked, licenseId, mapNameBuilder);
 
       Path mapFolderAfterRenaming = unzippedFileFolder.resolveSibling(
         mapNameBuilder.buildFolderName(mapLua.getMapVersion$()));
@@ -360,10 +368,11 @@ public class MapService {
     return existingMapOptional;
   }
 
-  private Map updateHibernateMapEntities(MapLuaAccessor mapLua, Optional<Map> existingMapOptional, Player author, boolean isRanked, MapNameBuilder mapNameBuilder) {
+  private Map updateHibernateMapEntities(MapLuaAccessor mapLua, Optional<Map> existingMapOptional, Player author, boolean isRanked, Integer licenseId, MapNameBuilder mapNameBuilder) {
     // the scenario lua is supposed to be validate already, thus we call the unwrapping $-methods
     String mapName = mapNameBuilder.getDisplayName();
 
+    License newLicense = getLicenseOrDefault(licenseId);
     Map map = existingMapOptional
       .orElseGet(() ->
         new Map()
@@ -371,8 +380,12 @@ public class MapService {
           .setAuthor(author)
           .setGamesPlayed(0)
           .setRecommended(false)
+          .setLicense(newLicense)
       );
 
+    if (newLicense.isLessPermissiveThan(map.getLicense())) {
+      throw ApiException.of(ErrorCode.LESS_PERMISSIVE_LICENSE);
+    }
     LuaValue standardTeamsConfig = mapLua.getFirstTeam$();
 
     map
@@ -499,5 +512,11 @@ public class MapService {
     Path buildFinalZipPath(int version) {
       return fafApiProperties.getMap().getTargetDirectory().resolve(buildFinalZipName(version));
     }
+  }
+
+  public License getLicenseOrDefault(Integer licenseId) {
+    return Optional.ofNullable(licenseId)
+      .flatMap(licenseRepository::findById)
+      .orElseGet(() -> licenseRepository.getReferenceById(fafApiProperties.getMap().getDefaultLicenseId()));
   }
 }
