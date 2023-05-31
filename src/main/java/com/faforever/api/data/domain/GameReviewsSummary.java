@@ -60,7 +60,7 @@ public class GameReviewsSummary {
   }
 
   @Column(name = "average_score")
-  public float getAverageScore() {
+  public Float getAverageScore() {
     return averageScore;
   }
 
