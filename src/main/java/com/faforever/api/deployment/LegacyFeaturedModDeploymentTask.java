@@ -50,7 +50,7 @@ import java.util.stream.Stream;
 
 import static com.github.nocatch.NoCatch.noCatch;
 import static com.google.common.hash.Hashing.md5;
-import static com.google.common.io.Files.hash;
+import static com.google.common.io.Files.asByteSource;
 import static java.nio.file.Files.createDirectories;
 
 /**
@@ -188,7 +188,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     updateStatus("Updating database");
     List<FeaturedModFile> featuredModFiles = files.stream()
       .map(file -> new FeaturedModFile()
-        .setMd5(noCatch(() -> hash(file.targetFile().toFile(), md5())).toString())
+        .setMd5(noCatch(() -> asByteSource(file.targetFile().toFile()).hash(md5())).toString())
         .setFileId(file.fileId())
         .setName(file.targetFile().getFileName().toString())
         .setVersion(version)
@@ -231,7 +231,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
    * Renames the temporary file to the target file so the file is only available under its final name when it is
    * complete, and makes the file readable for everyone.
    */
-  private StagedFile finalizeFile(StagedFile file) {
+  private void finalizeFile(StagedFile file) {
     Path source = file.tmpFile();
     Path target = file.targetFile();
 
@@ -240,7 +240,6 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
 
     log.trace("Renaming '{}' to '{}'", source, target);
     noCatch(() -> Files.move(source, target, StandardCopyOption.ATOMIC_MOVE));
-    return file;
   }
 
   /**
@@ -322,11 +321,15 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
    */
   private void zipDirectory(Path directoryToZip, ZipArchiveOutputStream outputStream) throws IOException {
     Files.walkFileTree(directoryToZip, new SimpleFileVisitor<>() {
+      @Override
       public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
         String relativized = directoryToZip.getParent().relativize(dir).toString();
         if (!relativized.isEmpty()) {
           ZipArchiveEntry zipArchiveEntry = new ZipArchiveEntry(relativized + "/");
+          zipArchiveEntry.setTime(FileTime.from(Instant.EPOCH));
+          zipArchiveEntry.setCreationTime(FileTime.from(Instant.EPOCH));
           zipArchiveEntry.setLastModifiedTime(FileTime.from(Instant.EPOCH));
+          zipArchiveEntry.setLastAccessTime(FileTime.from(Instant.EPOCH));
           outputStream.putArchiveEntry(zipArchiveEntry);
           outputStream.closeArchiveEntry();
         }
@@ -334,12 +337,16 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
         return FileVisitResult.CONTINUE;
       }
 
+      @Override
       public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
         log.trace("Zipping file {}", file.toAbsolutePath());
         ZipArchiveEntry zipArchiveEntry = new ZipArchiveEntry(
           file.toFile(),
           directoryToZip.getParent().relativize(file).toString().replace(File.separatorChar, '/'));
+        zipArchiveEntry.setTime(FileTime.from(Instant.EPOCH));
+        zipArchiveEntry.setCreationTime(FileTime.from(Instant.EPOCH));
         zipArchiveEntry.setLastModifiedTime(FileTime.from(Instant.EPOCH));
+        zipArchiveEntry.setLastAccessTime(FileTime.from(Instant.EPOCH));
 
         outputStream.putArchiveEntry(zipArchiveEntry);
 
