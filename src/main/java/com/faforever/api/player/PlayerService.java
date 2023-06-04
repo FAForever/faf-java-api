@@ -16,7 +16,7 @@ public class PlayerService {
 
   private final PlayerRepository playerRepository;
 
-  public Player getPlayer() {
+  public Player getCurrentPlayer() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
     if (authentication instanceof FafAuthenticationToken fafAuthenticationToken) {

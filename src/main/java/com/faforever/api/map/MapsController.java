@@ -1,6 +1,5 @@
 package com.faforever.api.map;
 
-import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ErrorCode;
@@ -14,9 +13,9 @@ import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,12 +33,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 @AllArgsConstructor
 public class MapsController {
   private final MapService mapService;
-  private final FafApiProperties fafApiProperties;
   private final ObjectMapper objectMapper;
   private final PlayerService playerService;
 
 
-  @RequestMapping(path = "/validate", method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
+  @GetMapping(path = "/validate", produces = APPLICATION_JSON_UTF8_VALUE)
   public ModelAndView showValidationForm(Map<String, Object> model) {
     return new ModelAndView("validate_map_metadata.html");
   }
@@ -49,11 +47,7 @@ public class MapsController {
     @ApiResponse(code = 200, message = "Information about derived names to be used in the scenario.lua"),
     @ApiResponse(code = 422, message = "A list of reasons why the name is not valid.")
   })
-  @RequestMapping(
-    path = "/validateMapName",
-    method = RequestMethod.POST,
-    produces = APPLICATION_JSON_UTF8_VALUE
-  )
+  @PostMapping(path = "/validateMapName", produces = APPLICATION_JSON_UTF8_VALUE)
   public MapNameValidationResponse validateMapName(@RequestParam("mapName") String mapName) {
     return mapService.requestMapNameValidation(mapName);
   }
@@ -62,11 +56,7 @@ public class MapsController {
   @ApiResponses(value = {
     @ApiResponse(code = 200, message = "Valid without further information"),
     @ApiResponse(code = 422, message = "A list of errors in the scenario.lua")})
-  @RequestMapping(
-    path = "/validateScenarioLua",
-    method = RequestMethod.POST,
-    produces = APPLICATION_JSON_UTF8_VALUE
-  )
+  @PostMapping(path = "/validateScenarioLua", produces = APPLICATION_JSON_UTF8_VALUE)
   public void validateScenarioLua(@RequestParam(name = "scenarioLua") String scenarioLua) {
     mapService.validateScenarioLua(scenarioLua);
   }
@@ -76,12 +66,13 @@ public class MapsController {
     @ApiResponse(code = 200, message = "Success"),
     @ApiResponse(code = 401, message = "Unauthorized"),
     @ApiResponse(code = 500, message = "Failure")})
-  @RequestMapping(path = "/upload", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
+  @PostMapping(path = "/upload", produces = APPLICATION_JSON_UTF8_VALUE)
   @PreAuthorize("hasScope('" + OAuthScope._UPLOAD_MAP + "')")
-  public void uploadMap(@RequestParam("file") MultipartFile file,
-                        @Deprecated @RequestParam(value = "metadata", required = false) String metadataJsonString,
-                        @RequestPart(value = "metadata", required = false) MapUploadMetadata metadata,
-                        Authentication authentication) throws IOException {
+  public void uploadMap(
+    @RequestParam("file") MultipartFile file,
+    @Deprecated @RequestParam(value = "metadata", required = false) String metadataJsonString,
+    @RequestPart(value = "metadata", required = false) MapUploadMetadata metadata
+  ) throws IOException {
     if (metadataJsonString == null && metadata == null) {
       throw ApiException.of(ErrorCode.PARAMETER_MISSING, "metadata");
     }
@@ -102,7 +93,7 @@ public class MapsController {
       licenseId = metadata.licenseId();
     }
 
-    Player player = playerService.getPlayer(authentication);
+    Player player = playerService.getCurrentPlayer();
     mapService.uploadMap(file.getInputStream(), file.getOriginalFilename(), player, ranked, licenseId);
   }
 }

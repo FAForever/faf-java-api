@@ -15,8 +15,6 @@ import com.faforever.api.security.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.security.jwt.Jwt;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -69,15 +67,16 @@ public class ClanService {
   @SneakyThrows
   @Transactional
   @Deprecated
-    // use POST via Elide instead
-  Clan create(String name, String tag, String description) {
+  // use POST via Elide instead
+  public Clan create(String name, String tag, String description) {
     Clan clan = new Clan();
     clan.setName(name);
     clan.setTag(tag);
     clan.setDescription(description);
     clan.setRequiresInvitation(true);
-    clan.setFounder(playerService.getCurrentPlayer());
-    clan.setLeader(playerService.getCurrentPlayer());
+    Player currentPlayer = playerService.getCurrentPlayer();
+    clan.setFounder(currentPlayer);
+    clan.setLeader(currentPlayer);
 
     // validation is done at preCreate() called by ClanListener
     clanRepository.save(clan);
@@ -86,7 +85,7 @@ public class ClanService {
 
   @SneakyThrows
   @Transactional
-  String generatePlayerInvitationToken(int newMemberId, int clanId) {
+  public String generatePlayerInvitationToken(int newMemberId, int clanId) {
     Player requester = playerService.getCurrentPlayer();
 
     Clan clan = clanRepository.findById(clanId)
@@ -102,16 +101,14 @@ public class ClanService {
       .plus(fafApiProperties.getClan().getInviteLinkExpireDurationMinutes(), ChronoUnit.MINUTES)
       .toEpochMilli();
 
-    InvitationResult result = new InvitationResult(expire,
-      ClanResult.of(clan),
-      PlayerResult.of(newMember));
+    InvitationResult result = new InvitationResult(expire, ClanResult.of(clan), PlayerResult.of(newMember));
     return jwtService.sign(result);
   }
 
   @SneakyThrows
   void acceptPlayerInvitationToken(String stringToken) {
-    Jwt token = jwtService.decodeAndVerify(stringToken);
-    InvitationResult invitation = objectMapper.readValue(token.getClaims(), InvitationResult.class);
+    String decodedToken = jwtService.decodeAndVerify(stringToken);
+    InvitationResult invitation = objectMapper.readValue(decodedToken, InvitationResult.class);
 
     if (invitation.isExpired()) {
       throw ApiException.of(ErrorCode.CLAN_ACCEPT_TOKEN_EXPIRE);
@@ -122,7 +119,7 @@ public class ClanService {
     Clan clan = clanRepository.findById(clanId)
       .orElseThrow(() -> new ApiException(new Error(ErrorCode.CLAN_NOT_EXISTS, clanId)));
 
-    Player newMember = playerService.getById(invitation.newMember().getId());
+    Player newMember = playerService.getById(invitation.newMember().id());
 
     if (!Objects.equals(player.getId(), newMember.getId())) {
       throw ApiException.of(ErrorCode.CLAN_ACCEPT_WRONG_PLAYER);
