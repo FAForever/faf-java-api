@@ -243,7 +243,7 @@ dependencies {
   runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
 
   // Manually managed dependencies
-  def elideVersion = "7.0.0-pr4"
+  def elideVersion = "7.0.0-pr6"
   def springdocVersion = "2.1.0"
   implementation("com.yahoo.elide:elide-core:${elideVersion}")
   implementation("com.yahoo.elide:elide-model-config:${elideVersion}")
