@@ -3,9 +3,9 @@ package com.faforever.api.mod;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.player.PlayerService;
 import com.faforever.api.security.OAuthScope;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -30,11 +30,11 @@ public class ModsController {
   private final ModService modService;
   private final FafApiProperties fafApiProperties;
 
-  @ApiOperation("Upload a mod")
+  @Operation(summary = "Upload a mod")
   @ApiResponses(value = {
-    @ApiResponse(code = 200, message = "Success"),
-    @ApiResponse(code = 401, message = "Unauthorized"),
-    @ApiResponse(code = 500, message = "Failure")})
+    @ApiResponse(responseCode = "200", description = "Success"),
+    @ApiResponse(responseCode = "401", description = "Unauthorized"),
+    @ApiResponse(responseCode = "500", description = "Failure")})
   @RequestMapping(path = "/upload", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
   @PreAuthorize("hasScope('" + OAuthScope._UPLOAD_MOD + "')")
   public void uploadMod(

@@ -2,10 +2,10 @@ package com.faforever.api.config.elide;
 
 import com.faforever.api.data.DataController;
 import com.yahoo.elide.core.dictionary.EntityDictionary;
-import com.yahoo.elide.swagger.SwaggerBuilder;
-import io.swagger.models.Info;
-import io.swagger.models.Swagger;
+import com.yahoo.elide.swagger.OpenApiBuilder;
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,12 +25,13 @@ public class ElideSwaggerController {
 
   @Hidden
   @GetMapping(value = "/elide/docs", produces = {APPLICATION_JSON_VALUE})
-  public ResponseEntity<String> getDocumentation() {
-    Info info = new Info().title("Elide JSON API").version("");
-    SwaggerBuilder builder = new SwaggerBuilder(entityDictionary, info);
-    Swagger document = builder.build()
-      .basePath(DataController.PATH_PREFIX);
+  public ResponseEntity<OpenAPI> getDocumentation() {
+    OpenAPI openAPI = new OpenApiBuilder(entityDictionary)
+      .basePath(DataController.PATH_PREFIX)
+      .build();
 
-    return ResponseEntity.ok(SwaggerBuilder.getDocument(document));
+    openAPI.info(new Info().title("Elide JSON API"));
+
+    return ResponseEntity.ok(openAPI);
   }
 }

@@ -8,8 +8,8 @@ import com.faforever.api.security.UserSupplier;
 import com.yahoo.elide.jsonapi.models.Data;
 import com.yahoo.elide.jsonapi.models.JsonApiDocument;
 import com.yahoo.elide.jsonapi.models.Resource;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -34,8 +34,8 @@ public class MeController {
   private final UserSupplier userSupplier;
 
   @RequestMapping(method = RequestMethod.GET, value = "/me")
-  @ApiOperation("Returns the authentication object of the current user")
-  @ApiResponse(code = 200, message = "Success with JsonApi compliant MeResult")
+  @Operation(summary = "Returns the authentication object of the current user")
+  @ApiResponse(responseCode = "200", description = "Success with JsonApi compliant MeResult")
   @Secured("ROLE_USER")
   public JsonApiDocument me() {
     FafAuthenticationToken authentication = userSupplier.get();
@@ -54,6 +54,7 @@ public class MeController {
     return new JsonApiDocument(new Data<>(
       new Resource("me",
         "me",
+        null,
         Map.of(
           "userId", player.getId(),
           "userName", player.getLogin(),
