@@ -9,7 +9,7 @@ import com.faforever.api.security.OAuthScope;
 import com.faforever.api.user.UserService.CallbackResult;
 import com.faforever.api.utils.RemoteAddressUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,7 +40,7 @@ public class UsersController {
   private final RecaptchaService recaptchaService;
   private final ObjectMapper objectMapper;
 
-  @ApiOperation("Registers a new account that needs to be activated.")
+  @Operation(summary = "Registers a new account that needs to be activated.")
   @PostMapping(path = "/register", produces = APPLICATION_JSON_VALUE)
   public void register(HttpServletRequest request,
                        @RequestParam("username") String username,
@@ -54,7 +54,7 @@ public class UsersController {
     userService.register(username, email);
   }
 
-  @ApiOperation("Activates a previously registered account.")
+  @Operation(summary = "Activates a previously registered account.")
   @PostMapping(path = "/activate", produces = APPLICATION_JSON_VALUE)
   public void activate(HttpServletRequest request,
                        @RequestParam("token") String registrationToken,
@@ -63,7 +63,7 @@ public class UsersController {
   }
 
   @PreAuthorize("hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
-  @ApiOperation("Changes the password of a previously registered account.")
+  @Operation(summary = "Changes the password of a previously registered account.")
   @PostMapping(path = "/changePassword", produces = APPLICATION_JSON_VALUE)
   public void changePassword(@RequestParam("currentPassword") String currentPassword,
                              @RequestParam("newPassword") String newPassword,
@@ -72,7 +72,7 @@ public class UsersController {
   }
 
   @PreAuthorize("hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
-  @ApiOperation("Changes the login of a previously registered account.")
+  @Operation(summary = "Changes the login of a previously registered account.")
   @PostMapping(path = "/changeUsername", produces = APPLICATION_JSON_VALUE)
   public void changeLogin(HttpServletRequest request,
                           @RequestParam("newUsername") String newUsername,
@@ -84,7 +84,7 @@ public class UsersController {
   }
 
   @PreAuthorize("hasScope('" + OAuthScope._ADMINISTRATIVE_ACTION + "') and hasAnyRole('ROLE_ADMIN_ACCOUNT_NAME_CHANGE')")
-  @ApiOperation("Force the change of the login of a user with the given userId.")
+  @Operation(summary = "Force the change of the login of a user with the given userId.")
   @PostMapping(path = "/{userId}/forceChangeUsername", produces = APPLICATION_JSON_VALUE)
   public void forceChangeLogin(HttpServletRequest request,
                                @RequestParam("newUsername") String newUsername,
@@ -94,7 +94,7 @@ public class UsersController {
   }
 
   @PreAuthorize("hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
-  @ApiOperation("Changes the email of a previously registered account.")
+  @Operation(summary = "Changes the email of a previously registered account.")
   @PostMapping(path = "/changeEmail", produces = APPLICATION_JSON_VALUE)
   public void changeEmail(HttpServletRequest request,
                           @RequestParam("currentPassword") String currentPassword,
@@ -108,7 +108,7 @@ public class UsersController {
   }
 
 
-  @ApiOperation("Sends a password reset request to the username OR email linked by this account.")
+  @Operation(summary = "Sends a password reset request to the username OR email linked by this account.")
   @PostMapping(path = "/requestPasswordReset", produces = APPLICATION_JSON_VALUE)
   public void requestPasswordReset(@RequestParam("identifier") String identifier,
                                    @RequestParam(value = "recaptchaResponse", required = false) String recaptchaResponse) {
@@ -116,7 +116,7 @@ public class UsersController {
     userService.requestPasswordReset(identifier);
   }
 
-  @ApiOperation("Sets a new password for an account.")
+  @Operation(summary = "Sets a new password for an account.")
   @PostMapping(path = "/performPasswordReset", produces = APPLICATION_JSON_VALUE)
   public void performPasswordReset(HttpServletResponse response,
                                    @RequestParam("token") String token,
@@ -125,7 +125,7 @@ public class UsersController {
   }
 
   @PreAuthorize("hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
-  @ApiOperation("Creates an URL to the steam platform to initiate the Link To Steam process.")
+  @Operation(summary = "Creates an URL to the steam platform to initiate the Link To Steam process.")
   @PostMapping(path = "/buildSteamLinkUrl", produces = APPLICATION_JSON_VALUE)
   public Map<String, Serializable> buildSteamLinkUrl(Authentication authentication,
                                                      @RequestParam("callbackUrl") String callbackUrl) {
@@ -133,14 +133,14 @@ public class UsersController {
     return Map.of("steamUrl", steamUrl);
   }
 
-  @ApiOperation("Build a password reset link via Steam.")
+  @Operation(summary = "Build a password reset link via Steam.")
   @PostMapping(path = "/buildSteamPasswordResetUrl", produces = APPLICATION_JSON_VALUE)
   public Map<String, Serializable> buildSteamPasswordResetUrl() {
     String steamUrl = userService.buildSteamPasswordResetUrl();
     return Map.of("steamUrl", steamUrl);
   }
 
-  @ApiOperation("Sends a password reset request to the username OR email linked by this account.")
+  @Operation(summary = "Sends a password reset request to the username OR email linked by this account.")
   @GetMapping(path = "/requestPasswordResetViaSteam", produces = APPLICATION_JSON_VALUE)
   public void requestPasswordResetViaSteam(HttpServletRequest request,
                                            HttpServletResponse response) {
@@ -150,7 +150,7 @@ public class UsersController {
     redirectCallbackResult(response, result);
   }
 
-  @ApiOperation("Processes the Steam redirect and creates the steam link in the user account.")
+  @Operation(summary = "Processes the Steam redirect and creates the steam link in the user account.")
   @GetMapping(path = "/linkToSteam", produces = APPLICATION_JSON_VALUE)
   public void linkToSteam(HttpServletRequest request,
                           HttpServletResponse response,
@@ -161,14 +161,14 @@ public class UsersController {
   }
 
   @PreAuthorize("hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
-  @ApiOperation("Trigger resynchronisation of the users account with all related systems.")
+  @Operation(summary = "Trigger resynchronisation of the users account with all related systems.")
   @PostMapping(path = "/resyncAccount", produces = APPLICATION_JSON_VALUE)
   public void resynchronizeAccount(Authentication authentication) {
     userService.resynchronizeAccount(userService.getUser(authentication));
   }
 
   @PreAuthorize("hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
-  @ApiOperation("Build the authorization token used for linking to a GOG account.")
+  @Operation(summary = "Build the authorization token used for linking to a GOG account.")
   @GetMapping(path = "/buildGogProfileToken", produces = APPLICATION_JSON_VALUE)
   public Map<String, Serializable> buildGogProfileToken(Authentication authentication) {
     String gogToken = gogService.buildGogToken(userService.getUser(authentication));
@@ -176,7 +176,7 @@ public class UsersController {
   }
 
   @PreAuthorize("hasScope('" + OAuthScope._WRITE_ACCOUNT_DATA + "') and hasRole('ROLE_USER')")
-  @ApiOperation("Attempt to link a GOG account to this account.")
+  @Operation(summary = "Attempt to link a GOG account to this account.")
   @PostMapping(path = "/linkToGog", produces = APPLICATION_JSON_VALUE)
   public void linkToGog(@RequestParam("gogUsername") String gogUsername,
                         Authentication authentication) {

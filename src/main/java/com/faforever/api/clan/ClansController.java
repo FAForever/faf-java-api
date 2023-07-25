@@ -6,9 +6,9 @@ import com.faforever.api.clan.result.PlayerResult;
 import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.player.PlayerService;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -35,10 +35,10 @@ public class ClansController {
   private final ClanService clanService;
   private final PlayerService playerService;
 
-  @ApiOperation("Grab data about yourself and the clan")
+  @Operation(summary = "Grab data about yourself and the clan")
   @ApiResponses(value = {
-    @ApiResponse(code = 200, message = "Success with JSON { player: {id: ?, login: ?}, clan: { id: ?, name: ?, tag: ?}}"),
-    @ApiResponse(code = 400, message = "Bad Request")})
+    @ApiResponse(responseCode = "200", description = "Success with JSON { player: {id: ?, login: ?}, clan: { id: ?, name: ?, tag: ?}}"),
+    @ApiResponse(responseCode = "400", description = "Bad Request")})
   @GetMapping(path = "/me", produces = APPLICATION_JSON_VALUE)
   public MeResult me(Authentication authentication) {
     Player player = playerService.getPlayer(authentication);
@@ -53,10 +53,10 @@ public class ClansController {
 
   // This request cannot be handled by JSON API because we must simultaneously create two resources (a,b)
   // a: the new clan with the leader membership, b: the leader membership with the new clan
-  @ApiOperation("Create a clan with correct leader, founder and clan membership")
+  @Operation(summary = "Create a clan with correct leader, founder and clan membership")
   @ApiResponses(value = {
-    @ApiResponse(code = 200, message = "Success with JSON { id: ?, type: 'clan'}"),
-    @ApiResponse(code = 400, message = "Bad Request")})
+    @ApiResponse(responseCode = "200", description = "Success with JSON { id: ?, type: 'clan'}"),
+    @ApiResponse(responseCode = "400", description = "Bad Request")})
   @PostMapping(path = "/create", produces = APPLICATION_JSON_VALUE)
   @PreAuthorize("hasRole('ROLE_USER')")
   @Transactional
@@ -69,10 +69,10 @@ public class ClansController {
     return Map.of("id", clan.getId(), "type", "clan");
   }
 
-  @ApiOperation("Generate invitation link")
+  @Operation(summary = "Generate invitation link")
   @ApiResponses(value = {
-    @ApiResponse(code = 200, message = "Success with JSON { jwtToken: ? }"),
-    @ApiResponse(code = 400, message = "Bad Request")})
+    @ApiResponse(responseCode = "200", description = "Success with JSON { jwtToken: ? }"),
+    @ApiResponse(responseCode = "400", description = "Bad Request")})
   @GetMapping(path = "/generateInvitationLink", produces = APPLICATION_JSON_VALUE)
   public Map<String, Serializable> generateInvitationLink(
     @RequestParam(value = "clanId") int clanId,
@@ -83,7 +83,7 @@ public class ClansController {
     return Map.of("jwtToken", jwtToken);
   }
 
-  @ApiOperation("Check invitation link and add Member to Clan")
+  @Operation(summary = "Check invitation link and add Member to Clan")
   @PostMapping(path = "/joinClan", produces = APPLICATION_JSON_VALUE)
   @Transactional
   public void joinClan(

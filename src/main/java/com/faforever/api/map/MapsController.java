@@ -8,9 +8,9 @@ import com.faforever.api.player.PlayerService;
 import com.faforever.api.security.OAuthScope;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,10 +44,10 @@ public class MapsController {
     return new ModelAndView("validate_map_metadata.html");
   }
 
-  @ApiOperation("Validate map name")
+  @Operation(summary = "Validate map name")
   @ApiResponses(value = {
-    @ApiResponse(code = 200, message = "Information about derived names to be used in the scenario.lua"),
-    @ApiResponse(code = 422, message = "A list of reasons why the name is not valid.")
+    @ApiResponse(responseCode = "200", description = "Information about derived names to be used in the scenario.lua"),
+    @ApiResponse(responseCode = "422", description = "A list of reasons why the name is not valid.")
   })
   @RequestMapping(
     path = "/validateMapName",
@@ -58,10 +58,10 @@ public class MapsController {
     return mapService.requestMapNameValidation(mapName);
   }
 
-  @ApiOperation("Validate scenario.lua")
+  @Operation(summary = "Validate scenario.lua")
   @ApiResponses(value = {
-    @ApiResponse(code = 200, message = "Valid without further information"),
-    @ApiResponse(code = 422, message = "A list of errors in the scenario.lua")})
+    @ApiResponse(responseCode = "200", description = "Valid without further information"),
+    @ApiResponse(responseCode = "422", description = "A list of errors in the scenario.lua")})
   @RequestMapping(
     path = "/validateScenarioLua",
     method = RequestMethod.POST,
@@ -71,11 +71,11 @@ public class MapsController {
     mapService.validateScenarioLua(scenarioLua);
   }
 
-  @ApiOperation(value = "Upload a map")
+  @Operation(summary = "Upload a map")
   @ApiResponses(value = {
-    @ApiResponse(code = 200, message = "Success"),
-    @ApiResponse(code = 401, message = "Unauthorized"),
-    @ApiResponse(code = 500, message = "Failure")})
+    @ApiResponse(responseCode = "200", description = "Success"),
+    @ApiResponse(responseCode = "401", description = "Unauthorized"),
+    @ApiResponse(responseCode = "500", description = "Failure")})
   @RequestMapping(path = "/upload", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
   @PreAuthorize("hasScope('" + OAuthScope._UPLOAD_MAP + "')")
   public void uploadMap(@RequestParam("file") MultipartFile file,

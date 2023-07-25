@@ -6,7 +6,7 @@ import com.faforever.api.data.domain.VotingSubject;
 import com.faforever.api.player.PlayerService;
 import com.faforever.api.security.OAuthScope;
 import com.google.common.base.Strings;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -28,14 +28,14 @@ public class VotingController {
   private final VotingService votingService;
   private final PlayerService playerService;
 
-  @ApiOperation(value = "Post a vote")
+  @Operation(summary = "Post a vote")
   @PreAuthorize("hasScope('" + OAuthScope._VOTE + "')")
   @RequestMapping(path = "/vote", method = RequestMethod.POST, produces = JsonApiMediaType.JSON_API_MEDIA_TYPE)
   public void postVote(@RequestBody Vote vote, Authentication authentication) {
     votingService.saveVote(vote, playerService.getPlayer(authentication));
   }
 
-  @ApiOperation(value = "See if user can vote on a subject")
+  @Operation(summary = "See if user can vote on a subject")
   @RequestMapping(path = "/votingSubjectsAbleToVote", method = RequestMethod.GET, produces = JsonApiMediaType.JSON_API_MEDIA_TYPE)
   public void votingSubjectsAbleTo(HttpServletResponse response, Authentication authentication, HttpServletRequest request) throws IOException {
     List<VotingSubject> votingSubjects = votingService.votingSubjectsAbleToVote(playerService.getPlayer(authentication));

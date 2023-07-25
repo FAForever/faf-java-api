@@ -2,10 +2,12 @@ package com.faforever.api.avatar;
 
 import com.faforever.api.error.ErrorResponse;
 import com.faforever.api.security.OAuthScope;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,51 +33,51 @@ public class AvatarController {
     this.avatarService = avatarService;
   }
 
-  @ApiOperation(value = "Upload avatar", notes = """
+  @Operation(summary = "Upload avatar", description = """
     Avatar metadata - {
       "name": "String"
     }""")
   @ApiResponses(value = {
-    @ApiResponse(code = 201, message = "Success"),
-    @ApiResponse(code = 422, message = "Invalid input", response = ErrorResponse.class),
-    @ApiResponse(code = 500, message = "Failure", response = ErrorResponse.class)})
+    @ApiResponse(responseCode = "201", description = "Success"),
+    @ApiResponse(responseCode = "422", description = "Invalid input", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    @ApiResponse(responseCode = "500", description = "Failure", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))})
   @ResponseStatus(value = HttpStatus.CREATED)
   @RequestMapping(value = "/upload", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @PreAuthorize("hasScope('" + OAuthScope._ADMINISTRATIVE_ACTION + "') and hasAnyRole('" + ROLE_WRITE_AVATAR + "', 'ROLE_ADMINISTRATOR')")
   public void uploadAvatar(
-    @ApiParam(name = "metadata") @RequestPart("metadata") AvatarMetadata avatarMetaData,
-    @ApiParam(name = "file") @RequestPart("file") MultipartFile avatarImageFile) throws IOException {
+    @Parameter(name = "metadata") @RequestPart("metadata") AvatarMetadata avatarMetaData,
+    @Parameter(name = "file") @RequestPart("file") MultipartFile avatarImageFile) throws IOException {
     avatarService.createAvatar(avatarMetaData, avatarImageFile.getOriginalFilename(), avatarImageFile.getInputStream(), avatarImageFile.getSize());
   }
 
-  @ApiOperation(value = "Update/Reupload avatar", notes = "Avatar metadata - " +
+  @Operation(summary = "Update/Reupload avatar", description = "Avatar metadata - " +
     "{" +
     " \"name\": \"String\"" +
     "}")
   @ApiResponses(value = {
-    @ApiResponse(code = 200, message = "Success"),
-    @ApiResponse(code = 422, message = "Invalid input", response = ErrorResponse.class),
-    @ApiResponse(code = 500, message = "Failure", response = ErrorResponse.class)})
+    @ApiResponse(responseCode = "200", description = "Success"),
+    @ApiResponse(responseCode = "422", description = "Invalid input", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    @ApiResponse(responseCode = "500", description = "Failure", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))})
   @ResponseStatus(value = HttpStatus.OK)
   @RequestMapping(value = "{avatarId}/upload", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @PreAuthorize("hasScope('" + OAuthScope._ADMINISTRATIVE_ACTION + "') and hasAnyRole('" + ROLE_WRITE_AVATAR + "', 'ROLE_ADMINISTRATOR')")
   public void reuploadAvatar(
-    @ApiParam(name = "avatarId") @PathVariable("avatarId") Integer avatarId,
-    @ApiParam(name = "metadata") @RequestPart(value = "metadata") AvatarMetadata avatarMetaData,
-    @ApiParam(name = "file") @RequestPart("file") MultipartFile avatarImageFile) throws IOException {
+    @Parameter(name = "avatarId") @PathVariable("avatarId") Integer avatarId,
+    @Parameter(name = "metadata") @RequestPart(value = "metadata") AvatarMetadata avatarMetaData,
+    @Parameter(name = "file") @RequestPart("file") MultipartFile avatarImageFile) throws IOException {
     avatarService.updateAvatar(avatarId, avatarMetaData, avatarImageFile.getOriginalFilename(), avatarImageFile.getInputStream(), avatarImageFile.getSize());
   }
 
-  @ApiOperation(value = "Delete avatar")
+  @Operation(summary = "Delete avatar")
   @ApiResponses(value = {
-    @ApiResponse(code = 204, message = "Success"),
-    @ApiResponse(code = 422, message = "Invalid input", response = ErrorResponse.class),
-    @ApiResponse(code = 500, message = "Failure", response = ErrorResponse.class)})
+    @ApiResponse(responseCode = "204", description = "Success"),
+    @ApiResponse(responseCode = "422", description = "Invalid input", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    @ApiResponse(responseCode = "500", description = "Failure", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))})
   @ResponseStatus(value = HttpStatus.NO_CONTENT)
   @RequestMapping(value = "/{avatarId}", method = RequestMethod.DELETE)
   @PreAuthorize("hasScope('" + OAuthScope._ADMINISTRATIVE_ACTION + "') and hasAnyRole('" + ROLE_WRITE_AVATAR + "', 'ROLE_ADMINISTRATOR')")
   public void deleteAvatar(
-    @ApiParam(name = "avatarId") @PathVariable("avatarId") Integer avatarId) throws IOException {
+    @Parameter(name = "avatarId") @PathVariable("avatarId") Integer avatarId) throws IOException {
     avatarService.deleteAvatar(avatarId);
   }
 

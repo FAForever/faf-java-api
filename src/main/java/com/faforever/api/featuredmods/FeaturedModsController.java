@@ -7,7 +7,7 @@ import com.faforever.api.security.OAuthScope;
 import com.yahoo.elide.jsonapi.models.Data;
 import com.yahoo.elide.jsonapi.models.JsonApiDocument;
 import com.yahoo.elide.jsonapi.models.Resource;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,7 +30,7 @@ public class FeaturedModsController {
   private final FeaturedModService featuredModService;
 
   @RequestMapping(path = "/{modId}/files/{version}")
-  @ApiOperation("Lists the required files for a specific featured mod version")
+  @Operation(summary = "Lists the required files for a specific featured mod version")
   @PreAuthorize("hasScope('" + OAuthScope._LOBBY + "')")
   public JsonApiDocument getFiles(@PathVariable("modId") int modId,
                                   @PathVariable("version") String version,
@@ -54,7 +54,7 @@ public class FeaturedModsController {
 
   private Function<FeaturedModFile, Resource> modFileMapper() {
     return file -> new Resource("featuredModFile", String.valueOf(file.getId()),
-      Map.of(
+      null, Map.of(
         "group", file.getGroup(),
         "md5", file.getMd5(),
         "name", file.getName(),
