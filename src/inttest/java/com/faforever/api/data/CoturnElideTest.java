@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.matchesRegex;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -33,10 +34,10 @@ public class CoturnElideTest extends AbstractIntegrationTest {
     mockMvc.perform(get("/data/coturnServer").with(getOAuthTokenWithActiveUser(OAuthScope._LOBBY, NO_AUTHORITIES)))
            .andExpect(status().isOk())
            .andExpect(jsonPath("$.data", hasSize(1)))
-           .andExpect(jsonPath("$.data[0].attributes", hasKey("key")))
-           .andExpect(jsonPath("$.data[0].attributes", hasKey("host")))
+           .andExpect(jsonPath("$.data[0].attributes", not(hasKey("key"))))
+           .andExpect(jsonPath("$.data[0].attributes", not(hasKey("host"))))
            .andExpect(jsonPath("$.data[0].attributes", hasKey("region")))
-           .andExpect(jsonPath("$.data[0].attributes", hasKey("port")))
+           .andExpect(jsonPath("$.data[0].attributes", not(hasKey("port"))))
            .andExpect(jsonPath("$.data[0].attributes", hasKey("active")))
            .andExpect(jsonPath("$.data[0].attributes", hasKey("urls")))
            .andExpect(jsonPath("$.data[0].attributes", hasKey("username")))
