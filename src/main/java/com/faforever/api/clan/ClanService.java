@@ -10,15 +10,14 @@ import com.faforever.api.data.domain.Player;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
-import com.faforever.api.error.ProgrammingError;
-import com.faforever.api.player.PlayerRepository;
 import com.faforever.api.player.PlayerService;
 import com.faforever.api.security.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -30,90 +29,103 @@ import java.util.Set;
 public class ClanService {
 
   private final ClanRepository clanRepository;
-  private final PlayerRepository playerRepository;
   private final FafApiProperties fafApiProperties;
   private final JwtService jwtService;
   private final ObjectMapper objectMapper;
   private final PlayerService playerService;
   private final ClanMembershipRepository clanMembershipRepository;
 
-  @SneakyThrows
-  Clan create(String name, String tag, String description, Player creator) {
-    if (creator.getClanMembership() != null) {
-      throw new ApiException(new Error(ErrorCode.CLAN_CREATE_FOUNDER_IS_IN_A_CLAN));
-    }
-    if (clanRepository.findOneByName(name).isPresent()) {
-      throw new ApiException(new Error(ErrorCode.CLAN_NAME_EXISTS, name));
-    }
-    if (clanRepository.findOneByTag(tag).isPresent()) {
-      throw new ApiException(new Error(ErrorCode.CLAN_TAG_EXISTS, tag));
+  @Transactional
+  public void preCreate(Clan clan) {
+    Assert.isNull(clan.getId(), "Clan payload with id can not be used for creation.");
+
+    Player player = playerService.getCurrentPlayer();
+
+    if (player.getClanMembership() != null) {
+      throw ApiException.of(ErrorCode.CLAN_CREATE_FOUNDER_IS_IN_A_CLAN);
     }
 
+    if (!player.equals(clan.getFounder())) {
+      throw ApiException.of(ErrorCode.CLAN_INVALID_FOUNDER);
+    }
+
+    clanRepository.findOneByName(clan.getName()).ifPresent(c -> {
+      throw ApiException.of(ErrorCode.CLAN_NAME_EXISTS, clan.getName());
+    });
+
+    clanRepository.findOneByTag(clan.getTag()).ifPresent(c -> {
+      throw ApiException.of(ErrorCode.CLAN_TAG_EXISTS, clan.getTag());
+    });
+
+    clan.setLeader(player);
+    final ClanMembership clanMembership = new ClanMembership();
+    clanMembership.setClan(clan);
+    clanMembership.setPlayer(player);
+    clan.setMemberships(Set.of(clanMembership));
+  }
+
+  @SneakyThrows
+  @Transactional
+  @Deprecated
+  // use POST via Elide instead
+  public Clan create(String name, String tag, String description) {
     Clan clan = new Clan();
     clan.setName(name);
     clan.setTag(tag);
     clan.setDescription(description);
     clan.setRequiresInvitation(true);
+    Player currentPlayer = playerService.getCurrentPlayer();
+    clan.setFounder(currentPlayer);
+    clan.setLeader(currentPlayer);
 
-    clan.setFounder(creator);
-    clan.setLeader(creator);
-
-    ClanMembership membership = new ClanMembership();
-    membership.setClan(clan);
-    membership.setPlayer(creator);
-
-    clan.setMemberships(Set.of(membership));
-
-    // clan membership is saved over cascading, otherwise validation will fail
+    // validation is done at preCreate() called by ClanListener
     clanRepository.save(clan);
     return clan;
   }
 
   @SneakyThrows
-  String generatePlayerInvitationToken(Player requester, int newMemberId, int clanId) {
+  @Transactional
+  public String generatePlayerInvitationToken(int newMemberId, int clanId) {
+    Player requester = playerService.getCurrentPlayer();
+
     Clan clan = clanRepository.findById(clanId)
       .orElseThrow(() -> new ApiException(new Error(ErrorCode.CLAN_NOT_EXISTS, clanId)));
 
     if (!requester.getId().equals(clan.getLeader().getId())) {
-      throw new ApiException(new Error(ErrorCode.CLAN_NOT_LEADER, clanId));
+      throw ApiException.of(ErrorCode.CLAN_NOT_LEADER, clanId);
     }
 
-    Player newMember = playerRepository.findById(newMemberId)
-      .orElseThrow(() -> new ApiException(new Error(ErrorCode.CLAN_GENERATE_LINK_PLAYER_NOT_FOUND, newMemberId)));
+    Player newMember = playerService.getById(newMemberId);
 
     long expire = Instant.now()
       .plus(fafApiProperties.getClan().getInviteLinkExpireDurationMinutes(), ChronoUnit.MINUTES)
       .toEpochMilli();
 
-    InvitationResult result = new InvitationResult(expire,
-      ClanResult.of(clan),
-      PlayerResult.of(newMember));
+    InvitationResult result = new InvitationResult(expire, ClanResult.of(clan), PlayerResult.of(newMember));
     return jwtService.sign(result);
   }
 
   @SneakyThrows
-  void acceptPlayerInvitationToken(String stringToken, Authentication authentication) {
+  void acceptPlayerInvitationToken(String stringToken) {
     String decodedToken = jwtService.decodeAndVerify(stringToken);
     InvitationResult invitation = objectMapper.readValue(decodedToken, InvitationResult.class);
 
     if (invitation.isExpired()) {
-      throw new ApiException(new Error(ErrorCode.CLAN_ACCEPT_TOKEN_EXPIRE));
+      throw ApiException.of(ErrorCode.CLAN_ACCEPT_TOKEN_EXPIRE);
     }
 
     final Integer clanId = invitation.clan().id();
-    Player player = playerService.getPlayer(authentication);
+    Player player = playerService.getCurrentPlayer();
     Clan clan = clanRepository.findById(clanId)
       .orElseThrow(() -> new ApiException(new Error(ErrorCode.CLAN_NOT_EXISTS, clanId)));
 
-    Player newMember = playerRepository.findById(invitation.newMember().id())
-      .orElseThrow(() -> new ProgrammingError("ClanMember does not exist: " + invitation.newMember().id()));
-
+    Player newMember = playerService.getById(invitation.newMember().id());
 
     if (!Objects.equals(player.getId(), newMember.getId())) {
-      throw new ApiException(new Error(ErrorCode.CLAN_ACCEPT_WRONG_PLAYER));
+      throw ApiException.of(ErrorCode.CLAN_ACCEPT_WRONG_PLAYER);
     }
     if (newMember.getClan() != null) {
-      throw new ApiException(new Error(ErrorCode.CLAN_ACCEPT_PLAYER_IN_A_CLAN));
+      throw ApiException.of(ErrorCode.CLAN_ACCEPT_PLAYER_IN_A_CLAN);
     }
 
     ClanMembership membership = new ClanMembership();
