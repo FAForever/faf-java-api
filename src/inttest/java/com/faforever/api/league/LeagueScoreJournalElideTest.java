@@ -9,6 +9,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 
 import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -43,7 +44,15 @@ public class LeagueScoreJournalElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
         get("/data/leagueScoreJournal/1")
       )
-      .andExpect(status().isOk());
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data.attributes.gameId", is(2)))
+      .andExpect(jsonPath("$.data.attributes.loginId", is(1)))
+      .andExpect(jsonPath("$.data.attributes.leagueSeasonId", is(1)))
+      .andExpect(jsonPath("$.data.attributes.subdivisionIdBefore", is(1)))
+      .andExpect(jsonPath("$.data.attributes.subdivisionIdAfter", is(2)))
+      .andExpect(jsonPath("$.data.attributes.scoreBefore", is(10)))
+      .andExpect(jsonPath("$.data.attributes.scoreAfter", is(2)))
+      .andExpect(jsonPath("$.data.attributes.gameCount", is(22)));
   }
 
   @Test
@@ -57,6 +66,7 @@ public class LeagueScoreJournalElideTest extends AbstractIntegrationTest {
             "data": {
               "type": "leagueScoreJournal",
               "attributes": {
+                "gameId": 10,
                 "gameCount": 10,
                 "loginId": 10,
                 "scoreBefore": 10,

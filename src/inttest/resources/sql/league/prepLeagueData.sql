@@ -34,9 +34,9 @@ VALUES (1, 1, 1, 1, 10, 10, FALSE),
        (7, 1, 2, 7, 22, 20, FALSE),
        (8, 1, 2, 8, 23, 20, FALSE);
 
-INSERT INTO league_score_journal (id, login_id, league_season_id, subdivision_id_before, subdivision_id_after,
+INSERT INTO league_score_journal (id, game_id, login_id, league_season_id, subdivision_id_before, subdivision_id_after,
                                   score_before, score_after, game_count)
-VALUES (1, 1, 1, 1, 2, 10, 2, 22),
-       (2, 1, 1, 2, 2, 2, 3, 23),
-       (3, 5, 1, 3, 3, 7, 6, 11),
-       (4, 5, 1, 3, 3, 6, 5, 12);
+VALUES (1, 2, 1, 1, 1, 2, 10, 2, 22),
+       (2, 2, 1, 1, 2, 2, 2, 3, 23),
+       (3, 2, 5, 1, 3, 3, 7, 6, 11),
+       (4, 2, 5, 1, 3, 3, 6, 5, 12);
