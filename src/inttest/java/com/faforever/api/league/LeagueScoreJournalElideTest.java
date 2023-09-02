@@ -47,9 +47,9 @@ public class LeagueScoreJournalElideTest extends AbstractIntegrationTest {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data.attributes.gameId", is(2)))
       .andExpect(jsonPath("$.data.attributes.loginId", is(1)))
-      .andExpect(jsonPath("$.data.attributes.leagueSeasonId", is(1)))
-      .andExpect(jsonPath("$.data.attributes.subdivisionIdBefore", is(1)))
-      .andExpect(jsonPath("$.data.attributes.subdivisionIdAfter", is(2)))
+      .andExpect(jsonPath("$.data.relationships.leagueSeason.data.id", is(1)))
+      .andExpect(jsonPath("$.data.relationships.leagueSeasonDivisionSubdivisionBefore.data.id", is(1)))
+      .andExpect(jsonPath("$.data.relationships.leagueSeasonDivisionSubdivisionAfter.data.id", is(2)))
       .andExpect(jsonPath("$.data.attributes.scoreBefore", is(10)))
       .andExpect(jsonPath("$.data.attributes.scoreAfter", is(2)))
       .andExpect(jsonPath("$.data.attributes.gameCount", is(22)));
