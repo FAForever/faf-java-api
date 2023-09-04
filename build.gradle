@@ -254,7 +254,7 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}")
   implementation("com.github.FAForever:faf-java-commons:0e5d22ffff6e4dea81bac494d532627fcca8ebc4")
   implementation("org.kohsuke:github-api:1.315")
-  implementation("org.eclipse.jgit:org.eclipse.jgit:6.6.0.202305301015-r")
+  implementation("org.eclipse.jgit:org.eclipse.jgit:6.6.1.202309021850-r")
   implementation("org.jetbrains:annotations:24.0.1")
   implementation("com.google.guava:guava:32.1.1-jre")
   implementation("org.luaj:luaj-jse:3.0.1")
