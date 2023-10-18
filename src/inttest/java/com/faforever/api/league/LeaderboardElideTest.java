@@ -29,7 +29,7 @@ class LeaderboardElideTest extends AbstractIntegrationTest {
         .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
     )
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.data[*]", hasSize(5)));
+      .andExpect(jsonPath("$.data[*]", hasSize(6)));
   }
 
   @Test

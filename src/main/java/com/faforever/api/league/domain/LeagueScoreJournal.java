@@ -20,6 +20,7 @@ public class LeagueScoreJournal {
   public static final String TYPE_NAME = "leagueScoreJournal";
 
   private Integer id;
+  private Integer gameId;
   private Integer loginId;
   private LeagueSeason leagueSeason;
   private LeagueSeasonDivisionSubdivision leagueSeasonDivisionSubdivisionBefore;
@@ -33,6 +34,11 @@ public class LeagueScoreJournal {
   @Column(name = "id")
   public Integer getId() {
     return id;
+  }
+
+  @Column(name = "game_id")
+  public Integer getGameId() {
+    return gameId;
   }
 
   @Column(name = "login_id")
