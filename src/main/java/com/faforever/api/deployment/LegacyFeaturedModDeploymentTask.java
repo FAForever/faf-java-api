@@ -186,6 +186,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
 
   private void updateDatabase(List<StagedFile> files, short version, String modName) {
     updateStatus("Updating database");
+
     List<FeaturedModFile> featuredModFiles = files.stream()
       .map(file -> new FeaturedModFile()
         .setMd5(noCatch(() -> asByteSource(file.targetFile().toFile()).hash(md5())).toString())

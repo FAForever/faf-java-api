@@ -24,6 +24,7 @@ public class LeagueScoreJournalElideTest extends AbstractIntegrationTest {
   void anyOneCanReadAllLeagueScoreJournal() throws Exception {
     mockMvc.perform(
         get("/data/leagueScoreJournal")
+          .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
       )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data[*]", hasSize(4)));
@@ -33,6 +34,7 @@ public class LeagueScoreJournalElideTest extends AbstractIntegrationTest {
   void anyOneCanReadPlayerAndSeasonLeagueScoreJournal() throws Exception {
     mockMvc.perform(
         get("/data/leagueScoreJournal?filter=loginId==1;leagueSeason.id==1")
+          .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
       )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data[*]", hasSize(2)));
@@ -42,6 +44,7 @@ public class LeagueScoreJournalElideTest extends AbstractIntegrationTest {
   void anyOneCanReadSpecificLeagueScoreJournal() throws Exception {
     mockMvc.perform(
         get("/data/leagueScoreJournal/1")
+          .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
       )
       .andExpect(status().isOk());
   }

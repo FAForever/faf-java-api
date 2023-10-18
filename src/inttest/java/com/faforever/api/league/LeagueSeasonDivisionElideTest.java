@@ -25,6 +25,7 @@ class LeagueSeasonDivisionElideTest extends AbstractIntegrationTest {
   void anyOneCanReadAllLeagueSeasonDivision() throws Exception {
     mockMvc.perform(
       get("/data/leagueSeasonDivision")
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
     )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data[*]", hasSize(4)));
@@ -34,6 +35,7 @@ class LeagueSeasonDivisionElideTest extends AbstractIntegrationTest {
   void anyOneCanReadSpecificLeagueSeasonDivision() throws Exception {
     mockMvc.perform(
       get("/data/leagueSeasonDivision/1")
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
     )
       .andExpect(status().isOk());
   }

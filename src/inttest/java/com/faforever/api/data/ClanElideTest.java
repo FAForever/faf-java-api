@@ -98,7 +98,8 @@ public class ClanElideTest extends AbstractIntegrationTest {
 
   @Test
   public void getFilteredPlayerForClanInvite() throws Exception {
-    mockMvc.perform(get("/data/player?filter=login==*MEMBER*&sort=login"))
+    mockMvc.perform(get("/data/player?filter=login==*MEMBER*&sort=login")
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data", hasSize(2)))
       .andExpect(jsonPath("$.data[0].attributes.login", is("CLAN_MEMBER")))

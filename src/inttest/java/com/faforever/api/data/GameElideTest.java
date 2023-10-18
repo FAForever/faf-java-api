@@ -24,6 +24,7 @@ public class GameElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       get("/data/game")
         .queryParam("filter", "victoryCondition==DEMORALIZATION")
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
     )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data[*]", hasSize(1)))
@@ -37,6 +38,7 @@ public class GameElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       get("/data/game")
         .queryParam("filter", "victoryCondition==SANDBOX")
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
     )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data[*]", hasSize(0)));
@@ -48,6 +50,7 @@ public class GameElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       get("/data/game")
         .queryParam("filter", "reviewsSummary.averageScore=gt=3.333")
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
     )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data[*]", hasSize(1)));
@@ -59,6 +62,7 @@ public class GameElideTest extends AbstractIntegrationTest {
     mockMvc.perform(
       get("/data/game")
         .queryParam("filter", "reviewsSummary.averageScore=gt=3.334")
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
     )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data[*]", hasSize(0)));

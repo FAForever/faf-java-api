@@ -30,7 +30,8 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
 
   @Test
   public void getUnusedAvatar() throws Exception {
-    mockMvc.perform(get("/data/avatar/3"))
+    mockMvc.perform(get("/data/avatar/3")
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data.id", is("3")))
       .andExpect(jsonPath("$.data.type", is("avatar")))
@@ -41,7 +42,8 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
 
   @Test
   public void getAvatarWithPlayer() throws Exception {
-    mockMvc.perform(get("/data/avatar/2"))
+    mockMvc.perform(get("/data/avatar/2")
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data.id", is("2")))
       .andExpect(jsonPath("$.data.type", is("avatar")))
@@ -52,7 +54,8 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
 
   @Test
   public void getAvatarURLEncoded() throws Exception {
-    mockMvc.perform(get("/data/avatar/4"))
+    mockMvc.perform(get("/data/avatar/4")
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data.id", is("4")))
       .andExpect(jsonPath("$.data.type", is("avatar")))
@@ -148,7 +151,8 @@ public class AvatarAssignmentElideTest extends AbstractIntegrationTest {
         .content(createJsonApiContent(avatarAssignment)))
       .andExpect(status().isNoContent());
     mockMvc.perform(
-      get("/data/avatarAssignment/{assignmentId}", 1))
+      get("/data/avatarAssignment/{assignmentId}", 1)
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data.attributes.expiresAt", is(OFFSET_DATE_TIME_FORMATTER.format(now))));
   }

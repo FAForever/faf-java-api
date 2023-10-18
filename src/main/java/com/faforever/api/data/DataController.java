@@ -8,6 +8,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -36,6 +37,7 @@ import static com.faforever.api.data.JsonApiMediaType.JSON_API_PATCH_MEDIA_TYPE;
  */
 @RestController
 @RequestMapping(path = DataController.PATH_PREFIX)
+@Secured("ROLE_USER")
 public class DataController {
 
   public static final String PATH_PREFIX = "/data";

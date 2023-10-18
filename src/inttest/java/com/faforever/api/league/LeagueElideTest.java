@@ -26,6 +26,7 @@ class LeagueElideTest extends AbstractIntegrationTest {
   void anyOneCanReadAllLeague() throws Exception {
     mockMvc.perform(
       get("/data/league")
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
     )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data[*]", hasSize(2)));
@@ -35,6 +36,7 @@ class LeagueElideTest extends AbstractIntegrationTest {
   void anyOneCanReadSpecificLeague() throws Exception {
     mockMvc.perform(
       get("/data/league/1")
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
     )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data.attributes.technicalName", is("league1")))

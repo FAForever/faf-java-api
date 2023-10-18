@@ -26,6 +26,7 @@ class LeaderboardElideTest extends AbstractIntegrationTest {
   void anyOneCanReadAllLeaderboard() throws Exception {
     mockMvc.perform(
       get("/data/leagueLeaderboard")
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
     )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data[*]", hasSize(5)));
@@ -35,6 +36,7 @@ class LeaderboardElideTest extends AbstractIntegrationTest {
   void anyOneCanReadSpecificLeaderboard() throws Exception {
     mockMvc.perform(
       get("/data/leagueLeaderboard/1")
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
     )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data.attributes.technicalName", is("global")));

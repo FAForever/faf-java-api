@@ -24,6 +24,7 @@ public class FeaturedModFile {
   private String name;
   private String originalFileName;
   private int version;
+
   // Enriched in FeaturedModFileEnricher
   private String url;
   private String cacheableUrl;

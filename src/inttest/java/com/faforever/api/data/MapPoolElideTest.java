@@ -48,7 +48,8 @@ public class MapPoolElideTest extends AbstractIntegrationTest {
 
   @Test
   public void getMapPoolAssignmentWithMapVersion() throws Exception {
-    mockMvc.perform(get("/data/mapPoolAssignment/1"))
+    mockMvc.perform(get("/data/mapPoolAssignment/1")
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data.id", is("1")))
       .andExpect(jsonPath("$.data.type", is("mapPoolAssignment")))
@@ -60,7 +61,8 @@ public class MapPoolElideTest extends AbstractIntegrationTest {
 
   @Test
   public void getMapPoolAssignmentWithMapParams() throws Exception {
-    mockMvc.perform(get("/data/mapPoolAssignment/2"))
+    mockMvc.perform(get("/data/mapPoolAssignment/2")
+        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data.id", is("2")))
       .andExpect(jsonPath("$.data.type", is("mapPoolAssignment")))
