@@ -261,7 +261,7 @@ dependencies {
   implementation("io.github.micheljung:nocatch:2.0")
   implementation("org.apache.commons:commons-compress:1.24.0")
   implementation("org.json:json:20231013")
-  implementation("org.jsoup:jsoup:1.16.1")
+  implementation("org.jsoup:jsoup:1.16.2")
   implementation("com.github.jasminb:jsonapi-converter:0.13")
   implementation("commons-codec:commons-codec:1.16.0")
 
