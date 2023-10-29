@@ -4,7 +4,6 @@ import com.faforever.api.security.ExtendedAuditLogger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yahoo.elide.Elide;
 import com.yahoo.elide.ElideSettings;
-import com.yahoo.elide.ElideSettingsBuilder;
 import com.yahoo.elide.core.TransactionRegistry;
 import com.yahoo.elide.core.datastore.DataStore;
 import com.yahoo.elide.core.dictionary.EntityDictionary;
@@ -14,7 +13,9 @@ import com.yahoo.elide.core.filter.dialect.RSQLFilterDialect;
 import com.yahoo.elide.core.utils.DefaultClassScanner;
 import com.yahoo.elide.core.utils.coerce.CoerceUtil;
 import com.yahoo.elide.datastores.multiplex.MultiplexManager;
+import com.yahoo.elide.jsonapi.JsonApi;
 import com.yahoo.elide.jsonapi.JsonApiMapper;
+import com.yahoo.elide.jsonapi.JsonApiSettings;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -46,14 +47,22 @@ public class ElideConfig {
 
     registerAdditionalConverters();
 
-    final ElideSettings elideSettings = new ElideSettingsBuilder(multiplexDataStore)
-      .withJsonApiMapper(new JsonApiMapper(objectMapper))
-      .withAuditLogger(extendedAuditLogger)
-      .withEntityDictionary(entityDictionary)
-      .withJoinFilterDialect(rsqlFilterDialect)
-      .withSubqueryFilterDialect(rsqlFilterDialect)
+    final ElideSettings elideSettings = ElideSettings.builder()
+      .dataStore(multiplexDataStore)
+      .settings(JsonApiSettings.JsonApiSettingsBuilder.withDefaults(entityDictionary)
+        .jsonApiMapper(new JsonApiMapper(objectMapper))
+        .joinFilterDialect(rsqlFilterDialect)
+        .subqueryFilterDialect(rsqlFilterDialect)
+      )
+      .auditLogger(extendedAuditLogger)
+      .entityDictionary(entityDictionary)
       .build();
-    return new Elide(elideSettings, new TransactionRegistry(), elideSettings.getDictionary().getScanner(), true);
+    return new Elide(elideSettings, new TransactionRegistry(), elideSettings.getEntityDictionary().getScanner(), true);
+  }
+
+  @Bean
+  public JsonApi jsonApi(Elide elide) {
+    return new JsonApi(elide);
   }
 
   /**

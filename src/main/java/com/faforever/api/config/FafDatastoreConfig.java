@@ -65,12 +65,12 @@ public class FafDatastoreConfig {
   @Bean
   @Scope(SCOPE_PROTOTYPE)
   public JpaDataStore.JpaTransactionSupplier fafJpaTransactionSupplier(
-    @Qualifier("fafTransactionManager") PlatformTransactionManager leagueTransactionManager,
+    @Qualifier("fafTransactionManager") PlatformTransactionManager fafTransactionManager,
     @Qualifier("fafEntityManagerFactory") EntityManagerFactory entityManagerFactory
   ) {
     return new PlatformJpaTransactionSupplier(
       new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRED),
-      leagueTransactionManager,
+      fafTransactionManager,
       entityManagerFactory,
       false
     );
