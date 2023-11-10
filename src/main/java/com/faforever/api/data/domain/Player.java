@@ -11,7 +11,6 @@ import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -27,25 +26,11 @@ import java.util.Set;
 public class Player extends Login {
 
   public static final String TYPE_NAME = "player";
-  private Ladder1v1Rating ladder1v1Rating;
-  private GlobalRating globalRating;
   private ClanMembership clanMembership;
   private Set<NameRecord> names;
   private Set<AvatarAssignment> avatarAssignments;
   private Set<ModerationReport> reporterOnModerationReports;
   private Set<ModerationReport> reportedOnModerationReports;
-
-  @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
-  @Deprecated
-  public Ladder1v1Rating getLadder1v1Rating() {
-    return ladder1v1Rating;
-  }
-
-  @OneToOne(mappedBy = "player", fetch = FetchType.LAZY)
-  @Deprecated
-  public GlobalRating getGlobalRating() {
-    return globalRating;
-  }
 
   // Permission is managed by ClanMembership class
   @UpdatePermission(expression = Prefab.ALL)

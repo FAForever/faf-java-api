@@ -6,9 +6,6 @@ INSERT INTO map_version (id, description, max_players, width, height, version, f
   (1, 'SCMP 001', 8, 5, 5, 1, 'maps/scmp_001.v0001.zip', 0, 1),
   (2, 'SCMP 002', 8, 5, 5, 1, 'maps/scmp_002.v0001.zip', 0, 2);
 
-INSERT INTO ladder_map (id, idmap) VALUES
-  (1, 1);
-
 INSERT INTO map_pool (id, name) VALUES
   (1, 'Ladder 1v1 <300'),
   (2, 'Ladder 1v1 300-800'),

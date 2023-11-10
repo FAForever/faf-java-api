@@ -2,8 +2,6 @@ package com.faforever.api.user;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.AccountLink;
-import com.faforever.api.data.domain.GlobalRating;
-import com.faforever.api.data.domain.Ladder1v1Rating;
 import com.faforever.api.data.domain.LinkedServiceType;
 import com.faforever.api.data.domain.NameRecord;
 import com.faforever.api.data.domain.User;
@@ -12,8 +10,6 @@ import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerRepository;
-import com.faforever.api.rating.GlobalRatingRepository;
-import com.faforever.api.rating.Ladder1v1RatingRepository;
 import com.faforever.api.security.FafAuthenticationToken;
 import com.faforever.api.security.FafPasswordEncoder;
 import com.faforever.api.security.FafTokenService;
@@ -67,8 +63,6 @@ public class UserService {
   private final FafTokenService fafTokenService;
   private final SteamService steamService;
   private final GogService gogService;
-  private final GlobalRatingRepository globalRatingRepository;
-  private final Ladder1v1RatingRepository ladder1v1RatingRepository;
   private final MeterRegistry meterRegistry;
   private final Counter userRegistrationCounter;
   private final Counter userActivationCounter;
@@ -94,8 +88,6 @@ public class UserService {
                      FafTokenService fafTokenService,
                      SteamService steamService,
                      GogService gogService,
-                     GlobalRatingRepository globalRatingRepository,
-                     Ladder1v1RatingRepository ladder1v1RatingRepository,
                      MeterRegistry meterRegistry,
                      ApplicationEventPublisher eventPublisher) {
     this.emailService = emailService;
@@ -108,8 +100,6 @@ public class UserService {
     this.fafTokenService = fafTokenService;
     this.steamService = steamService;
     this.gogService = gogService;
-    this.globalRatingRepository = globalRatingRepository;
-    this.ladder1v1RatingRepository = ladder1v1RatingRepository;
     this.eventPublisher = eventPublisher;
     this.meterRegistry = meterRegistry;
 
@@ -180,7 +170,7 @@ public class UserService {
    * </pre>
    */
   @Transactional
-  void activate(String registrationToken, String password, String ipAddress) {
+  public void activate(String registrationToken, String password, String ipAddress) {
     Map<String, String> claims = fafTokenService.resolveToken(FafTokenType.REGISTRATION, registrationToken);
 
     String username = claims.get(KEY_USERNAME);
@@ -196,23 +186,6 @@ public class UserService {
     user.setRecentIpAddress(ipAddress);
 
     user = userRepository.save(user);
-
-    // @Deprecated
-    // TODO: Move this db activity to the server (upcert instead of update) */
-    // >>>
-    double mean = properties.getRating().getDefaultMean();
-    double deviation = properties.getRating().getDefaultDeviation();
-
-    globalRatingRepository.save((GlobalRating) new GlobalRating()
-      .setId(user.getId())
-      .setMean(mean)
-      .setDeviation(deviation));
-
-    ladder1v1RatingRepository.save((Ladder1v1Rating) new Ladder1v1Rating()
-      .setId(user.getId())
-      .setMean(mean)
-      .setDeviation(deviation));
-    // <<<
 
     log.info("User has been activated: {}", user);
 
