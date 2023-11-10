@@ -2,8 +2,6 @@ package com.faforever.api.user;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.data.domain.AccountLink;
-import com.faforever.api.data.domain.GlobalRating;
-import com.faforever.api.data.domain.Ladder1v1Rating;
 import com.faforever.api.data.domain.LinkedServiceType;
 import com.faforever.api.data.domain.NameRecord;
 import com.faforever.api.data.domain.User;
@@ -12,8 +10,6 @@ import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerRepository;
-import com.faforever.api.rating.GlobalRatingRepository;
-import com.faforever.api.rating.Ladder1v1RatingRepository;
 import com.faforever.api.security.FafPasswordEncoder;
 import com.faforever.api.security.FafTokenService;
 import com.faforever.api.security.FafTokenType;
@@ -94,10 +90,6 @@ public class UserServiceTest {
   private GogService gogService;
   @Mock
   private FafTokenService fafTokenService;
-  @Mock
-  private GlobalRatingRepository globalRatingRepository;
-  @Mock
-  private Ladder1v1RatingRepository ladder1v1RatingRepository;
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private MeterRegistry meterRegistry;
   @Mock
@@ -131,8 +123,6 @@ public class UserServiceTest {
       fafTokenService,
       steamService,
       gogService,
-      globalRatingRepository,
-      ladder1v1RatingRepository,
       meterRegistry,
       eventPublisher);
     validUser = createUser(TEST_USERID, TEST_USERNAME, TEST_CURRENT_PASSWORD, TEST_CURRENT_EMAIL, IP_ADDRESS);
@@ -200,8 +190,6 @@ public class UserServiceTest {
 
     ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
     verify(userRepository).save(captor.capture());
-    verify(globalRatingRepository).save(any(GlobalRating.class));
-    verify(ladder1v1RatingRepository).save(any(Ladder1v1Rating.class));
 
     User user = captor.getValue();
     assertThat(user.getLogin(), is(TEST_USERNAME));

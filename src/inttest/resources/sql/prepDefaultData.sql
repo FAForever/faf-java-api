@@ -1,8 +1,3 @@
-INSERT INTO oauth_clients (id, name, client_secret, client_type, redirect_uris, default_redirect_uri, default_scope)
-VALUES ('test', 'test', '{noop}test', 'public', 'http://localhost https://www.getpostman.com/oauth2/callback ',
-        'http://localhost',
-        'read_events read_achievements upload_map upload_mod upload_avatar write_account_data vote read_sensible_userdata');
-
 INSERT INTO login (id, login, email, password, ip)
 VALUES (1, 'USER', 'user@faforever.com', '92b7b421992ef490f3b75898ec0e511f1a5c02422819d89719b20362b023ee4f',
         '127.0.0.1'),
