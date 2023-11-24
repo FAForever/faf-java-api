@@ -1,11 +1,11 @@
 package com.faforever.api.security;
 
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.oauth2.jwt.Jwt;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Jwt converter that reads scopes + custom FAF roles from the token extension.
@@ -14,16 +14,22 @@ public class FafAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 
   @Override
   public AbstractAuthenticationToken convert(Jwt source) {
-    int userId = extractUserId(source);
-    String username = extractUsername(source);
     List<FafScope> scopes = extractScopes(source);
     List<FafRole> roles = extractRoles(source);
 
-    return new FafAuthenticationToken(userId, username, scopes, roles);
+    String subject = extractSubject(source);
+
+    try {
+      int userId = Integer.parseInt(subject);
+      String username = extractUsername(source);
+      return new FafUserAuthenticationToken(userId, username, scopes, roles);
+    } catch (NumberFormatException e) {
+      return new FafServiceAuthenticationToken(subject, scopes);
+    }
   }
 
-  private int extractUserId(Jwt source) {
-    return Integer.parseInt(source.getSubject());
+  private String extractSubject(Jwt source) {
+    return source.getSubject();
   }
 
   private String extractUsername(Jwt source) {

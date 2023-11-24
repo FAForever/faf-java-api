@@ -19,7 +19,7 @@ public class IsClanMembershipDeletable {
     @Override
     public boolean ok(ClanMembership membership, RequestScope requestScope, Optional<ChangeSpec> changeSpec) {
       final ElideUser caller = (ElideUser) requestScope.getUser();
-      final Integer requesterId = caller.getFafId().orElse(null);
+      final Integer requesterId = caller.getFafUserId().orElse(null);
       return !Objects.equals(membership.getPlayer().getId(), membership.getClan().getLeader().getId())
         && (membership.getClan().getLeader().getId().equals(requesterId) ||
         membership.getPlayer().getId().equals(requesterId));

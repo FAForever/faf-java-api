@@ -41,7 +41,7 @@ public class IsEntityOwnerFilter {
     @Override
     public FilterExpression getFilterExpression(Type<?> entityClass, RequestScope requestScope) {
       final ElideUser caller = (ElideUser) requestScope.getUser();
-      final int playerId = caller.getFafId().orElse(NON_EXISTING_PLAYER_ID);
+      final int playerId = caller.getFafUserId().orElse(NON_EXISTING_PLAYER_ID);
       List<PathElement> pathList = new ArrayList<>();
       getOwnerPath(entityClass, pathList);
       Path path = new Path(pathList);

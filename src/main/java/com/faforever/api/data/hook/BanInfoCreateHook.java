@@ -15,9 +15,9 @@ public class BanInfoCreateHook implements LifeCycleHook<BanInfo> {
   @Override
   public void execute(Operation operation, TransactionPhase phase, BanInfo banInfo, RequestScope requestScope, Optional<ChangeSpec> changes) {
     final ElideUser caller = (ElideUser) requestScope.getUser();
-    caller.getFafId().ifPresent(fafId -> {
+    caller.getFafUserId().ifPresent(playerId -> {
       final Player callerPlayer = new Player();
-      callerPlayer.setId(fafId);
+      callerPlayer.setId(playerId);
       banInfo.setAuthor(callerPlayer);
     });
   }

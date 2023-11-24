@@ -27,7 +27,10 @@ public class ElideUser extends User {
     return fafAuthentication.hasRole(role);
   }
 
-  public Optional<Integer> getFafId() {
-    return Optional.ofNullable(fafAuthentication).map(FafAuthenticationToken::getUserId);
+  public Optional<Integer> getFafUserId() {
+    return Optional.ofNullable(fafAuthentication)
+      .filter(o -> FafUserAuthenticationToken.class.isAssignableFrom(o.getClass()))
+      .map(FafUserAuthenticationToken.class::cast)
+      .map(FafUserAuthenticationToken::getUserId);
   }
 }
