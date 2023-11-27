@@ -3,7 +3,7 @@ on: [ push, pull_request ]
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: eclipse-temurin:17-jdk
+    container: eclipse-temurin:21-jdk
     steps:
       - name: Get the version
         id: get_version
