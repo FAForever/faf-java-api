@@ -6,6 +6,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Jwt converter that reads scopes + custom FAF roles from the token extension.
@@ -18,24 +19,18 @@ public class FafAuthenticationConverter implements Converter<Jwt, AbstractAuthen
     List<FafRole> roles = extractRoles(source);
 
     String subject = extractSubject(source);
-
-    try {
-      int userId = Integer.parseInt(subject);
-      String username = extractUsername(source);
-      return new FafUserAuthenticationToken(userId, username, scopes, roles);
-    } catch (NumberFormatException e) {
-      return new FafServiceAuthenticationToken(subject, scopes);
-    }
+    return extractUsername(source)
+      .<FafAuthenticationToken>map(username -> new FafUserAuthenticationToken(Integer.parseInt(subject), username, scopes, roles))
+      .orElseGet(() -> new FafServiceAuthenticationToken(subject, scopes));
   }
 
   private String extractSubject(Jwt source) {
     return source.getSubject();
   }
 
-  private String extractUsername(Jwt source) {
+  private Optional<String> extractUsername(Jwt source) {
     Map<String, Object> ext = source.getClaim("ext");
-    String username = (String) ext.getOrDefault("username", "[undefined]");
-    return username;
+    return Optional.ofNullable((String) ext.get("username"));
   }
 
   private List<FafScope> extractScopes(Jwt source) {
