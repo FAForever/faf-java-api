@@ -2,9 +2,9 @@ package com.faforever.api.utils;
 
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.player.PlayerRepository;
-import com.faforever.api.security.FafAuthenticationToken;
 import com.faforever.api.security.FafRole;
 import com.faforever.api.security.FafScope;
+import com.faforever.api.security.FafUserAuthenticationToken;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -32,7 +32,7 @@ public class OAuthHelper {
 
     var fafScopes = scopes.stream().map(FafScope::new).toList();
 
-    return authentication(new FafAuthenticationToken(userId, user.getLogin(), fafScopes, roles));
+    return authentication(new FafUserAuthenticationToken(userId, user.getLogin(), fafScopes, roles));
   }
 
   public RequestPostProcessor addBearerToken(
@@ -43,6 +43,6 @@ public class OAuthHelper {
     var fafScopes = scopes.stream().map(FafScope::new).toList();
     var fafRoles = roles.stream().map(FafRole::new).toList();
 
-    return authentication(new FafAuthenticationToken(userId, "[undefined]", fafScopes, fafRoles));
+    return authentication(new FafUserAuthenticationToken(userId, "[undefined]", fafScopes, fafRoles));
   }
 }

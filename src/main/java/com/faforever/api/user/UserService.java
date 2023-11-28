@@ -10,10 +10,10 @@ import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerRepository;
-import com.faforever.api.security.FafAuthenticationToken;
 import com.faforever.api.security.FafPasswordEncoder;
 import com.faforever.api.security.FafTokenService;
 import com.faforever.api.security.FafTokenType;
+import com.faforever.api.security.FafUserAuthenticationToken;
 import com.google.common.hash.Hashing;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -348,8 +348,8 @@ public class UserService {
   }
 
   public User getUser(Authentication authentication) {
-    if (authentication instanceof FafAuthenticationToken fafAuthenticationToken) {
-      return getUser(fafAuthenticationToken.getUserId());
+    if (authentication instanceof FafUserAuthenticationToken fafUserAuthenticationToken) {
+      return getUser(fafUserAuthenticationToken.getUserId());
     }
     throw ApiException.of(TOKEN_INVALID);
   }

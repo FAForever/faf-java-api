@@ -9,16 +9,13 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 
 @Getter
-public class FafAuthenticationToken extends AbstractAuthenticationToken {
+public abstract sealed class FafAuthenticationToken extends AbstractAuthenticationToken
+  permits FafUserAuthenticationToken, FafServiceAuthenticationToken {
 
-  private final int userId;
-  private final String username;
-  private final Collection<FafScope> scopes;
-  private final Collection<FafRole> roles;
+  protected final Collection<FafScope> scopes;
+  protected final Collection<FafRole> roles;
 
   public FafAuthenticationToken(
-    int userId,
-    String username,
     @NotNull Collection<FafScope> scopes,
     @NotNull Collection<FafRole> roles
   ) {
@@ -26,12 +23,8 @@ public class FafAuthenticationToken extends AbstractAuthenticationToken {
       ImmutableList.<GrantedAuthority>builder()
         .addAll(scopes)
         .addAll(roles)
-        // ROLE_USER is an implicit role by Spring Security usually set during regular authentication, so we add it too
-        .add((GrantedAuthority) () -> "ROLE_USER")
         .build()
     );
-    this.userId = userId;
-    this.username = username;
     this.scopes = scopes;
     this.roles = roles;
     // since the access token was already verified, each FafAuthenticationToken is implicitly authenticated
@@ -41,16 +34,6 @@ public class FafAuthenticationToken extends AbstractAuthenticationToken {
   @Override
   public Object getCredentials() {
     return null;
-  }
-
-  @Override
-  public Object getPrincipal() {
-    return userId;
-  }
-
-  @Override
-  public String getName() {
-    return String.format("User %s", userId);
   }
 
   public boolean hasRole(String role) {

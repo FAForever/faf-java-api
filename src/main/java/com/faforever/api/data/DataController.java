@@ -10,7 +10,6 @@ import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -41,7 +40,6 @@ import static com.faforever.api.data.JsonApiMediaType.JSON_API_PATCH_MEDIA_TYPE;
  */
 @RestController
 @RequestMapping(path = DataController.PATH_PREFIX)
-@Secured("ROLE_USER")
 public class DataController {
 
   public static final String PATH_PREFIX = "/data";
@@ -53,13 +51,10 @@ public class DataController {
     this.jsonApi = jsonApi;
   }
 
-  private static User getPrincipal(final Authentication authentication) {
-    return new ElideUser(authentication);
-  }
-
   //!!! No @Transactional - transactions are being handled by Elide
   @GetMapping(value = {"/{entity}", "/{entity}/**"}, produces = JSON_API_MEDIA_TYPE)
   @Cacheable(cacheResolver = "elideCacheResolver", keyGenerator = GetCacheKeyGenerator.NAME)
+  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<String> get(
     @RequestParam final MultiValueMap<String, String> allRequestParams,
     final HttpServletRequest request,
@@ -178,6 +173,10 @@ public class DataController {
       UUID.randomUUID()
     );
     return wrapResponse(response);
+  }
+
+  private static User getPrincipal(final Authentication authentication) {
+    return new ElideUser(authentication);
   }
 
   private ResponseEntity<String> wrapResponse(ElideResponse<String> response) {
