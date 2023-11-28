@@ -106,7 +106,11 @@ public abstract class AbstractIntegrationTest {
   }
 
   protected RequestPostProcessor getOAuthTokenWithActiveUser(Set<String> scopes, Set<String> authorities) {
-    return oAuthHelper.addBearerToken(5, scopes, authorities);
+    return oAuthHelper.addActiveUserBearerToken(5, scopes, authorities);
+  }
+
+  protected RequestPostProcessor getOAuthTokenWithService(Set<String> scopes) {
+    return oAuthHelper.addServiceBearerToken("faf-service", scopes);
   }
 
   protected RequestPostProcessor getOAuthTokenForUserId(int userId, String... scopes) {
