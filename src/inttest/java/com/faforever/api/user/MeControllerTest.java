@@ -36,4 +36,11 @@ public class MeControllerTest extends AbstractIntegrationTest {
           ROLE_USER, FafRole.ROLE_PREFIX + ROLE_USER
           )));
   }
+
+  @Test
+  public void withServiceTokenUnauthorized() throws Exception {
+    mockMvc.perform(get("/me")
+        .with(getOAuthTokenWithService(Set.of())))
+      .andExpect(status().isForbidden());
+  }
 }
