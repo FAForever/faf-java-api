@@ -1,6 +1,6 @@
 package com.faforever.api.email;
 
-import com.sun.mail.smtp.SMTPMessage;
+import org.eclipse.angus.mail.smtp.SMTPMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
