@@ -15,4 +15,4 @@ COPY --from=builder /application/snapshot-dependencies/ ./
 RUN true
 COPY --from=builder /application/application/ ./
 RUN true
-ENTRYPOINT ["java", "-server", "-Djava.security.egd=file:/dev/./urandom", "org.springframework.boot.loader.JarLauncher"]
+ENTRYPOINT ["java", "-server", "-Djava.security.egd=file:/dev/./urandom", "org.springframework.boot.loader.launch.JarLauncher"]
