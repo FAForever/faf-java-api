@@ -14,7 +14,6 @@ import com.faforever.api.security.FafPasswordEncoder;
 import com.faforever.api.security.FafTokenService;
 import com.faforever.api.security.FafTokenType;
 import com.faforever.api.security.FafUserAuthenticationToken;
-import com.google.common.hash.Hashing;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,7 +57,6 @@ public class UserService {
   private final NameRecordRepository nameRecordRepository;
   private final FafApiProperties properties;
   private final FafPasswordEncoder passwordEncoder;
-  private final AnopeUserRepository anopeUserRepository;
   private final FafTokenService fafTokenService;
   private final SteamService steamService;
   private final GogService gogService;
@@ -84,7 +81,6 @@ public class UserService {
                      AccountLinkRepository accountLinkRepository,
                      NameRecordRepository nameRecordRepository,
                      FafApiProperties properties,
-                     AnopeUserRepository anopeUserRepository,
                      FafTokenService fafTokenService,
                      SteamService steamService,
                      GogService gogService,
@@ -96,7 +92,6 @@ public class UserService {
     this.accountLinkRepository = accountLinkRepository;
     this.nameRecordRepository = nameRecordRepository;
     this.properties = properties;
-    this.anopeUserRepository = anopeUserRepository;
     this.fafTokenService = fafTokenService;
     this.steamService = steamService;
     this.gogService = gogService;
@@ -343,8 +338,6 @@ public class UserService {
     log.debug("Updating FAF password for user: {}", user.getLogin());
     user.setPassword(passwordEncoder.encode(password));
     userRepository.save(user);
-    log.debug("Updating anope password for user: {}", user.getLogin());
-    anopeUserRepository.updatePassword(user.getLogin(), Hashing.md5().hashString(password, StandardCharsets.UTF_8).toString());
   }
 
   public User getUser(Authentication authentication) {

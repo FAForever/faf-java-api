@@ -14,7 +14,6 @@ import com.faforever.api.security.FafPasswordEncoder;
 import com.faforever.api.security.FafTokenService;
 import com.faforever.api.security.FafTokenType;
 import com.faforever.api.user.UserService.CallbackResult;
-import com.google.common.hash.Hashing;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +27,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
@@ -83,8 +81,6 @@ public class UserServiceTest {
   @Mock
   private NameRecordRepository nameRecordRepository;
   @Mock
-  private AnopeUserRepository anopeUserRepository;
-  @Mock
   private SteamService steamService;
   @Mock
   private GogService gogService;
@@ -119,7 +115,6 @@ public class UserServiceTest {
       accountLinkRepository,
       nameRecordRepository,
       properties,
-      anopeUserRepository,
       fafTokenService,
       steamService,
       gogService,
@@ -207,7 +202,6 @@ public class UserServiceTest {
     ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
     verify(userRepository).save(captor.capture());
     assertEquals(captor.getValue().getPassword(), fafPasswordEncoder.encode(TEST_NEW_PASSWORD));
-    verify(anopeUserRepository).updatePassword(TEST_USERNAME, Hashing.md5().hashString(TEST_NEW_PASSWORD, StandardCharsets.UTF_8).toString());
 
     verifyNoMoreInteractions(eventPublisher);
   }
@@ -403,7 +397,6 @@ public class UserServiceTest {
     ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
     verify(userRepository).save(captor.capture());
     assertEquals(captor.getValue().getPassword(), fafPasswordEncoder.encode(TEST_NEW_PASSWORD));
-    verify(anopeUserRepository).updatePassword(TEST_USERNAME, Hashing.md5().hashString(TEST_NEW_PASSWORD, StandardCharsets.UTF_8).toString());
     verifyNoMoreInteractions(eventPublisher);
   }
 

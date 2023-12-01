@@ -1,7 +1,5 @@
 faf-api:
   version: #faf-api.version#
-  anope:
-    database-name: ${ANOPE_DATABASE_NAME:faf-anope}
   avatar:
     max-size-bytes: ${AVATAR_MAX_SIZE_BYTES:4096}
     image-width: ${AVATAR_IMAGE_WIDTH:40}

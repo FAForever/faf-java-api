@@ -36,7 +36,6 @@ public class FafApiProperties {
   private Challonge challonge = new Challonge();
   private User user = new User();
   private Database database = new Database();
-  private Anope anope = new Anope();
   private Rating rating = new Rating();
   private Tutorial tutorial = new Tutorial();
   private Nodebb nodebb = new Nodebb();

@@ -44,9 +44,6 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   private static final String NEW_EMAIL = "test@faforever.com";
 
   @MockBean
-  private AnopeUserRepository anopeUserRepository;
-
-  @MockBean
   private EmailSender emailSender;
 
   @MockBean
@@ -124,7 +121,6 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     User user = userRepository.getById(USERID_USER);
     assertEquals(user.getPassword(), "5c29a959abce4eda5f0e7a4e7ea53dce4fa0f0abbe8eaa63717e2fed5f193d31");
-    verify(anopeUserRepository, times(1)).updatePassword(eq(AUTH_USER), anyString());
   }
 
   @Test
