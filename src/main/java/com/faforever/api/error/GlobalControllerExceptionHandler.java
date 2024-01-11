@@ -5,6 +5,7 @@ import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,6 +16,9 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ValidationException;
+
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.concurrent.CompletionException;
@@ -60,7 +64,7 @@ class GlobalControllerExceptionHandler {
     ));
   }
 
-  @ExceptionHandler(NotFoundApiException.class)
+  @ExceptionHandler({HttpRequestMethodNotSupportedException.class, NoResourceFoundException.class, NotFoundApiException.class})
   @ResponseStatus(HttpStatus.NOT_FOUND)
   @ResponseBody
   public ErrorResponse processNotFoundException(NotFoundApiException ex) {
