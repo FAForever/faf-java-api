@@ -1,5 +1,7 @@
 package com.faforever.api.error;
 
+import jakarta.servlet.ServletException;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.http.HttpStatus;
@@ -64,12 +66,26 @@ class GlobalControllerExceptionHandler {
     ));
   }
 
-  @ExceptionHandler({HttpRequestMethodNotSupportedException.class, NoResourceFoundException.class, NotFoundApiException.class})
+  @ExceptionHandler(NotFoundApiException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   @ResponseBody
   public ErrorResponse processNotFoundException(NotFoundApiException ex) {
     log.debug("Entity could not be found", ex);
     return createResponseFromApiException(ex, HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler({HttpRequestMethodNotSupportedException.class, NoResourceFoundException.class})
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ResponseBody
+  public ErrorResponse processResourceNotFoundException(ServletException ex) {
+    log.debug("Resource could not be found", ex);
+    ErrorResponse response = new ErrorResponse();
+    response.addError(new ErrorResult(
+      String.valueOf(HttpStatus.NOT_FOUND.value()),
+      HttpStatus.NOT_FOUND.getReasonPhrase(),
+      ex.getMessage()
+    ));
+    return response;
   }
 
   @ExceptionHandler(ApiException.class)
