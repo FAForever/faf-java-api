@@ -1,10 +1,13 @@
 package com.faforever.api.error;
 
+import jakarta.servlet.ServletException;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,6 +18,9 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ValidationException;
+
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.concurrent.CompletionException;
@@ -66,6 +72,20 @@ class GlobalControllerExceptionHandler {
   public ErrorResponse processNotFoundException(NotFoundApiException ex) {
     log.debug("Entity could not be found", ex);
     return createResponseFromApiException(ex, HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler({HttpRequestMethodNotSupportedException.class, NoResourceFoundException.class})
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ResponseBody
+  public ErrorResponse processResourceNotFoundException(ServletException ex) {
+    log.debug("Resource could not be found", ex);
+    ErrorResponse response = new ErrorResponse();
+    response.addError(new ErrorResult(
+      String.valueOf(HttpStatus.NOT_FOUND.value()),
+      HttpStatus.NOT_FOUND.getReasonPhrase(),
+      ex.getMessage()
+    ));
+    return response;
   }
 
   @ExceptionHandler(ApiException.class)
