@@ -19,4 +19,10 @@ public class User extends Login {
   public String getPassword() {
     return password;
   }
+
+  //Overriding toString method for efficient Logging
+  @Override
+  public String toString(){
+    return "User(ID = " + getId() + ", Email = " + getEmail() + ")";
+  }
 }
