@@ -29,12 +29,13 @@ class SteamServiceTest {
   private static final String DUMMY_RESPONSE = "dummy response";
   @Mock
   private AccountLinkRepository accountLinkRepositoryMock;
+  @Mock
+  private HttpServletRequest requestMock;
   @InjectMocks
   private SteamService beanUnderTest;
 
   @Test
   void testHandleInvalidOpenIdRedirect() {
-    HttpServletRequest requestMock = Mockito.mock(HttpServletRequest.class);
     when(requestMock.getParameterMap())
         .thenReturn(Map.of(IDENTITY_NAME_PARAM, new String[]{DUMMY_URL}));
     when(requestMock.getParameter(IDENTITY_NAME_PARAM)).thenReturn(DUMMY_URL);
@@ -47,7 +48,6 @@ class SteamServiceTest {
 
   @Test
   void testHandleInvalidOpenIdRedirectBlankIdentityParam() {
-    HttpServletRequest requestMock = Mockito.mock(HttpServletRequest.class);
     final String blankDummyUrl = "";
     when(requestMock.getParameterMap())
         .thenReturn(Map.of(IDENTITY_NAME_PARAM, new String[]{blankDummyUrl}));
@@ -61,7 +61,6 @@ class SteamServiceTest {
 
   @Test
   void testHandleInvalidOpenIdRedirectNoIdentityInRequest() {
-    HttpServletRequest requestMock = Mockito.mock(HttpServletRequest.class);
     when(requestMock.getParameterMap()).thenReturn(Collections.emptyMap());
 
     ApiException thrownException = assertThrows(ApiException.class,
@@ -72,7 +71,6 @@ class SteamServiceTest {
 
   @Test
   void testHandleInvalidOpenIdRedirectLinkedAccountExists() {
-    HttpServletRequest requestMock = Mockito.mock(HttpServletRequest.class);
     User userMock = Mockito.mock(User.class);
     when(userMock.getId()).thenReturn(1);
     when(userMock.getLogin()).thenReturn("dummyLogin");
