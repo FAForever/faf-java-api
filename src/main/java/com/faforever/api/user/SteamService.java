@@ -93,23 +93,31 @@ public class SteamService {
   }
 
   void handleInvalidOpenIdRedirect(final HttpServletRequest request, final String openIdResponseBody) {
-    final String steamId = parseSteamIdFromLoginRedirect(request);
+    boolean containsIdentityParam = request.getParameterMap().containsKey("openid.identity");
+    final String steamId;
+
+    if (containsIdentityParam)
+    {
+       steamId = parseSteamIdFromLoginRedirect(request);
+    } else {
+      log.warn("Steam redirect could not be validated! The request does not contain 'openid.identity' parameter. Original OpenID response:\n {}", openIdResponseBody);
+      throw ApiException.of(ErrorCode.STEAM_LOGIN_VALIDATION_FAILED);
+    }
 
     if (StringUtils.isNotBlank(steamId)) {
       accountLinkRepository.findOneByServiceIdAndServiceType(steamId,
         LinkedServiceType.STEAM).map(AccountLink::getUser).ifPresentOrElse(u ->
           log.warn(
-              "Steam redirect could not be validated for user with id: ''{}'' and login: ''{}''. Original OpenId response:\n{}",
+              "Steam redirect could not be validated for user with id: ''{}'' and login: ''{}''. Original OpenID response:\n {}",
               u.getId(), u.getLogin(), openIdResponseBody),
         () ->
           log.warn(
-            "Steam redirect could not be validated! The steam id ''{}'' does not match any account. Original OpenId response:\n{}",
+            "Steam redirect could not be validated! The steam id ''{}'' does not match any account. Original OpenID response:\n {}",
             StringUtils.deleteWhitespace(steamId).replace("'", ""), // prevent potential log poisoning attack
             openIdResponseBody)
       );
-    }
-    else {
-      log.warn("Steam redirect could not be validated! The steamId from the OpenId redirect is blank. Original OpenId response:\n{}", openIdResponseBody);
+    } else {
+      log.warn("Steam redirect could not be validated! The steamId from the OpenId redirect is blank. Original OpenID response:\n {}", openIdResponseBody);
     }
 
     throw ApiException.of(ErrorCode.STEAM_LOGIN_VALIDATION_FAILED);
