@@ -42,7 +42,7 @@ import static com.faforever.api.data.domain.Game.TYPE_NAME;
 public class Game {
   public final static String TYPE_NAME = "game";
 
-  @ToString.Include(name = "ID", rank = 1)
+  @ToString.Include(rank = 1)
   private int id;
   private OffsetDateTime startTime;
   private OffsetDateTime endTime;
@@ -51,7 +51,7 @@ public class Game {
   private FeaturedMod featuredMod;
   private Player host;
   private MapVersion mapVersion;
-  @ToString.Include(name = "Title")
+  @ToString.Include
   private String name;
   private Validity validity;
   private Set<GamePlayerStats> playerStats;
