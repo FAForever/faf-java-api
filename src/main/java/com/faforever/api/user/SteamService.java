@@ -47,9 +47,10 @@ public class SteamService {
   @SneakyThrows
   String parseSteamIdFromLoginRedirect(HttpServletRequest request) {
     log.trace("Parsing steam id from request: {}", request);
-    return Optional.ofNullable(request.getParameter("openid.identity"))
+    final String openIdIdentityParamName = "openid.identity";
+    return Optional.ofNullable(request.getParameter(openIdIdentityParamName))
         .map(identityUrl -> identityUrl.substring(identityUrl.lastIndexOf("/") + 1))
-        .orElseThrow(() -> {log.warn("Steam redirect could not be validated! The request does not contain 'openid.identity' parameter. Original OpenID response:\n {}", request);
+        .orElseThrow(() -> {log.warn("Steam id could not be parsed! The request does not contain ''{}'' parameter.", openIdIdentityParamName);
           return ApiException.of(ErrorCode.STEAM_LOGIN_VALIDATION_FAILED);});
   }
 
