@@ -11,8 +11,6 @@ import com.faforever.api.data.domain.User;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,8 +34,6 @@ class SteamServiceTest {
 
   @Test
   void testHandleInvalidOpenIdRedirect() {
-    when(requestMock.getParameterMap())
-        .thenReturn(Map.of(IDENTITY_NAME_PARAM, new String[]{DUMMY_URL}));
     when(requestMock.getParameter(IDENTITY_NAME_PARAM)).thenReturn(DUMMY_URL);
 
     ApiException thrownException = assertThrows(ApiException.class,
@@ -49,8 +45,6 @@ class SteamServiceTest {
   @Test
   void testHandleInvalidOpenIdRedirectBlankIdentityParam() {
     final String blankDummyUrl = "";
-    when(requestMock.getParameterMap())
-        .thenReturn(Map.of(IDENTITY_NAME_PARAM, new String[]{blankDummyUrl}));
     when(requestMock.getParameter(IDENTITY_NAME_PARAM)).thenReturn(blankDummyUrl);
 
     ApiException thrownException = assertThrows(ApiException.class,
@@ -61,8 +55,6 @@ class SteamServiceTest {
 
   @Test
   void testHandleInvalidOpenIdRedirectNoIdentityInRequest() {
-    when(requestMock.getParameterMap()).thenReturn(Collections.emptyMap());
-
     ApiException thrownException = assertThrows(ApiException.class,
         () -> beanUnderTest.handleInvalidOpenIdRedirect(requestMock, DUMMY_RESPONSE));
     assertEquals(ErrorCode.STEAM_LOGIN_VALIDATION_FAILED,
@@ -76,8 +68,6 @@ class SteamServiceTest {
     when(userMock.getLogin()).thenReturn("dummyLogin");
     AccountLink accountLinkMock = Mockito.mock(AccountLink.class);
     when(accountLinkMock.getUser()).thenReturn(userMock);
-    when(requestMock.getParameterMap())
-        .thenReturn(Map.of(IDENTITY_NAME_PARAM, new String[]{DUMMY_URL}));
     when(requestMock.getParameter(IDENTITY_NAME_PARAM)).thenReturn(DUMMY_URL);
     when(accountLinkRepositoryMock.findOneByServiceIdAndServiceType(anyString(),
         any(LinkedServiceType.class))).thenReturn(

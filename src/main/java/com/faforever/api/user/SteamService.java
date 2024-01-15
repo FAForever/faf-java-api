@@ -22,6 +22,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -43,11 +44,13 @@ public class SteamService {
       .toUriString();
   }
 
+  @SneakyThrows
   String parseSteamIdFromLoginRedirect(HttpServletRequest request) {
     log.trace("Parsing steam id from request: {}", request);
-
-    String identityUrl = request.getParameter("openid.identity");
-    return identityUrl.substring(identityUrl.lastIndexOf("/") + 1);
+    return Optional.ofNullable(request.getParameter("openid.identity"))
+        .map(identityUrl -> identityUrl.substring(identityUrl.lastIndexOf("/") + 1))
+        .orElseThrow(() -> {log.warn("Steam redirect could not be validated! The request does not contain 'openid.identity' parameter. Original OpenID response:\n {}", request);
+          return ApiException.of(ErrorCode.STEAM_LOGIN_VALIDATION_FAILED);});
   }
 
   @SneakyThrows
@@ -93,29 +96,16 @@ public class SteamService {
   }
 
   void handleInvalidOpenIdRedirect(final HttpServletRequest request, final String openIdResponseBody) {
-    boolean containsIdentityParam = request.getParameterMap().containsKey("openid.identity");
-    final String steamId;
-
-    if (containsIdentityParam)
-    {
-       steamId = parseSteamIdFromLoginRedirect(request);
-    } else {
-      log.warn("Steam redirect could not be validated! The request does not contain 'openid.identity' parameter. Original OpenID response:\n {}", openIdResponseBody);
-      throw ApiException.of(ErrorCode.STEAM_LOGIN_VALIDATION_FAILED);
-    }
+    final String steamId = parseSteamIdFromLoginRedirect(request);
 
     if (StringUtils.isNotBlank(steamId)) {
-      accountLinkRepository.findOneByServiceIdAndServiceType(steamId,
-        LinkedServiceType.STEAM).map(AccountLink::getUser).ifPresentOrElse(u ->
-          log.warn(
-              "Steam redirect could not be validated for user with id: ''{}'' and login: ''{}''. Original OpenID response:\n {}",
+      accountLinkRepository.findOneByServiceIdAndServiceType(steamId, LinkedServiceType.STEAM)
+          .map(AccountLink::getUser)
+          .ifPresentOrElse(u -> log.warn("Steam redirect could not be validated for user with id: ''{}'' and login: ''{}''. Original OpenID response:\n {}",
               u.getId(), u.getLogin(), openIdResponseBody),
-        () ->
-          log.warn(
-            "Steam redirect could not be validated! The steam id ''{}'' does not match any account. Original OpenID response:\n {}",
+              () -> log.warn("Steam redirect could not be validated! The steam id ''{}'' does not match any account. Original OpenID response:\n {}",
             StringUtils.deleteWhitespace(steamId).replace("'", ""), // prevent potential log poisoning attack
-            openIdResponseBody)
-      );
+            openIdResponseBody));
     } else {
       log.warn("Steam redirect could not be validated! The steamId from the OpenId redirect is blank. Original OpenID response:\n {}", openIdResponseBody);
     }
