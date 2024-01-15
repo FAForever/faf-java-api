@@ -7,6 +7,7 @@ import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
 import org.jetbrains.annotations.Nullable;
@@ -36,10 +37,12 @@ import static com.faforever.api.data.domain.Game.TYPE_NAME;
 @Include(name = TYPE_NAME)
 @Immutable
 @Setter
+@ToString(onlyExplicitlyIncluded = true, doNotUseGetters = true)
 @EntityListeners(GameEnricher.class)
 public class Game {
   public final static String TYPE_NAME = "game";
 
+  @ToString.Include(rank = 1)
   private int id;
   private OffsetDateTime startTime;
   private OffsetDateTime endTime;
@@ -48,6 +51,7 @@ public class Game {
   private FeaturedMod featuredMod;
   private Player host;
   private MapVersion mapVersion;
+  @ToString.Include
   private String name;
   private Validity validity;
   private Set<GamePlayerStats> playerStats;
