@@ -117,6 +117,7 @@ public enum ErrorCode {
   LESS_PERMISSIVE_LICENSE(207, "Less permissive license", "New license is less permissive than current license."),
   MALFORMED_URL(208, "Malformed URL", "Provided url ''{0}'' is malformed."),
   NOT_ALLOWED_URL_HOST(209, "URL host not allowed", "Provided URL's host is not allowed. URL: ''{0}'', allowed hosts: ''{1}''."),
+  STEAM_LOGIN_VALIDATION_FAILED(210, "Login via Steam failed", "Invalid OpenID redirect code"),
   ;
 
 
