@@ -175,7 +175,7 @@ dependencies {
   implementation("org.kohsuke:github-api:1.318")
   implementation("org.eclipse.jgit:org.eclipse.jgit:6.8.0.202311291450-r")
   implementation("org.jetbrains:annotations:24.1.0")
-  implementation("com.google.guava:guava:33.0.0-jre")
+  implementation("com.google.guava:guava:33.1.0-jre")
   implementation("org.luaj:luaj-jse:3.0.1")
   implementation("io.github.micheljung:nocatch:2.0")
   implementation("org.apache.commons:commons-compress:1.25.0")
