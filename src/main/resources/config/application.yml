@@ -16,7 +16,7 @@ faf-api:
     hmac-secret: ${CLOUDFLARE_HMAC_SECRET}
     hmac-param: ${CLOUDFLARE_HMAC_PARAM:verify}
   database:
-    schema-version: ${DATABASE_SCHEMA_VERSION:133}
+    schema-version: ${DATABASE_SCHEMA_VERSION:136}
   deployment:
     forged-alliance-exe-path: ${FORGED_ALLIANCE_EXE_PATH:/content/legacy-featured-mod-files/updates_faf_files/ForgedAlliance.exe}
     repositories-directory: ${REPOSITORIES_DIRECTORY:/repositories}

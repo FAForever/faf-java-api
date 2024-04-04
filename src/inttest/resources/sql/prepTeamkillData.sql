@@ -1,7 +1,7 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
 INSERT INTO game_stats (id, startTime, gameName, gameType, gameMod, `host`, mapId, validity) VALUES
-  (1, NOW(), 'Test game', '0', 6, 1, 1, 0);
+  (1, NOW(), 'Test game', 'DEMORALIZATION', 6, 1, 1, 0);
 
 
 SET FOREIGN_KEY_CHECKS = 1;
