@@ -188,7 +188,7 @@ dependencies {
   runtimeOnly("org.bouncycastle:bcpkix-jdk15on:1.70")
 
   testImplementation("junit-addons:junit-addons:1.4")
-  testImplementation("org.testcontainers:junit-jupiter:1.19.7")
+  testImplementation("org.testcontainers:junit-jupiter:1.19.8")
   testImplementation("org.testcontainers:mariadb:1.19.7")
 
   codacy("com.github.codacy:codacy-coverage-reporter:13.13.13")
