@@ -6,7 +6,6 @@ import com.faforever.api.security.elide.permission.AdminModCheck;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
-import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
@@ -114,7 +113,6 @@ public class Mod extends AbstractEntity<Mod> implements OwnableEntity {
   @ManyToOne
   @JoinColumn(name = "license")
   @Nullable
-  @BatchSize(size = 1000)
   public License getLicense() {
     return license;
   }

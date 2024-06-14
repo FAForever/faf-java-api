@@ -11,7 +11,6 @@ import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
-import org.hibernate.annotations.BatchSize;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -112,7 +111,6 @@ public class MapVersion extends AbstractEntity<MapVersion> implements OwnableEnt
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "map_id")
   @NotNull
-  @BatchSize(size = 1000)
   public Map getMap() {
     return this.map;
   }

@@ -139,7 +139,6 @@ public class Game {
   @OneToOne(fetch = FetchType.LAZY)
   @PrimaryKeyJoinColumn
   @UpdatePermission(expression = Prefab.ALL)
-  @BatchSize(size = 1000)
   public GameReviewsSummary getReviewsSummary() {
     return reviewsSummary;
   }

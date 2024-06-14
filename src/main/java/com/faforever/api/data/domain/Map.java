@@ -96,7 +96,6 @@ public class Map extends AbstractEntity<Map> implements OwnableEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "author")
   @Nullable
-  @BatchSize(size = 1000)
   public Player getAuthor() {
     return author;
   }
@@ -114,7 +113,6 @@ public class Map extends AbstractEntity<Map> implements OwnableEntity {
           referencedColumnName = "id")
       )
   })
-  @BatchSize(size = 1000)
   public MapVersion getLatestVersion() {
     return latestVersion;
   }
@@ -134,7 +132,6 @@ public class Map extends AbstractEntity<Map> implements OwnableEntity {
   @ManyToOne
   @JoinColumn(name = "license")
   @Nullable
-  @BatchSize(size = 1000)
   public License getLicense() {
     return license;
   }

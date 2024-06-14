@@ -2,7 +2,6 @@ package com.faforever.api.data.domain;
 
 import com.yahoo.elide.annotation.Include;
 import lombok.Setter;
-import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Immutable;
 
 import jakarta.persistence.Column;
@@ -48,7 +47,6 @@ public class MapVersionStatistics {
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "map_version_id", insertable = false, updatable = false)
-  @BatchSize(size = 1000)
   public MapVersion getMapVersion() {
     return mapVersion;
   }
