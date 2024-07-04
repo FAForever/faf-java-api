@@ -18,6 +18,7 @@ import com.yahoo.elide.jsonapi.JsonApiMapper;
 import com.yahoo.elide.jsonapi.JsonApiSettings;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,8 +36,8 @@ public class ElideConfig {
 
   @Bean
   MultiplexManager multiplexDataStore(
-    DataStore fafDataStore,
-    DataStore leagueDataStore
+    @Qualifier("fafDataStore") DataStore fafDataStore,
+    @Qualifier("leagueDataStore")DataStore leagueDataStore
   ) {
     return new MultiplexManager(fafDataStore, leagueDataStore);
   }

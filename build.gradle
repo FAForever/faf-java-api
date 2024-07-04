@@ -31,7 +31,10 @@ repositories {
   maven { url "https://jitpack.io" }
 }
 
-compileJava.dependsOn(processResources)
+compileJava {
+  dependsOn(processResources)
+  options.compilerArgs.add("-parameters")
+}
 
 configurations {
   compile.exclude module: "assertj-core"
@@ -39,7 +42,7 @@ configurations {
 
 idea {
   module {
-    testSourceDirs += file('src/inttest/java')
+    testSources = files(file("src/test/java"), file("src/inttest/java"))
   }
 }
 
@@ -66,7 +69,7 @@ configurations {
 }
 
 
-task inttest(type: Test) {
+tasks.register('inttest', Test) {
   group = LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Runs the integration tests."
 
@@ -105,13 +108,14 @@ configurations {
   codacy
 }
 
-task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
+tasks.register('sendCoverageToCodacy', JavaExec) {
+  dependsOn jacocoTestReport
   mainClass = "com.codacy.CodacyCoverageReporter"
   classpath = configurations.codacy
   args = ["report", "-l", "Java", "-r", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"]
 }
 
-configurations.all {
+configurations.configureEach {
   // Cache -SNAPSHOT for 60 seconds only
   resolutionStrategy.cacheChangingModulesFor 60, 'seconds'
 }

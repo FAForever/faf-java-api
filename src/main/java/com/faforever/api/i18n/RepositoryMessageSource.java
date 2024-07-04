@@ -1,8 +1,10 @@
 package com.faforever.api.i18n;
 
+import com.faforever.api.config.ApplicationProfile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.support.AbstractResourceBasedMessageSource;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
@@ -10,6 +12,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -18,6 +21,7 @@ public class RepositoryMessageSource extends AbstractResourceBasedMessageSource 
   private static final Locale FALLBACK_LOCALE = Locale.US;
 
   private final MessageRepository messageRepository;
+  private final Environment environment;
 
   /**
    * Language -&gt; Region -&gt; Key -&gt; Value.
@@ -76,6 +80,6 @@ public class RepositoryMessageSource extends AbstractResourceBasedMessageSource 
 
   @Override
   public void afterPropertiesSet() {
-    messagesByLanguage = loadMessages();
+    messagesByLanguage = Set.of(environment.getActiveProfiles()).contains(ApplicationProfile.TRAINING) ? Map.of() : loadMessages();
   }
 }

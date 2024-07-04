@@ -2,12 +2,11 @@ package com.faforever.api.challonge;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.Challonge;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -22,7 +21,6 @@ import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilder;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -37,7 +35,6 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
  * only loaded if a Challonge API key is specified.</p>
  */
 @RestController
-@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 @RequestMapping(path = ChallongeController.CHALLONGE_ROUTE)
 @ConditionalOnProperty("faf-api.challonge.key")
 public class ChallongeController {
