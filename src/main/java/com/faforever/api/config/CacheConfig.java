@@ -16,6 +16,7 @@ import com.faforever.api.data.domain.Map;
 import com.faforever.api.data.domain.MapVersion;
 import com.faforever.api.data.domain.Mod;
 import com.faforever.api.data.domain.ModVersion;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCache;
@@ -28,7 +29,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.servlet.HandlerMapping;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +40,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 
 @EnableCaching(proxyTargetClass = true)
 @Configuration
-@Profile(ApplicationProfile.PRODUCTION)
+@Profile({ApplicationProfile.PRODUCTION, ApplicationProfile.TRAINING})
 public class CacheConfig {
 
   /**
