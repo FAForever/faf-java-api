@@ -123,7 +123,6 @@ spring:
     properties:
       hibernate:
         current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
-        dialect: org.hibernate.dialect.MariaDBDialect
   jackson:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
