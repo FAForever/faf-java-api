@@ -14,10 +14,10 @@ RUN java -Dspring.context.exit=onRefresh -Dspring.profiles.active=training -XX:A
 FROM eclipse-temurin:21-jdk-alpine
 VOLUME /tmp
 WORKDIR /application
-COPY --from=builder /application/application/lib ./
+COPY --from=builder /application/application/lib ./application/lib
 RUN true
-COPY --from=builder /application/application/application.jar ./
+COPY --from=builder /application/application/application.jar ./application
 RUN true
 COPY --from=builder /application/application.jsa ./
 RUN true
-ENTRYPOINT ["java", "-XX:SharedArchiveFile=application.jsa", "-Djava.security.egd=file:/dev/./urandom", "-jar", "application.jar"]
+ENTRYPOINT ["java", "-XX:SharedArchiveFile=application.jsa", "-Djava.security.egd=file:/dev/./urandom", "-jar", "application/application.jar"]
