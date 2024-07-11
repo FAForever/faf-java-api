@@ -180,7 +180,7 @@ dependencies {
   implementation("io.github.micheljung:nocatch:2.0")
   implementation("org.apache.commons:commons-compress:1.26.2")
   implementation("org.json:json:20240303")
-  implementation("org.jsoup:jsoup:1.17.2")
+  implementation("org.jsoup:jsoup:1.18.1")
   implementation("com.github.jasminb:jsonapi-converter:0.13")
   implementation("commons-codec:commons-codec:1.17.0")
 
