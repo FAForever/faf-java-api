@@ -11,7 +11,7 @@ import org.springframework.util.Assert;
 import java.util.Objects;
 
 @Component
-@Profile("!" + ApplicationProfile.INTEGRATION_TEST)
+@Profile(ApplicationProfile.PRODUCTION)
 public class SchemaVersionVerifier implements PriorityOrdered, InitializingBean {
 
   private final SchemaVersionRepository schemaVersionRepository;
