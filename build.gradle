@@ -181,7 +181,7 @@ dependencies {
   implementation("org.apache.commons:commons-compress:1.27.0")
   implementation("org.json:json:20240303")
   implementation("org.jsoup:jsoup:1.18.1")
-  implementation("com.github.jasminb:jsonapi-converter:0.13")
+  implementation("com.github.jasminb:jsonapi-converter:0.14")
   implementation("commons-codec:commons-codec:1.17.1")
 
   // Required library for FafTokenService approach (called by nimbus-jwt)
