@@ -7,6 +7,7 @@ import com.faforever.api.data.checks.IsInAwaitingState;
 import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.hook.ModerationReportHook;
 import com.faforever.api.security.elide.permission.AdminModerationReportCheck;
+import com.faforever.api.security.elide.permission.LobbyCheck;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yahoo.elide.annotation.Audit;
 import com.yahoo.elide.annotation.Audit.Action;
@@ -16,9 +17,6 @@ import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.LifeCycleHookBinding;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
-import lombok.Setter;
-import lombok.ToString;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,6 +33,9 @@ import jakarta.persistence.Transient;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Setter;
+import lombok.ToString;
+
 import java.util.Collection;
 import java.util.Set;
 
@@ -49,7 +50,7 @@ import static com.yahoo.elide.annotation.LifeCycleHookBinding.TransactionPhase.P
 @Include(name = ModerationReport.TYPE_NAME)
 @ReadPermission(expression = IsEntityOwnerFilter.EXPRESSION + " OR " + AdminModerationReportCheck.EXPRESSION)
 @DeletePermission(expression = Prefab.NONE)
-@CreatePermission(expression = Prefab.ALL)
+@CreatePermission(expression = LobbyCheck.EXPRESSION)
 @Audit(action = Action.CREATE, logStatement = "Moderation report `{0}` has been reported", logExpressions = "${moderationReport}")
 @Audit(action = Action.UPDATE, logStatement = "Moderation report `{0}` has been updated", logExpressions = "${moderationReport}")
 @LifeCycleHookBinding(operation = CREATE, phase = PRESECURITY, hook = ModerationReportHook.class)

@@ -67,11 +67,22 @@ public class ModerationReportTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void canCreateValidModerationReportWithoutScopeAndRole() throws Exception {
+  public void cannotCreateValidModerationReportWithoutScopeAndRole() throws Exception {
+    mockMvc.perform(get("/data/account"));
+    mockMvc.perform(
+                   post("/data/moderationReport")
+                           .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
+                           .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
+                           .content(createJsonApiContent(validModerationReport)))
+           .andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void canCreateValidModerationReportWithScopeAndRole() throws Exception {
     mockMvc.perform(get("/data/account"));
     mockMvc.perform(
       post("/data/moderationReport")
-        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._LOBBY, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(validModerationReport)))
       .andExpect(status().isCreated())
@@ -103,7 +114,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
       .setReportedUsers(null);
     mockMvc.perform(
       post("/data/moderationReport")
-        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._LOBBY, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(validModerationReport)))
       .andExpect(status().isBadRequest());
@@ -115,7 +126,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
       .setReportDescription(null);
     mockMvc.perform(
       post("/data/moderationReport")
-        .with(getOAuthTokenWithActiveUser(NO_SCOPE, NO_AUTHORITIES))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._LOBBY, NO_AUTHORITIES))
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(validModerationReport)))
       .andExpect(status().isBadRequest());
