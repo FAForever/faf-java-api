@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class NodebbService implements UserDataSyncService, InitializingBean {
   private final FafApiProperties properties;
 
   @Override
-  public void afterPropertiesSet() throws Exception {
+  public void afterPropertiesSet() {
     log.info("NodeBB service initialized");
   }
 
@@ -39,7 +40,11 @@ public class NodebbService implements UserDataSyncService, InitializingBean {
     try {
       getNodebbUserId(event.getId())
         .ifPresentOrElse(
-          userId -> updateUserData(userId, event),
+          userId -> {
+            updateUsernameData(userId, event);
+            updateEmailData(userId, event);
+            log.info("User data updated in NodeBB: username={}, email={}", event.getUsername(), event.getEmail());
+          },
           () -> log.info("User data not updated in NodeBB (User not found): {}", event)
         );
     } catch (Exception e) {
@@ -56,7 +61,7 @@ public class NodebbService implements UserDataSyncService, InitializingBean {
 
     try {
       ResponseEntity<UserResponse> result = restTemplate.exchange(uri, HttpMethod.GET, null, UserResponse.class);
-      return Optional.of(result.getBody().uid);
+      return Optional.ofNullable(result.getBody()).map(UserResponse::uid);
     } catch (HttpClientErrorException e) {
       if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
         log.debug("User id {} not found in NodeBB. Probably the user never logged in there and has no account there.", userId);
@@ -67,21 +72,31 @@ public class NodebbService implements UserDataSyncService, InitializingBean {
     }
   }
 
-  private void updateUserData(int nodebbUserId, UserUpdatedEvent event) {
+  private void updateUsernameData(int nodebbUserId, UserUpdatedEvent event) {
     URI uri = UriComponentsBuilder.fromHttpUrl(properties.getNodebb().getBaseUrl())
-      .pathSegment("api", "v2", "users", String.valueOf(nodebbUserId))
+      .pathSegment("api", "v3", "users", String.valueOf(nodebbUserId))
       .build()
       .toUri();
 
-    UserUpdate userUpdate = new UserUpdate(String.valueOf(properties.getNodebb().getAdminUserId()),
-      event.getUsername(), event.getEmail());
-    restTemplate.exchange(uri, HttpMethod.PUT, buildAuthorizedRequest(userUpdate), Void.class);
-    log.info("User data updated in NodeBB: {}", event);
+    var usernameUpdate = new UsernameUpdate(String.valueOf(properties.getNodebb().getAdminUserId()), event.getUsername());
+    restTemplate.exchange(uri, HttpMethod.PUT, buildAuthorizedRequest(usernameUpdate), Void.class);
+    log.debug("Username updated in NodeBB: {}", event);
+  }
+
+  private void updateEmailData(int nodebbUserId, UserUpdatedEvent event) {
+    URI uri = UriComponentsBuilder.fromHttpUrl(properties.getNodebb().getBaseUrl())
+      .pathSegment("api", "v3", "users", String.valueOf(nodebbUserId), "emails")
+      .build()
+      .toUri();
+
+    var usernameUpdate = new EmailUpdate(String.valueOf(properties.getNodebb().getAdminUserId()), event.getEmail(), 1);
+    restTemplate.exchange(uri, HttpMethod.PUT, buildAuthorizedRequest(usernameUpdate), Void.class);
+    log.debug("Email updated in NodeBB: {}", event);
   }
 
   private <T> HttpEntity<T> buildAuthorizedRequest(T payload) {
     LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-    headers.add("Authorization", "Bearer " + properties.getNodebb().getMasterToken());
+    headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + properties.getNodebb().getMasterToken());
 
     return new HttpEntity<>(payload, headers);
   }
@@ -90,13 +105,19 @@ public class NodebbService implements UserDataSyncService, InitializingBean {
   public record UserResponse(Integer uid, String username) {
   }
 
-  private record UserUpdate(
-    /**
-     ID of the user to impersonate for the http call (should be an admin user if username change is disabled)
-     */
+  private record UsernameUpdate(
+    // ID of the user to impersonate for the http call (should be an admin user if username change is disabled)
     String _uid,
-    String username,
-    String email
+    String username
+  ) {
+  }
+
+  private record EmailUpdate(
+    // ID of the user to impersonate for the http call (should be an admin user if username change is disabled)
+    String _uid,
+    String email,
+    // must always be 1
+    int skipConfirmation
   ) {
   }
 }
