@@ -55,12 +55,13 @@ public class NodebbService implements UserDataSyncService, InitializingBean {
   private Optional<Integer> getNodebbUserId(int userId) {
     URI uri = UriComponentsBuilder.fromHttpUrl(properties.getNodebb().getBaseUrl())
       // This is not an official NodeBB api url, it's coming from our own sso plugin
-      .pathSegment("api", "user", "oauth", String.valueOf(userId))
+      .pathSegment("api", "v3", "plugins", "sso", "user", String.valueOf(userId))
+      .queryParam("_uid", getAdminUserId())
       .build()
       .toUri();
 
     try {
-      ResponseEntity<UserResponse> result = restTemplate.exchange(uri, HttpMethod.GET, null, UserResponse.class);
+      ResponseEntity<UserResponse> result = restTemplate.exchange(uri, HttpMethod.GET, buildAuthorizedRequest(null), UserResponse.class);
       return Optional.ofNullable(result.getBody()).map(UserResponse::uid);
     } catch (HttpClientErrorException e) {
       if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
@@ -78,7 +79,7 @@ public class NodebbService implements UserDataSyncService, InitializingBean {
       .build()
       .toUri();
 
-    var usernameUpdate = new UsernameUpdate(String.valueOf(properties.getNodebb().getAdminUserId()), event.getUsername());
+    var usernameUpdate = new UsernameUpdate(getAdminUserId(), event.getUsername());
     restTemplate.exchange(uri, HttpMethod.PUT, buildAuthorizedRequest(usernameUpdate), Void.class);
     log.debug("Username updated in NodeBB: {}", event);
   }
@@ -89,9 +90,13 @@ public class NodebbService implements UserDataSyncService, InitializingBean {
       .build()
       .toUri();
 
-    var usernameUpdate = new EmailUpdate(String.valueOf(properties.getNodebb().getAdminUserId()), event.getEmail(), 1);
-    restTemplate.exchange(uri, HttpMethod.PUT, buildAuthorizedRequest(usernameUpdate), Void.class);
+    var usernameUpdate = new EmailUpdate(getAdminUserId(), event.getEmail(), 1);
+    restTemplate.exchange(uri, HttpMethod.POST, buildAuthorizedRequest(usernameUpdate), Void.class);
     log.debug("Email updated in NodeBB: {}", event);
+  }
+
+  private String getAdminUserId() {
+    return String.valueOf(properties.getNodebb().getAdminUserId());
   }
 
   private <T> HttpEntity<T> buildAuthorizedRequest(T payload) {
