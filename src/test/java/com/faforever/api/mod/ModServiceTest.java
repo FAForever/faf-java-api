@@ -15,6 +15,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -220,6 +222,14 @@ public class ModServiceTest {
     Path uploadFile = prepareModDynamic(luaContent().setVersion("NotANumber"));
     ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null, null));
     assertThat(result, hasErrorCode(ErrorCode.MOD_VERSION_NOT_A_NUMBER));
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = {0, 10_000})
+  public void testVersionOutOfRange(final int testVersion) throws Exception {
+    Path uploadFile = prepareModDynamic(luaContent().setVersion(Integer.toString(testVersion)));
+    ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null, null));
+    assertThat(result, hasErrorCode(ErrorCode.MOD_VERSION_INVALID_RANGE));
   }
 
   @Test

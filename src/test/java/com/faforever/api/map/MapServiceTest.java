@@ -211,6 +211,23 @@ public class MapServiceTest {
     }
 
     @Test
+    void testScenarioLuaMapVersionOutOfRange() {
+      ApiException result = assertThrows(ApiException.class, () ->
+        instance.validateScenarioLua(loadMapAsString("scenario/invalid_lua_map_version_scenario.lua")));
+
+      assertThat(result, hasErrorCodes(
+        ErrorCode.MAP_VERSION_INVALID_RANGE
+      ));
+
+      assertThat(result.getErrors().length, is(1));
+      Error mapLineError = Arrays.stream(result.getErrors())
+        .filter(error -> error.getErrorCode() == ErrorCode.MAP_VERSION_INVALID_RANGE)
+        .findFirst().get();
+
+      assertThat(mapLineError.getArgs().length, is(2));
+    }
+
+    @Test
     void authorBannedFromVault() {
       when(fafApiProperties.getMap()).thenReturn(new Map().setAllowedExtensions(Set.of("zip")));
       when(author.getActiveBanOf(BanLevel.VAULT)).thenReturn(Optional.of(

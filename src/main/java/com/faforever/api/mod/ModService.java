@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.luaj.vm2.LuaValue;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Example;
@@ -59,6 +60,9 @@ public class ModService {
    */
   public static final String MOD_PATH_PREFIX = "mods/";
   private static final Set<String> ALLOWED_REPOSITORY_HOSTS = Set.of("github.com", "gitlab.com");
+  private static final int MOD_VERSION_MIN_VALUE = 1;
+  private static final int MOD_VERSION_MAX_VALUE = 9999;
+
   private final FafApiProperties properties;
   private final ModRepository modRepository;
   private final ModVersionRepository modVersionRepository;
@@ -235,12 +239,20 @@ public class ModService {
     if (nullOrNil(modInfo.getUid())) {
       errors.add(new Error(ErrorCode.MOD_UID_MISSING));
     }
-    if (modInfo.getVersion() == null || nullOrNil(modInfo.getVersion().toString())) {
+
+    final ComparableVersion modVersion = modInfo.getVersion();
+    if (modVersion == null || nullOrNil(modVersion.toString())) {
       errors.add(new Error(ErrorCode.MOD_VERSION_MISSING));
     }
-    if (Ints.tryParse(modInfo.getVersion().toString()) == null) {
-      errors.add(new Error(ErrorCode.MOD_VERSION_NOT_A_NUMBER, modInfo.getVersion().toString()));
+    if (modVersion != null) {
+      final Integer versionInt = Ints.tryParse(modVersion.toString());
+      if (versionInt == null) {
+        errors.add(new Error(ErrorCode.MOD_VERSION_NOT_A_NUMBER, modVersion.toString()));
+      } else if (!isModVersionValidRange(versionInt)){
+        errors.add(new Error(ErrorCode.MOD_VERSION_INVALID_RANGE, MOD_VERSION_MIN_VALUE, MOD_VERSION_MAX_VALUE));
+      }
     }
+
     if (nullOrNil(modInfo.getDescription())) {
       errors.add(new Error(ErrorCode.MOD_DESCRIPTION_MISSING));
     }
@@ -251,6 +263,10 @@ public class ModService {
     if (!errors.isEmpty()) {
       throw ApiException.of(errors);
     }
+  }
+
+  private static boolean isModVersionValidRange(int modVersion) {
+    return modVersion >= MOD_VERSION_MIN_VALUE && modVersion <= MOD_VERSION_MAX_VALUE;
   }
 
   @SneakyThrows

@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -75,6 +76,8 @@ public class MapService {
   private static final int MAP_NAME_MINUS_MAX_OCCURENCE = 3;
   private static final int MAP_NAME_MIN_LENGTH = 4;
   private static final int MAP_NAME_MAX_LENGTH = 50;
+  private static final int MAP_VERSION_MIN_VALUE = 1;
+  private static final int MAP_VERSION_MAX_VALUE = 9999;
 
   private static final String[] ADAPTIVE_REQUIRED_FILES = new String[]{
     "_options.lua",
@@ -311,8 +314,11 @@ public class MapService {
       errors.add(new Error(ErrorCode.MAP_SIZE_MISSING));
     }
 
-    if (mapLua.getMapVersion().isEmpty()) {
+    final OptionalInt mapVersion = mapLua.getMapVersion();
+    if (mapVersion.isEmpty()) {
       errors.add(new Error(ErrorCode.MAP_VERSION_MISSING));
+    } else if (!isMapVersionValidRange(mapVersion.getAsInt())) {
+      errors.add(new Error(ErrorCode.MAP_VERSION_INVALID_RANGE, MAP_VERSION_MIN_VALUE, MAP_VERSION_MAX_VALUE));
     }
 
     if (mapLua.getNoRushRadius().isEmpty()) {
@@ -323,6 +329,10 @@ public class MapService {
     if (!errors.isEmpty()) {
       throw ApiException.of(errors);
     }
+  }
+
+  private static boolean isMapVersionValidRange(int mapVersion) {
+    return mapVersion >= MAP_VERSION_MIN_VALUE && mapVersion <= MAP_VERSION_MAX_VALUE;
   }
 
   private Optional<Error> validateLuaPathVariable(MapLuaAccessor mapLua, String variableName, MapNameBuilder mapNameBuilder, String fileEnding) {

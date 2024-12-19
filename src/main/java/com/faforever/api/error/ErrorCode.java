@@ -118,6 +118,8 @@ public enum ErrorCode {
   MALFORMED_URL(208, "Malformed URL", "Provided url ''{0}'' is malformed."),
   NOT_ALLOWED_URL_HOST(209, "URL host not allowed", "Provided URL's host is not allowed. URL: ''{0}'', allowed hosts: ''{1}''."),
   STEAM_LOGIN_VALIDATION_FAILED(210, "Login via Steam failed", "Invalid OpenID redirect code"),
+  MAP_VERSION_INVALID_RANGE(211, "Invalid map version", "The map version must be a whole number in range {0, number} to {1, number}."),
+  MOD_VERSION_INVALID_RANGE(212, "Invalid mod version", "The mod version must be a whole number in range {0, number} to {1, number}."),
   ;
 
 
