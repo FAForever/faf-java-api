@@ -2,6 +2,7 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.Prefab;
+import com.faforever.api.data.listeners.ClanChangeListener;
 import com.faforever.api.data.listeners.ClanEnricherListener;
 import com.faforever.api.data.validation.IsLeaderInClan;
 import com.yahoo.elide.annotation.ComputedAttribute;
@@ -34,7 +35,7 @@ import java.util.Set;
 @CreatePermission(expression = Prefab.ALL)
 @Setter
 @IsLeaderInClan
-@EntityListeners(ClanEnricherListener.class)
+@EntityListeners({ClanEnricherListener.class, ClanChangeListener.class})
 public class Clan extends AbstractEntity<Clan> implements OwnableEntity {
 
   public static final String TYPE_NAME = "clan";
