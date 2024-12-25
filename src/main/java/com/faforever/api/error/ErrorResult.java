@@ -1,5 +1,7 @@
 package com.faforever.api.error;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -11,7 +13,7 @@ import java.util.Optional;
 
 @Data
 @RequiredArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(onConstructor_={@JsonCreator(mode = Mode.DELEGATING)})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorResult {
   @JsonProperty("status")
