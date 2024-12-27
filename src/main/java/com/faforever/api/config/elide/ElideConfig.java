@@ -108,7 +108,8 @@ public class ElideConfig {
     },
       CoerceUtil::lookup,
       Set.of(),
-      new DefaultClassScanner());
+      new DefaultClassScanner(),
+      null);
 
     entityDictionary.scanForSecurityChecks();
 
