@@ -40,7 +40,7 @@ public class JGitWrapper implements GitWrapper {
     log.debug("Checking out '{}' in '{}'", ref, repoDirectory);
     try (Git git = open(repoDirectory.toFile())) {
       git.checkout()
-          .setForce(true)
+          .setForceRefUpdate(true)
           .setName(ref)
           .call();
     }
