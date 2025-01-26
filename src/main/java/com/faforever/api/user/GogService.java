@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -48,9 +49,10 @@ public class GogService {
   }
 
   void verifyProfileToken(String gogUsername, User user, String targetToken) {
-    String profileStatus = getProfileStatus(gogUsername);
+    final String profileStatus = getProfileStatus(gogUsername);
+    final String profileStatusTrimmed = StringEscapeUtils.unescapeJava(profileStatus).trim();
 
-    if(profileStatus.length() > 100 || !Objects.equals(targetToken, profileStatus.trim())) {
+    if (profileStatusTrimmed.length() > 100 || !Objects.equals(targetToken, profileStatusTrimmed)) {
       throw ApiException.of(ErrorCode.GOG_LINK_PROFILE_TOKEN_NOT_SET);
     }
   }
