@@ -45,7 +45,7 @@ public enum ErrorCode {
   TOKEN_EXPIRED(136, "Invalid operation", "The delivered token has expired."),
   PASSWORD_RESET_FAILED(137, "Password reset failed", "Username and/or email did not match."),
   PASSWORD_CHANGE_FAILED_WRONG_PASSWORD(138, "Password change failed", "Your current password did not match."),
-  USERNAME_CHANGE_TOO_EARLY(139, "Username change not allowed", "Only one name change per 30 days is allowed. {0, number} more days to go."),
+  USERNAME_CHANGE_TOO_EARLY(139, "Username change not allowed", "Only one name change per {0, number} days is allowed. {1, number} more days to go."),
   EMAIL_CHANGE_FAILED(140, "Email change failed", "An unknown error happened while updating the database."),
   STEAM_ID_UNCHANGEABLE(141, "Linking to Steam failed", "Your Account is already linked to Steam. Just login with our client and start playing."),
   FEATURED_MOD_UNKNOWN(142, "Unknown featured mod", "There is no featured mod with ID ''{0}''."),
