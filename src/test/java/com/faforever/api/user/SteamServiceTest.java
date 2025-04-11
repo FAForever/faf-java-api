@@ -25,6 +25,7 @@ class SteamServiceTest {
   private static final String IDENTITY_NAME_PARAM = "openid.identity";
   private static final String DUMMY_URL = "valid.url.domain/login/123";
   private static final String DUMMY_RESPONSE = "dummy response";
+  private static final int BAD_REQUEST_CODE = 400;
   @Mock
   private AccountLinkRepository accountLinkRepositoryMock;
   @Mock
@@ -37,7 +38,7 @@ class SteamServiceTest {
     when(requestMock.getParameter(IDENTITY_NAME_PARAM)).thenReturn(DUMMY_URL);
 
     ApiException thrownException = assertThrows(ApiException.class,
-        () -> beanUnderTest.handleInvalidOpenIdRedirect(requestMock, DUMMY_RESPONSE));
+        () -> beanUnderTest.handleInvalidOpenIdRedirect(requestMock, DUMMY_RESPONSE, BAD_REQUEST_CODE));
     assertEquals(ErrorCode.STEAM_LOGIN_VALIDATION_FAILED,
         thrownException.getErrors()[0].getErrorCode());
   }
@@ -48,7 +49,7 @@ class SteamServiceTest {
     when(requestMock.getParameter(IDENTITY_NAME_PARAM)).thenReturn(blankDummyUrl);
 
     ApiException thrownException = assertThrows(ApiException.class,
-        () -> beanUnderTest.handleInvalidOpenIdRedirect(requestMock, DUMMY_RESPONSE));
+        () -> beanUnderTest.handleInvalidOpenIdRedirect(requestMock, DUMMY_RESPONSE, BAD_REQUEST_CODE));
     assertEquals(ErrorCode.STEAM_LOGIN_VALIDATION_FAILED,
         thrownException.getErrors()[0].getErrorCode());
   }
@@ -56,7 +57,7 @@ class SteamServiceTest {
   @Test
   void testHandleInvalidOpenIdRedirectNoIdentityInRequest() {
     ApiException thrownException = assertThrows(ApiException.class,
-        () -> beanUnderTest.handleInvalidOpenIdRedirect(requestMock, DUMMY_RESPONSE));
+        () -> beanUnderTest.handleInvalidOpenIdRedirect(requestMock, DUMMY_RESPONSE, BAD_REQUEST_CODE));
     assertEquals(ErrorCode.STEAM_LOGIN_VALIDATION_FAILED,
         thrownException.getErrors()[0].getErrorCode());
   }
@@ -74,7 +75,7 @@ class SteamServiceTest {
         Optional.of(accountLinkMock));
 
     ApiException thrownException = assertThrows(ApiException.class,
-        () -> beanUnderTest.handleInvalidOpenIdRedirect(requestMock, DUMMY_RESPONSE));
+        () -> beanUnderTest.handleInvalidOpenIdRedirect(requestMock, DUMMY_RESPONSE, BAD_REQUEST_CODE));
     assertEquals(ErrorCode.STEAM_LOGIN_VALIDATION_FAILED,
         thrownException.getErrors()[0].getErrorCode());
   }
