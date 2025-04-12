@@ -183,6 +183,7 @@ dependencies {
   implementation("org.jsoup:jsoup:1.19.1")
   implementation("com.github.jasminb:jsonapi-converter:0.14")
   implementation("commons-codec:commons-codec:1.18.0")
+  implementation("org.hibernate.orm:hibernate-core:6.6.11.Final!!")
 
   // Required library for FafTokenService approach (called by nimbus-jwt)
   runtimeOnly("org.bouncycastle:bcpkix-jdk15on:1.70")
