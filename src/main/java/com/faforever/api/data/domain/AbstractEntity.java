@@ -7,6 +7,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.OffsetDateTime;
 
 @SuppressWarnings("unchecked")
@@ -30,6 +34,7 @@ public abstract class AbstractEntity<T extends AbstractEntity<T>> {
   }
 
   @Column(name = "create_time")
+  @CreationTimestamp
   public OffsetDateTime getCreateTime() {
     return createTime;
   }
@@ -40,6 +45,7 @@ public abstract class AbstractEntity<T extends AbstractEntity<T>> {
   }
 
   @Column(name = "update_time")
+  @UpdateTimestamp
   public OffsetDateTime getUpdateTime() {
     return updateTime;
   }
