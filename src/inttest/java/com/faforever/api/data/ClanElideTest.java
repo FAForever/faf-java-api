@@ -167,13 +167,8 @@ public class ClanElideTest extends AbstractIntegrationTest {
 
   @Test
   public void canDeleteClanAsLeader() throws Exception {
-    Clan clan = clanRepository.findOneByName("Alpha Clan")
+    clanRepository.findOneByName("Alpha Clan")
       .orElseThrow(() -> new IllegalStateException("Alpha Clan could not be found"));
-
-    List<Player> clanMember = new ArrayList<>();
-    clan.getMemberships().stream()
-      .map(ClanMembership::getPlayer)
-      .forEach(clanMember::add);
 
     mockMvc.perform(
         delete("/data/clan/1")

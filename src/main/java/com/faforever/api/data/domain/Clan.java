@@ -2,6 +2,7 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.Prefab;
+import com.faforever.api.data.hook.ClanHook;
 import com.faforever.api.data.listeners.ClanChangeListener;
 import com.faforever.api.data.listeners.ClanEnricherListener;
 import com.faforever.api.data.validation.IsLeaderInClan;
@@ -9,10 +10,8 @@ import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
+import com.yahoo.elide.annotation.LifeCycleHookBinding;
 import com.yahoo.elide.annotation.UpdatePermission;
-import lombok.Setter;
-import org.hibernate.annotations.BatchSize;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,6 +25,9 @@ import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
+
 import java.util.Set;
 
 @Entity
@@ -36,6 +38,7 @@ import java.util.Set;
 @Setter
 @IsLeaderInClan
 @EntityListeners({ClanEnricherListener.class, ClanChangeListener.class})
+@LifeCycleHookBinding(operation = LifeCycleHookBinding.Operation.DELETE, phase = LifeCycleHookBinding.TransactionPhase.PREFLUSH, hook = ClanHook.class)
 public class Clan extends AbstractEntity<Clan> implements OwnableEntity {
 
   public static final String TYPE_NAME = "clan";
