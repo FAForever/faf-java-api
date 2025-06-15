@@ -25,6 +25,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -33,6 +35,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.testcontainers.containers.Network;
+import org.testcontainers.containers.RabbitMQContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import jakarta.transaction.Transactional;
@@ -52,6 +56,8 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/truncateTables.sql")
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultData.sql")
 public abstract class AbstractIntegrationTest {
+  protected static final RabbitMQContainer rabbitMQContainer =new RabbitMQContainer("rabbitmq:3.13.7-management-alpine");
+  private static final Network sharedNetwork = Network.newNetwork();
 
   protected static final String NO_SCOPE = "no_scope";
   protected static final String NO_AUTHORITIES = "NO_AUTHORITIES";
@@ -69,6 +75,16 @@ public abstract class AbstractIntegrationTest {
   protected final static int USERID_BANNED = 4;
   protected final static int USERID_ACTIVE_USER = 5;
 
+  static {
+    rabbitMQContainer
+      .withNetwork(sharedNetwork)
+      .withNetworkAliases("faf-rabbitmq")
+      .withAdminUser("faforever")
+      .withAdminPassword("banana")
+      .withReuse(true)
+      .start();
+  }
+
   @Autowired
   protected OAuthHelper oAuthHelper;
   protected MockMvc mockMvc;
@@ -77,6 +93,14 @@ public abstract class AbstractIntegrationTest {
   @Autowired
   protected ObjectMapper objectMapper;
   protected ResourceConverter resourceConverter;
+
+  @DynamicPropertySource
+  static void configureRabbitProperties(DynamicPropertyRegistry registry) {
+    registry.add("spring.rabbitmq.host", rabbitMQContainer::getHost);
+    registry.add("spring.rabbitmq.port", rabbitMQContainer::getAmqpPort);
+    registry.add("spring.rabbitmq.username", rabbitMQContainer::getAdminUsername);
+    registry.add("spring.rabbitmq.password", rabbitMQContainer::getAdminPassword);
+  }
 
   @BeforeEach
   public void setUp() {
