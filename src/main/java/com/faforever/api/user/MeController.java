@@ -42,7 +42,7 @@ public class MeController {
       .filter(o -> FafUserAuthenticationToken.class.isAssignableFrom(o.getClass()))
       .map(FafUserAuthenticationToken.class::cast)
       .map(authentication -> {
-          Player player = playerService.getById(authentication.getUserId());
+        Player player = playerService.getById(authentication.getUserId());
           Set<String> grantedAuthorities = authentication.getRoles().stream()
             //.map(FafRole::role)
             // TEMPORARY WORKAROUND: we stripped away the ROLE_ prefix, but clients need to adapt. Until then, we add both
