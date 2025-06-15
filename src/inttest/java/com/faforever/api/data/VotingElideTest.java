@@ -1,5 +1,22 @@
 package com.faforever.api.data;
 
+import com.faforever.api.AbstractIntegrationTest;
+import com.faforever.api.data.domain.GroupPermission;
+import com.faforever.api.data.domain.VotingChoice;
+import com.faforever.api.data.domain.VotingQuestion;
+import com.faforever.api.security.OAuthScope;
+import com.faforever.api.voting.VotingQuestionRepository;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
+
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 import static com.faforever.api.data.JsonApiMediaType.JSON_API_MEDIA_TYPE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -9,24 +26,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
-
-import com.faforever.api.AbstractIntegrationTest;
-import com.faforever.api.data.domain.GroupPermission;
-import com.faforever.api.data.domain.VotingChoice;
-import com.faforever.api.data.domain.VotingQuestion;
-import com.faforever.api.security.OAuthScope;
-import com.faforever.api.voting.VotingQuestionRepository;
 
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/truncateTables.sql")
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultData.sql")
@@ -199,7 +198,7 @@ public class VotingElideTest extends AbstractIntegrationTest {
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(PATCH_VOTING_SUBJECT_REVEAL_ID_2))
       .andExpect(status().isNoContent());
-    VotingQuestion question = votingQuestionRepository.getById(2);
+    VotingQuestion question = votingQuestionRepository.findById(2).orElseThrow();
     List<VotingChoice> winners = question.getWinners();
     assertThat(winners, hasSize(1));
     assertThat(winners.get(0).getId(), is(3));

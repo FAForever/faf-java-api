@@ -117,7 +117,7 @@ public class UserNoteTest extends AbstractIntegrationTest {
 
   @Test
   public void canCreateUserNoteWithScopeAndRole() throws Exception {
-    assertThat(playerRepository.getById(3).getUserNotes().size(), is(0));
+    assertThat(playerRepository.findById(3).orElseThrow().getUserNotes().size(), is(0));
 
     mockMvc.perform(post("/data/userNote")
       .with(getOAuthTokenWithActiveUser(OAuthScope._READ_SENSIBLE_USERDATA, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE))
@@ -125,6 +125,6 @@ public class UserNoteTest extends AbstractIntegrationTest {
       .content(testPost))
       .andExpect(status().isCreated());
 
-    assertThat(playerRepository.getById(3).getUserNotes().size(), is(1));
+    assertThat(playerRepository.findById(3).orElseThrow().getUserNotes().size(), is(1));
   }
 }

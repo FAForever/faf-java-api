@@ -68,7 +68,7 @@ public class ModElideTest extends AbstractIntegrationTest {
         .content(MOD_RECOMMENDED_TRUE_ID_1))
       .andExpect(status().isNoContent());
 
-    assertThat(modRepository.getById(1).getRecommended(), is(true));
+    assertThat(modRepository.findById(1).orElseThrow().getRecommended(), is(true));
   }
 
   @Test
@@ -81,7 +81,7 @@ public class ModElideTest extends AbstractIntegrationTest {
         .content(MOD_RECOMMENDED_TRUE_ID_1))
       .andExpect(status().isForbidden());
 
-    assertThat(modRepository.getById(1).getRecommended(), is(false));
+    assertThat(modRepository.findById(1).orElseThrow().getRecommended(), is(false));
   }
 
   @Test
@@ -94,7 +94,7 @@ public class ModElideTest extends AbstractIntegrationTest {
         .content(MOD_RECOMMENDED_TRUE_ID_1))
       .andExpect(status().isForbidden());
 
-    assertThat(modRepository.getById(1).getRecommended(), is(false));
+    assertThat(modRepository.findById(1).orElseThrow().getRecommended(), is(false));
   }
 
   @Test
@@ -107,7 +107,7 @@ public class ModElideTest extends AbstractIntegrationTest {
         .content(MOD_RECOMMENDED_FALSE_ID_1))
       .andExpect(status().isNoContent());
 
-    assertThat(modRepository.getById(1).getRecommended(), is(false));
+    assertThat(modRepository.findById(1).orElseThrow().getRecommended(), is(false));
   }
 
   @Test
