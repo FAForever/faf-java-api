@@ -188,7 +188,7 @@ dependencies {
   runtimeOnly("org.bouncycastle:bcpkix-jdk15on:1.70")
 
   testImplementation("junit-addons:junit-addons:1.4")
-  def testContainersVersion = "1.21.0"
+  def testContainersVersion = "1.21.1"
   testImplementation("org.testcontainers:junit-jupiter:${testContainersVersion}")
   testImplementation("org.testcontainers:mariadb:${testContainersVersion}")
   testImplementation("org.testcontainers:rabbitmq:${testContainersVersion}")
