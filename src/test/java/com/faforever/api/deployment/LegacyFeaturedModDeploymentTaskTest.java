@@ -138,8 +138,8 @@ public class LegacyFeaturedModDeploymentTaskTest {
       new FeaturedMod().setTechnicalName("faf")
     ));
     when(featuredModService.getFileIds("faf")).thenReturn(Map.of(
-      "ForgedAlliance.exe", 1,
-      "someDir.nx3", 2
+      "ForgedAlliance.exe", (short)1,
+      "someDir.nx3", (short)2
     ));
 
     Path dummyExe = repositoriesFolder.resolve("TemplateForgedAlliance.exe");
@@ -203,8 +203,8 @@ public class LegacyFeaturedModDeploymentTaskTest {
       new FeaturedMod().setTechnicalName("faf")
     ));
     when(featuredModService.getFileIds("faf")).thenReturn(Map.of(
-      "ForgedAlliance.exe", 1,
-      "someDir.nx3", 2
+      "ForgedAlliance.exe", (short)1,
+      "someDir.nx3", (short)2
     ));
 
     Path dummyExe = repositoriesFolder.resolve("TemplateForgedAlliance.exe");
@@ -245,8 +245,8 @@ public class LegacyFeaturedModDeploymentTaskTest {
       new FeaturedMod().setTechnicalName("faf")
     ));
     when(featuredModService.getFileIds("faf")).thenReturn(Map.of(
-      "ForgedAlliance.exe", 1,
-      "someDir.nx3", 2
+      "ForgedAlliance.exe", (short)1,
+      "someDir.nx3", (short)2
     ));
 
     dummyExe = repositoriesFolder.resolve("TemplateForgedAlliance.exe");
