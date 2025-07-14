@@ -31,6 +31,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
+import software.amazon.awssdk.core.sync.ResponseTransformer;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -40,11 +48,13 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -67,6 +77,55 @@ public class ModService {
   private final ModRepository modRepository;
   private final ModVersionRepository modVersionRepository;
   private final LicenseRepository licenseRepository;
+  private final S3Client s3Client;
+  private final S3Presigner s3Presigner;
+
+  private String getBucketKey(int userId, UUID requestId) {
+    return "%s-mod-%s".formatted(userId, requestId);
+  }
+
+  public String getPresignedS3Url(Player uploader, UUID requestId) {
+    log.info("User {} requested presigned url for mod upload, request id {}", uploader.getId(), requestId);
+
+    checkUploaderVaultBan(uploader);
+
+    PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+      .bucket(properties.getS3().getUserUploadBucket())
+      .key(getBucketKey(uploader.getId(), requestId))
+      .build();
+
+    PutObjectPresignRequest putObjectPresignRequest = PutObjectPresignRequest.builder()
+      .signatureDuration(Duration.ofHours(1))
+      .putObjectRequest(putObjectRequest)
+      .build();
+
+    PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(putObjectPresignRequest);
+
+    return presignedRequest.url().toString();
+  }
+
+  public Path getModFromS3Location(Player uploader, UUID requestId) throws IOException {
+    Path tempDir = Files.createTempDirectory("mod-download");
+    String bucketKey = getBucketKey(uploader.getId(), requestId);
+    Path tempFile = tempDir.resolve(bucketKey + ".zip");
+
+    checkUploaderVaultBan(uploader);
+
+    GetObjectRequest request = GetObjectRequest.builder()
+      .bucket(properties.getS3().getUserUploadBucket())
+      .key(bucketKey)
+      .build();
+
+    s3Client.getObject(request, ResponseTransformer.toFile(tempFile));
+
+    return tempFile;
+  }
+
+  public void deleteModFromS3Location(Player uploader, UUID requestId) throws IOException {
+    String bucketKey = getBucketKey(uploader.getId(), requestId);
+
+    s3Client.deleteObject(DeleteObjectRequest.builder().bucket(properties.getS3().getUserUploadBucket()).key(bucketKey).build());
+  }
 
   @SneakyThrows
   @Transactional
@@ -248,7 +307,7 @@ public class ModService {
       final Integer versionInt = Ints.tryParse(modVersion.toString());
       if (versionInt == null) {
         errors.add(new Error(ErrorCode.MOD_VERSION_NOT_A_NUMBER, modVersion.toString()));
-      } else if (!isModVersionValidRange(versionInt)){
+      } else if (!isModVersionValidRange(versionInt)) {
         errors.add(new Error(ErrorCode.MOD_VERSION_INVALID_RANGE, MOD_VERSION_MIN_VALUE, MOD_VERSION_MAX_VALUE));
       }
     }

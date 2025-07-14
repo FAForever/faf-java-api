@@ -9,6 +9,7 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -32,8 +33,8 @@ public class WebSecurityConfig {
 
     // @formatter:off
     http.csrf(csrfConfig -> csrfConfig.requireCsrfProtectionMatcher(new RequestMatcher() {
-      private Pattern allowedMethods = Pattern.compile("^(GET|HEAD|TRACE|OPTIONS)$");
-      private RequestMatcher matcher = new OrRequestMatcher(
+      private final Pattern allowedMethods = Pattern.compile("^(GET|HEAD|TRACE|OPTIONS)$");
+      private final RequestMatcher matcher = new OrRequestMatcher(
         new AntPathRequestMatcher("/oauth/authorize"),
         new AntPathRequestMatcher("/login"));
 
@@ -43,7 +44,7 @@ public class WebSecurityConfig {
       }
     }));
     http.headers(headersConfig -> headersConfig.cacheControl().disable());
-    http.formLogin().disable();
+    http.formLogin(AbstractHttpConfigurer::disable);
     http.oauth2ResourceServer(oauth2Config -> {
       oauth2Config.bearerTokenResolver(bearerTokenResolver);
       oauth2Config.jwt(jwtConfig -> jwtConfig.jwtAuthenticationConverter(new FafAuthenticationConverter()));
