@@ -1,4 +1,10 @@
 package com.faforever.api.mod;
 
-public record ModUploadMetadata(Integer licenseId, String repositoryUrl) {
+import java.util.UUID;
+
+public record ModUploadMetadata(
+  UUID requestId,
+  Integer licenseId,
+  String repositoryUrl
+) {
 }

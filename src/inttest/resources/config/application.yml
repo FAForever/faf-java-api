@@ -99,6 +99,11 @@ faf-api:
     file-url-format: "file://%s/%s"
   recaptcha:
     enabled: false
+  s3:
+    access-key: admin
+    secret-key: banana123
+    endpoint: http://minio
+    user-upload-bucket: user-uploads
 
 logging:
   level:

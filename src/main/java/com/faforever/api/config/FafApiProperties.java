@@ -42,6 +42,7 @@ public class FafApiProperties {
   private Recaptcha recaptcha = new Recaptcha();
   private Monitoring monitoring = new Monitoring();
   private Coturn coturn = new Coturn();
+  private S3 s3 = new S3();
 
   @Data
   public static class OAuth2 {
@@ -297,5 +298,13 @@ public class FafApiProperties {
   @Data
   public static class Coturn {
     private int tokenLifetimeSeconds = 86400;
+  }
+
+  @Data
+  public static class S3 {
+    private String endpoint;
+    private String userUploadBucket;
+    private String accessKey;
+    private String secretKey;
   }
 }
