@@ -179,7 +179,7 @@ dependencies {
   implementation("com.google.guava:guava:33.4.8-jre")
   implementation("org.luaj:luaj-jse:3.0.1")
   implementation("io.github.micheljung:nocatch:2.0")
-  implementation("org.apache.commons:commons-compress:1.27.1")
+  implementation("org.apache.commons:commons-compress:1.28.0")
   implementation("org.json:json:20250517")
   implementation("org.jsoup:jsoup:1.21.1")
   implementation("com.github.jasminb:jsonapi-converter:0.14")
