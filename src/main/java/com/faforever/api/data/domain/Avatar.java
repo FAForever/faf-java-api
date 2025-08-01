@@ -32,6 +32,7 @@ public class Avatar extends AbstractEntity<Avatar> {
   private String url;
   private String tooltip;
   private String filename;
+  private String description;
   private List<AvatarAssignment> assignments;
 
   @Transient
@@ -48,6 +49,12 @@ public class Avatar extends AbstractEntity<Avatar> {
   @UpdatePermission(expression = WriteAvatarCheck.EXPRESSION)
   public String getTooltip() {
     return tooltip;
+  }
+
+  @Column(name = "avatar_text_description")
+  @UpdatePermission(expression = WriteAvatarCheck.EXPRESSION)
+  public String getDescription() {
+    return description;
   }
 
   // Cascading is needed for Create & Delete
