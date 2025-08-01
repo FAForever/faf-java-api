@@ -183,7 +183,7 @@ dependencies {
   implementation("org.json:json:20250517")
   implementation("org.jsoup:jsoup:1.21.1")
   implementation("com.github.jasminb:jsonapi-converter:0.14")
-  implementation("commons-codec:commons-codec:1.18.0")
+  implementation("commons-codec:commons-codec:1.19.0")
   implementation("software.amazon.awssdk:s3:2.31.68")
 
   // Required library for FafTokenService approach (called by nimbus-jwt)
