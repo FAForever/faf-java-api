@@ -103,6 +103,7 @@ faf-api:
     access-key: admin
     secret-key: banana123
     endpoint: http://minio
+    region: auto
     user-upload-bucket: user-uploads
 
 logging:

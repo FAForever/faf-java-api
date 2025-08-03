@@ -92,6 +92,7 @@ faf-api:
     access-key: ${S3_ACCESS_KEY:admin}
     secret-key: ${S3_SECRET_KEY:banana123}
     endpoint: ${S3_ENDPOINT:http://minio}
+    region: ${S3_REGION:auto} # auto is a Cloudflare value
     user-upload-bucket: ${S3_USER_UPLOAD_BUCKET:user-uploads}
 
 spring:
