@@ -22,7 +22,7 @@ public class S3Config {
   public S3Client s3Client() {
     return S3Client.builder()
       .endpointOverride(URI.create(properties.getS3().getEndpoint()))
-      .region(Region.EU_CENTRAL_1) // region must be non-null but is ignored by some S3-compatible services
+      .region(Region.of(properties.getS3().getRegion())) // region must be non-null but is ignored by some S3-compatible services
       .credentialsProvider(StaticCredentialsProvider.create(
         AwsBasicCredentials.create(properties.getS3().getAccessKey(), properties.getS3().getSecretKey())
       ))
