@@ -303,6 +303,7 @@ public class FafApiProperties {
   @Data
   public static class S3 {
     private String endpoint;
+    private String region;
     private String userUploadBucket;
     private String accessKey;
     private String secretKey;
