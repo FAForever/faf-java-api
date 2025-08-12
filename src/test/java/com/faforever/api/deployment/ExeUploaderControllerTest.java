@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -27,13 +27,13 @@ public class ExeUploaderControllerTest {
 
   public static final String API_KEY = "banana";
   private MockMvc mvc;
-  @MockBean
+  @MockitoBean
   private ExeUploaderService exeUploaderService;
-  @MockBean
+  @MockitoBean
   private FafApiProperties fafApiProperties;
-  @MockBean
+  @MockitoBean
   private FafApiProperties.Deployment deployment;
-  @MockBean
+  @MockitoBean
   private FafApiProperties.Monitoring monitoring;
 
   @Mock
