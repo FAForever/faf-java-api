@@ -8,8 +8,6 @@ import org.springframework.core.PriorityOrdered;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import java.util.Objects;
-
 @Component
 @Profile("!" + ApplicationProfile.INTEGRATION_TEST)
 public class SchemaVersionVerifier implements PriorityOrdered, InitializingBean {
@@ -29,13 +27,13 @@ public class SchemaVersionVerifier implements PriorityOrdered, InitializingBean 
 
   @Override
   public void afterPropertiesSet() {
-    String requiredVersion = properties.getDatabase().getSchemaVersion();
-    String actualVersion = schemaVersionRepository.findMaxVersion()
+    int minimumRequiredVersion = properties.getDatabase().getSchemaVersion();
+    int actualVersion = schemaVersionRepository.findMaxVersion().map(Integer::parseInt)
       .orElseThrow(() -> new IllegalStateException("No database version is available"));
 
-    Assert.state(Objects.equals(requiredVersion, actualVersion),
-      String.format("Database version is '%s' but this software requires '%s'. If you are sure that this version is " +
+    Assert.state(actualVersion >= minimumRequiredVersion,
+      String.format("Database version is '%d' but this software requires at least '%d'. If you are sure that this version is " +
           "compatible, you can override the expected version by setting the environment variable DATABASE_SCHEMA_VERSION.",
-        actualVersion, requiredVersion));
+        actualVersion, minimumRequiredVersion));
   }
 }

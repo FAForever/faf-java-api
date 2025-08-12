@@ -245,9 +245,9 @@ public class FafApiProperties {
   @Data
   public static class Database {
     /**
-     * The database schema version required to run this application.
+     * The minimum database schema version required to run this application.
      */
-    private String schemaVersion;
+    private int schemaVersion;
   }
 
   @Data
