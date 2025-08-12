@@ -39,8 +39,11 @@ public class AvatarServiceTest {
   private static final long VALID_FILE_SIZE = 1024;
   private static final long TOO_BIG_FILE_SIZE = 2048;
   private static final String AVATAR_NAME = "Nice Avatar";
+  private static final String AVATAR_DESCRIPTION = "Only for nice people";
   private static final String EXISTING_AVATAR_NAME = "Existing Nice Avatar";
-  private static final AvatarMetadata AVATAR_METADATA = new AvatarMetadata().setName(AVATAR_NAME);
+  private static final AvatarMetadata AVATAR_METADATA = new AvatarMetadata()
+    .setName(AVATAR_NAME)
+    .setDescription(AVATAR_DESCRIPTION);
   private static final String EXISTING_VALID_AVATAR_FILENAME = "qai.png";
   private static final String VALID_AVATAR_FILENAME = "qai2.png";
   private static final String BIG_AVATAR_FILENAME = "donator.png";
@@ -97,6 +100,7 @@ public class AvatarServiceTest {
       String expectedFilename = NameUtil.normalizeFileName(worstCasePrefix + avatarFileName);
       assertEquals(expectedFilename, storedAvatar.getFilename());
       assertEquals(AVATAR_NAME, storedAvatar.getTooltip());
+      assertEquals(AVATAR_DESCRIPTION, storedAvatar.getDescription());
       assertThat(avatarsPath.resolve(expectedFilename).toFile().length(), is(imageResource.openConnection().getContentLengthLong()));
     }
   }
@@ -118,6 +122,7 @@ public class AvatarServiceTest {
       final Avatar storedAvatar = avatarCaptor.getValue();
       assertEquals(String.format(DOWNLOAD_URL_FORMAT, EXISTING_VALID_AVATAR_FILENAME), storedAvatar.getUrl());
       assertEquals(AVATAR_NAME, storedAvatar.getTooltip());
+      assertEquals(AVATAR_DESCRIPTION, storedAvatar.getDescription());
       assertThat(avatarsPath.resolve(EXISTING_VALID_AVATAR_FILENAME).toFile().length(), is(imageResource.openConnection().getContentLengthLong()));
     }
   }

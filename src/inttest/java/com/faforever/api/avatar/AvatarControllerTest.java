@@ -9,9 +9,9 @@ import com.faforever.api.utils.FileHandlingHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepDefaultData.sql")
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepAvatarData.sql")
 public class AvatarControllerTest extends AbstractIntegrationTest {
-  @SpyBean
+  @MockitoSpyBean
   AuditService auditServiceSpy;
 
   @Autowired
@@ -51,6 +51,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
     final Avatar avatar = avatarRepository.findOneByFilename("avatar3.png").get();
     assertThat(avatar.getFilename(), is("avatar3.png"));
     assertThat(avatar.getTooltip(), is("Best avatar"));
+    assertThat(avatar.getDescription(), is("We like it"));
 
     verify(auditServiceSpy, times(1)).logMessage(any());
   }
@@ -67,6 +68,7 @@ public class AvatarControllerTest extends AbstractIntegrationTest {
     final Avatar avatar = avatarRepository.findOneByFilename("avatar1.png").get();
     assertThat(avatar.getFilename(), is("avatar1.png"));
     assertThat(avatar.getTooltip(), is("Best avatar"));
+    assertThat(avatar.getDescription(), is("We like it"));
     verify(auditServiceSpy, times(1)).logMessage(any());
   }
 
