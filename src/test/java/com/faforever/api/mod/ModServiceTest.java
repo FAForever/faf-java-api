@@ -36,7 +36,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static com.faforever.api.error.ApiExceptionMatcher.hasErrorCode;
-import static org.apache.commons.lang3.RandomStringUtils.insecure;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -120,7 +120,7 @@ public class ModServiceTest {
     assertThat(savedMod.getUploader(), is(uploader));
     assertThat(savedMod.getRepositoryUrl(), is(repositoryUrl));
 
-    ModVersion savedModVersion = savedMod.getVersions().getFirst();
+    ModVersion savedModVersion = savedMod.getVersions().get(0);
 
     assertThat(savedModVersion.getId(), is(nullValue()));
     assertThat(savedModVersion.getIcon(), is("no_friendly_fire.v0003.png"));
@@ -203,14 +203,14 @@ public class ModServiceTest {
 
   @Test
   public void testDisplayNameTooLong() throws Exception {
-    Path uploadFile = prepareModDynamic(luaContent().setName(insecure().nextAlphanumeric(111)));
+    Path uploadFile = prepareModDynamic(luaContent().setName(randomAlphanumeric(111)));
     ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null, null));
     assertThat(result, hasErrorCode(ErrorCode.MOD_NAME_TOO_LONG));
   }
 
   @Test
   public void testDisplayNameTooShort() throws Exception {
-    Path uploadFile = prepareModDynamic(luaContent().setName(insecure().nextAlphanumeric(2)));
+    Path uploadFile = prepareModDynamic(luaContent().setName(randomAlphanumeric(2)));
     ApiException result = assertThrows(ApiException.class, () -> instance.processUploadedMod(uploadFile, TEST_MOD_FILENAME, new Player(), null, null));
     assertThat(result, hasErrorCode(ErrorCode.MOD_NAME_TOO_SHORT));
   }
@@ -268,7 +268,7 @@ public class ModServiceTest {
   @NotNull
   private LuaContent luaContent() {
     return new LuaContent()
-      .setName(insecure().nextAlphanumeric(50))
+      .setName(randomAlphanumeric(50))
       .setVersion("3")
       .setAuthor("The Author")
       .setCopyright("The Copyright")
