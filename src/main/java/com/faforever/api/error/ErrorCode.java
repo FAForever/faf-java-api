@@ -20,7 +20,7 @@ public enum ErrorCode {
   MAP_SIZE_MISSING(113, "Missing map size", "The scenario file must specify a map size."),
   MAP_VERSION_MISSING(114, "Missing map version", "The scenario file must specify a map version."),
   QUERY_INVALID_SORT_FIELD(115, "Invalid sort field", "Sorting by ''{0}'' is not supported"),
-  QUERY_INVALID_PAGE_SIZE(116, "Invalid page size", "Page size is not valid: {0, number}"),
+  QUERY_INVALID_PAGE_SIZE(116, "Invalid page size", "Page size is not valid: {0, number}. Maximum page size is {1, number}."),
   QUERY_INVALID_PAGE_NUMBER(117, "Invalid page number", "Page number is not valid: {0, number}"),
   MOD_NAME_MISSING(118, "Missing mod name", "The file mod_info.lua must contain a property 'name'."),
   MOD_UID_MISSING(119, "Missing mod UID", "The file mod_info.lua must contain a property 'uid'."),
