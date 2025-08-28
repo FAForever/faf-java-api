@@ -59,6 +59,7 @@ public class GroupPermission extends AbstractEntity<GroupPermission> implements 
   public static final String ROLE_ADMIN_MOD = "ADMIN_MOD";
   public static final String ROLE_WRITE_MESSAGE = "WRITE_MESSAGE";
   public static final String ROLE_USER = "USER";
+  public static final String ROLE_SCRAPER = "SCRAPER";
 
   private String technicalName;
   private String nameKey;
