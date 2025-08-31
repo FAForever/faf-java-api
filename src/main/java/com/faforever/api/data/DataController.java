@@ -61,7 +61,7 @@ public class DataController {
     final Authentication authentication
   ) {
     final User principal = getPrincipal(authentication);
-    validatePageSize(allRequestParams, principal);
+    validateAndAdjustPageSize(allRequestParams, principal);
 
     ElideResponse<String> response = jsonApi.get(
       Route.builder()
@@ -182,12 +182,12 @@ public class DataController {
     return new ElideUser(authentication);
   }
 
-  private void validatePageSize(MultiValueMap<String, String> allRequestParams, User principal) {
+  private void validateAndAdjustPageSize(MultiValueMap<String, String> allRequestParams, User principal) {
     final ElideSettings elideSettings = jsonApi.getElide().getElideSettings();
     final int defaultPageSize = elideSettings.getDefaultPageSize();
     final int maxPageSize = elideSettings.getMaxPageSize();
 
-    ElidePageSizeUtil.validatePageSize(allRequestParams, principal, defaultPageSize, maxPageSize);
+    ElidePageSizeUtil.validateAndAdjustPageSize(allRequestParams, principal, defaultPageSize, maxPageSize);
   }
 
   private ResponseEntity<String> wrapResponse(ElideResponse<String> response) {
