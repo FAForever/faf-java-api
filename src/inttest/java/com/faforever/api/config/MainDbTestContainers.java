@@ -21,7 +21,7 @@ import javax.sql.DataSource;
 @Configuration
 public class MainDbTestContainers {
   private static final MariaDBContainer<?> fafDBContainer = new MariaDBContainer<>("mariadb:11.7");
-  private static final GenericContainer<?> flywayMigrationsContainer = new GenericContainer<>("faforever/faf-db-migrations:v137");
+  private static final GenericContainer<?> flywayMigrationsContainer = new GenericContainer<>("faforever/faf-db-migrations:v140");
   private static final Network sharedNetwork = Network.newNetwork();
 
   @Bean
