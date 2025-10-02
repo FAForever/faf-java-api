@@ -140,7 +140,7 @@ dependencies {
   testAnnotationProcessor("org.projectlombok:lombok")
   testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
-  implementation("org.checkerframework:checker-qual:3.51.0")
+  implementation("org.checkerframework:checker-qual:3.51.1")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-web")
