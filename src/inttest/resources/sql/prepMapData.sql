@@ -13,12 +13,12 @@ INSERT INTO map_pool (id, name) VALUES
   (4, 'Ladder 1v1 1300-1800'),
   (5, 'Ladder 1v1 1800+');
 
-INSERT INTO matchmaker_queue_map_pool (matchmaker_queue_id, map_pool_id, min_rating, max_rating) VALUES
-  (1, 1, null, 300),
-  (1, 2, 300, 800),
-  (1, 3, 800, 1300),
-  (1, 4, 1300, 1800),
-  (1, 5, 1800, null);
+INSERT INTO matchmaker_queue_map_pool (matchmaker_queue_id, map_pool_id, min_rating, max_rating, veto_tokens_per_player, max_tokens_per_map, minimum_maps_after_veto) VALUES
+  (1, 1, null, 300,1,1,1),
+  (1, 2, 300, 800,1,1,1),
+  (1, 3, 800, 1300,1,1,1),
+  (1, 4, 1300, 1800,1,1,1),
+  (1, 5, 1800, null,1,1,1);
 
 INSERT INTO map_pool_map_version (id, map_pool_id, map_version_id, map_params, weight) VALUES
   (1, 1, 1, null, 1),
