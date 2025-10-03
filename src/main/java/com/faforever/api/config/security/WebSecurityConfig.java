@@ -10,17 +10,13 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.OrRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 @Configuration
 @EnableWebSecurity
@@ -31,19 +27,7 @@ public class WebSecurityConfig {
     final var bearerTokenResolver = new DefaultBearerTokenResolver();
     bearerTokenResolver.setAllowUriQueryParameter(true);
 
-    // @formatter:off
-    http.csrf(csrfConfig -> csrfConfig.requireCsrfProtectionMatcher(new RequestMatcher() {
-      private final Pattern allowedMethods = Pattern.compile("^(GET|HEAD|TRACE|OPTIONS)$");
-      private final RequestMatcher matcher = new OrRequestMatcher(
-        new AntPathRequestMatcher("/oauth/authorize"),
-        new AntPathRequestMatcher("/login"));
-
-      @Override
-      public boolean matches(HttpServletRequest request) {
-        return matcher.matches(request) && !allowedMethods.matcher(request.getMethod()).matches();
-      }
-    }));
-    http.headers(headersConfig -> headersConfig.cacheControl().disable());
+    http.headers(headersConfig -> headersConfig.cacheControl(HeadersConfigurer.CacheControlConfig::disable));
     http.formLogin(AbstractHttpConfigurer::disable);
     http.oauth2ResourceServer(oauth2Config -> {
       oauth2Config.bearerTokenResolver(bearerTokenResolver);
