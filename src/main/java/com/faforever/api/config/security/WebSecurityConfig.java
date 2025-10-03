@@ -27,6 +27,8 @@ public class WebSecurityConfig {
     final var bearerTokenResolver = new DefaultBearerTokenResolver();
     bearerTokenResolver.setAllowUriQueryParameter(true);
 
+    // @formatter:off
+    http.csrf(AbstractHttpConfigurer::disable);
     http.headers(headersConfig -> headersConfig.cacheControl(HeadersConfigurer.CacheControlConfig::disable));
     http.formLogin(AbstractHttpConfigurer::disable);
     http.oauth2ResourceServer(oauth2Config -> {
