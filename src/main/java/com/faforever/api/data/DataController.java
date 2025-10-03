@@ -1,10 +1,13 @@
 package com.faforever.api.data;
 
+import com.faforever.api.data.util.ElidePageSizeUtil;
 import com.faforever.api.security.ElideUser;
 import com.yahoo.elide.ElideResponse;
+import com.yahoo.elide.ElideSettings;
 import com.yahoo.elide.core.request.route.Route;
 import com.yahoo.elide.core.security.User;
 import com.yahoo.elide.jsonapi.JsonApi;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.http.HttpHeaders;
@@ -40,16 +43,13 @@ import static com.faforever.api.data.JsonApiMediaType.JSON_API_PATCH_MEDIA_TYPE;
  */
 @RestController
 @RequestMapping(path = DataController.PATH_PREFIX)
+@RequiredArgsConstructor
 public class DataController {
 
   public static final String PATH_PREFIX = "/data";
   public static final String API_VERSION = "";
 
   private final JsonApi jsonApi;
-
-  public DataController(JsonApi jsonApi) {
-    this.jsonApi = jsonApi;
-  }
 
   //!!! No @Transactional - transactions are being handled by Elide
   @GetMapping(value = {"/{entity}", "/{entity}/**"}, produces = JSON_API_MEDIA_TYPE)
@@ -60,6 +60,9 @@ public class DataController {
     final HttpServletRequest request,
     final Authentication authentication
   ) {
+    final User principal = getPrincipal(authentication);
+    validateAndAdjustPageSize(allRequestParams, principal);
+
     ElideResponse<String> response = jsonApi.get(
       Route.builder()
         .baseUrl(getBaseUrlEndpoint())
@@ -67,7 +70,7 @@ public class DataController {
         .apiVersion(API_VERSION)
         .parameters(allRequestParams)
         .build(),
-      getPrincipal(authentication),
+      principal,
       UUID.randomUUID()
     );
     return wrapResponse(response);
@@ -177,6 +180,14 @@ public class DataController {
 
   private static User getPrincipal(final Authentication authentication) {
     return new ElideUser(authentication);
+  }
+
+  private void validateAndAdjustPageSize(MultiValueMap<String, String> allRequestParams, User principal) {
+    final ElideSettings elideSettings = jsonApi.getElide().getElideSettings();
+    final int defaultPageSize = elideSettings.getDefaultPageSize();
+    final int maxPageSize = elideSettings.getMaxPageSize();
+
+    ElidePageSizeUtil.validateAndAdjustPageSize(allRequestParams, principal, defaultPageSize, maxPageSize);
   }
 
   private ResponseEntity<String> wrapResponse(ElideResponse<String> response) {

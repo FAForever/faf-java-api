@@ -16,6 +16,7 @@ import com.yahoo.elide.datastores.multiplex.MultiplexManager;
 import com.yahoo.elide.jsonapi.JsonApi;
 import com.yahoo.elide.jsonapi.JsonApiMapper;
 import com.yahoo.elide.jsonapi.JsonApiSettings;
+import com.yahoo.elide.spring.config.ElideConfigProperties;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -42,7 +43,8 @@ public class ElideConfig {
   }
 
   @Bean
-  public Elide elide(DataStore multiplexDataStore, ObjectMapper objectMapper, EntityDictionary entityDictionary, ExtendedAuditLogger extendedAuditLogger) {
+  public Elide elide(DataStore multiplexDataStore, ObjectMapper objectMapper, EntityDictionary entityDictionary, ExtendedAuditLogger extendedAuditLogger,
+    ElideConfigProperties elideConfigProperties) {
     RSQLFilterDialect rsqlFilterDialect = new RSQLFilterDialect(entityDictionary, new CaseSensitivityStrategy.UseColumnCollation(), true);
 
     registerAdditionalConverters();
@@ -54,6 +56,8 @@ public class ElideConfig {
         .joinFilterDialect(rsqlFilterDialect)
         .subqueryFilterDialect(rsqlFilterDialect)
       )
+      .maxPageSize(elideConfigProperties.getMaxPageSize())
+      .defaultPageSize(elideConfigProperties.getDefaultPageSize())
       .auditLogger(extendedAuditLogger)
       .entityDictionary(entityDictionary)
       .build();

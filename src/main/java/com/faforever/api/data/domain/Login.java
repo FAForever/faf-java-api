@@ -40,6 +40,7 @@ public abstract class Login extends AbstractEntity<Login> implements OwnableEnti
   private String recentIpAddress;
   private OffsetDateTime lastLogin;
   private Set<UniqueId> uniqueIds;
+  private Set<UniqueIdAssignment> uniqueIdAssignments;
 
 
   public Login() {
@@ -122,6 +123,7 @@ public abstract class Login extends AbstractEntity<Login> implements OwnableEnti
     return userGroups;
   }
 
+  @Deprecated(forRemoval = true)
   @OneToMany
   @JoinTable(name = "unique_id_users",
     joinColumns = @JoinColumn(name = "user_id"),
@@ -130,6 +132,12 @@ public abstract class Login extends AbstractEntity<Login> implements OwnableEnti
   @ReadPermission(expression = ReadAccountPrivateDetailsCheck.EXPRESSION)
   public Set<UniqueId> getUniqueIds() {
     return uniqueIds;
+  }
+
+  @OneToMany(mappedBy = "user")
+  @ReadPermission(expression = ReadAccountPrivateDetailsCheck.EXPRESSION)
+  public Set<UniqueIdAssignment> getUniqueIdAssignments() {
+    return uniqueIdAssignments;
   }
 
   @Override

@@ -20,8 +20,8 @@ import javax.sql.DataSource;
 @ConditionalOnProperty(value = "spring.datasource.url", havingValue = "jdbc:mariadb://testcontainers/faf?useSSL=false")
 @Configuration
 public class MainDbTestContainers {
-  private static final MariaDBContainer<?> fafDBContainer = new MariaDBContainer<>("mariadb:10.6");
-  private static final GenericContainer<?> flywayMigrationsContainer = new GenericContainer<>("faforever/faf-db-migrations:v135");
+  private static final MariaDBContainer<?> fafDBContainer = new MariaDBContainer<>("mariadb:11.7");
+  private static final GenericContainer<?> flywayMigrationsContainer = new GenericContainer<>("faforever/faf-db-migrations:v140");
   private static final Network sharedNetwork = Network.newNetwork();
 
   @Bean

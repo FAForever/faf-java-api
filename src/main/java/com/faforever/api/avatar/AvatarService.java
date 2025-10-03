@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.MemoryCacheImageInputStream;
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -51,6 +51,7 @@ public class AvatarService {
       throw new ApiException(new Error(ErrorCode.AVATAR_NAME_CONFLICT, normalizedAvatarFileName));
     });
     avatarToCreate.setTooltip(avatarMetadata.getName())
+      .setDescription(avatarMetadata.getDescription())
       .setFilename(normalizedAvatarFileName);
 
     final InputStream markSupportedImageInputStream = getMarkSupportedInputStream(imageDataInputStream);
@@ -68,7 +69,9 @@ public class AvatarService {
   public void updateAvatar(Integer avatarId, AvatarMetadata avatarMetadata, String originalFilename, InputStream imageDataInputStream, long avatarImageFileSize) {
     final Avatar existingAvatar = getExistingAvatar(avatarId);
     final String normalizedAvatarFileName = getFileNameFromUrl(existingAvatar.getUrl());
-    existingAvatar.setTooltip(avatarMetadata.getName());
+    existingAvatar
+      .setTooltip(avatarMetadata.getName())
+      .setDescription(avatarMetadata.getDescription());
 
     final InputStream markSupportedImageInputStream = getMarkSupportedInputStream(imageDataInputStream);
     validateImageFile(originalFilename, avatarImageFileSize);

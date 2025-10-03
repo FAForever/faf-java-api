@@ -12,9 +12,9 @@ import com.faforever.api.security.FafTokenType;
 import com.faforever.api.security.OAuthScope;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.MultiValueMap;
 
@@ -43,13 +43,13 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   private static final String NEW_PASSWORD = "newPassword";
   private static final String NEW_EMAIL = "test@faforever.com";
 
-  @MockBean
+  @MockitoBean
   private EmailSender emailSender;
 
-  @MockBean
+  @MockitoBean
   private SteamService steamService;
 
-  @MockBean
+  @MockitoBean
   private GogService gogService;
 
   @Autowired
@@ -119,7 +119,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
         .params(params))
       .andExpect(status().isOk());
 
-    User user = userRepository.getById(USERID_USER);
+    User user = userRepository.findById(USERID_USER).orElseThrow();
     assertEquals(user.getPassword(), "5c29a959abce4eda5f0e7a4e7ea53dce4fa0f0abbe8eaa63717e2fed5f193d31");
   }
 
@@ -367,7 +367,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void changeUsernameSuccess() throws Exception {
-    assertThat(userRepository.getById(1).getLogin(), is(AUTH_USER));
+    assertThat(userRepository.findById(1).orElseThrow().getLogin(), is(AUTH_USER));
 
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("newUsername", NEW_USER);
@@ -378,12 +378,12 @@ public class UsersControllerTest extends AbstractIntegrationTest {
         .params(params))
       .andExpect(status().isOk());
 
-    assertThat(userRepository.getById(1).getLogin(), is(NEW_USER));
+    assertThat(userRepository.findById(1).orElseThrow().getLogin(), is(NEW_USER));
   }
 
   @Test
   public void changeUsernameForcedByUser() throws Exception {
-    assertThat(userRepository.getById(1).getLogin(), is(AUTH_USER));
+    assertThat(userRepository.findById(1).orElseThrow().getLogin(), is(AUTH_USER));
 
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("newUsername", NEW_USER);
@@ -395,7 +395,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
       .andExpect(status().is4xxClientError())
       .andReturn();
 
-    assertThat(userRepository.getById(1).getLogin(), is(not(NEW_USER)));
+    assertThat(userRepository.findById(1).orElseThrow().getLogin(), is(not(NEW_USER)));
   }
 
   @Test
@@ -409,7 +409,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
         .params(params))
       .andExpect(status().isOk());
 
-    assertThat(userRepository.getById(2).getLogin(), is(NEW_USER));
+    assertThat(userRepository.findById(2).orElseThrow().getLogin(), is(NEW_USER));
   }
 
   @Test
@@ -438,7 +438,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void changeUsernameTooEarly() throws Exception {
-    assertThat(userRepository.getById(2).getLogin(), is(AUTH_MODERATOR));
+    assertThat(userRepository.findById(2).orElseThrow().getLogin(), is(AUTH_MODERATOR));
 
     MultiValueMap<String, String> params = new HttpHeaders();
     params.add("newUsername", NEW_USER);
@@ -452,7 +452,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
     assertApiError(result, ErrorCode.USERNAME_CHANGE_TOO_EARLY);
 
-    assertThat(userRepository.getById(2).getLogin(), is(AUTH_MODERATOR));
+    assertThat(userRepository.findById(2).orElseThrow().getLogin(), is(AUTH_MODERATOR));
   }
 
   @Test
@@ -467,7 +467,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
       .andExpect(status().isOk())
       .andReturn();
 
-    assertThat(userRepository.getById(2).getLogin(), is(NEW_USER));
+    assertThat(userRepository.findById(2).orElseThrow().getLogin(), is(NEW_USER));
   }
 
   @Test

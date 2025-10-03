@@ -11,6 +11,8 @@ spring:
     name: faf-league
     username: ${LEAGUE_DATABASE_USERNAME:faf-league-service}
     password: ${LEAGUE_DATABASE_PASSWORD:banana}
+  rabbitmq:
+    host: testcontainers
   jpa:
     show-sql: true
     hibernate:
@@ -97,3 +99,14 @@ faf-api:
     file-url-format: "file://%s/%s"
   recaptcha:
     enabled: false
+  s3:
+    access-key: admin
+    secret-key: banana123
+    endpoint: http://minio
+    region: auto
+    user-upload-bucket: user-uploads
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.engine.spi.EntityEntry: TRACE

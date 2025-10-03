@@ -11,7 +11,7 @@ buildscript {
 
 plugins {
   id "java"
-  id "org.springframework.boot" version "3.3.5"
+  id "org.springframework.boot" version "3.5.6"
   id "idea"
   id "com.adarshr.test-logger" version "4.0.0"
 }
@@ -140,6 +140,7 @@ dependencies {
   testAnnotationProcessor("org.projectlombok:lombok")
   testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
+  implementation("org.checkerframework:checker-qual:3.51.0")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-web")
@@ -162,8 +163,8 @@ dependencies {
   runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
 
   // Manually managed dependencies
-  def elideVersion = "7.1.4"
-  def springdocVersion = "2.6.0"
+  def elideVersion = "7.1.15"
+  def springdocVersion = "2.8.13"
   implementation("com.yahoo.elide:elide-core:${elideVersion}")
   implementation("com.yahoo.elide:elide-model-config:${elideVersion}")
   implementation("com.yahoo.elide:elide-spring-boot-autoconfigure:${elideVersion}")
@@ -172,24 +173,27 @@ dependencies {
   implementation("com.yahoo.elide:elide-datastore-multiplex:${elideVersion}")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}")
   implementation("com.github.FAForever:faf-java-commons:0e5d22ffff6e4dea81bac494d532627fcca8ebc4")
-  implementation("org.kohsuke:github-api:1.326")
-  implementation("org.eclipse.jgit:org.eclipse.jgit:7.1.0.202411261347-r")
-  implementation("org.jetbrains:annotations:26.0.2")
-  implementation("com.google.guava:guava:33.4.0-jre")
+  implementation("org.kohsuke:github-api:1.330")
+  implementation("org.eclipse.jgit:org.eclipse.jgit:7.3.0.202506031305-r")
+  implementation("org.jetbrains:annotations:26.0.2-1")
+  implementation("com.google.guava:guava:33.5.0-jre")
   implementation("org.luaj:luaj-jse:3.0.1")
   implementation("io.github.micheljung:nocatch:2.0")
-  implementation("org.apache.commons:commons-compress:1.27.1")
-  implementation("org.json:json:20250107")
-  implementation("org.jsoup:jsoup:1.18.3")
+  implementation("org.apache.commons:commons-compress:1.28.0")
+  implementation("org.json:json:20250517")
+  implementation("org.jsoup:jsoup:1.21.2")
   implementation("com.github.jasminb:jsonapi-converter:0.14")
-  implementation("commons-codec:commons-codec:1.17.2")
+  implementation("commons-codec:commons-codec:1.19.0")
+  implementation("software.amazon.awssdk:s3:2.34.4")
 
   // Required library for FafTokenService approach (called by nimbus-jwt)
   runtimeOnly("org.bouncycastle:bcpkix-jdk15on:1.70")
 
   testImplementation("junit-addons:junit-addons:1.4")
-  testImplementation("org.testcontainers:junit-jupiter:1.20.4")
-  testImplementation("org.testcontainers:mariadb:1.20.4")
+  def testContainersVersion = "1.21.3"
+  testImplementation("org.testcontainers:junit-jupiter:${testContainersVersion}")
+  testImplementation("org.testcontainers:mariadb:${testContainersVersion}")
+  testImplementation("org.testcontainers:rabbitmq:${testContainersVersion}")
 
   codacy("com.github.codacy:codacy-coverage-reporter:13.13.13")
 }

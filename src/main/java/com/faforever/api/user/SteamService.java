@@ -7,6 +7,8 @@ import com.faforever.api.data.domain.LinkedServiceType;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ErrorCode;
 
+import java.net.http.HttpResponse;
+
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -85,30 +87,33 @@ public class SteamService {
     log.debug("Verification uri: {}", recodedUri);
 
     // the Spring RestTemplate still struggles with the + character, so we use the default Java http client
-    String result = HttpClient.newHttpClient()
-      .send(HttpRequest.newBuilder(new URI(recodedUri)).build(), BodyHandlers.ofString())
-      .body();
+    HttpResponse<String> steamOpenIdResponse = HttpClient.newHttpClient()
+      .send(HttpRequest.newBuilder(new URI(recodedUri)).build(), BodyHandlers.ofString());
+
+    String result = steamOpenIdResponse.body();
+    int responseStatusCode = steamOpenIdResponse.statusCode();
 
     if (result == null || !result.contains("is_valid:true")) {
-      handleInvalidOpenIdRedirect(request, result);
+      handleInvalidOpenIdRedirect(request, result, responseStatusCode);
     } else {
       log.debug("Steam response successfully validated.");
     }
   }
 
-  void handleInvalidOpenIdRedirect(final HttpServletRequest request, final String openIdResponseBody) {
+  void handleInvalidOpenIdRedirect(final HttpServletRequest request, final String openIdResponseBody, final int responseStatusCode) {
     final String steamId = parseSteamIdFromLoginRedirect(request);
 
     if (StringUtils.isNotBlank(steamId)) {
       accountLinkRepository.findOneByServiceIdAndServiceType(steamId, LinkedServiceType.STEAM)
-          .map(AccountLink::getUser)
-          .ifPresentOrElse(u -> log.warn("Steam redirect could not be validated for user with id: ''{}'' and login: ''{}''. Original OpenID response:\n {}",
-              u.getId(), u.getLogin(), openIdResponseBody),
-              () -> log.warn("Steam redirect could not be validated! The steam id ''{}'' does not match any account. Original OpenID response:\n {}",
+        .map(AccountLink::getUser)
+        .ifPresentOrElse(u -> log.warn("Steam redirect could not be validated for user with id: ''{}'' and login: ''{}''. Original OpenID response - status: {}, body:\n {}",
+            u.getId(), u.getLogin(), responseStatusCode, openIdResponseBody),
+          () -> log.warn("Steam redirect could not be validated! The steam id ''{}'' does not match any account. Original OpenID response - status: {}, body:\n {}",
             StringUtils.deleteWhitespace(steamId).replace("'", ""), // prevent potential log poisoning attack
-            openIdResponseBody));
+            responseStatusCode, openIdResponseBody));
     } else {
-      log.warn("Steam redirect could not be validated! The steamId from the OpenId redirect is blank. Original OpenID response:\n {}", openIdResponseBody);
+      log.warn("Steam redirect could not be validated! The steamId from the OpenId redirect is blank. Original OpenID response - status: {}, body:\n {}",
+        responseStatusCode, openIdResponseBody);
     }
 
     throw ApiException.of(ErrorCode.STEAM_LOGIN_VALIDATION_FAILED);

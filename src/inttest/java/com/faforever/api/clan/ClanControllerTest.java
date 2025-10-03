@@ -45,7 +45,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void meDataWithoutClan() throws Exception {
-    Player player = playerRepository.getById(USERID_USER);
+    Player player = playerRepository.findById(USERID_USER).orElseThrow();
 
     mockMvc.perform(get("/clans/me")
         .with(getOAuthTokenForUserId(USERID_USER)))
@@ -57,8 +57,8 @@ public class ClanControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void meDataWithClan() throws Exception {
-    Player player = playerRepository.getById(USERID_CLAN_MEMBER);
-    Clan clan = clanRepository.getById(1);
+    Player player = playerRepository.findById(USERID_CLAN_MEMBER).orElseThrow();
+    Clan clan = clanRepository.findById(1).orElseThrow();
 
     mockMvc.perform(
         get("/clans/me")
@@ -73,7 +73,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void createClanWithSuccess() throws Exception {
-    Player player = playerRepository.getById(USERID_USER);
+    Player player = playerRepository.findById(USERID_USER).orElseThrow();
 
     assertNull(player.getClan());
     assertFalse(clanRepository.findOneByName(NEW_CLAN_NAME).isPresent());
@@ -111,7 +111,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void createClanWithExistingName() throws Exception {
-    Player player = playerRepository.getById(USERID_USER);
+    Player player = playerRepository.findById(USERID_USER).orElseThrow();
 
     assertNull(player.getClan());
     assertTrue(clanRepository.findOneByName(EXISTING_CLAN).isPresent());
@@ -133,7 +133,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void createClanWithExistingTag() throws Exception {
-    Player player = playerRepository.getById(USERID_USER);
+    Player player = playerRepository.findById(USERID_USER).orElseThrow();
 
     assertNull(player.getClan());
     assertFalse(clanRepository.findOneByName(NEW_CLAN_NAME).isPresent());
@@ -155,7 +155,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void createSecondClan() throws Exception {
-    Player player = playerRepository.getById(USERID_CLAN_MEMBER);
+    Player player = playerRepository.findById(USERID_CLAN_MEMBER).orElseThrow();
 
     assertNotNull(player.getClan());
     assertFalse(clanRepository.findOneByName(NEW_CLAN_NAME).isPresent());

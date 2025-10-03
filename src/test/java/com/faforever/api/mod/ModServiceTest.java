@@ -22,6 +22,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Example;
 import org.springframework.web.client.HttpClientErrorException.Forbidden;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -29,6 +31,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -63,6 +66,10 @@ public class ModServiceTest {
   private ModVersionRepository modVersionRepository;
   @Mock
   private LicenseRepository licenseRepository;
+  @Mock
+  private S3Client s3Client;
+  @Mock
+  private S3Presigner s3Presigner;
 
   @BeforeEach
   public void setUp() {
@@ -70,7 +77,19 @@ public class ModServiceTest {
     properties.getMod().setTargetDirectory(temporaryFolder.resolve("mods"));
     properties.getMod().setThumbnailTargetDirectory(temporaryFolder.resolve("thumbnails"));
 
-    instance = new ModService(properties, modRepository, modVersionRepository, licenseRepository);
+    instance = new ModService(properties, modRepository, modVersionRepository, licenseRepository, s3Client, s3Presigner);
+  }
+
+  @Test
+  public void getPresignedS3Url() {
+    Player uploader = mock(Player.class);
+
+    when(uploader.getActiveBanOf(BanLevel.VAULT)).thenReturn(Optional.of(
+      new BanInfo()
+        .setLevel(BanLevel.VAULT)
+    ));
+
+    assertThrows(Forbidden.class, () -> instance.getPresignedS3Url(uploader, UUID.randomUUID()));
   }
 
   @Test

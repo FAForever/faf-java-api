@@ -5,5 +5,6 @@ public enum VictoryCondition {
   DEMORALIZATION,
   DOMINATION,
   ERADICATION,
-  SANDBOX;
+  SANDBOX,
+  DECAPITATION;
 }

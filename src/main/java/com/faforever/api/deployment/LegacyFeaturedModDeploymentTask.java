@@ -97,7 +97,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
     String branch = featuredMod.getGitBranch();
     boolean allowOverride = Optional.ofNullable(featuredMod.isAllowOverride()).orElse(false);
     String modFilesExtension = featuredMod.getFileExtension();
-    Map<String, Integer> fileIds = featuredModService.getFileIds(modName);
+    Map<String, Short> fileIds = featuredModService.getFileIds(modName);
 
     log.info("Starting deployment of '{}' from '{}', branch '{}', allowOverride '{}', modFilesExtension '{}'",
       modName, repositoryUrl, branch, allowOverride, modFilesExtension);
@@ -147,9 +147,9 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
    * featured mod.
    */
   @SneakyThrows
-  private Optional<StagedFile> createPatchedExe(short version, Map<String, Integer> fileIds, Path targetFolder) {
+  private Optional<StagedFile> createPatchedExe(short version, Map<String, Short> fileIds, Path targetFolder) {
     String clientFileName = "ForgedAlliance.exe";
-    Integer fileId = fileIds.get(clientFileName);
+    Short fileId = fileIds.get(clientFileName);
     if (fileId == null) {
       log.debug("Skipping '{}' because there's no file ID available", clientFileName);
       return Optional.empty();
@@ -211,7 +211,7 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
    */
   @SneakyThrows
   @SuppressWarnings("unchecked")
-  private List<StagedFile> packageFiles(Path repositoryDirectory, short version, Map<String, Integer> fileIds, Path targetFolder) {
+  private List<StagedFile> packageFiles(Path repositoryDirectory, short version, Map<String, Short> fileIds, Path targetFolder) {
     updateStatus("Packaging files");
     try (Stream<Path> stream = Files.list(repositoryDirectory)) {
       return stream
@@ -248,14 +248,14 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
    * content of the directory. If no file ID is available, an empty optional is returned.
    */
   @SneakyThrows
-  private Optional<StagedFile> packDirectory(Path directory, Short version, Path targetFolder, Map<String, Integer> fileIds) {
+  private Optional<StagedFile> packDirectory(Path directory, Short version, Path targetFolder, Map<String, Short> fileIds) {
     String directoryName = directory.getFileName().toString();
     Path targetNxtFile = targetFolder.resolve(String.format("%s.%d.%s", directoryName, version, featuredMod.getFileExtension()));
     Path tmpNxtFile = toTmpFile(targetNxtFile);
 
     // E.g. "effects.nx2"
     String clientFileName = String.format("%s.%s", directoryName, featuredMod.getFileExtension());
-    Integer fileId = fileIds.get(clientFileName);
+    Short fileId = fileIds.get(clientFileName);
     if (fileId == null) {
       log.debug("Skipping folder '{}' because there's no file ID available", directoryName);
       return Optional.empty();
@@ -275,14 +275,14 @@ public class LegacyFeaturedModDeploymentTask implements Runnable {
    * content of the directory. If no file ID is available, an empty optional is returned.
    */
   @SneakyThrows
-  private Optional<StagedFile> packFile(Path file, Short version, Path targetFolder, Map<String, Integer> fileIds) {
+  private Optional<StagedFile> packFile(Path file, Short version, Path targetFolder, Map<String, Short> fileIds) {
     String fullFileName = file.getFileName().toString();
     String baseName = FilenameUtils.getBaseName(fullFileName);
     String extension = FilenameUtils.getExtension(fullFileName);
     Path targetFile = targetFolder.resolve(String.format("%s_%d.%s", baseName, version, extension));
     Path tmpFile = toTmpFile(targetFile);
 
-    Integer fileId = fileIds.get(fullFileName);
+    Short fileId = fileIds.get(fullFileName);
     if (fileId == null) {
       log.debug("Skipping file '{}' because there's no file ID available", fullFileName);
       return Optional.empty();
