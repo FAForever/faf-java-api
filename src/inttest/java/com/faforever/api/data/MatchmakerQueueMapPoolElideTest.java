@@ -21,20 +21,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:sql/prepMatchmakerQueueMapPoolData.sql")
 public class MatchmakerQueueMapPoolElideTest extends AbstractIntegrationTest {
 
-  private static final  <T> String genUpdateRequestForField(String fieldName, T fieldValue) {
+  private static <T> String genUpdateRequestForField(String fieldName, T fieldValue) {
     if (fieldValue instanceof String) {
       fieldValue = (T) ("\"" + fieldValue + "\"");
     }
 
-    return "{" +
-      "  \"data\": { " +
-      "    \"type\": \"matchmakerQueueMapPool\"," +
-      "    \"id\": \"101\"," +
-      "    \"attributes\": {" +
-      "      \"" + fieldName + "\": " + fieldValue + "\n" +
-      "    }" +
-      "  }" +
-      "}";
+    return """
+      {
+        "data": {
+          "type": "matchmakerQueueMapPool",
+          "id": "101",
+          "attributes": {
+            "%s": %s
+          }
+        }
+      }
+      """.formatted(fieldName, fieldValue);
   }
 
   @Test
@@ -109,45 +111,45 @@ public class MatchmakerQueueMapPoolElideTest extends AbstractIntegrationTest {
   @Test
   public void canUpdateMatchmakerQueueMapPoolMinRatingWithScopeAndRole() throws Exception {
     mockMvc.perform(patch("/data/matchmakerQueueMapPool/101")
-      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
-      .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
-      .content(genUpdateRequestForField("minRating", 1000)))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
+        .content(genUpdateRequestForField("minRating", 1000)))
       .andExpect(status().isNoContent());
   }
 
   @Test
   public void canUpdateMatchmakerQueueMapPoolMaxRatingWithScopeAndRole() throws Exception {
     mockMvc.perform(patch("/data/matchmakerQueueMapPool/101")
-      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
-      .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
-      .content(genUpdateRequestForField("maxRating", 1000)))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
+        .content(genUpdateRequestForField("maxRating", 1000)))
       .andExpect(status().isNoContent());
   }
 
   @Test
   public void canUpdateMatchmakerQueueMapPoolVetoTokensPerPlayerWithScopeAndRole() throws Exception {
     mockMvc.perform(patch("/data/matchmakerQueueMapPool/101")
-      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
-      .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
-      .content(genUpdateRequestForField("vetoTokensPerPlayer", 1)))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
+        .content(genUpdateRequestForField("vetoTokensPerPlayer", 1)))
       .andExpect(status().isNoContent());
   }
 
   @Test
   public void canUpdateMatchmakerQueueMapPoolMaxTokensPerMapWithScopeAndRole() throws Exception {
     mockMvc.perform(patch("/data/matchmakerQueueMapPool/101")
-      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
-      .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
-      .content(genUpdateRequestForField("maxTokensPerMap", 2)))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
+        .content(genUpdateRequestForField("maxTokensPerMap", 2)))
       .andExpect(status().isNoContent());
   }
 
   @Test
   public void canUpdateMatchmakerQueueMapPoolMinimumMapsAfterVetoWithScopeAndRole() throws Exception {
     mockMvc.perform(patch("/data/matchmakerQueueMapPool/101")
-      .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
-      .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
-      .content(genUpdateRequestForField("minimumMapsAfterVeto", 3.1)))
+        .with(getOAuthTokenWithActiveUser(OAuthScope._ADMINISTRATIVE_ACTION, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP))
+        .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
+        .content(genUpdateRequestForField("minimumMapsAfterVeto", 3.1)))
       .andExpect(status().isNoContent());
-      }
+  }
 }
