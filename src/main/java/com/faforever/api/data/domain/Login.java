@@ -14,8 +14,6 @@ import org.hibernate.annotations.BatchSize;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.OneToMany;
@@ -39,7 +37,6 @@ public abstract class Login extends AbstractEntity<Login> implements OwnableEnti
   private Set<UserGroup> userGroups;
   private String recentIpAddress;
   private OffsetDateTime lastLogin;
-  private Set<UniqueId> uniqueIds;
   private Set<UniqueIdAssignment> uniqueIdAssignments;
 
 
@@ -121,17 +118,6 @@ public abstract class Login extends AbstractEntity<Login> implements OwnableEnti
   @BatchSize(size = 1000)
   public Set<UserGroup> getUserGroups() {
     return userGroups;
-  }
-
-  @Deprecated(forRemoval = true)
-  @OneToMany
-  @JoinTable(name = "unique_id_users",
-    joinColumns = @JoinColumn(name = "user_id"),
-    inverseJoinColumns = @JoinColumn(name = "uniqueid_hash", referencedColumnName = "hash")
-  )
-  @ReadPermission(expression = ReadAccountPrivateDetailsCheck.EXPRESSION)
-  public Set<UniqueId> getUniqueIds() {
-    return uniqueIds;
   }
 
   @OneToMany(mappedBy = "user")
