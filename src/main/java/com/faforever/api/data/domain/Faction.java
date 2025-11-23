@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 public enum Faction {
   // Order is crucial
-  AEON("aeon"), CYBRAN("cybran"), UEF("uef"), SERAPHIM("seraphim"), NOMAD("nomad"), UNKNOWN(null);
+  UEF("uef"), AEON("aeon"), CYBRAN("cybran"), SERAPHIM("seraphim"), NOMAD("nomad"), UNKNOWN(null);
 
   private static final java.util.Map<String, Faction> fromString;
 
