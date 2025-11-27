@@ -39,7 +39,7 @@ configurations {
 
 idea {
   module {
-    testSourceDirs += file('src/inttest/java')
+    testSources.from(file('src/inttest/java'))
   }
 }
 
