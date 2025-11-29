@@ -152,7 +152,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${JWT_FAF_HYDRA_ISSUER:https://hydra.${FAF_DOMAIN}/}
+          issuer-uri: ${JWT_FAF_HYDRA_ISSUER:https://hydra.${FAF_DOMAIN}}
 
 elide:
   default-page-size: ${ELIDE_DEFAULT_PAGE_SIZE:100}
