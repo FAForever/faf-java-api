@@ -1,6 +1,5 @@
 package com.faforever.api.email;
 
-import org.eclipse.angus.mail.smtp.SMTPMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,7 +37,7 @@ public class JavaEmailSenderTest {
     ArgumentCaptor<MimeMessagePreparator> captor = ArgumentCaptor.forClass(MimeMessagePreparator.class);
     verify(mailSender).send(captor.capture());
 
-    MimeMessage mimeMessage = new SMTPMessage((Session) null);
+    MimeMessage mimeMessage = new MimeMessage((Session) null);
     captor.getValue().prepare(mimeMessage);
 
     assertThat(mimeMessage.getAllRecipients()[0], is(new InternetAddress("toEmail")));

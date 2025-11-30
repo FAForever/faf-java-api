@@ -11,8 +11,6 @@ import com.faforever.commons.api.dto.DomainBlacklist;
 import com.faforever.commons.api.dto.ModerationReport;
 import com.faforever.commons.api.dto.Player;
 import com.faforever.commons.api.dto.Tutorial;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
@@ -38,6 +36,8 @@ import org.springframework.web.context.WebApplicationContext;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.RabbitMQContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import tools.jackson.annotation.JsonInclude.Include;
+import tools.jackson.databind.ObjectMapper;
 
 import jakarta.transaction.Transactional;
 import java.time.format.DateTimeFormatter;

@@ -1,27 +1,29 @@
 package com.faforever.api.error;
 
 import com.faforever.api.logging.RequestIdFilter;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import org.slf4j.MDC;
-import org.springframework.boot.jackson.JsonComponent;
+import org.springframework.boot.jackson.JacksonComponent;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
-import java.io.IOException;
 import java.text.MessageFormat;
 
-@JsonComponent
-public class ErrorJsonSerializer extends JsonSerializer<Error> {
+@JacksonComponent
+public class ErrorJsonSerializer extends ValueSerializer<Error> {
+
   @Override
-  public void serialize(Error error, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+  public void serialize(Error error, JsonGenerator gen, SerializationContext ctxt) throws JacksonException {
     ErrorCode errorCode = error.getErrorCode();
 
     gen.writeStartObject();
-    gen.writeNumberField("code", errorCode.getCode());
-    gen.writeStringField("requestId", MDC.get(RequestIdFilter.REQUEST_ID_KEY));
-    gen.writeStringField("title", MessageFormat.format(errorCode.getTitle(), error.getArgs()));
-    gen.writeStringField("detail", MessageFormat.format(errorCode.getDetail(), error.getArgs()));
-    gen.writeObjectField("args", error.getArgs());
+    gen.writeNumberProperty("code", errorCode.getCode());
+    gen.writeStringProperty("requestId", MDC.get(RequestIdFilter.REQUEST_ID_KEY));
+    gen.writeStringProperty("title", MessageFormat.format(errorCode.getTitle(), error.getArgs()));
+    gen.writeStringProperty("detail", MessageFormat.format(errorCode.getDetail(), error.getArgs()));
+    gen.writeObjectPropertyStart("args", error.getArgs());
     gen.writeEndObject();
+
   }
 }

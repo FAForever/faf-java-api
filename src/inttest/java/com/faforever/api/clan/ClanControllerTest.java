@@ -7,11 +7,11 @@ import com.faforever.api.error.ErrorCode;
 import com.faforever.api.player.PlayerRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import static org.hamcrest.Matchers.is;
@@ -45,7 +45,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void meDataWithoutClan() throws Exception {
-    Player player = playerRepository.findById(USERID_USER).orElseThrow();
+    Player player = playerRepository.getReferenceById(USERID_USER);
 
     mockMvc.perform(get("/clans/me")
         .with(getOAuthTokenForUserId(USERID_USER)))
@@ -78,7 +78,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
     assertNull(player.getClan());
     assertFalse(clanRepository.findOneByName(NEW_CLAN_NAME).isPresent());
 
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("name", NEW_CLAN_NAME);
     params.add("tag", NEW_CLAN_TAG);
     params.add("description", NEW_CLAN_DESCRIPTION);
@@ -98,7 +98,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void createClanWithoutAuth() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("name", NEW_CLAN_NAME);
     params.add("tag", NEW_CLAN_TAG);
     params.add("description", NEW_CLAN_DESCRIPTION);
@@ -116,7 +116,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
     assertNull(player.getClan());
     assertTrue(clanRepository.findOneByName(EXISTING_CLAN).isPresent());
 
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("name", EXISTING_CLAN);
     params.add("tag", NEW_CLAN_TAG);
     params.add("description", NEW_CLAN_DESCRIPTION);
@@ -138,7 +138,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
     assertNull(player.getClan());
     assertFalse(clanRepository.findOneByName(NEW_CLAN_NAME).isPresent());
 
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("name", NEW_CLAN_NAME);
     params.add("tag", "123");
     params.add("description", NEW_CLAN_DESCRIPTION);
@@ -160,7 +160,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
     assertNotNull(player.getClan());
     assertFalse(clanRepository.findOneByName(NEW_CLAN_NAME).isPresent());
 
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("name", NEW_CLAN_NAME);
     params.add("tag", NEW_CLAN_TAG);
     params.add("description", NEW_CLAN_DESCRIPTION);

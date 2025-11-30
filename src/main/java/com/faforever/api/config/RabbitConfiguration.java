@@ -11,12 +11,12 @@ import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
+import org.springframework.amqp.rabbit.config.StatelessRetryOperationsInterceptor;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.retry.RejectAndDontRequeueRecoverer;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,10 +42,10 @@ public class RabbitConfiguration {
    * (afterwards it will be nacked)
    */
   @Bean
-  public RetryOperationsInterceptor retryInterceptor() {
+  public StatelessRetryOperationsInterceptor retryInterceptor() {
     return RetryInterceptorBuilder.StatelessRetryInterceptorBuilder
       .stateless()
-      .maxAttempts(3)
+      .maxRetries(2)
       .backOffOptions(1000, 2.0, 10_000)
       .recoverer(new RejectAndDontRequeueRecoverer())
       .build();
@@ -58,13 +58,13 @@ public class RabbitConfiguration {
   @Bean
   public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
     ConnectionFactory connectionFactory,
-    RetryOperationsInterceptor retryInterceptor
+    StatelessRetryOperationsInterceptor retryInterceptor
   ) {
     var factory = new SimpleRabbitListenerContainerFactory();
     factory.setDefaultRequeueRejected(false);
     factory.setConnectionFactory(connectionFactory);
     factory.setAdviceChain(retryInterceptor);
-    factory.setMessageConverter(new Jackson2JsonMessageConverter());
+    factory.setMessageConverter(new JacksonJsonMessageConverter());
 
     return factory;
   }

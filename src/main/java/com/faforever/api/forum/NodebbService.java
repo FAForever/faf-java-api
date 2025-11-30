@@ -53,7 +53,7 @@ public class NodebbService implements UserDataSyncService, InitializingBean {
   }
 
   private Optional<Integer> getNodebbUserId(int userId) {
-    URI uri = UriComponentsBuilder.fromHttpUrl(properties.getNodebb().getBaseUrl())
+    URI uri = UriComponentsBuilder.fromUriString(properties.getNodebb().getBaseUrl())
       // This is not an official NodeBB api url, it's coming from our own sso plugin
       .pathSegment("api", "v3", "plugins", "sso", "user", String.valueOf(userId))
       .queryParam("_uid", getAdminUserId())
@@ -74,7 +74,7 @@ public class NodebbService implements UserDataSyncService, InitializingBean {
   }
 
   private void updateUsernameData(int nodebbUserId, UserUpdatedEvent event) {
-    URI uri = UriComponentsBuilder.fromHttpUrl(properties.getNodebb().getBaseUrl())
+    URI uri = UriComponentsBuilder.fromUriString(properties.getNodebb().getBaseUrl())
       .pathSegment("api", "v3", "users", String.valueOf(nodebbUserId))
       .build()
       .toUri();
@@ -85,7 +85,7 @@ public class NodebbService implements UserDataSyncService, InitializingBean {
   }
 
   private void updateEmailData(int nodebbUserId, UserUpdatedEvent event) {
-    URI uri = UriComponentsBuilder.fromHttpUrl(properties.getNodebb().getBaseUrl())
+    URI uri = UriComponentsBuilder.fromUriString(properties.getNodebb().getBaseUrl())
       .pathSegment("api", "v3", "users", String.valueOf(nodebbUserId), "emails")
       .build()
       .toUri();
@@ -103,7 +103,7 @@ public class NodebbService implements UserDataSyncService, InitializingBean {
     LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
     headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + properties.getNodebb().getMasterToken());
 
-    return new HttpEntity<>(payload, headers);
+    return new HttpEntity<>(payload, HttpHeaders.readOnlyHttpHeaders(headers));
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)

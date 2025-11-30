@@ -6,9 +6,6 @@ import com.faforever.api.data.domain.AccountLink;
 import com.faforever.api.data.domain.LinkedServiceType;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ErrorCode;
-
-import java.net.http.HttpResponse;
-
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Map;
 import java.util.Optional;
@@ -36,7 +34,7 @@ public class SteamService {
   String buildLoginUrl(String redirectUrl) {
     log.debug("Building steam login url for redirect url: {}", redirectUrl);
 
-    return UriComponentsBuilder.fromHttpUrl(properties.getSteam().getLoginUrlFormat())
+    return UriComponentsBuilder.fromUriString(properties.getSteam().getLoginUrlFormat())
       .queryParam("openid.ns", "http://specs.openid.net/auth/2.0")
       .queryParam("openid.mode", "checkid_setup")
       .queryParam("openid.return_to", redirectUrl)
@@ -78,7 +76,7 @@ public class SteamService {
   void validateSteamRedirect(HttpServletRequest request) {
     log.debug("Checking valid OpenID 2.0 redirect against Steam API, query string: {}", request.getQueryString());
 
-    UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(properties.getSteam().getLoginUrlFormat());
+    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(properties.getSteam().getLoginUrlFormat());
     request.getParameterMap().forEach(builder::queryParam);
     builder.replaceQueryParam("openid.mode", "check_authentication");
 

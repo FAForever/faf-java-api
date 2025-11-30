@@ -5,7 +5,7 @@ import com.yahoo.elide.datastores.jpa.JpaDataStore;
 import com.yahoo.elide.spring.orm.jpa.EntityManagerProxySupplier;
 import com.yahoo.elide.spring.orm.jpa.PlatformJpaTransactionSupplier;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
+import org.springframework.boot.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;

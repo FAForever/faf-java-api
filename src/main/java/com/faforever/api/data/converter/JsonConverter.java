@@ -1,13 +1,12 @@
 package com.faforever.api.data.converter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import java.io.IOException;
 import java.util.Map;
 
 @Slf4j
@@ -23,7 +22,7 @@ public class JsonConverter implements AttributeConverter<Map<String, Object>, St
     String jsonAsString = null;
     try {
       jsonAsString = objectMapper.writeValueAsString(jsonPayload);
-    } catch (final JsonProcessingException e) {
+    } catch (final JacksonException e) {
       log.error("Failed to convert Json object {} to String", jsonPayload, e);
     }
 
@@ -37,7 +36,7 @@ public class JsonConverter implements AttributeConverter<Map<String, Object>, St
     if (jsonAsString != null) {
       try {
         jsonPayload = objectMapper.readValue(jsonAsString, Map.class);
-      } catch (final IOException e) {
+      } catch (final JacksonException e) {
         log.error("Failed to read stringified Json {}", jsonAsString, e);
       }
     }

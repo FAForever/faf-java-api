@@ -18,7 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Map;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
 
 @RestController
@@ -46,7 +46,7 @@ public class ExeUploaderController {
     @ApiResponse(responseCode = "200", description = "Success"),
     @ApiResponse(responseCode = "401", description = "Unauthorized"),
     @ApiResponse(responseCode = "500", description = "Failure")})
-  @RequestMapping(path = "/upload", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
+  @RequestMapping(path = "/upload", method = RequestMethod.POST, produces = APPLICATION_JSON_VALUE)
   public void upload(@RequestParam("file") MultipartFile file,
                      @RequestParam("modName") String modName,
                      @RequestParam("apiKey") String apiKey

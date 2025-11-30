@@ -4,7 +4,6 @@ import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.security.crypto.CertificateUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -15,6 +14,7 @@ import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.RSAKey;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 import jakarta.inject.Inject;
 import java.io.IOException;
