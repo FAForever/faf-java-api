@@ -4,7 +4,7 @@ import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.Challonge;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -62,14 +62,14 @@ public class ChallongeController {
 
   @Async
   @Cacheable(cacheNames = CHALLONGE_READ_CACHE_NAME)
-  @RequestMapping(path = "/**", method = GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  @RequestMapping(path = "/**", method = GET, produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<ResponseEntity<String>> get(HttpServletRequest request) {
     return CompletableFuture.completedFuture(restTemplate.getForEntity(translateRoute(request), String.class, Map.of()));
   }
 
   @Async
   @Secured("ROLE_TOURNAMENT_DIRECTOR")
-  @RequestMapping(path = "/**", method = {POST, PUT, DELETE}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  @RequestMapping(path = "/**", method = {POST, PUT, DELETE}, produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<ResponseEntity<String>> write(@RequestBody(required = false) Object body, HttpMethod method, HttpServletRequest request) {
     return CompletableFuture.completedFuture(restTemplate.exchange(translateRoute(request), method, new HttpEntity<>(body), String.class));
   }

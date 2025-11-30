@@ -2,9 +2,6 @@ package com.faforever.api.error;
 
 import com.faforever.api.data.domain.Clan;
 import com.faforever.api.data.domain.Player;
-
-import jakarta.servlet.ServletException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -12,17 +9,16 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import jakarta.servlet.ServletException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validation;
 import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-
-import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
-
 import java.text.MessageFormat;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -133,7 +129,7 @@ public class GlobalControllerExceptionHandlerTest {
   public static Stream<Arguments> servletExceptionSource() {
     return Stream.of(
       Arguments.of(new HttpRequestMethodNotSupportedException(HttpMethod.DELETE.name())),
-      Arguments.of(new NoResourceFoundException(HttpMethod.POST, "test/path"))
+      Arguments.of(new NoResourceFoundException(HttpMethod.POST, "", "test/path"))
     );
   }
 }

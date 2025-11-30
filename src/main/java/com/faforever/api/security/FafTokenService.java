@@ -4,9 +4,6 @@ import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ErrorCode;
 import com.faforever.api.security.crypto.CertificateUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -21,6 +18,9 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import jakarta.validation.constraints.NotNull;
 import java.nio.file.Files;
@@ -108,7 +108,7 @@ public class FafTokenService {
 
       claims = objectMapper.readValue(payload, new TypeReference<>() {
       });
-    } catch (ParseException | JOSEException | JsonProcessingException | IllegalArgumentException e) {
+    } catch (ParseException | JOSEException | JacksonException | IllegalArgumentException e) {
       log.warn("Unparseable token: {}", token);
       throw ApiException.of(ErrorCode.TOKEN_INVALID);
     }

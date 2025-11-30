@@ -12,10 +12,10 @@ import com.faforever.api.security.FafTokenType;
 import com.faforever.api.security.OAuthScope;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.time.Duration;
@@ -63,7 +63,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void registerWithSuccess() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("username", NEW_USER);
     params.add("email", NEW_EMAIL);
 
@@ -76,7 +76,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void registerWithAuthentication() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("username", NEW_USER);
     params.add("email", NEW_EMAIL);
     params.add("password", NEW_PASSWORD);
@@ -109,7 +109,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void changePasswordWithSuccess() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("currentPassword", AUTH_USER);
     params.add("newPassword", NEW_PASSWORD);
 
@@ -125,7 +125,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void changePasswordWithoutScope() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("currentPassword", AUTH_USER);
     params.add("newPassword", NEW_PASSWORD);
 
@@ -138,7 +138,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void changePasswordWithWrongPassword() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("currentPassword", "wrongPassword");
     params.add("newPassword", NEW_PASSWORD);
 
@@ -154,7 +154,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void changeEmailWithSuccess() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("currentPassword", AUTH_USER);
     params.add("newEmail", NEW_EMAIL);
 
@@ -170,7 +170,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void changeEmailWithoutScope() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("currentPassword", AUTH_USER);
     params.add("newEmail", NEW_EMAIL);
 
@@ -183,7 +183,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void changeEmailWithWrongPassword() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("currentPassword", "wrongPassword");
     params.add("newEmail", NEW_EMAIL);
 
@@ -199,7 +199,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void changeEmailWithInvalidEmail() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("currentPassword", AUTH_USER);
     params.add("newEmail", "invalid-email");
 
@@ -215,7 +215,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void resetPasswordWithUsername() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("identifier", AUTH_USER);
 
     mockMvc.perform(
@@ -228,7 +228,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void resetPasswordWithEmail() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("identifier", "user@faforever.com");
 
     mockMvc.perform(
@@ -344,7 +344,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void changeUsernameUnauthorized() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("newUsername", NEW_USER);
 
     mockMvc.perform(
@@ -355,7 +355,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void changeUsernameWithWrongScope() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("newUsername", NEW_USER);
 
     mockMvc.perform(
@@ -369,7 +369,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   public void changeUsernameSuccess() throws Exception {
     assertThat(userRepository.findById(1).orElseThrow().getLogin(), is(AUTH_USER));
 
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("newUsername", NEW_USER);
 
     mockMvc.perform(
@@ -385,7 +385,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   public void changeUsernameForcedByUser() throws Exception {
     assertThat(userRepository.findById(1).orElseThrow().getLogin(), is(AUTH_USER));
 
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("newUsername", NEW_USER);
 
     mockMvc.perform(
@@ -400,7 +400,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void changeUsernameForcedByModerator() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("newUsername", NEW_USER);
 
     mockMvc.perform(
@@ -414,7 +414,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void changeUsernameForcedByModeratorWithoutScope() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("newUsername", NEW_USER);
 
     mockMvc.perform(
@@ -426,7 +426,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void changeUsernameForcedByModeratorWithoutRole() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("newUsername", NEW_USER);
 
     mockMvc.perform(
@@ -440,7 +440,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   public void changeUsernameTooEarly() throws Exception {
     assertThat(userRepository.findById(2).orElseThrow().getLogin(), is(AUTH_MODERATOR));
 
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("newUsername", NEW_USER);
 
     MvcResult result = mockMvc.perform(
@@ -457,7 +457,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void changeUsernameTooEarlyButForced() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("newUsername", NEW_USER);
 
     mockMvc.perform(
@@ -480,7 +480,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void buildGogProfileToken() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("gogUsername", "someUsername");
     when(gogService.buildGogToken(any())).thenReturn("theToken");
 
@@ -496,7 +496,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void linkToGogWithoutOAuthScopeFails() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("gogUsername", "someUsername");
 
     mockMvc.perform(
@@ -508,7 +508,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void linkToGogSuccess() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("gogUsername", "someUsername");
 
     when(gogService.buildGogToken(any())).thenReturn("theToken");
@@ -524,7 +524,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void linkToGogAlreadyLinked() throws Exception {
-    MultiValueMap<String, String> params = new HttpHeaders();
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("gogUsername", "username");
 
     when(gogService.buildGogToken(any())).thenReturn("theToken");

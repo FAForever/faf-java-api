@@ -8,7 +8,6 @@ import com.faforever.api.error.ErrorCode;
 import com.faforever.api.security.OAuthScope;
 import com.faforever.api.user.UserService.CallbackResult;
 import com.faforever.api.utils.RemoteAddressUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
+import tools.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -188,7 +188,7 @@ public class UsersController {
     if (result.errors().isEmpty()) {
       response.sendRedirect(result.callbackUrl());
     } else {
-      UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(result.callbackUrl());
+      UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(result.callbackUrl());
       String errorsJson = objectMapper.writeValueAsString(result.errors());
       uriBuilder.queryParam("errors", errorsJson);
       response.sendRedirect(uriBuilder.toUriString());

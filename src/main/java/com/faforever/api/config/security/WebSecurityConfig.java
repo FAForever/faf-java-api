@@ -35,7 +35,7 @@ public class WebSecurityConfig {
       oauth2Config.bearerTokenResolver(bearerTokenResolver);
       oauth2Config.jwt(jwtConfig -> jwtConfig.jwtAuthenticationConverter(new FafAuthenticationConverter()));
     });
-    http.authorizeRequests(authorizeConfig -> {
+    http.authorizeHttpRequests(authorizeConfig -> {
       authorizeConfig.requestMatchers(HttpMethod.OPTIONS).permitAll();
       // Swagger UI
       authorizeConfig.requestMatchers(
