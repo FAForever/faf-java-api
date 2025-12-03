@@ -182,7 +182,7 @@ dependencies {
   implementation("org.apache.commons:commons-compress:1.28.0")
   implementation("org.json:json:20250517")
   implementation("org.jsoup:jsoup:1.21.2")
-  implementation("com.github.jasminb:jsonapi-converter:0.14")
+  implementation("com.github.jasminb:jsonapi-converter:0.15")
   implementation("commons-codec:commons-codec:1.20.0")
   implementation("software.amazon.awssdk:s3:2.34.4")
 
