@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -92,7 +93,7 @@ public class MapsController {
       try {
         JsonNode node = objectMapper.readTree(metadataJsonString);
         ranked = node.path("isRanked").asBoolean(false);
-      } catch (IOException e) {
+      } catch (JacksonException e) {
         log.debug("Could not parse metadata", e);
         throw ApiException.of(ErrorCode.INVALID_METADATA, e.getMessage());
       }

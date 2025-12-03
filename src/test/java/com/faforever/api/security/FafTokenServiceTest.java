@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -77,7 +76,6 @@ public class FafTokenServiceTest {
   @BeforeEach
   public void setUp() throws Exception {
     objectMapper = new ObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
 
     FafApiProperties properties = new FafApiProperties();
     properties.getJwt().setSecretKeyPath(Paths.get("test-pki-private.key"));
