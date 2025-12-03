@@ -22,8 +22,7 @@ public class ErrorJsonSerializer extends ValueSerializer<Error> {
     gen.writeStringProperty("requestId", MDC.get(RequestIdFilter.REQUEST_ID_KEY));
     gen.writeStringProperty("title", MessageFormat.format(errorCode.getTitle(), error.getArgs()));
     gen.writeStringProperty("detail", MessageFormat.format(errorCode.getDetail(), error.getArgs()));
-    gen.writeObjectPropertyStart("args", error.getArgs());
+    gen.writePOJOProperty("args", error.getArgs());
     gen.writeEndObject();
-
   }
 }
