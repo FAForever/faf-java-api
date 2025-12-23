@@ -232,7 +232,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
     params.add("identifier", "user@faforever.com");
 
     mockMvc.perform(
-      post("/users/requestPasswordReset")
+        post("/users/requestPasswordReset")
         .params(params))
       .andExpect(status().isOk());
 
@@ -256,13 +256,14 @@ public class UsersControllerTest extends AbstractIntegrationTest {
   public void buildSteamLinkUrlUnauthorized() throws Exception {
     mockMvc.perform(
       post("/users/buildSteamLinkUrl?callbackUrl=foo"))
-      .andExpect(status().isForbidden());
+      .andExpect(status().isUnauthorized());
   }
 
   @Test
   public void buildSteamLinkUrlWithWrongScope() throws Exception {
     mockMvc.perform(
-      post("/users/buildSteamLinkUrl?callbackUrl=foo"))
+      post("/users/buildSteamLinkUrl?callbackUrl=foo")
+        .with(getOAuthTokenForUserId(USERID_MODERATOR, OAuthScope._LOBBY)))
       .andExpect(status().isForbidden());
   }
 
@@ -350,7 +351,7 @@ public class UsersControllerTest extends AbstractIntegrationTest {
     mockMvc.perform(
       post("/users/changeUsername")
         .params(params))
-      .andExpect(status().isForbidden());
+      .andExpect(status().isUnauthorized());
   }
 
   @Test

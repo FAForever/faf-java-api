@@ -35,11 +35,6 @@ public class ElideConfig {
   public static final String DEFAULT_CACHE_NAME = "Elide.defaultCache";
 
   @Bean
-  ObjectMapper objectMapper() {
-    return new ObjectMapper();
-  }
-
-  @Bean
   MultiplexManager multiplexDataStore(
     DataStore fafDataStore,
     DataStore leagueDataStore

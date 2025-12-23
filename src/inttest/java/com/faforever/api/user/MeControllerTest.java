@@ -18,7 +18,7 @@ public class MeControllerTest extends AbstractIntegrationTest {
   @Test
   public void withoutTokenUnauthorized() throws Exception {
     mockMvc.perform(get("/me"))
-      .andExpect(status().isForbidden());
+      .andExpect(status().isUnauthorized());
   }
 
   @Test

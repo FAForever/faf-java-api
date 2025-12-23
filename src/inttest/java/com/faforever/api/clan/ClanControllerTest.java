@@ -106,7 +106,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
     mockMvc.perform(
       post("/clans/create")
         .params(params))
-      .andExpect(status().isForbidden());
+      .andExpect(status().isUnauthorized());
   }
 
   @Test

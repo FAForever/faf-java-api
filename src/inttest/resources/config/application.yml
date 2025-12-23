@@ -19,9 +19,6 @@ spring:
       ddl-auto: ${DATABASE_DDL_AUTO:none}
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-    properties:
-      hibernate:
-        current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
   h2:
     console:
       enabled: true
@@ -110,3 +107,4 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.engine.spi.EntityEntry: TRACE
+    org.springframework.security: DEBUG
