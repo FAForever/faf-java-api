@@ -50,6 +50,17 @@ public class WebSecurityConfig {
         "/favicon.ico",
         "/robots.txt"
       ).permitAll();
+      authorizeConfig.requestMatchers(
+        "/exe/upload",
+        "/game/*/replay",
+        "/users/register",
+        "/users/activate",
+        "/users/requestPasswordReset",
+        "/users/requestPasswordReset",
+        "/users/performPasswordReset",
+        "/users/linkToSteam/**"
+      ).permitAll();
+      authorizeConfig.anyRequest().authenticated();
     });
     // @formatter:on
     return http.build();

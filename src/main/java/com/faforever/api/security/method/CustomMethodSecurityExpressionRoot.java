@@ -1,8 +1,11 @@
 package com.faforever.api.security.method;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;
 import org.springframework.security.core.Authentication;
+
+import java.util.function.Supplier;
 
 import static com.faforever.api.security.FafScope.SCOPE_PREFIX;
 
@@ -14,7 +17,7 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot i
   private Object filterObject;
   private Object returnObject;
 
-  public CustomMethodSecurityExpressionRoot(Authentication authentication) {
+  public CustomMethodSecurityExpressionRoot(Supplier<? extends @Nullable Authentication> authentication) {
     super(authentication);
   }
 

@@ -63,7 +63,7 @@ public class ModerationReportTest extends AbstractIntegrationTest {
       post("/data/moderationReport")
         .header(HttpHeaders.CONTENT_TYPE, JSON_API_MEDIA_TYPE)
         .content(createJsonApiContent(validModerationReport)))
-      .andExpect(status().isForbidden());
+      .andExpect(status().isUnauthorized());
   }
 
   @Test
