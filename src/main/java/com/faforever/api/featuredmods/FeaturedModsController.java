@@ -1,12 +1,12 @@
 package com.faforever.api.featuredmods;
 
 import com.faforever.api.data.domain.FeaturedMod;
+import com.faforever.api.data.jackson3compat.Data;
+import com.faforever.api.data.jackson3compat.JsonApiDocument;
+import com.faforever.api.data.jackson3compat.Resource;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.security.OAuthScope;
-import com.yahoo.elide.jsonapi.models.Data;
-import com.yahoo.elide.jsonapi.models.JsonApiDocument;
-import com.yahoo.elide.jsonapi.models.Resource;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
