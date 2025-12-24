@@ -2,12 +2,12 @@ package com.faforever.api.user;
 
 import com.faforever.api.data.domain.Player;
 import com.faforever.api.data.domain.UserGroup;
+import com.faforever.api.data.jackson3compat.Data;
+import com.faforever.api.data.jackson3compat.JsonApiDocument;
+import com.faforever.api.data.jackson3compat.Resource;
 import com.faforever.api.player.PlayerService;
 import com.faforever.api.security.FafUserAuthenticationToken;
 import com.faforever.api.security.UserSupplier;
-import com.yahoo.elide.jsonapi.models.Data;
-import com.yahoo.elide.jsonapi.models.JsonApiDocument;
-import com.yahoo.elide.jsonapi.models.Resource;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.Builder;
