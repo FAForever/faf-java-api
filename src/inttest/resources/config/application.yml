@@ -103,8 +103,8 @@ faf-api:
     region: auto
     user-upload-bucket: user-uploads
 
-logging:
-  level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.engine.spi.EntityEntry: TRACE
-    org.springframework.security: DEBUG
+#logging:
+#  level:
+#    org.hibernate.SQL: DEBUG
+#    org.hibernate.engine.spi.EntityEntry: TRACE
+#    org.springframework.security: DEBUG

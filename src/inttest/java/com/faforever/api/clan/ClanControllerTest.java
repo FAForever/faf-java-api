@@ -45,7 +45,7 @@ public class ClanControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void meDataWithoutClan() throws Exception {
-    Player player = playerRepository.getReferenceById(USERID_USER);
+    Player player = playerRepository.findById(USERID_USER).orElseThrow();
 
     mockMvc.perform(get("/clans/me")
         .with(getOAuthTokenForUserId(USERID_USER)))

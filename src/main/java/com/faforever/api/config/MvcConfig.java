@@ -3,7 +3,6 @@ package com.faforever.api.config;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.format.FormatterRegistry;
-import org.springframework.http.converter.HttpMessageConverters;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -31,11 +30,6 @@ public class MvcConfig implements WebMvcConfigurer {
   public void addCorsMappings(CorsRegistry registry) {
     registry.addMapping("/**")
       .allowedMethods("*");
-  }
-
-  @Override
-  public void configureMessageConverters(HttpMessageConverters.ServerBuilder builder) {
-    builder.addCustomConverter(new IgnoreOctetStreamToObjectHttpMessageConverter());
   }
 
   @Override
