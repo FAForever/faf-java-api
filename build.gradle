@@ -28,7 +28,6 @@ jar.enabled = false
 
 repositories {
   mavenCentral()
-  maven { url "https://jitpack.io" }
 }
 
 compileJava.dependsOn(processResources)
@@ -171,6 +170,7 @@ dependencies {
   // Manually managed dependencies
   def elideVersion = "7.1.15"
   def springdocVersion = "2.8.13"
+  def commonsVersion = "20251112-0a26247"
   implementation("com.yahoo.elide:elide-core:${elideVersion}")
   implementation("com.yahoo.elide:elide-model-config:${elideVersion}")
   implementation("com.yahoo.elide:elide-spring-boot-autoconfigure:${elideVersion}")
@@ -178,7 +178,8 @@ dependencies {
   implementation("com.yahoo.elide:elide-datastore-jpa:${elideVersion}")
   implementation("com.yahoo.elide:elide-datastore-multiplex:${elideVersion}")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}")
-  implementation("com.github.FAForever:faf-java-commons:0e5d22ffff6e4dea81bac494d532627fcca8ebc4")
+  implementation("com.faforever.commons:data:${commonsVersion}")
+  implementation("com.faforever.commons:api:${commonsVersion}")
   implementation("org.kohsuke:github-api:1.330")
   implementation("org.eclipse.jgit:org.eclipse.jgit:7.4.0.202509020913-r")
   implementation("org.jetbrains:annotations:26.0.2-1")

@@ -90,4 +90,4 @@ spring:
           issuer-uri: https://hydra.faforever.com/
 logging:
   level:
-    com.faforever.api: info
+    com.faforever.api: debug
