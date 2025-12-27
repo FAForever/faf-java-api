@@ -129,7 +129,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MariaDBDialect
-  jackson:
+  jackson2:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
   profiles:

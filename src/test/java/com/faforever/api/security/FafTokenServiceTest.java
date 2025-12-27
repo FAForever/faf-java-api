@@ -11,7 +11,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -59,7 +59,7 @@ public class FafTokenServiceTest {
   private final RSASSASigner rsaSigner;
   private final RSASSAVerifier rsaVerifier;
 
-  private ObjectMapper objectMapper;
+  private JsonMapper objectMapper;
   private FafTokenService instance;
 
   public FafTokenServiceTest() throws Exception {
@@ -75,7 +75,7 @@ public class FafTokenServiceTest {
 
   @BeforeEach
   public void setUp() throws Exception {
-    objectMapper = new ObjectMapper();
+    objectMapper = new JsonMapper();
 
     FafApiProperties properties = new FafApiProperties();
     properties.getJwt().setSecretKeyPath(Paths.get("test-pki-private.key"));

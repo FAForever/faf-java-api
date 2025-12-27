@@ -56,8 +56,9 @@ public class WebSecurityConfig {
         "/users/register",
         "/users/activate",
         "/users/requestPasswordReset",
-        "/users/requestPasswordReset",
         "/users/performPasswordReset",
+        "/users/buildSteamPasswordResetUrl",
+        "/users/requestPasswordResetViaSteam",
         "/users/linkToSteam/**"
       ).permitAll();
       authorizeConfig.anyRequest().authenticated();

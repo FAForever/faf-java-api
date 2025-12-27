@@ -14,7 +14,7 @@ import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.RSAKey;
 import org.springframework.stereotype.Service;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import jakarta.inject.Inject;
 import java.io.IOException;
@@ -26,10 +26,10 @@ import java.text.ParseException;
 public class JwtService {
   private final RSASSASigner rsaSigner;
   private final RSASSAVerifier rsaVerifier;
-  private final ObjectMapper objectMapper;
+  private final JsonMapper objectMapper;
 
   @Inject
-  public JwtService(FafApiProperties fafApiProperties, ObjectMapper objectMapper) throws Exception {
+  public JwtService(FafApiProperties fafApiProperties, JsonMapper objectMapper) throws Exception {
     String secretKey = Files.readString(fafApiProperties.getJwt().getSecretKeyPath());
     String publicKey = Files.readString(fafApiProperties.getJwt().getPublicKeyPath());
 
