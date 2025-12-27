@@ -194,5 +194,4 @@ public class UsersController {
       response.sendRedirect(uriBuilder.toUriString());
     }
   }
-
 }

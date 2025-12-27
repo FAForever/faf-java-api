@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import jakarta.validation.constraints.NotNull;
 import java.nio.file.Files;
@@ -38,11 +38,11 @@ public class FafTokenService {
   static final String KEY_ACTION = "action";
   static final String KEY_LIFETIME = "lifetime";
 
-  private final ObjectMapper objectMapper;
+  private final JsonMapper objectMapper;
   private final RSASSASigner rsaSigner;
   private final RSASSAVerifier rsaVerifier;
 
-  public FafTokenService(ObjectMapper objectMapper, FafApiProperties properties) throws Exception {
+  public FafTokenService(JsonMapper objectMapper, FafApiProperties properties) throws Exception {
     String secretKey = Files.readString(properties.getJwt().getSecretKeyPath());
     String publicKey = Files.readString(properties.getJwt().getPublicKeyPath());
 
