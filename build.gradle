@@ -169,7 +169,7 @@ dependencies {
 
   // Manually managed dependencies
   def elideVersion = "7.1.15"
-  def springdocVersion = "2.8.13"
+  def springdocVersion = "3.0.3"
   def commonsVersion = "20251112-0a26247"
   implementation("com.yahoo.elide:elide-core:${elideVersion}")
   implementation("com.yahoo.elide:elide-model-config:${elideVersion}")
