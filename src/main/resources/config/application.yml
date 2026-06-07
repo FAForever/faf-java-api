@@ -75,7 +75,7 @@ faf-api:
     welcome-subject: ${WELCOME_MAIL_SUBJECT:Welcome to FAF}
     welcome-mail-template-path: ${WELCOME_MAIL_TEMPLATE_PATH:/config/mail/welcome-to-faf.html}
   replay:
-    download-url-format: ${REPLAY_DOWNLOAD_URL_FORMAT:https://replays.${FAF_DOMAIN}/%s}
+    download-url-format: ${REPLAY_DOWNLOAD_URL_FORMAT:https://replay.${FAF_DOMAIN}/%s}
   steam:
     realm: ${STEAM_REALM:https://api.${FAF_DOMAIN}}
     api-key: ${STEAM_API_KEY}
