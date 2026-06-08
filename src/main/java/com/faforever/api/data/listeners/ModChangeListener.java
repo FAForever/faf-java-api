@@ -1,11 +1,10 @@
 package com.faforever.api.data.listeners;
 
 import com.faforever.api.data.domain.Mod;
-import com.faforever.api.data.domain.ModVersion;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Component;
 
+import jakarta.inject.Inject;
 import jakarta.persistence.PostRemove;
 import jakarta.persistence.PostUpdate;
 
@@ -13,10 +12,17 @@ import jakarta.persistence.PostUpdate;
 @Slf4j
 public class ModChangeListener {
 
-  @CacheEvict(allEntries = true, cacheNames = {Mod.TYPE_NAME, ModVersion.TYPE_NAME})
+  private static EntityCacheEvictor cacheEvictor;
+
+  @Inject
+  public void init(EntityCacheEvictor cacheEvictor) {
+    ModChangeListener.cacheEvictor = cacheEvictor;
+  }
+
   @PostUpdate
   @PostRemove
   public void modChanged(Mod mod) {
     log.debug("Mod and ModVersion cache evicted, due to change on Mod with id: {}", mod.getId());
+    cacheEvictor.evictModAndModVersionCaches();
   }
 }
