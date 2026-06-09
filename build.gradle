@@ -182,7 +182,7 @@ dependencies {
   implementation("com.faforever.commons:api:${commonsVersion}")
   implementation("org.kohsuke:github-api:1.330")
   implementation("org.eclipse.jgit:org.eclipse.jgit:7.6.0.202603022253-r")
-  implementation("org.jetbrains:annotations:26.0.2-1")
+  implementation("org.jetbrains:annotations:26.1.0")
   implementation("com.google.guava:guava:33.6.0-jre")
   implementation("org.luaj:luaj-jse:3.0.1")
   implementation("io.github.micheljung:nocatch:2.0")
