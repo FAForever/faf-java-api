@@ -16,6 +16,7 @@ public class FafApiProperties {
    * The API version.
    */
   private String version;
+  private boolean allowAnonymous;
   private Jwt jwt = new Jwt();
   private OAuth2 oAuth2 = new OAuth2();
   private Async async = new Async();
@@ -256,11 +257,6 @@ public class FafApiProperties {
     private Integer port;
     private String user;
     private String password;
-  }
-
-  @Data
-  public static class Anope {
-    private String databaseName;
   }
 
   @Data

@@ -24,7 +24,7 @@ public class ElideUser extends User {
 
   @Override
   public boolean isInRole(String role) {
-    return fafAuthentication.hasRole(role);
+    return fafAuthentication != null && fafAuthentication.hasRole(role);
   }
 
   public Optional<Integer> getFafUserId() {

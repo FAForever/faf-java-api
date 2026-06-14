@@ -1,4 +1,5 @@
 faf-api:
+  allow-anonymous: true
   jwt:
     secretKeyPath: ${JWT_PRIVATE_KEY_PATH:test-pki-private.key}
     publicKeyPath: ${JWT_PUBLIC_KEY_PATH:test-pki-public.key}
@@ -86,8 +87,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: https://hydra.faforever.com/.well-known/jwks.json
-          issuer-uri: https://hydra.faforever.com/
+          jwk-set-uri: http://hydra.faforever.localhost/.well-known/jwks.json
+          issuer-uri: http://ory-hydra:4444/
 logging:
   level:
     com.faforever.api: debug
