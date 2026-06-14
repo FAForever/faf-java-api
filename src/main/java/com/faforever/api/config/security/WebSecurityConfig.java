@@ -1,6 +1,7 @@
 package com.faforever.api.config.security;
 
 import com.faforever.api.security.FafAuthenticationConverter;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -37,6 +38,7 @@ public class WebSecurityConfig {
     });
     http.authorizeHttpRequests(authorizeConfig -> {
       authorizeConfig.requestMatchers(HttpMethod.OPTIONS).permitAll();
+      authorizeConfig.requestMatchers(EndpointRequest.to("health", "info", "prometheus")).permitAll();
       // Swagger UI
       authorizeConfig.requestMatchers(
         "/swagger-ui/**",
