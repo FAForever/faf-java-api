@@ -1,12 +1,18 @@
 package com.faforever.api.config.security;
 
 import com.faforever.api.security.method.CustomMethodSecurityExpressionHandler;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 @Configuration
+@ConditionalOnProperty(
+        value = "faf-api.allow-anonymous",
+        havingValue = "false",
+        matchIfMissing = true
+)
 @EnableMethodSecurity(securedEnabled = true)
 public class MethodSecurityConfig {
   @Bean
