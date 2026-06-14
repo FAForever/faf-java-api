@@ -1,7 +1,7 @@
 package com.faforever.api.config.security;
 
 import com.faforever.api.security.FafAuthenticationConverter;
-import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
