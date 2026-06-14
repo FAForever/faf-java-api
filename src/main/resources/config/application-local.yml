@@ -86,8 +86,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: https://hydra.faforever.com/.well-known/jwks.json
-          issuer-uri: https://hydra.faforever.com/
+          jwk-set-uri: http://localhost:4444/.well-known/jwks.json
+          issuer-uri: http://ory-hydra:4444/
 logging:
   level:
     com.faforever.api: debug
