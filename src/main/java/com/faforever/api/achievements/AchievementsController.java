@@ -21,9 +21,16 @@ public class AchievementsController {
     switch (request.operation()) {
       case REVEAL -> throw new UnsupportedOperationException("REVEAL is not yet implemented");
       case UNLOCK -> achievementService.unlock(request.playerId(), request.achievementId());
-      case INCREMENT -> achievementService.increment(request.playerId(), request.achievementId(), request.steps());
+      case INCREMENT -> achievementService.increment(request.playerId(), request.achievementId(), requireSteps(request));
       case SET_STEPS_AT_LEAST ->
-        achievementService.setStepsAtLeast(request.playerId(), request.achievementId(), request.steps());
+        achievementService.setStepsAtLeast(request.playerId(), request.achievementId(), requireSteps(request));
     }
+  }
+
+  private static int requireSteps(AchievementUpdateRequest request) {
+    if (request.steps() == null) {
+      throw new IllegalArgumentException("steps is required for operation " + request.operation());
+    }
+    return request.steps();
   }
 }
