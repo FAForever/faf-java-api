@@ -2,16 +2,21 @@ package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.Prefab;
+import com.faforever.api.data.hook.PlayerAvatarUpdateHook;
 import com.faforever.api.security.elide.permission.AdminModerationReportCheck;
 import com.github.jasminb.jsonapi.annotations.Type;
 import com.yahoo.elide.annotation.Include;
+import com.yahoo.elide.annotation.LifeCycleHookBinding;
 import com.yahoo.elide.annotation.ReadPermission;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -29,8 +34,21 @@ public class Player extends Login {
   private ClanMembership clanMembership;
   private Set<NameRecord> names;
   private Set<AvatarAssignment> avatarAssignments;
+  private Avatar currentAvatar;
   private Set<ModerationReport> reporterOnModerationReports;
   private Set<ModerationReport> reportedOnModerationReports;
+
+  @UpdatePermission(expression = IsEntityOwner.EXPRESSION)
+  @LifeCycleHookBinding(
+    operation = LifeCycleHookBinding.Operation.UPDATE,
+    phase = LifeCycleHookBinding.TransactionPhase.POSTCOMMIT,
+    hook = PlayerAvatarUpdateHook.class
+  )
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "avatar_id")
+  public Avatar getCurrentAvatar() {
+    return currentAvatar;
+  }
 
   // Permission is managed by ClanMembership class
   @UpdatePermission(expression = Prefab.ALL)
