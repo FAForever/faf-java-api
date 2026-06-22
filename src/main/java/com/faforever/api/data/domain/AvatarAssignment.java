@@ -41,6 +41,12 @@ public class AvatarAssignment extends AbstractEntity<AvatarAssignment> implement
   @Relationship(Avatar.TYPE_NAME)
   private Avatar avatar;
 
+  /**
+   * @deprecated The selected avatar is now tracked via {@link Player#getCurrentAvatar()}
+   *     (the {@code login.avatar_id} column). Update that relationship instead; this flag is
+   *     kept only for backwards compatibility with older clients and will be removed.
+   */
+  @Deprecated(forRemoval = true)
   @Column(name = "selected")
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION)
   @Audit(action = Action.UPDATE, logStatement = "Avatar ''{0}'' has been selected on player ''{1}''", logExpressions = {"${avatarAssignment.avatar.id}", "${avatarAssignment.player.id}"})
