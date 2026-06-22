@@ -3,6 +3,7 @@ package com.faforever.api.data.domain;
 import com.faforever.api.data.checks.IsEntityOwner;
 import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.hook.PlayerAvatarUpdateHook;
+import com.faforever.api.data.hook.PlayerAvatarValidationHook;
 import com.faforever.api.security.elide.permission.AdminModerationReportCheck;
 import com.github.jasminb.jsonapi.annotations.Type;
 import com.yahoo.elide.annotation.Audit;
@@ -41,6 +42,11 @@ public class Player extends Login {
   private Set<ModerationReport> reportedOnModerationReports;
 
   @UpdatePermission(expression = IsEntityOwner.EXPRESSION)
+  @LifeCycleHookBinding(
+    operation = LifeCycleHookBinding.Operation.UPDATE,
+    phase = LifeCycleHookBinding.TransactionPhase.PRECOMMIT,
+    hook = PlayerAvatarValidationHook.class
+  )
   @LifeCycleHookBinding(
     operation = LifeCycleHookBinding.Operation.UPDATE,
     phase = LifeCycleHookBinding.TransactionPhase.POSTCOMMIT,

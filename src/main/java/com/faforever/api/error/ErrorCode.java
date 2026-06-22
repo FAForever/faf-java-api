@@ -120,6 +120,7 @@ public enum ErrorCode {
   STEAM_LOGIN_VALIDATION_FAILED(210, "Login via Steam failed", "Invalid OpenID redirect code"),
   MAP_VERSION_INVALID_RANGE(211, "Invalid map version", "The map version must be a whole number in range {0, number} to {1, number}."),
   MOD_VERSION_INVALID_RANGE(212, "Invalid mod version", "The mod version must be a whole number in range {0, number} to {1, number}."),
+  AVATAR_NOT_ASSIGNED(213, "Avatar not assigned", "Avatar ''{0}'' is not assigned to player ''{1}''."),
   ;
 
 
