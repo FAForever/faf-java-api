@@ -5,6 +5,8 @@ import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.hook.PlayerAvatarUpdateHook;
 import com.faforever.api.security.elide.permission.AdminModerationReportCheck;
 import com.github.jasminb.jsonapi.annotations.Type;
+import com.yahoo.elide.annotation.Audit;
+import com.yahoo.elide.annotation.Audit.Action;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.LifeCycleHookBinding;
 import com.yahoo.elide.annotation.ReadPermission;
@@ -44,6 +46,7 @@ public class Player extends Login {
     phase = LifeCycleHookBinding.TransactionPhase.POSTCOMMIT,
     hook = PlayerAvatarUpdateHook.class
   )
+  @Audit(action = Action.UPDATE, logStatement = "Avatar ''{0}'' has been selected on player ''{1}''", logExpressions = {"${player.currentAvatar.id}", "${player.id}"})
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "avatar_id")
   public Avatar getCurrentAvatar() {
