@@ -11,6 +11,8 @@ import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
+import org.hibernate.annotations.Generated;
+import org.hibernate.generator.EventType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -82,7 +84,8 @@ public class MapVersion extends AbstractEntity<MapVersion> implements OwnableEnt
     return version;
   }
 
-  @Column(name = "filename")
+  @Column(name = "filename", insertable = false, updatable = false)
+  @Generated(event = EventType.INSERT)
   @NotNull
   public String getFilename() {
     return filename;
@@ -138,8 +141,8 @@ public class MapVersion extends AbstractEntity<MapVersion> implements OwnableEnt
     return downloadUrl;
   }
 
-  @Transient
-  @ComputedAttribute
+  @Column(name = "folder_name")
+  @NotNull
   public String getFolderName() {
     return folderName;
   }
