@@ -84,9 +84,10 @@ public class MapVersion extends AbstractEntity<MapVersion> implements OwnableEnt
     return version;
   }
 
+  // DB-generated from folderName (CONCAT('maps/', folder_name, '.zip')); read-only here.
+  // No @NotNull: bean validation runs pre-insert before the DB populates this value.
   @Column(name = "filename", insertable = false, updatable = false)
   @Generated(event = EventType.INSERT)
-  @NotNull
   public String getFilename() {
     return filename;
   }
