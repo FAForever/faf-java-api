@@ -2,9 +2,9 @@ INSERT INTO map (id, display_name, map_type, battle_type, author, license) VALUE
   (1, 'SCMP_001', 'FFA', 'skirmish', 1, 1),
   (2, 'SCMP_002', 'FFA', 'skirmish', 1, 1);
 
-INSERT INTO map_version (id, description, max_players, width, height, version, filename, hidden, map_id) VALUES
-  (1, 'SCMP 001', 8, 5, 5, 1, 'maps/scmp_001.v0001.zip', 0, 1),
-  (2, 'SCMP 002', 8, 5, 5, 1, 'maps/scmp_002.v0001.zip', 0, 2);
+INSERT INTO map_version (id, description, max_players, width, height, version, folder_name, hidden, map_id) VALUES
+  (1, 'SCMP 001', 8, 5, 5, 1, 'scmp_001.v0001', 0, 1),
+  (2, 'SCMP 002', 8, 5, 5, 1, 'scmp_002.v0001', 0, 2);
 
 INSERT INTO map_pool (id, name) VALUES
   (1, 'Ladder 1v1 <300'),

@@ -410,7 +410,7 @@ public class MapServiceTest {
       assertEquals(256, mapVersion.getHeight());
       assertEquals(256, mapVersion.getWidth());
       assertEquals(8, mapVersion.getMaxPlayers());
-      assertEquals("maps/command_conquer_rush.v0007.zip", mapVersion.getFilename());
+      assertEquals("command_conquer_rush.v0007", mapVersion.getFolderName());
 
       assertFalse(Files.exists(tmpDir));
 

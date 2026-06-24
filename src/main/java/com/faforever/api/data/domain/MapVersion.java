@@ -11,6 +11,8 @@ import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import lombok.Setter;
+import org.hibernate.annotations.Generated;
+import org.hibernate.generator.EventType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -82,8 +84,10 @@ public class MapVersion extends AbstractEntity<MapVersion> implements OwnableEnt
     return version;
   }
 
-  @Column(name = "filename")
-  @NotNull
+  // DB-generated from folderName (CONCAT('maps/', folder_name, '.zip')); read-only here.
+  // No @NotNull: bean validation runs pre-insert before the DB populates this value.
+  @Column(name = "filename", insertable = false, updatable = false)
+  @Generated(event = EventType.INSERT)
   public String getFilename() {
     return filename;
   }
@@ -138,8 +142,10 @@ public class MapVersion extends AbstractEntity<MapVersion> implements OwnableEnt
     return downloadUrl;
   }
 
-  @Transient
-  @ComputedAttribute
+  // Immutable after insert: the DB-generated filename and the derived download/
+  // thumbnail URLs are all computed from this, so it must not change post-creation.
+  @Column(name = "folder_name", updatable = false)
+  @NotNull
   public String getFolderName() {
     return folderName;
   }
