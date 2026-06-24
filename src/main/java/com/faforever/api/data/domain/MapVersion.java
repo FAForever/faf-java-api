@@ -142,7 +142,9 @@ public class MapVersion extends AbstractEntity<MapVersion> implements OwnableEnt
     return downloadUrl;
   }
 
-  @Column(name = "folder_name")
+  // Immutable after insert: the DB-generated filename and the derived download/
+  // thumbnail URLs are all computed from this, so it must not change post-creation.
+  @Column(name = "folder_name", updatable = false)
   @NotNull
   public String getFolderName() {
     return folderName;
