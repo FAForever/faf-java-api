@@ -24,7 +24,7 @@ import java.util.Map;
 public class WebSecurityConfig {
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) {
     final var bearerTokenResolver = new DefaultBearerTokenResolver();
     bearerTokenResolver.setAllowUriQueryParameter(true);
 
@@ -61,7 +61,8 @@ public class WebSecurityConfig {
         "/users/performPasswordReset",
         "/users/buildSteamPasswordResetUrl",
         "/users/requestPasswordResetViaSteam",
-        "/users/linkToSteam/**"
+        "/users/linkToSteam/**",
+        "/gitHub/webhook"
       ).permitAll();
       authorizeConfig.anyRequest().authenticated();
     });

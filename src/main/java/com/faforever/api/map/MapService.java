@@ -85,7 +85,6 @@ public class MapService {
   };
 
   private static final Charset MAP_CHARSET = StandardCharsets.ISO_8859_1;
-  private static final String LEGACY_FOLDER_PREFIX = "maps/";
   private final FafApiProperties fafApiProperties;
   private final MapRepository mapRepository;
   private final LicenseRepository licenseRepository;
@@ -413,7 +412,7 @@ public class MapService {
       .setMaxPlayers(standardTeamsConfig.get(CONFIGURATION_STANDARD_TEAMS_ARMIES).length())
       .setVersion(mapLua.getMapVersion$())
       .setMap(map)
-      .setFilename(LEGACY_FOLDER_PREFIX + mapNameBuilder.buildFinalZipName(mapLua.getMapVersion$()));
+      .setFolderName(mapNameBuilder.buildFolderName(mapLua.getMapVersion$()));
 
     map.getVersions().add(version);
 
