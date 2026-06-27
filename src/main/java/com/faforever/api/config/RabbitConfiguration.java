@@ -55,16 +55,29 @@ public class RabbitConfiguration {
    * Reconfigure default Rabbit container, so it doesn't infinitely requeue.
    * Instead, we use a retry that does a limited requeueing.
    */
+  /**
+   * JSON message converter used for both publishing (applied to the auto-configured
+   * {@link org.springframework.amqp.rabbit.core.RabbitTemplate} by Spring Boot when a single
+   * {@link org.springframework.amqp.support.converter.MessageConverter} bean is present) and consuming.
+   * Without this, the default {@code SimpleMessageConverter} would Java-serialize outgoing payloads
+   * ({@code application/x-java-serialized-object}) instead of producing JSON.
+   */
+  @Bean
+  public JacksonJsonMessageConverter jacksonJsonMessageConverter() {
+    return new JacksonJsonMessageConverter();
+  }
+
   @Bean
   public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
     ConnectionFactory connectionFactory,
-    StatelessRetryOperationsInterceptor retryInterceptor
+    StatelessRetryOperationsInterceptor retryInterceptor,
+    JacksonJsonMessageConverter jacksonJsonMessageConverter
   ) {
     var factory = new SimpleRabbitListenerContainerFactory();
     factory.setDefaultRequeueRejected(false);
     factory.setConnectionFactory(connectionFactory);
     factory.setAdviceChain(retryInterceptor);
-    factory.setMessageConverter(new JacksonJsonMessageConverter());
+    factory.setMessageConverter(jacksonJsonMessageConverter);
 
     return factory;
   }
