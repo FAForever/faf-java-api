@@ -71,8 +71,11 @@ public class RabbitMessageEncodingTest extends AbstractIntegrationTest {
 
     assertThat(message).isNotNull();
     assertThat(message.getMessageProperties().getContentType()).isEqualTo(MessageProperties.CONTENT_TYPE_JSON);
-    JSONAssert.assertEquals(
-      "{\"player_id\":42,\"avatar_id\":5}",
+    JSONAssert.assertEquals("""
+      {
+        "player_id": 42,
+        "avatar_id": 5
+      }""",
       new String(message.getBody(), StandardCharsets.UTF_8),
       true);
   }
@@ -91,8 +94,11 @@ public class RabbitMessageEncodingTest extends AbstractIntegrationTest {
 
     assertThat(message).isNotNull();
     assertThat(message.getMessageProperties().getContentType()).isEqualTo(MessageProperties.CONTENT_TYPE_JSON);
-    JSONAssert.assertEquals(
-      "{\"player_id\":42,\"avatar_id\":null}",
+    JSONAssert.assertEquals("""
+      {
+        "player_id": 42,
+        "avatar_id": null
+      }""",
       new String(message.getBody(), StandardCharsets.UTF_8),
       true);
   }
