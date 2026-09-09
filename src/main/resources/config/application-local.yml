@@ -66,9 +66,9 @@ faf-api:
 
 spring:
   datasource:
-    url: jdbc:mariadb://${DATABASE_ADDRESS:127.0.0.1}/${DATABASE_NAME:faf}?useSSL=false
+    url: jdbc:mariadb://${DATABASE_ADDRESS:127.0.0.1}/${DATABASE_NAME:faf_lobby}?useSSL=false
     name: faf
-    username: ${DATABASE_USERNAME:faf-api}
+    username: ${DATABASE_USERNAME:faf-java-api}
     password: ${DATABASE_PASSWORD:banana}
   league-datasource:
     url: jdbc:mariadb://${LEAGUE_DATABASE_ADDRESS:127.0.0.1}/${LEAGUE_DATABASE_NAME:faf-league}?useSSL=false
@@ -88,7 +88,7 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://hydra.faforever.localhost/.well-known/jwks.json
-          issuer-uri: http://ory-hydra:4444/
+          issuer-uri: http://ory-hydra:4444
 logging:
   level:
     com.faforever.api: debug

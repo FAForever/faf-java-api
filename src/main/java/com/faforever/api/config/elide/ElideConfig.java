@@ -37,9 +37,10 @@ public class ElideConfig {
   @Bean
   MultiplexManager multiplexDataStore(
     DataStore fafDataStore,
-    DataStore leagueDataStore
+    DataStore leagueDataStore,
+    DataStore ephemeralDataStore
   ) {
-    return new MultiplexManager(fafDataStore, leagueDataStore);
+    return new MultiplexManager(fafDataStore, leagueDataStore, ephemeralDataStore);
   }
 
   @Bean
@@ -70,7 +71,7 @@ public class ElideConfig {
   }
 
   /**
-   * See https://github.com/yahoo/elide/issues/428.
+   * See <a href="https://github.com/yahoo/elide/issues/428">https://github.com/yahoo/elide/issues/428</a>.
    */
   private void registerAdditionalConverters() {
     CoerceUtil.coerce("", String.class);
