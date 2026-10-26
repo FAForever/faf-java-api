@@ -1,7 +1,7 @@
 <configuration>
   <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
   <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/spring.log}"/>
-  <springProperty scope="context" name="CONSOLE_LOG_STRUCTURED_FORMAT" source="logging.structured.format.console" defaultValue="ecs"/>
+  <springProperty scope="context" name="CONSOLE_LOG_STRUCTURED_FORMAT" source="logging.structured.format.console" defaultValue="logstash"/>
 
   <!-- JSON on the console for prod (default profile); plain text for every other profile -->
   <springProfile name="prod">
