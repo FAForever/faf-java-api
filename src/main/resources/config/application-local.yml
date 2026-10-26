@@ -90,8 +90,5 @@ spring:
           jwk-set-uri: http://hydra.faforever.localhost/.well-known/jwks.json
           issuer-uri: http://ory-hydra:4444/
 logging:
-  structured:
-    format:
-      console: ""
   level:
     com.faforever.api: debug
