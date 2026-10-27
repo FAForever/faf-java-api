@@ -59,7 +59,7 @@
 | NODEBB_ADMIN_USERID | `1` |  |  |
 | NODEBB_BASE_URL | `false` |  |  |
 | NODEBB_MASTER_TOKEN | `false` |  |  |
-| NODEBB_SSO_PLUGIN | `LEGACY` | `LEGACY`, `OAUTH2_MULTIPLE` |  |
+| NODEBB_SSO_PLUGIN | `LEGACY` |  |  |
 | NODEBB_SSO_PROVIDER_NAME | `faf-nodebb` |  |  |
 | PASSWORD_RESET_EMAIL_BODY | `Reset email body for user {0} with reset link {1}` |  | `Reset email body for user {0} with reset link {1}` |
 | PASSWORD_RESET_EMAIL_SUBJECT | `FAF password reset` |  | `FAF password reset` |
