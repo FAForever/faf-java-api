@@ -42,6 +42,7 @@
 | LEAGUE_DATABASE_USERNAME | `faf-league-service` |  | `faf-league-service` |
 | LOG_FILE_DIRECTORY |  |  |  |
 | LOG_LEVEL | `info` |  |  |
+| LOG_STRUCTURED_FORMAT | `logstash` |  | Console log format (`ecs`, `logstash`, `gelf`); JSON by default, plain text in the `local` profile |
 | MAIL_HOST | `false` |  |  |
 | MAIL_PASSWORD | `false` |  |  |
 | MAIL_PORT | `false` |  |  |
