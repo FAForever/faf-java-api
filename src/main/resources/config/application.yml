@@ -58,6 +58,8 @@ faf-api:
     base-url: ${NODEBB_BASE_URL:false}
     admin-user-id: ${NODEBB_ADMIN_USERID:1}
     master-token: ${NODEBB_MASTER_TOKEN:false}
+    sso-plugin: ${NODEBB_SSO_PLUGIN:LEGACY}
+    sso-provider-name: ${NODEBB_SSO_PROVIDER_NAME:faf-nodebb}
   password-reset:
     password-reset-url-format: ${PASSWORD_RESET_URL_FORMAT:https://www.${FAF_DOMAIN}/account/password/confirmReset?username=%s&token=%s}
     subject: ${PASSWORD_RESET_EMAIL_SUBJECT:FAF password reset}
