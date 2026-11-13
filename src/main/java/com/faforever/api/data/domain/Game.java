@@ -3,14 +3,11 @@ package com.faforever.api.data.domain;
 import com.faforever.api.data.checks.Prefab;
 import com.faforever.api.data.listeners.GameEnricher;
 import com.yahoo.elide.annotation.ComputedAttribute;
+import com.yahoo.elide.annotation.ComputedRelationship;
 import com.yahoo.elide.annotation.Include;
+import com.yahoo.elide.annotation.ReadPermission;
+import com.yahoo.elide.annotation.ToMany;
 import com.yahoo.elide.annotation.UpdatePermission;
-import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Immutable;
-import org.jetbrains.annotations.Nullable;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -25,6 +22,12 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Immutable;
+import org.jetbrains.annotations.Nullable;
+
 import java.time.OffsetDateTime;
 import java.util.Set;
 
@@ -57,6 +60,7 @@ public class Game {
   private Set<GameReview> reviews;
   private GameReviewsSummary reviewsSummary;
   private Boolean replayAvailable;
+  private Set<GameReviewRequest> reviewRequests;
 
   @Id
   @Column(name = "id")
@@ -144,6 +148,15 @@ public class Game {
   @Column(name = "replay_available")
   public Boolean isReplayAvailable() {
     return replayAvailable;
+  }
+
+  @ReadPermission(expression = Prefab.ALL)
+  @UpdatePermission(expression = Prefab.ALL)
+  @Transient
+  @ComputedRelationship
+  @ToMany
+  public Set<GameReviewRequest> getReviewRequests() {
+    return reviewRequests;
   }
 
   /**

@@ -175,6 +175,7 @@ dependencies {
   implementation("com.yahoo.elide:elide-model-config:${elideVersion}")
   implementation("com.yahoo.elide:elide-spring-boot-autoconfigure:${elideVersion}")
   implementation("com.yahoo.elide:elide-swagger:${elideVersion}")
+  implementation("com.yahoo.elide:elide-datastore-noop:${elideVersion}")
   implementation("com.yahoo.elide:elide-datastore-jpa:${elideVersion}")
   implementation("com.yahoo.elide:elide-datastore-multiplex:${elideVersion}")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}")
