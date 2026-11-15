@@ -31,7 +31,7 @@ jobs:
           repository: faforever/faf-java-api
           tag_with_ref: true
       - name: Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v7
         with:
           file: ./build/reports/jacoco/test/jacocoTestReport.xml
           name: codecov
