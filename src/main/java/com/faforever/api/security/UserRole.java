@@ -9,7 +9,8 @@ import java.util.Optional;
 public enum UserRole implements GrantedAuthority {
   USER("USER"),
   MODERATOR("MODERATOR"),
-  ADMINISTRATOR("ADMINISTRATOR");
+  ADMINISTRATOR("ADMINISTRATOR"),
+  COOP_DEPLOYER("COOP_DEPLOYER");
 
   private static final Map<String, UserRole> fromString;
 
