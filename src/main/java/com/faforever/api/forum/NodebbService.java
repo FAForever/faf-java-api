@@ -53,16 +53,35 @@ public class NodebbService implements UserDataSyncService, InitializingBean {
   }
 
   private Optional<Integer> getNodebbUserId(int userId) {
-    URI uri = UriComponentsBuilder.fromUriString(properties.getNodebb().getBaseUrl())
-      // This is not an official NodeBB api url, it's coming from our own sso plugin
-      .pathSegment("api", "v3", "plugins", "sso", "user", String.valueOf(userId))
+    FafApiProperties.Nodebb nodebb = properties.getNodebb();
+    boolean legacy = nodebb.getSsoPlugin() == FafApiProperties.Nodebb.SsoPlugin.LEGACY;
+
+    // These are not official NodeBB api urls, they are provided by our sso plugins
+    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(nodebb.getBaseUrl());
+    if (legacy) {
+      // nodebb-plugin-sso-oauth-faforever
+      builder.pathSegment("api", "v3", "plugins", "sso", "user", String.valueOf(userId));
+    } else {
+      // nodebb-plugin-sso-oauth2-multiple
+      builder.pathSegment("api", "v3", "plugins", "oauth2-multiple", "provider", nodebb.getSsoProviderName(),
+        "user", String.valueOf(userId));
+    }
+    URI uri = builder
       .queryParam("_uid", getAdminUserId())
       .build()
       .toUri();
 
     try {
-      ResponseEntity<UserResponse> result = restTemplate.exchange(uri, HttpMethod.GET, buildAuthorizedRequest(null), UserResponse.class);
-      return Optional.ofNullable(result.getBody()).map(UserResponse::uid);
+      if (legacy) {
+        ResponseEntity<UserResponse> result = restTemplate.exchange(uri, HttpMethod.GET, buildAuthorizedRequest(null), UserResponse.class);
+        return Optional.ofNullable(result.getBody()).map(UserResponse::uid);
+      }
+
+      ResponseEntity<LookupResponse> result = restTemplate.exchange(uri, HttpMethod.GET, buildAuthorizedRequest(null), LookupResponse.class);
+      return Optional.ofNullable(result.getBody())
+        .map(LookupResponse::response)
+        .map(LookupResponsePayload::userData)
+        .map(UserResponse::uid);
     } catch (HttpClientErrorException e) {
       if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
         log.debug("User id {} not found in NodeBB. Probably the user never logged in there and has no account there.", userId);
@@ -104,6 +123,17 @@ public class NodebbService implements UserDataSyncService, InitializingBean {
     headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + properties.getNodebb().getMasterToken());
 
     return new HttpEntity<>(payload, HttpHeaders.readOnlyHttpHeaders(headers));
+  }
+
+  /**
+   * Response of nodebb-plugin-sso-oauth2-multiple. NodeBB wraps api responses as <code>{"status": {...}, "response": {...}}</code>
+   */
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  public record LookupResponse(LookupResponsePayload response) {
+  }
+
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  public record LookupResponsePayload(UserResponse userData) {
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)

@@ -278,6 +278,26 @@ public class FafApiProperties {
      */
     private int adminUserId;
     private String masterToken;
+    /**
+     * The name of the OAuth2 strategy configured in nodebb-plugin-sso-oauth2-multiple. It is used as provider name
+     * to look up forum users by their FAF user id.
+     */
+    private String ssoProviderName = "faf-nodebb";
+    /**
+     * Which NodeBB SSO plugin is installed. Allows switching between the plugins without redeploying the API.
+     */
+    private SsoPlugin ssoPlugin = SsoPlugin.LEGACY;
+
+    public enum SsoPlugin {
+      /**
+       * nodebb-plugin-sso-oauth-faforever
+       */
+      LEGACY,
+      /**
+       * nodebb-plugin-sso-oauth2-multiple
+       */
+      OAUTH2_MULTIPLE
+    }
   }
 
   @Data
