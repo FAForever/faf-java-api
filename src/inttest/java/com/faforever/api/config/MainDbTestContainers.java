@@ -14,8 +14,10 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.startupcheck.OneShotStartupCheckStrategy;
 
 import javax.sql.DataSource;
+import java.time.Duration;
 
 @ConditionalOnProperty(value = "spring.datasource.url", havingValue = "jdbc:mariadb://testcontainers/faf?useSSL=false")
 @Configuration
@@ -65,6 +67,8 @@ public class MainDbTestContainers {
       .withEnv("FLYWAY_PASSWORD", "banana")
       .withCommand("migrate")
       .withLogConsumer(logConsumer)
+      // Block until `migrate` has exited successfully, otherwise the app may start against an empty schema
+      .withStartupCheckStrategy(new OneShotStartupCheckStrategy().withTimeout(Duration.ofMinutes(2)))
       .start();
   }
 }
