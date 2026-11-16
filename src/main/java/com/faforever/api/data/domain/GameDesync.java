@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.Prefab;
+import com.faforever.api.data.listeners.GameDesyncEnricher;
 import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
@@ -8,6 +9,7 @@ import com.yahoo.elide.annotation.Include;
 import com.yahoo.elide.annotation.UpdatePermission;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,6 +32,7 @@ import java.time.OffsetDateTime;
 @Include(name = "gameDesync")
 @Immutable
 @Setter
+@EntityListeners(GameDesyncEnricher.class)
 @CreatePermission(expression = Prefab.NONE)
 @UpdatePermission(expression = Prefab.NONE)
 @DeletePermission(expression = Prefab.NONE)
@@ -41,6 +44,7 @@ public class GameDesync {
   private OffsetDateTime reportedAt;
   private Integer gameTime;
   private OffsetDateTime reportUploadedAt;
+  private String reportFileName;
 
   @Id
   @Column(name = "id")
@@ -87,16 +91,12 @@ public class GameDesync {
   }
 
   /**
-   * Object key under which the report of this player is stored in the object storage. Only points to an existing file if
-   * {@link #getReportUploadedAt()} is set.
+   * Object key under which the report of this player is stored in the object storage, filled by the
+   * {@link GameDesyncEnricher}. Only points to an existing file if {@link #getReportUploadedAt()} is set.
    */
-  @ComputedAttribute
   @Transient
+  @ComputedAttribute
   public String getReportFileName() {
-    return reportFileName(game.getId(), player.getId());
-  }
-
-  public static String reportFileName(int gameId, int playerId) {
-    return "desync/%d/%d.zip".formatted(gameId, playerId);
+    return reportFileName;
   }
 }
