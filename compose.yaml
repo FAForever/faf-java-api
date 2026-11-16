@@ -51,7 +51,7 @@ services:
       retries: 15
 
   rabbitmq:
-    image: rabbitmq:3.13-management
+    image: rabbitmq:4.4-management
     environment:
       RABBITMQ_DEFAULT_VHOST: /faf-core
       RABBITMQ_DEFAULT_USER: faf-api
