@@ -3,6 +3,7 @@ package com.faforever.api.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -33,6 +34,7 @@ public class S3Config {
   }
 
   @Bean
+  @Primary
   public S3Presigner s3Presigner() {
     return S3Presigner.builder()
       .endpointOverride(URI.create(properties.getS3().getEndpoint()))
@@ -43,6 +45,24 @@ public class S3Config {
       ))
       .serviceConfiguration(S3Configuration.builder()
         .pathStyleAccessEnabled(true) // prevents putting the bucket name as subdomain
+        .build())
+      .build();
+  }
+
+  /**
+   * Presigner for the dedicated desync report bucket, which has its own endpoint and credentials.
+   */
+  @Bean
+  public S3Presigner desyncReportS3Presigner() {
+    FafApiProperties.DesyncReport desyncReport = properties.getDesyncReport();
+    return S3Presigner.builder()
+      .endpointOverride(URI.create(desyncReport.getEndpoint()))
+      .region(Region.of(desyncReport.getRegion()))
+      .credentialsProvider(StaticCredentialsProvider.create(
+        AwsBasicCredentials.create(desyncReport.getAccessKey(), desyncReport.getSecretKey())
+      ))
+      .serviceConfiguration(S3Configuration.builder()
+        .pathStyleAccessEnabled(true)
         .build())
       .build();
   }

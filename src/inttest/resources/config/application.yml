@@ -102,6 +102,12 @@ faf-api:
     endpoint: http://minio
     region: auto
     user-upload-bucket: user-uploads
+  desync-report:
+    access-key: admin
+    secret-key: banana123
+    endpoint: http://minio
+    region: auto
+    bucket: desync-reports
 
 logging:
   level:

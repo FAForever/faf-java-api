@@ -3,6 +3,7 @@ package com.faforever.api.config;
 import lombok.Data;
 import org.checkerframework.checker.index.qual.Positive;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.util.unit.DataSize;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,6 +45,7 @@ public class FafApiProperties {
   private Monitoring monitoring = new Monitoring();
   private Coturn coturn = new Coturn();
   private S3 s3 = new S3();
+  private DesyncReport desyncReport = new DesyncReport();
 
   @Data
   public static class OAuth2 {
@@ -303,5 +305,24 @@ public class FafApiProperties {
     private String userUploadBucket;
     private String accessKey;
     private String secretKey;
+  }
+
+  @Data
+  public static class DesyncReport {
+    private String endpoint;
+    private String region;
+    private String bucket;
+    private String accessKey;
+    private String secretKey;
+    /**
+     * Upper limit for the size of a single desync report. The size is signed into the upload url, so the object storage
+     * rejects any upload of a different size.
+     */
+    private DataSize maxUploadSize = DataSize.ofMegabytes(10);
+    /**
+     * If enabled, a player can only upload a report for games in which the lobby server has recorded a desync report (via
+     * GPGNet) for them.
+     */
+    private boolean requireGpgnetReport = false;
   }
 }

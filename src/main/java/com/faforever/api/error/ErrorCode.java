@@ -121,6 +121,7 @@ public enum ErrorCode {
   MAP_VERSION_INVALID_RANGE(211, "Invalid map version", "The map version must be a whole number in range {0, number} to {1, number}."),
   MOD_VERSION_INVALID_RANGE(212, "Invalid mod version", "The mod version must be a whole number in range {0, number} to {1, number}."),
   AVATAR_NOT_ASSIGNED(213, "Avatar not assigned", "Avatar ''{0}'' is not assigned to player ''{1}''."),
+  DESYNC_REPORT_INVALID_SIZE(214, "Invalid desync report size", "The size of a desync report must be between 1 and {0, number} bytes."),
   ;
 
 
