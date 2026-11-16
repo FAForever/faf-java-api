@@ -20,6 +20,7 @@ public class S3Config {
   private final FafApiProperties properties;
 
   @Bean
+  @Primary
   public S3Client s3Client() {
     return S3Client.builder()
       .endpointOverride(URI.create(properties.getS3().getEndpoint()))
@@ -34,7 +35,6 @@ public class S3Config {
   }
 
   @Bean
-  @Primary
   public S3Presigner s3Presigner() {
     return S3Presigner.builder()
       .endpointOverride(URI.create(properties.getS3().getEndpoint()))
@@ -50,12 +50,12 @@ public class S3Config {
   }
 
   /**
-   * Presigner for the dedicated desync report bucket, which has its own endpoint and credentials.
+   * Client for the dedicated desync report bucket, which has its own endpoint and credentials.
    */
   @Bean
-  public S3Presigner desyncReportS3Presigner() {
+  public S3Client desyncReportS3Client() {
     FafApiProperties.DesyncReport desyncReport = properties.getDesyncReport();
-    return S3Presigner.builder()
+    return S3Client.builder()
       .endpointOverride(URI.create(desyncReport.getEndpoint()))
       .region(Region.of(desyncReport.getRegion()))
       .credentialsProvider(StaticCredentialsProvider.create(

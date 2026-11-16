@@ -315,14 +315,8 @@ public class FafApiProperties {
     private String accessKey;
     private String secretKey;
     /**
-     * Upper limit for the size of a single desync report. The size is signed into the upload url, so the object storage
-     * rejects any upload of a different size.
+     * Upper limit for the size of a single desync report.
      */
     private DataSize maxUploadSize = DataSize.ofMegabytes(10);
-    /**
-     * If enabled, a player can only upload a report for games in which the lobby server has recorded a desync report (via
-     * GPGNet) for them.
-     */
-    private boolean requireGpgnetReport = false;
   }
 }

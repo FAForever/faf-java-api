@@ -8,24 +8,25 @@ import com.faforever.api.game.GamePlayerStatsRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.util.unit.DataSize;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3Configuration;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
-import java.net.URI;
+import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -36,97 +37,82 @@ class DesyncReportServiceTest {
 
   @Mock
   private GamePlayerStatsRepository gamePlayerStatsRepository;
-
   @Mock
   private GameDesyncRepository gameDesyncRepository;
+  @Mock
+  private S3Client s3Client;
 
-  private FafApiProperties properties;
   private DesyncReportService instance;
 
   @BeforeEach
   void setUp() {
-    properties = new FafApiProperties();
+    FafApiProperties properties = new FafApiProperties();
     properties.getDesyncReport().setBucket("desync-reports");
-    properties.getDesyncReport().setMaxUploadSize(DataSize.ofMegabytes(10));
+    properties.getDesyncReport().setMaxUploadSize(DataSize.ofBytes(1000));
 
-    // signing is done locally, so a real presigner with dummy credentials does not need any network access
-    S3Presigner presigner = S3Presigner.builder()
-      .endpointOverride(URI.create("http://localhost:9000"))
-      .region(Region.of("auto"))
-      .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create("admin", "banana123")))
-      .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
-      .build();
+    instance = new DesyncReportService(properties, gamePlayerStatsRepository, gameDesyncRepository, s3Client);
+  }
 
-    instance = new DesyncReportService(properties, gamePlayerStatsRepository, gameDesyncRepository, presigner);
+  private static MockMultipartFile report(int size) {
+    return new MockMultipartFile("file", "dump.zip", "application/zip", new byte[size]);
   }
 
   @Test
-  void createUploadUrlSignsKeyAndSize() {
+  void storeReportStoresFileThenMarksUploaded() throws IOException {
     when(gamePlayerStatsRepository.existsByGameIdAndPlayerId(GAME_ID, PLAYER_ID)).thenReturn(true);
 
-    DesyncReportUploadResponse response = instance.createUploadUrl(PLAYER_ID, GAME_ID, 1_200_000);
+    instance.storeReport(PLAYER_ID, GAME_ID, report(500));
 
-    assertThat(response.key(), is("desync/1234/42.zip"));
-    assertThat(response.url(), startsWith("http://localhost:9000/desync-reports/desync/1234/42.zip?"));
-    // the size and content type are part of the signature, so the storage rejects anything else
-    assertThat(response.url(), containsString("content-length"));
-    assertThat(response.headers(), hasEntry("content-length", "1200000"));
-    assertThat(response.headers(), hasEntry("content-type", "application/zip"));
-    assertThat(response.headers().containsKey("host"), is(false));
+    ArgumentCaptor<PutObjectRequest> request = ArgumentCaptor.forClass(PutObjectRequest.class);
+    InOrder inOrder = inOrder(s3Client, gameDesyncRepository);
+    inOrder.verify(s3Client).putObject(request.capture(), any(RequestBody.class));
+    inOrder.verify(gameDesyncRepository).markReportUploaded(GAME_ID, PLAYER_ID);
+
+    assertThat(request.getValue().bucket(), is("desync-reports"));
+    assertThat(request.getValue().key(), is("desync/1234/42.zip"));
+    assertThat(request.getValue().contentLength(), is(500L));
+    assertThat(request.getValue().contentType(), is("application/zip"));
   }
 
   @Test
-  void createUploadUrlSizeOutOfRange() {
-    ApiException tooLarge = assertThrows(ApiException.class,
-      () -> instance.createUploadUrl(PLAYER_ID, GAME_ID, DataSize.ofMegabytes(10).toBytes() + 1));
-    assertThat(tooLarge.getErrors()[0].getErrorCode(), is(ErrorCode.DESYNC_REPORT_INVALID_SIZE));
-
-    ApiException empty = assertThrows(ApiException.class, () -> instance.createUploadUrl(PLAYER_ID, GAME_ID, 0));
-    assertThat(empty.getErrors()[0].getErrorCode(), is(ErrorCode.DESYNC_REPORT_INVALID_SIZE));
-
-    verifyNoInteractions(gamePlayerStatsRepository);
-  }
-
-  @Test
-  void createUploadUrlAtMaxSize() {
+  void storeReportAtMaxSize() throws IOException {
     when(gamePlayerStatsRepository.existsByGameIdAndPlayerId(GAME_ID, PLAYER_ID)).thenReturn(true);
 
-    instance.createUploadUrl(PLAYER_ID, GAME_ID, DataSize.ofMegabytes(10).toBytes());
+    instance.storeReport(PLAYER_ID, GAME_ID, report(1000));
   }
 
   @Test
-  void createUploadUrlPlayerNotInGame() {
+  void storeReportTooLarge() {
+    ApiException exception = assertThrows(ApiException.class, () -> instance.storeReport(PLAYER_ID, GAME_ID, report(1001)));
+
+    assertThat(exception.getErrors()[0].getErrorCode(), is(ErrorCode.DESYNC_REPORT_INVALID_SIZE));
+    verifyNoInteractions(gamePlayerStatsRepository, s3Client, gameDesyncRepository);
+  }
+
+  @Test
+  void storeReportEmpty() {
+    ApiException exception = assertThrows(ApiException.class, () -> instance.storeReport(PLAYER_ID, GAME_ID, report(0)));
+
+    assertThat(exception.getErrors()[0].getErrorCode(), is(ErrorCode.DESYNC_REPORT_INVALID_SIZE));
+    verifyNoInteractions(gamePlayerStatsRepository, s3Client, gameDesyncRepository);
+  }
+
+  @Test
+  void storeReportPlayerNotInGame() {
     when(gamePlayerStatsRepository.existsByGameIdAndPlayerId(GAME_ID, PLAYER_ID)).thenReturn(false);
 
-    assertThrows(AccessDeniedException.class, () -> instance.createUploadUrl(PLAYER_ID, GAME_ID, 100));
+    assertThrows(AccessDeniedException.class, () -> instance.storeReport(PLAYER_ID, GAME_ID, report(500)));
+
+    verifyNoInteractions(s3Client, gameDesyncRepository);
   }
 
   @Test
-  void gpgnetReportNotCheckedByDefault() {
+  void storeReportNotMarkedWhenStorageFails() {
     when(gamePlayerStatsRepository.existsByGameIdAndPlayerId(GAME_ID, PLAYER_ID)).thenReturn(true);
+    when(s3Client.putObject(any(PutObjectRequest.class), any(RequestBody.class))).thenThrow(S3Exception.builder().build());
 
-    instance.createUploadUrl(PLAYER_ID, GAME_ID, 100);
+    assertThrows(S3Exception.class, () -> instance.storeReport(PLAYER_ID, GAME_ID, report(500)));
 
     verifyNoInteractions(gameDesyncRepository);
-  }
-
-  @Test
-  void gpgnetReportRequiredButMissing() {
-    properties.getDesyncReport().setRequireGpgnetReport(true);
-    when(gamePlayerStatsRepository.existsByGameIdAndPlayerId(GAME_ID, PLAYER_ID)).thenReturn(true);
-    when(gameDesyncRepository.existsByGameIdAndPlayerId(GAME_ID, PLAYER_ID)).thenReturn(false);
-
-    assertThrows(AccessDeniedException.class, () -> instance.createUploadUrl(PLAYER_ID, GAME_ID, 100));
-  }
-
-  @Test
-  void gpgnetReportRequiredAndPresent() {
-    properties.getDesyncReport().setRequireGpgnetReport(true);
-    when(gamePlayerStatsRepository.existsByGameIdAndPlayerId(GAME_ID, PLAYER_ID)).thenReturn(true);
-    when(gameDesyncRepository.existsByGameIdAndPlayerId(GAME_ID, PLAYER_ID)).thenReturn(true);
-
-    DesyncReportUploadResponse response = instance.createUploadUrl(PLAYER_ID, GAME_ID, 100);
-
-    assertThat(response.key(), is("desync/1234/42.zip"));
   }
 }

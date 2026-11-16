@@ -38,6 +38,7 @@ public class GameDesync {
   private Player player;
   private OffsetDateTime reportedAt;
   private Integer gameTime;
+  private OffsetDateTime reportUploadedAt;
 
   @Id
   @Column(name = "id")
@@ -73,5 +74,13 @@ public class GameDesync {
   @Column(name = "game_time")
   public Integer getGameTime() {
     return gameTime;
+  }
+
+  /**
+   * Time the player uploaded the desync report file through the API, null if there is none.
+   */
+  @Column(name = "report_uploaded_at")
+  public OffsetDateTime getReportUploadedAt() {
+    return reportUploadedAt;
   }
 }
