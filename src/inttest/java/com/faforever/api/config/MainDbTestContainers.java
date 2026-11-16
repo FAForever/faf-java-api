@@ -23,7 +23,7 @@ import java.time.Duration;
 @Configuration
 public class MainDbTestContainers {
   private static final MariaDBContainer<?> fafDBContainer = new MariaDBContainer<>("mariadb:11.7");
-  private static final GenericContainer<?> flywayMigrationsContainer = new GenericContainer<>("faforever/faf-db-migrations:v146");
+  private static final GenericContainer<?> flywayMigrationsContainer = new GenericContainer<>("faforever/faf-db-migrations:v147");
   private static final Network sharedNetwork = Network.newNetwork();
 
   @Bean

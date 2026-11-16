@@ -5,6 +5,7 @@ import com.faforever.api.config.FafApiProperties.DesyncReport;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.game.GameDesyncRepository;
 import com.faforever.api.game.GamePlayerStatsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,13 +28,16 @@ public class DesyncReportService {
 
   private final DesyncReport properties;
   private final GamePlayerStatsRepository gamePlayerStatsRepository;
+  private final GameDesyncRepository gameDesyncRepository;
   private final S3Presigner s3Presigner;
 
   public DesyncReportService(FafApiProperties properties,
                              GamePlayerStatsRepository gamePlayerStatsRepository,
+                             GameDesyncRepository gameDesyncRepository,
                              @Qualifier("desyncReportS3Presigner") S3Presigner s3Presigner) {
     this.properties = properties.getDesyncReport();
     this.gamePlayerStatsRepository = gamePlayerStatsRepository;
+    this.gameDesyncRepository = gameDesyncRepository;
     this.s3Presigner = s3Presigner;
   }
 
@@ -55,7 +59,7 @@ public class DesyncReportService {
       throw new AccessDeniedException("Player %d did not participate in game %d".formatted(playerId, gameId));
     }
 
-    if (properties.isRequireGpgnetReport() && gamePlayerStatsRepository.countGpgnetDesyncReports(gameId, playerId) == 0) {
+    if (properties.isRequireGpgnetReport() && !gameDesyncRepository.existsByGameIdAndPlayerId(gameId, playerId)) {
       throw new AccessDeniedException("No desync was reported for player %d in game %d".formatted(playerId, gameId));
     }
 

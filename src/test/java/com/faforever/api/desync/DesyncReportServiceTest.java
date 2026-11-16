@@ -3,6 +3,7 @@ package com.faforever.api.desync;
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.ErrorCode;
+import com.faforever.api.game.GameDesyncRepository;
 import com.faforever.api.game.GamePlayerStatsRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,8 +26,6 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -37,6 +36,9 @@ class DesyncReportServiceTest {
 
   @Mock
   private GamePlayerStatsRepository gamePlayerStatsRepository;
+
+  @Mock
+  private GameDesyncRepository gameDesyncRepository;
 
   private FafApiProperties properties;
   private DesyncReportService instance;
@@ -55,7 +57,7 @@ class DesyncReportServiceTest {
       .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
       .build();
 
-    instance = new DesyncReportService(properties, gamePlayerStatsRepository, presigner);
+    instance = new DesyncReportService(properties, gamePlayerStatsRepository, gameDesyncRepository, presigner);
   }
 
   @Test
@@ -105,14 +107,14 @@ class DesyncReportServiceTest {
 
     instance.createUploadUrl(PLAYER_ID, GAME_ID, 100);
 
-    verify(gamePlayerStatsRepository, never()).countGpgnetDesyncReports(GAME_ID, PLAYER_ID);
+    verifyNoInteractions(gameDesyncRepository);
   }
 
   @Test
   void gpgnetReportRequiredButMissing() {
     properties.getDesyncReport().setRequireGpgnetReport(true);
     when(gamePlayerStatsRepository.existsByGameIdAndPlayerId(GAME_ID, PLAYER_ID)).thenReturn(true);
-    when(gamePlayerStatsRepository.countGpgnetDesyncReports(GAME_ID, PLAYER_ID)).thenReturn(0L);
+    when(gameDesyncRepository.existsByGameIdAndPlayerId(GAME_ID, PLAYER_ID)).thenReturn(false);
 
     assertThrows(AccessDeniedException.class, () -> instance.createUploadUrl(PLAYER_ID, GAME_ID, 100));
   }
@@ -121,7 +123,7 @@ class DesyncReportServiceTest {
   void gpgnetReportRequiredAndPresent() {
     properties.getDesyncReport().setRequireGpgnetReport(true);
     when(gamePlayerStatsRepository.existsByGameIdAndPlayerId(GAME_ID, PLAYER_ID)).thenReturn(true);
-    when(gamePlayerStatsRepository.countGpgnetDesyncReports(GAME_ID, PLAYER_ID)).thenReturn(1L);
+    when(gameDesyncRepository.existsByGameIdAndPlayerId(GAME_ID, PLAYER_ID)).thenReturn(true);
 
     DesyncReportUploadResponse response = instance.createUploadUrl(PLAYER_ID, GAME_ID, 100);
 
