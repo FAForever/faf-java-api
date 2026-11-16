@@ -1,7 +1,7 @@
 services:
   # Set up the faf db
   faf-db:
-    image: mariadb:11
+    image: mariadb:13
     environment:
       MARIADB_DATABASE: faf
       MARIADB_USER: faf-api
@@ -28,7 +28,7 @@ services:
         condition: service_healthy
 
   faf-db-testdata:
-    image: mariadb:11
+    image: mariadb:13
     entrypoint: sh -c "apt-get update && apt-get install -y curl && curl -s https://raw.githubusercontent.com/FAForever/db/refs/heads/develop/test-data.sql | mariadb -h faf-db -uroot -pbanana -D faf"
     depends_on:
       faf-db-migrations:
