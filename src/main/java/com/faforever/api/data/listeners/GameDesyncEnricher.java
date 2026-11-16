@@ -2,15 +2,19 @@ package com.faforever.api.data.listeners;
 
 import com.faforever.api.data.domain.GameDesync;
 import com.faforever.api.desync.DesyncReportService;
+import jakarta.inject.Inject;
 import jakarta.persistence.PostLoad;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class GameDesyncEnricher {
 
-  private final DesyncReportService desyncReportService;
+  private static DesyncReportService desyncReportService;
+
+  @Inject
+  public void init(DesyncReportService desyncReportService) {
+    GameDesyncEnricher.desyncReportService = desyncReportService;
+  }
 
   @PostLoad
   public void enrich(GameDesync gameDesync) {

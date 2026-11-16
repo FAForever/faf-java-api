@@ -30,7 +30,8 @@ class GameDesyncEnricherTest {
     gameDesync.setPlayer(player);
 
     when(desyncReportService.getReportFileName(1234, 42)).thenReturn("desync/1234/42.zip");
-    GameDesyncEnricher enricher = new GameDesyncEnricher(desyncReportService);
+    GameDesyncEnricher enricher = new GameDesyncEnricher();
+    enricher.init(desyncReportService);
 
     enricher.enrich(gameDesync);
 
