@@ -39,8 +39,8 @@ public class DesyncReportService {
     this.s3Client = s3Client;
   }
 
-  public static String getObjectKey(int gameId, int playerId) {
-    return "desync/%d/%d.zip".formatted(gameId, playerId);
+  public String getReportFileName(int gameId, int playerId) {
+    return properties.getReportFileNameFormat().formatted(gameId, playerId);
   }
 
   /**
@@ -58,7 +58,7 @@ public class DesyncReportService {
       throw new AccessDeniedException("Player %d did not participate in game %d".formatted(playerId, gameId));
     }
 
-    String key = getObjectKey(gameId, playerId);
+    String key = getReportFileName(gameId, playerId);
     log.info("Player {} uploads a desync report for game {} ({} bytes)", playerId, gameId, size);
 
     try (InputStream inputStream = report.getInputStream()) {

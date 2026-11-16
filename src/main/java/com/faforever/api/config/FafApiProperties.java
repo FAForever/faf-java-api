@@ -318,5 +318,9 @@ public class FafApiProperties {
      * Upper limit for the size of a single desync report.
      */
     private DataSize maxUploadSize = DataSize.ofMegabytes(10);
+    /**
+     * Object key of a report in the bucket, with the game id and the player id as arguments.
+     */
+    private String reportFileNameFormat = "desync/%d/%d.zip";
   }
 }
