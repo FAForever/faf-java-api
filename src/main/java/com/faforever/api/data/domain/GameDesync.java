@@ -1,6 +1,7 @@
 package com.faforever.api.data.domain;
 
 import com.faforever.api.data.checks.Prefab;
+import com.yahoo.elide.annotation.ComputedAttribute;
 import com.yahoo.elide.annotation.CreatePermission;
 import com.yahoo.elide.annotation.DeletePermission;
 import com.yahoo.elide.annotation.Include;
@@ -14,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Setter;
 import org.hibernate.annotations.Immutable;
 
@@ -82,5 +84,19 @@ public class GameDesync {
   @Column(name = "report_uploaded_at")
   public OffsetDateTime getReportUploadedAt() {
     return reportUploadedAt;
+  }
+
+  /**
+   * Object key under which the report of this player is stored in the object storage. Only points to an existing file if
+   * {@link #getReportUploadedAt()} is set.
+   */
+  @ComputedAttribute
+  @Transient
+  public String getReportFileName() {
+    return reportFileName(game.getId(), player.getId());
+  }
+
+  public static String reportFileName(int gameId, int playerId) {
+    return "desync/%d/%d.zip".formatted(gameId, playerId);
   }
 }

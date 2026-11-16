@@ -2,6 +2,7 @@ package com.faforever.api.desync;
 
 import com.faforever.api.config.FafApiProperties;
 import com.faforever.api.config.FafApiProperties.DesyncReport;
+import com.faforever.api.data.domain.GameDesync;
 import com.faforever.api.error.ApiException;
 import com.faforever.api.error.Error;
 import com.faforever.api.error.ErrorCode;
@@ -39,10 +40,6 @@ public class DesyncReportService {
     this.s3Client = s3Client;
   }
 
-  static String getObjectKey(int gameId, int playerId) {
-    return "desync/%d/%d.zip".formatted(gameId, playerId);
-  }
-
   /**
    * Stores the desync report of a player and marks it as uploaded. A repeated upload for the same game replaces the
    * previous report.
@@ -58,7 +55,7 @@ public class DesyncReportService {
       throw new AccessDeniedException("Player %d did not participate in game %d".formatted(playerId, gameId));
     }
 
-    String key = getObjectKey(gameId, playerId);
+    String key = GameDesync.reportFileName(gameId, playerId);
     log.info("Player {} uploads a desync report for game {} ({} bytes)", playerId, gameId, size);
 
     try (InputStream inputStream = report.getInputStream()) {
