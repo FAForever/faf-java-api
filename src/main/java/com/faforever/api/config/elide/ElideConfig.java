@@ -1,8 +1,8 @@
 package com.faforever.api.config.elide;
 
 import com.faforever.api.security.ExtendedAuditLogger;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yahoo.elide.Elide;
+import com.yahoo.elide.ElideMapper;
 import com.yahoo.elide.ElideSettings;
 import com.yahoo.elide.core.TransactionRegistry;
 import com.yahoo.elide.core.datastore.DataStore;
@@ -22,6 +22,7 @@ import org.apache.commons.beanutils.Converter;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -52,7 +53,7 @@ public class ElideConfig {
     final ElideSettings elideSettings = ElideSettings.builder()
       .dataStore(multiplexDataStore)
       .settings(JsonApiSettings.JsonApiSettingsBuilder.withDefaults(entityDictionary)
-        .jsonApiMapper(new JsonApiMapper(objectMapper))
+        .jsonApiMapper(new JsonApiMapper(new ElideMapper(objectMapper)))
         .joinFilterDialect(rsqlFilterDialect)
         .subqueryFilterDialect(rsqlFilterDialect)
       )
