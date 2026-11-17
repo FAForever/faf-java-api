@@ -13,11 +13,12 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.http.ContentStreamProvider;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.UncheckedIOException;
 
 @Slf4j
 @Service
@@ -61,14 +62,21 @@ public class DesyncReportService {
     String key = getReportFileName(gameId, playerId);
     log.info("Player {} uploads a desync report for game {} ({} bytes)", playerId, gameId, size);
 
-    try (InputStream inputStream = report.getInputStream()) {
-      s3Client.putObject(PutObjectRequest.builder()
-        .bucket(properties.getBucket())
-        .key(key)
-        .contentType(CONTENT_TYPE)
-        .contentLength(size)
-        .build(), RequestBody.fromInputStream(inputStream, size));
-    }
+    // the SDK reads the body more than once (checksum, then upload), so every read needs a fresh stream
+    ContentStreamProvider streamProvider = () -> {
+      try {
+        return report.getInputStream();
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+    };
+
+    s3Client.putObject(PutObjectRequest.builder()
+      .bucket(properties.getBucket())
+      .key(key)
+      .contentType(CONTENT_TYPE)
+      .contentLength(size)
+      .build(), RequestBody.fromContentProvider(streamProvider, size, CONTENT_TYPE));
 
     // only after the file is stored, so the column can be relied on to filter for existing reports
     gameDesyncRepository.markReportUploaded(gameId, playerId);
