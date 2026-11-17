@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -89,6 +90,9 @@ class DesyncReportServiceTest {
     when(gamePlayerStatsRepository.existsByGameIdAndPlayerId(GAME_ID, PLAYER_ID)).thenReturn(true);
 
     instance.storeReport(PLAYER_ID, GAME_ID, report(1000));
+
+    verify(s3Client).putObject(any(PutObjectRequest.class), any(RequestBody.class));
+    verify(gameDesyncRepository).markReportUploaded(GAME_ID, PLAYER_ID);
   }
 
   @Test
