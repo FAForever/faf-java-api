@@ -63,6 +63,7 @@ public class S3Config {
       ))
       .serviceConfiguration(S3Configuration.builder()
         .pathStyleAccessEnabled(true)
+        .chunkedEncodingEnabled(false) // R2 rejects the chunked signature of putObject with 403
         .build())
       .build();
   }
