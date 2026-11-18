@@ -24,7 +24,7 @@ jobs:
         run: "chmod +x ./gradlew && ./gradlew ${GRADLE_CLI_OPTS} -Pversion=${API_VERSION} build jacocoTestReport"
       - name: Upload application jar
         if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/tags')
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: application-jar
           path: build/libs/faf-java-api-*.jar
@@ -42,7 +42,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
       - name: Download application jar
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: application-jar
           path: build/libs
