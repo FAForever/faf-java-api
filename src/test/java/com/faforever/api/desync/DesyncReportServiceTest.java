@@ -76,12 +76,7 @@ class DesyncReportServiceTest {
   }
 
   @Test
-  void reportFileNameUsesConfiguredFormat() {
-    FafApiProperties properties = new FafApiProperties();
-    properties.getDesyncReport().setReportFileNameFormat("dumps/%d-%d.zip");
-    DesyncReportService custom = new DesyncReportService(properties, gamePlayerStatsRepository, gameDesyncRepository, s3Client);
-
-    assertThat(custom.getReportFileName(1234, 42), is("dumps/1234-42.zip"));
+  void reportFileName() {
     assertThat(instance.getReportFileName(1234, 42), is("desync/1234/42.zip"));
   }
 

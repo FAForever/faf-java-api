@@ -101,7 +101,6 @@ faf-api:
     region: ${DESYNC_REPORT_S3_REGION:auto}
     bucket: ${DESYNC_REPORT_S3_BUCKET:desync-reports}
     max-upload-size: ${DESYNC_REPORT_MAX_UPLOAD_SIZE:10MB}
-    report-file-name-format: ${DESYNC_REPORT_FILE_NAME_FORMAT:desync/%d/%d.zip}
 
 spring:
   application:

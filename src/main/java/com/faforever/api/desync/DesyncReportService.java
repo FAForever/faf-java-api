@@ -24,6 +24,7 @@ import java.io.UncheckedIOException;
 @Service
 public class DesyncReportService {
   static final String CONTENT_TYPE = "application/zip";
+  private static final String REPORT_FILE_NAME_FORMAT = "desync/%d/%d.zip";
 
   private final DesyncReport properties;
   private final GamePlayerStatsRepository gamePlayerStatsRepository;
@@ -40,8 +41,12 @@ public class DesyncReportService {
     this.s3Client = s3Client;
   }
 
+  /**
+   * Object key of a report in the bucket. Deliberately not configurable: the key is not persisted but derived, so
+   * changing it would orphan every report that was already uploaded.
+   */
   public String getReportFileName(int gameId, int playerId) {
-    return properties.getReportFileNameFormat().formatted(gameId, playerId);
+    return REPORT_FILE_NAME_FORMAT.formatted(gameId, playerId);
   }
 
   /**
