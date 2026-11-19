@@ -14,19 +14,25 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.util.unit.DataSize;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.http.ContentStreamProvider;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -113,6 +119,27 @@ class DesyncReportServiceTest {
     assertThrows(AccessDeniedException.class, () -> instance.storeReport(PLAYER_ID, GAME_ID, report(500)));
 
     verifyNoInteractions(s3Client, gameDesyncRepository);
+  }
+
+  @Test
+  void storeReportClosesPreviousStreamWhenSdkReadsAgain() throws IOException {
+    when(gamePlayerStatsRepository.existsByGameIdAndPlayerId(GAME_ID, PLAYER_ID)).thenReturn(true);
+    InputStream first = spy(new ByteArrayInputStream(new byte[500]));
+    InputStream second = spy(new ByteArrayInputStream(new byte[500]));
+    MultipartFile file = mock(MultipartFile.class);
+    when(file.getSize()).thenReturn(500L);
+    when(file.getInputStream()).thenReturn(first, second);
+
+    instance.storeReport(PLAYER_ID, GAME_ID, file);
+
+    ArgumentCaptor<RequestBody> body = ArgumentCaptor.forClass(RequestBody.class);
+    verify(s3Client).putObject(any(PutObjectRequest.class), body.capture());
+    ContentStreamProvider provider = body.getValue().contentStreamProvider();
+
+    assertThat(provider.newStream(), is(first));
+    assertThat(provider.newStream(), is(second));
+
+    verify(first).close();
   }
 
   @Test

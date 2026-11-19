@@ -67,14 +67,15 @@ public class DesyncReportService {
     String key = getReportFileName(gameId, playerId);
     log.info("Player {} uploads a desync report for game {} ({} bytes)", playerId, gameId, size);
 
-    // the SDK reads the body more than once (checksum, then upload), so every read needs a fresh stream
-    ContentStreamProvider streamProvider = () -> {
+    // the SDK reads the body more than once (checksum, then upload), so every read needs a fresh stream; the factory
+    // also closes the previous stream, as the provider contract requires
+    ContentStreamProvider streamProvider = ContentStreamProvider.fromInputStreamSupplier(() -> {
       try {
         return report.getInputStream();
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
-    };
+    });
 
     s3Client.putObject(PutObjectRequest.builder()
       .bucket(properties.getBucket())
