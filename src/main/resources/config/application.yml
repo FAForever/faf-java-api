@@ -16,7 +16,7 @@ faf-api:
     hmac-secret: ${CLOUDFLARE_HMAC_SECRET}
     hmac-param: ${CLOUDFLARE_HMAC_PARAM:verify}
   database:
-    schema-version: ${DATABASE_SCHEMA_VERSION:140}
+    schema-version: ${DATABASE_SCHEMA_VERSION:148}
   deployment:
     forged-alliance-exe-path: ${FORGED_ALLIANCE_EXE_PATH:/content/legacy-featured-mod-files/updates_faf_files/ForgedAlliance.exe}
     repositories-directory: ${REPOSITORIES_DIRECTORY:/repositories}
@@ -94,6 +94,13 @@ faf-api:
     endpoint: ${S3_ENDPOINT:http://minio}
     region: ${S3_REGION:auto} # auto is a Cloudflare value
     user-upload-bucket: ${S3_USER_UPLOAD_BUCKET:user-uploads}
+  desync-report:
+    access-key: ${DESYNC_REPORT_S3_ACCESS_KEY:admin}
+    secret-key: ${DESYNC_REPORT_S3_SECRET_KEY:banana123}
+    endpoint: ${DESYNC_REPORT_S3_ENDPOINT:http://minio}
+    region: ${DESYNC_REPORT_S3_REGION:auto}
+    bucket: ${DESYNC_REPORT_S3_BUCKET:desync-reports}
+    max-upload-size: ${DESYNC_REPORT_MAX_UPLOAD_SIZE:10MB}
 
 spring:
   application:
