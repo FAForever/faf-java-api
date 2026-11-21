@@ -3,6 +3,7 @@ package com.faforever.api.data.listeners;
 import com.faforever.api.data.domain.VotingAnswer;
 import com.faforever.api.data.domain.VotingChoice;
 import com.google.common.base.Strings;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,7 @@ public class VotingChoiceEnricher {
   private static MessageSourceAccessor messageSourceAccessor;
 
   @Inject
-  public void init(MessageSourceAccessor messageSourceAccessor) {
+  public void init(@Lazy MessageSourceAccessor messageSourceAccessor) {
     VotingChoiceEnricher.messageSourceAccessor = messageSourceAccessor;
   }
 

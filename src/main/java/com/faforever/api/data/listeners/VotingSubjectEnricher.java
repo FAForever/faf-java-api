@@ -6,6 +6,7 @@ import com.faforever.api.data.domain.VotingQuestion;
 import com.faforever.api.data.domain.VotingSubject;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +32,7 @@ public class VotingSubjectEnricher {
 
 
   @Inject
-  public void init(MessageSourceAccessor messageSourceAccessor) {
+  public void init(@Lazy MessageSourceAccessor messageSourceAccessor) {
     VotingSubjectEnricher.messageSourceAccessor = messageSourceAccessor;
   }
 

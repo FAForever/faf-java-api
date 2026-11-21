@@ -2,6 +2,7 @@ package com.faforever.api.data.listeners;
 
 import com.faforever.api.data.domain.Message;
 import com.faforever.api.i18n.RepositoryMessageSource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -16,7 +17,7 @@ public class MessageReloadListener {
   private static RepositoryMessageSource repositoryMessageSource;
 
   @Inject
-  public void init(RepositoryMessageSource repositoryMessageSource) {
+  public void init(@Lazy RepositoryMessageSource repositoryMessageSource) {
     MessageReloadListener.repositoryMessageSource = repositoryMessageSource;
   }
 
