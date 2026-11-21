@@ -2,7 +2,10 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
   "prConcurrentLimit": 10,
-  "ignoreDeps": ["software.amazon.awssdk:s3"],
+  "ignoreDeps": [
+    "software.amazon.awssdk:s3",
+    "org.springdoc:springdoc-openapi-starter-webmvc-ui"
+  ],
   "packageRules": [
     {
       "matchUpdateTypes": ["minor", "patch"],
