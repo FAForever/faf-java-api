@@ -2,11 +2,9 @@ package com.faforever.api.data.listeners;
 
 import com.faforever.api.data.domain.Event;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
-import jakarta.inject.Inject;
 import jakarta.persistence.PostLoad;
 
 @Slf4j
@@ -15,8 +13,7 @@ public class EventLocalizationListener {
 
   private static MessageSourceAccessor messageSourceAccessor;
 
-  @Inject
-  public void init(@Lazy MessageSourceAccessor messageSourceAccessor) {
+  public void init(MessageSourceAccessor messageSourceAccessor) {
     EventLocalizationListener.messageSourceAccessor = messageSourceAccessor;
   }
 

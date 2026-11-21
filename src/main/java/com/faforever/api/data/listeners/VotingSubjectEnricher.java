@@ -6,11 +6,9 @@ import com.faforever.api.data.domain.VotingQuestion;
 import com.faforever.api.data.domain.VotingSubject;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
-import jakarta.inject.Inject;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PreUpdate;
 import java.time.OffsetDateTime;
@@ -31,8 +29,7 @@ public class VotingSubjectEnricher {
   private static MessageSourceAccessor messageSourceAccessor;
 
 
-  @Inject
-  public void init(@Lazy MessageSourceAccessor messageSourceAccessor) {
+  public void init(MessageSourceAccessor messageSourceAccessor) {
     VotingSubjectEnricher.messageSourceAccessor = messageSourceAccessor;
   }
 
