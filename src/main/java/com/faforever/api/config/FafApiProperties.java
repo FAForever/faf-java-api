@@ -3,6 +3,7 @@ package com.faforever.api.config;
 import lombok.Data;
 import org.checkerframework.checker.index.qual.Positive;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.util.unit.DataSize;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,6 +45,7 @@ public class FafApiProperties {
   private Monitoring monitoring = new Monitoring();
   private Coturn coturn = new Coturn();
   private S3 s3 = new S3();
+  private DesyncReport desyncReport = new DesyncReport();
 
   @Data
   public static class OAuth2 {
@@ -303,5 +305,18 @@ public class FafApiProperties {
     private String userUploadBucket;
     private String accessKey;
     private String secretKey;
+  }
+
+  @Data
+  public static class DesyncReport {
+    private String endpoint;
+    private String region;
+    private String bucket;
+    private String accessKey;
+    private String secretKey;
+    /**
+     * Upper limit for the size of a single desync report.
+     */
+    private DataSize maxUploadSize = DataSize.ofMegabytes(10);
   }
 }

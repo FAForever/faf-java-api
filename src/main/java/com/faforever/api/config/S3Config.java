@@ -3,6 +3,7 @@ package com.faforever.api.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -19,6 +20,7 @@ public class S3Config {
   private final FafApiProperties properties;
 
   @Bean
+  @Primary
   public S3Client s3Client() {
     return S3Client.builder()
       .endpointOverride(URI.create(properties.getS3().getEndpoint()))
@@ -43,6 +45,25 @@ public class S3Config {
       ))
       .serviceConfiguration(S3Configuration.builder()
         .pathStyleAccessEnabled(true) // prevents putting the bucket name as subdomain
+        .build())
+      .build();
+  }
+
+  /**
+   * Client for the dedicated desync report bucket, which has its own endpoint and credentials.
+   */
+  @Bean
+  public S3Client desyncReportS3Client() {
+    FafApiProperties.DesyncReport desyncReport = properties.getDesyncReport();
+    return S3Client.builder()
+      .endpointOverride(URI.create(desyncReport.getEndpoint()))
+      .region(Region.of(desyncReport.getRegion()))
+      .credentialsProvider(StaticCredentialsProvider.create(
+        AwsBasicCredentials.create(desyncReport.getAccessKey(), desyncReport.getSecretKey())
+      ))
+      .serviceConfiguration(S3Configuration.builder()
+        .pathStyleAccessEnabled(true)
+        .chunkedEncodingEnabled(false) // R2 rejects the chunked signature of putObject with 403
         .build())
       .build();
   }

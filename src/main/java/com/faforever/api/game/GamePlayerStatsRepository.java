@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface GamePlayerStatsRepository extends JpaRepository<GamePlayerStats, Integer> {
   int countByPlayerAndGameValidity(Player player, Validity validity);
+
+  boolean existsByGameIdAndPlayerId(int gameId, int playerId);
 }

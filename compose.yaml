@@ -16,7 +16,7 @@ services:
       - "3306:3306"
 
   faf-db-migrations:
-    image: faforever/faf-db-migrations:v146
+    image: faforever/faf-db-migrations:v148
     command: migrate
     environment:
       FLYWAY_URL: jdbc:mysql://faf-db/faf?useSSL=false
@@ -42,7 +42,7 @@ services:
     environment:
       MINIO_ROOT_USER: admin
       MINIO_ROOT_PASSWORD: banana123
-      MINIO_DEFAULT_BUCKETS: user-uploads
+      MINIO_DEFAULT_BUCKETS: user-uploads,desync-reports
       MINIO_SCHEME: http
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/ready" ]
