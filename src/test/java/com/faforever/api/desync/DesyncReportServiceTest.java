@@ -76,14 +76,14 @@ class DesyncReportServiceTest {
     inOrder.verify(gameDesyncRepository).markReportUploaded(GAME_ID, PLAYER_ID);
 
     assertThat(request.getValue().bucket(), is("desync-reports"));
-    assertThat(request.getValue().key(), is("desync/1234/42.zip"));
+    assertThat(request.getValue().key(), is("1234/42.zip"));
     assertThat(request.getValue().contentLength(), is(500L));
     assertThat(request.getValue().contentType(), is("application/zip"));
   }
 
   @Test
   void reportFileName() {
-    assertThat(instance.getReportFileName(1234, 42), is("desync/1234/42.zip"));
+    assertThat(instance.getReportFileName(1234, 42), is("1234/42.zip"));
   }
 
   @Test

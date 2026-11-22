@@ -24,7 +24,7 @@ import java.io.UncheckedIOException;
 @Service
 public class DesyncReportService {
   static final String CONTENT_TYPE = "application/zip";
-  private static final String REPORT_FILE_NAME_FORMAT = "desync/%d/%d.zip";
+  private static final String REPORT_FILE_NAME_FORMAT = "%d/%d.zip";
 
   private final DesyncReport properties;
   private final GamePlayerStatsRepository gamePlayerStatsRepository;

@@ -29,12 +29,12 @@ class GameDesyncEnricherTest {
     gameDesync.setGame(game);
     gameDesync.setPlayer(player);
 
-    when(desyncReportService.getReportFileName(1234, 42)).thenReturn("desync/1234/42.zip");
+    when(desyncReportService.getReportFileName(1234, 42)).thenReturn("1234/42.zip");
     GameDesyncEnricher enricher = new GameDesyncEnricher();
     enricher.init(desyncReportService);
 
     enricher.enrich(gameDesync);
 
-    assertThat(gameDesync.getReportFileName(), is("desync/1234/42.zip"));
+    assertThat(gameDesync.getReportFileName(), is("1234/42.zip"));
   }
 }
